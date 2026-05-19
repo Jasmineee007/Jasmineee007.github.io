@@ -1,15 +1,21 @@
-#content-inner {
-  background: rgba(0,0,0,0.8);
+[data-theme="dark"] #content-inner {
+  background: #000;
 }
-.layout {
+[data-theme="dark"] #aside-content .card-widget {
+  background: #080808;
+}
+[data-theme="dark"] #footer {
+  background: #000 !important;
+}
+[data-theme="dark"] #footer:before {
+  background: #000 !important;
+}
+[data-theme="dark"] .layout {
+  background: #000;
+}
+[data-theme="dark"] #recent-posts {
   background: transparent;
 }
-#aside-content .card-widget {
-  background: rgba(18,18,18,0.85);
-}
-#footer {
-  background: #0d0d0d !important;
-}
-#footer:before {
-  background: #0d0d0d !important;
+[data-theme="dark"] #page-header {
+  background-color: #111;
 }
