@@ -1,0 +1,9 @@
+#content-inner {
+  background: rgba(255,255,255,0.75);
+}
+.layout {
+  background: transparent;
+}
+#aside-content .card-widget {
+  background: rgba(255,255,255,0.75);
+}
