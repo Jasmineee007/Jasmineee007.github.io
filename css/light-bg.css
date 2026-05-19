@@ -59,7 +59,9 @@ html.not-home body {
 }
 
 /* === Footer：主页透明显示背景图 === */
-html.is-home #footer {
+html.is-home #footer,
+html.is-home #footer .footer-other,
+html.is-home #footer .footer-copyright {
   background: transparent !important;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
@@ -70,4 +72,7 @@ html.is-home #footer:before {
 html.is-home #footer a {
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+html.is-home #body-wrap {
+  background: transparent !important;
 }
