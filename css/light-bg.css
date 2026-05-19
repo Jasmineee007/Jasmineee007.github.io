@@ -4,18 +4,30 @@
 [data-theme="dark"] #aside-content .card-widget {
   background: #080808;
 }
-[data-theme="dark"] #footer {
-  background: #000 !important;
-}
-[data-theme="dark"] #footer:before {
-  background: #000 !important;
-}
 [data-theme="dark"] .layout {
   background: #000;
 }
 [data-theme="dark"] #recent-posts {
   background: transparent;
 }
-[data-theme="dark"] #page-header {
-  background-color: #111;
+
+/* Footer - always black */
+#footer {
+  background: #0d0d0d !important;
+}
+#footer:before {
+  background: #0d0d0d !important;
+}
+[data-theme="dark"] #footer {
+  background: #000 !important;
+}
+[data-theme="dark"] #footer:before {
+  background: #000 !important;
+}
+[data-theme="dark"] #footer, [data-theme="dark"] #footer a {
+  color: #fff;
+}
+#footer {
+  font-size: 12px;
+  padding: 20px 0;
 }
