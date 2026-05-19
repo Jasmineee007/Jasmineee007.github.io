@@ -1,30 +1,15 @@
-/* === 主页：确保树图背景可见 === */
-body {
-  background: transparent !important;
-}
-#web_bg {
-  z-index: -1 !important;
-}
-html.is-home body {
-  background: transparent !important;
-  position: static;
-}
-html.is-home #web_bg {
-  z-index: auto !important;
-}
-
 /* === 非主页：隐藏背景图，使用纯色背景 === */
 html.not-home #web_bg {
   display: none;
 }
 html.not-home body {
-  background: #fff !important;
+  background: #fff;
 }
 [data-theme="dark"] html.not-home body {
-  background: #000 !important;
+  background: #000;
 }
 
-/* === 深色模式内容区 === */
+/* === 深色模式 === */
 [data-theme="dark"] #content-inner {
   background: #000;
   color: #fff;
@@ -47,55 +32,20 @@ html.not-home body {
   background: #080808;
 }
 
-/* === Footer：非主页（日间黑字白底） === */
-#footer {
-  background: #fff !important;
+/* === Footer 非主页日间黑字 === */
+html.not-home #footer,
+html.not-home #footer > * {
+  color: #000 !important;
 }
-#footer:before {
-  background: #fff !important;
-}
-#footer,
-#footer > * {
-  color: #000;
-}
-#footer a {
-  color: #000;
-  font-weight: 500;
+html.not-home #footer a {
+  color: #000 !important;
 }
 
-/* === Footer：非主页夜间 === */
-[data-theme="dark"] #footer {
-  background: #000 !important;
+/* === Footer 非主页夜间 === */
+[data-theme="dark"] html.not-home #footer,
+[data-theme="dark"] html.not-home #footer > * {
+  color: #ccc !important;
 }
-[data-theme="dark"] #footer:before {
-  background: #000 !important;
-}
-[data-theme="dark"] #footer,
-[data-theme="dark"] #footer > * {
-  color: #ccc;
-}
-[data-theme="dark"] #footer a {
-  color: #ddd;
-}
-
-/* === Footer：主页透明显示背景图 === */
-html.is-home #footer,
-html.is-home #footer .footer-other,
-html.is-home #footer .footer-copyright {
-  background: transparent !important;
-}
-html.is-home #footer:before {
-  background: transparent !important;
-}
-html.is-home #footer,
-html.is-home #footer > * {
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
-html.is-home #footer a {
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
-html.is-home #body-wrap {
-  background: transparent !important;
+[data-theme="dark"] html.not-home #footer a {
+  color: #ddd !important;
 }
