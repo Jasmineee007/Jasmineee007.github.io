@@ -1,0 +1,4 @@
+#site-info {
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
