@@ -1,3 +1,15 @@
+/* === 非主页：隐藏背景图，使用纯色背景 === */
+html:not(:has(#page-header.full_page)) #web_bg {
+  display: none;
+}
+html:not(:has(#page-header.full_page)) body {
+  background: #fff;
+}
+[data-theme="dark"] html:not(:has(#page-header.full_page)) body {
+  background: #000;
+}
+
+/* === 深色模式内容区 === */
 [data-theme="dark"] #content-inner {
   background: #000;
   color: #fff;
@@ -20,6 +32,21 @@
   background: #080808;
 }
 
+/* === Footer：非主页 === */
+#footer {
+  font-size: 13px;
+  padding: 20px 0;
+  background: #fff;
+  color: #333;
+}
+#footer:before {
+  background: #fff;
+}
+#footer a {
+  color: #333;
+  font-weight: 500;
+}
+
 [data-theme="dark"] #footer {
   background: #000 !important;
   color: #ccc;
@@ -28,19 +55,19 @@
   background: #000 !important;
 }
 [data-theme="dark"] #footer a {
-  color: #999;
+  color: #ddd;
 }
 
-#footer {
-  font-size: 13px;
-  padding: 20px 0;
-  background: #fff;
-  color: #555;
+/* === Footer：主页透明显示背景图 === */
+html:has(#page-header.full_page) #footer {
+  background: transparent !important;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
-#footer:before {
-  background: #fff;
+html:has(#page-header.full_page) #footer:before {
+  background: transparent !important;
 }
-#footer a {
-  color: #333;
-  font-weight: 500;
+html:has(#page-header.full_page) #footer a {
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
