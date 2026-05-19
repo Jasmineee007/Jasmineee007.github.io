@@ -81,6 +81,9 @@ html.is-home #footer a {
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
+html.is-home body {
+  background: transparent !important;
+}
 html.is-home #body-wrap {
   background: transparent !important;
 }
