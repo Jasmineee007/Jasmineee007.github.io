@@ -1,12 +1,17 @@
+/* === 全部页面 body 默认透明 === */
+body {
+  background: transparent !important;
+}
+
 /* === 非主页：隐藏背景图，使用纯色背景 === */
 html.not-home #web_bg {
   display: none;
 }
 html.not-home body {
-  background: #fff;
+  background: #fff !important;
 }
 [data-theme="dark"] html.not-home body {
-  background: #000;
+  background: #000 !important;
 }
 
 /* === 深色模式内容区 === */
@@ -80,9 +85,6 @@ html.is-home #footer > * {
 html.is-home #footer a {
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
-html.is-home body {
-  background: transparent !important;
 }
 html.is-home #body-wrap {
   background: transparent !important;
