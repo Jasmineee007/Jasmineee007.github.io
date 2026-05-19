@@ -1,9 +1,16 @@
-/* === 全部页面 body 默认透明 === */
+/* === 主页：确保树图背景可见 === */
 body {
   background: transparent !important;
 }
 #web_bg {
   z-index: -1 !important;
+}
+html.is-home body {
+  background: transparent !important;
+  position: static;
+}
+html.is-home #web_bg {
+  z-index: auto !important;
 }
 
 /* === 非主页：隐藏背景图，使用纯色背景 === */
