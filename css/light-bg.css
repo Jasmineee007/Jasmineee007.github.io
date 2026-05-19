@@ -37,13 +37,13 @@ html.not-home body {
   font-size: 13px;
   padding: 20px 0;
   background: #fff;
-  color: #333;
+  color: #000;
 }
 #footer:before {
   background: #fff;
 }
 #footer a {
-  color: #333;
+  color: #000;
   font-weight: 500;
 }
 
