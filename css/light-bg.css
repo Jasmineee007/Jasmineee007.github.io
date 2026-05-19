@@ -1,9 +1,15 @@
 #content-inner {
-  background: rgba(255,255,255,0.75);
+  background: rgba(0,0,0,0.8);
 }
 .layout {
   background: transparent;
 }
 #aside-content .card-widget {
-  background: rgba(255,255,255,0.75);
+  background: rgba(18,18,18,0.85);
+}
+#footer {
+  background: #0d0d0d !important;
+}
+#footer:before {
+  background: #0d0d0d !important;
 }
