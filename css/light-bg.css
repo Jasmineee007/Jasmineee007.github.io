@@ -1,33 +1,41 @@
 [data-theme="dark"] #content-inner {
   background: #000;
+  color: #fff;
 }
 [data-theme="dark"] #aside-content .card-widget {
   background: #080808;
+  color: #fff;
 }
 [data-theme="dark"] .layout {
   background: #000;
+  color: #fff;
 }
 [data-theme="dark"] #recent-posts {
   background: transparent;
 }
+[data-theme="dark"] #article-container {
+  color: #fff;
+}
+[data-theme="dark"] .recent-post-item {
+  background: #080808;
+}
 
-/* Footer - always black */
-#footer {
-  background: #0d0d0d !important;
-}
-#footer:before {
-  background: #0d0d0d !important;
-}
 [data-theme="dark"] #footer {
   background: #000 !important;
+  color: #fff;
 }
 [data-theme="dark"] #footer:before {
   background: #000 !important;
 }
-[data-theme="dark"] #footer, [data-theme="dark"] #footer a {
-  color: #fff;
+[data-theme="dark"] #footer a {
+  color: #aaa;
 }
+
 #footer {
   font-size: 12px;
   padding: 20px 0;
+  background: #0d0d0d !important;
+}
+#footer:before {
+  background: #0d0d0d !important;
 }
