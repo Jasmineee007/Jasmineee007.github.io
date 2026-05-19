@@ -2,6 +2,9 @@
 body {
   background: transparent !important;
 }
+#web_bg {
+  z-index: -1 !important;
+}
 
 /* === 非主页：隐藏背景图，使用纯色背景 === */
 html.not-home #web_bg {
