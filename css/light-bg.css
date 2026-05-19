@@ -22,20 +22,25 @@
 
 [data-theme="dark"] #footer {
   background: #000 !important;
-  color: #fff;
+  color: #ccc;
 }
 [data-theme="dark"] #footer:before {
   background: #000 !important;
 }
 [data-theme="dark"] #footer a {
-  color: #aaa;
+  color: #999;
 }
 
 #footer {
-  font-size: 12px;
+  font-size: 13px;
   padding: 20px 0;
   background: #fff;
+  color: #555;
 }
 #footer:before {
   background: #fff;
+}
+#footer a {
+  color: #333;
+  font-weight: 500;
 }
