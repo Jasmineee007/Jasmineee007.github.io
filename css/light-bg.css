@@ -1,11 +1,11 @@
 /* === 非主页：隐藏背景图，使用纯色背景 === */
-html:not(:has(#page-header.full_page)) #web_bg {
+html.not-home #web_bg {
   display: none;
 }
-html:not(:has(#page-header.full_page)) body {
+html.not-home body {
   background: #fff;
 }
-[data-theme="dark"] html:not(:has(#page-header.full_page)) body {
+[data-theme="dark"] html.not-home body {
   background: #000;
 }
 
@@ -32,7 +32,7 @@ html:not(:has(#page-header.full_page)) body {
   background: #080808;
 }
 
-/* === Footer：非主页 === */
+/* === Footer：非主页（日间黑字白底，夜间白字黑底） === */
 #footer {
   font-size: 13px;
   padding: 20px 0;
@@ -59,15 +59,15 @@ html:not(:has(#page-header.full_page)) body {
 }
 
 /* === Footer：主页透明显示背景图 === */
-html:has(#page-header.full_page) #footer {
+html.is-home #footer {
   background: transparent !important;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
-html:has(#page-header.full_page) #footer:before {
+html.is-home #footer:before {
   background: transparent !important;
 }
-html:has(#page-header.full_page) #footer a {
+html.is-home #footer a {
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
 }
