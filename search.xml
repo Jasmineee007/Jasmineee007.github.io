@@ -269,6 +269,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>SQL</category>
       </categories>
       <tags>
         <tag>SQL注入</tag>
