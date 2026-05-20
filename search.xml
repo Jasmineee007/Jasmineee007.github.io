@@ -268,8 +268,6 @@ ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
 SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
       <tags>
-        <tag>数据库</tag>
-        <tag>MySQL</tag>
         <tag>学习笔记</tag>
         <tag>Web安全</tag>
       </tags>
