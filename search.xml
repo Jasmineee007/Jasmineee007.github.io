@@ -14,9 +14,9 @@
   </entry>
   <entry>
     <title>数据库基础入门</title>
-    <url>/2026/05/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题。相比 Excel，它能支持上亿条数据、多人同时操作，保证数据不混乱。
-数据库的层级结构可以用学校类比：
+    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
+数据库层级结构（类比学校）
 
 
 
@@ -28,7 +28,7 @@
 
 顶层：数据库
 整个学校
-school 库
+school 库（存储校园所有数据）
 
 
 中层：数据表
@@ -36,18 +36,19 @@ school 库
 users 表、classes 表
 
 
-底层：字段 + 数据
-表头 + 行内容
+底层：字段+数据
+表头+行内容
 字段：id、name，数据：2025001、张三
 
 
-数据库管理系统（DBMS）DBMS 是数据库的”管家”，负责管理数据访问和存储规则。常见的有：
+1.2 数据库管理系统（DBMS）数据库的”管家”，负责管理数据访问、存储规则，常见类型：
 
-Oracle：功能强、收费，银行和电信行业常用
-SQL Server：适配 Windows，政府单位常用
-MySQL（重点）：开源免费、轻量，网站和中小型系统主流选择
+Oracle：功能强、收费，银行&#x2F;电信常用
+SQL Server：适配Windows，政府单位常用
+MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
 
-数据库连接Navicat 可视化连接
+
+2. 数据库连接操作2.1 Navicat 可视化连接
 打开 Navicat → 左上角「连接」→ 选择「MySQL」
 填写核心信息：
 主机：localhost（本地数据库）
@@ -56,107 +57,215 @@ MySQL（重点）：开源免费、轻量，网站和中小型系统主流选择
 密码：安装 MySQL 时设置的密码
 
 
-点击「测试连接」，提示”连接成功”即可
-双击连接名，即可查看和操作数据库
+点击「测试连接」，提示”连接成功”即完成
+双击连接名，即可查看&#x2F;操作数据库
 
-命令行连接mysql -u root -p
-
+2.2 命令行连接mysql -u root -p
 
 -u：指定用户名
--p：需要输入密码（输入时密码不显示，属正常现象）
+-p：需要输入密码（输入时不显示，属正常现象）
+回车后输入密码，再次回车即可登录
 
-数据库与表的创建创建 school 数据库CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
 
+3. 基础信息查询-- 当前数据库SELECT DATABASE();-- 数据库版本SELECT VERSION();
+
+
+4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
+
+创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 CHARACTER SET：指定字符集
 COLLATE：指定排序规则
 
+4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
+
 创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
 
-SQL 核心操作：CRUDSQL 是与数据库沟通的标准语言。
-Create：新增数据INSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
 
-Update：修改数据UPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
+5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
 
+INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
+VALUES(值1, 值2)：批量填数据，顺序与字段对应
+
+5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
+
+5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
 注意：漏写 WHERE 会修改表中所有数据。
-Delete：删除数据DELETE FROM users WHERE id = 1;
-
+5.4 删除 DELETEDELETE FROM users WHERE id = 1;
 同样，漏写 WHERE 会清空整张表，且难以恢复。
-Read：查询数据-- 查询所有SELECT * FROM users;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- AND 多条件SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;-- OR 多条件SELECT * FROM users WHERE id = 2 OR id = 3;-- 模糊查询（% 代表任意字符）SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;-- 排序查询（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 联合查询（合并多个 SELECT 结果）SELECT name, password FROM users UNION SELECT 1, 2;-- 限制查询SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;   -- 从第 0 位开始，取 2 条
 
-PHP 与数据库交互PHP 操作 MySQL 的核心流程分四步：
-
+6. 常用条件语法6.1 运算符
 
 
-步骤
-操作
+类型
+语法
 说明
 
 
 
-第一步
-mysqli_connect(地址, 账号, 密码, 库名)
-建立连接
+比较
+= &gt; &lt; &gt;= &lt;= !=
+值比较
 
 
-第二步
-$_POST[&#39;name&#39;] &#x2F; $_POST[&#39;password&#39;]
-接收用户输入
+逻辑
+AND OR NOT
+条件组合
 
 
-第三步
-mysqli_query($conn, $sql)
-执行 SQL 语句
+范围
+BETWEEN 小 AND 大
+区间筛选
 
 
-第四步
-mysqli_num_rows($result)
-处理查询结果
+集合
+IN(值1, 值2)
+多值匹配
 
 
-&lt;?php$conn = mysqli_connect(&#x27;127.0.0.1&#x27;, &#x27;root&#x27;, &#x27;root&#x27;, &#x27;school&#x27;);if (!$conn) &#123;    die(&quot;数据库连接失败: &quot; . mysqli_connect_error());&#125;if ($_POST) &#123;    $name = $_POST[&#x27;name&#x27;];    $pwd  = $_POST[&#x27;password&#x27;];    $sql    = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;    $result = mysqli_query($conn, $sql);    if (mysqli_num_rows($result) &gt; 0) &#123;        $user_info = mysqli_fetch_assoc($result);        echo &quot;登录成功！欢迎你：&quot; . $user_info[&#x27;name&#x27;];    &#125; else &#123;        echo &quot;登录失败：用户名或密码错误&quot;;    &#125;&#125;mysqli_close($conn);?&gt;
+AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
 
-SQL 注入原理上面 PHP 代码中的这行是漏洞根源：
-$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
 
-用户输入被直接拼接到 SQL 语句中，没有做任何过滤或转义。攻击者可以输入恶意字符篡改 SQL 逻辑。
-万能密码攻击者输入 123&#39; or &#39;1&#39;=&#39;1，篡改后的 SQL：
+6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
+
+
+7. 聚合函数（统计）
+
+
+函数
+作用
+
+
+
+COUNT()
+统计行数
+
+
+MAX()
+最大值
+
+
+MIN()
+最小值
+
+
+SUM()
+求和
+
+
+AVG()
+平均值
+
+
+
+8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
+
+
+9. 联合查询 UNION将多个 SELECT 结果合并，前提：字段数相同、字段类型兼容。
+SELECT 列1, 列2 FROM 表1UNIONSELECT 列1, 列2 FROM 表2;-- UNION：合并结果并去重-- UNION ALL：保留重复数据
+
+
+10. SQL 注入漏洞10.1 万能密码漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+
+直接将用户输入拼接到 SQL 语句的单引号中执行
+未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
+攻击者可输入恶意字符篡改 SQL 逻辑
+
+攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
+
+闭合原有 SQL 语句的单引号，打破查询限制
+添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
+注释多余内容，避免 SQL 语法错误
+
+篡改后的 SQL 对比原正常 SQL：
+SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
+
+篡改后 SQL：
 SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or &#x27;1&#x27;=&#x27;1&#x27;
 
-&#39;1&#39;=&#39;1&#39; 恒成立，数据库返回所有用户信息，绕过登录验证。
-联合查询注入核心四步：
+无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
+SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
 
-判断字段数——用 ORDER BY N 测试，直到报错，确定表的最大字段数
-判断回显位——UNION SELECT 1,2,3,... 找到页面显示数据的位置
-信息收集——利用 information_schema 库依次查出数据库名、表名、字段名
-获取敏感数据——用 concat() 拼接多字段，在回显位输出
+10.2 CTF 注入常用语句核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
 
--- 查当前数据库名SELECT database()-- 查所有表名SELECT table_name FROM information_schema.tables WHERE table_schema = &#x27;school&#x27;-- 查字段名SELECT column_name FROM information_schema.columnsWHERE table_schema = &#x27;school&#x27; AND table_name = &#x27;users&#x27;-- 拼接输出敏感数据SELECT concat(id, &#x27;,&#x27;, name, &#x27;,&#x27;, password, &#x27;,&#x27;, id_card, &#x27;,&#x27;, phone)FROM school.users
 
-数据库权限管控核心原则：最小权限——给用户的权限”刚好够用”。
--- 创建普通用户CREATE USER &#x27;sss&#x27;@&#x27;localhost&#x27; IDENTIFIED BY &#x27;WebPass@123&#x27;;-- 只授予查、增、改权限（不授予删除和文件权限）GRANT SELECT, INSERT, UPDATE ON school.* TO &#x27;sss&#x27;@&#x27;localhost&#x27;;FLUSH PRIVILEGES;-- 撤销权限REVOKE UPDATE ON school.* FROM &#x27;sss&#x27;@&#x27;localhost&#x27;;FLUSH PRIVILEGES;-- 查看权限SHOW GRANTS FOR &#x27;sss&#x27;@&#x27;localhost&#x27;;
 
-root 账号加固-- 设置强密码ALTER USER &#x27;root&#x27;@&#x27;localhost&#x27; IDENTIFIED BY &#x27;Root@753951&#x27;;-- 限制登录 IPUPDATE mysql.user SET Host = &#x27;192.168.1.%&#x27; WHERE user = &#x27;root&#x27;;FLUSH PRIVILEGES;
+系统表
+存储内容
 
-MySQL 日志与数据备份通用日志-- 开启通用日志SET GLOBAL general_log = ON;-- 查看日志文件位置SHOW VARIABLES LIKE &#x27;general_log_file&#x27;;
 
-日志记录所有 SQL 操作，用于攻击后溯源和异常检测。
-数据备份遵循 3-2-1 原则：
 
-3 份备份：原始数据 + 本地备份 + 异地备份
-2 种介质：硬盘 + 云盘
-1 份离线：至少一份不联网存放
+schemata
+所有数据库信息
 
-命令行备份与恢复：
-# 备份mysqldump -u root -p school &gt; school_backup.sql# 恢复mysql -u root -p school &lt; school_backup.sql
 
-总结
-数据库层级：库 → 表 → 字段+数据，MySQL 是最常用的开源数据库
-CRUD 是核心操作，WHERE 条件不可遗漏
-SQL 注入根源是用户输入未过滤，直接拼接到 SQL 语句中
-权限管理遵循最小权限原则，重点加固 root 账号
-日志用于溯源审计，备份是最后一道防线
+tables
+所有数据表信息
 
+
+columns
+所有字段（列）信息
+
+
+
+
+
+关键字段
+含义
+
+
+
+schema_name
+数据库名
+
+
+table_schema
+表所属的数据库
+
+
+table_name
+数据表名
+
+
+column_name
+字段（列）名
+
+
+常用注入语句
+查看当前库、版本
+
+SELECT DATABASE();SELECT VERSION();
+
+
+查询所有数据库
+
+SELECT schema_name FROM information_schema.schemata;
+
+
+查询当前库所有表
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = database();
+
+
+查询指定表所有字段
+
+SELECT column_name FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+探测字段数量
+
+ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
+
+
+批量拼接爆库&#x2F;表&#x2F;字段
+
+-- 爆出当前库所有表SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema = database();-- 爆出指定表所有字段SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+查询表内真实数据
+
+SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
       <tags>
         <tag>数据库</tag>
