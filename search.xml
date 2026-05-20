@@ -271,6 +271,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
         <tag>数据库</tag>
         <tag>MySQL</tag>
         <tag>学习笔记</tag>
+        <tag>Web安全</tag>
       </tags>
   </entry>
 </search>
