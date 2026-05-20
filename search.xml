@@ -274,6 +274,17 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
       <tags>
         <tag>SQL注入</tag>
         <tag>题解</tag>
+        <tag>XXE</tag>
+        <tag>XSS</tag>
+        <tag>SSTI</tag>
+        <tag>SSRF</tag>
+        <tag>RCE</tag>
+        <tag>文件包含</tag>
+        <tag>文件上传</tag>
+        <tag>反序列化</tag>
+        <tag>PHP</tag>
+        <tag>HTTP</tag>
+        <tag>身份认证</tag>
       </tags>
   </entry>
 </search>
