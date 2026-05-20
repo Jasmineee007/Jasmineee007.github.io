@@ -8,9 +8,9 @@
 关于这个博客这里会记录我的学习、思考和分享。
 感谢你的来访 ~
 ]]></content>
-      <tags>
-        <tag>随笔</tag>
-      </tags>
+      <categories>
+        <category>随笔</category>
+      </categories>
   </entry>
   <entry>
     <title>数据库基础</title>
@@ -267,8 +267,12 @@ ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
 
 SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
+      <categories>
+        <category>Web安全</category>
+      </categories>
       <tags>
-        <tag>Web安全</tag>
+        <tag>题解</tag>
+        <tag>SQL注入</tag>
       </tags>
   </entry>
 </search>
