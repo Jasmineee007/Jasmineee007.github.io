@@ -269,6 +269,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
       <tags>
         <tag>Web安全</tag>
+        <tag>题解</tag>
       </tags>
   </entry>
 </search>
