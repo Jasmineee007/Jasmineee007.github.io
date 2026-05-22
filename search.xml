@@ -277,7 +277,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
   </entry>
   <entry>
     <title>SQL注入漏洞</title>
-    <url>/2026/05/22/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/</url>
+    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/</url>
     <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
 SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
 2. SQL 注入分类常见的注入点：
@@ -335,11 +335,24 @@ groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定�
 ?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
 
 核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-命令解释count(*)统计有多少行数据，用来触发分组。
-rand(0)生成固定的随机数（不是真随机， predictable）
-floor(rand(0)*2)结果只有两个：0 或者 1
+命令解释
+count(*)
+
+统计有多少行数据，用来触发分组。
+
+rand(0)
+
+生成固定的随机数（不是真随机， predictable）
+
+floor(rand(0)*2)
+
+结果只有两个：0 或者 1
+
 group by x按 x 分组，MySQL 会建一张临时表存分组结果。
+
 concat(0x5e, 数据, 0x5e)把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
+
+
 
 0x5e &#x3D; ^ 符号，只是分隔符
 
