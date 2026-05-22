@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Hello！</title>
+    <url>/2026/05/19/hello-world/</url>
+    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
+关于我你好，我是 Jasmine_Iris。
+关于这个博客这里会记录我的学习、思考和分享。
+感谢你的来访 ~
+]]></content>
+      <categories>
+        <category>随笔</category>
+      </categories>
+  </entry>
+  <entry>
     <title>SQL注入漏洞</title>
     <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/</url>
     <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
@@ -409,6 +421,10 @@ admin&#39;#的密码没变，修改的是admin的密码
 报错注入是在 union 注入在查询不到的情况下，才使用
 在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
 
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
 ]]></content>
       <categories>
         <category>Web安全</category>
@@ -419,18 +435,6 @@ admin&#39;#的密码没变，修改的是admin的密码
         <tag>渗透测试</tag>
         <tag>CTF</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Hello！</title>
-    <url>/2026/05/19/hello-world/</url>
-    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
-关于我你好，我是 Jasmine_Iris。
-关于这个博客这里会记录我的学习、思考和分享。
-感谢你的来访 ~
-]]></content>
-      <categories>
-        <category>随笔</category>
-      </categories>
   </entry>
   <entry>
     <title>数据库基础</title>
@@ -686,6 +690,11 @@ ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
 查询表内真实数据
 
 SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
+
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
 ]]></content>
       <categories>
         <category>Web安全</category>
