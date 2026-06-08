@@ -121,20 +121,25 @@ html.not-home #footer a {
   color: #4da6ff;
 }
 
-/* === 复制成功提示 === */
+/* === 复制版权提示 === */
 .copy-notice {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.8);
   color: #fff;
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 16px 32px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.8;
   z-index: 9999;
   pointer-events: none;
-  animation: fadeInOut 1.5s ease;
+  animation: fadeInOut 2s ease;
+}
+.copy-notice strong {
+  font-size: 16px;
 }
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
