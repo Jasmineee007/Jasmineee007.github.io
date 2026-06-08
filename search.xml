@@ -276,9 +276,6 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
         <category>Web安全</category>
         <category>SQL</category>
       </categories>
-      <tags>
-        <tag>SQL注入</tag>
-      </tags>
   </entry>
   <entry>
     <title>SQL注入漏洞</title>
@@ -698,11 +695,6 @@ admin&#39;#的密码没变，修改的是admin的密码
         <category>Web安全</category>
         <category>SQL</category>
       </categories>
-      <tags>
-        <tag>SQL注入</tag>
-        <tag>渗透测试</tag>
-        <tag>CTF</tag>
-      </tags>
   </entry>
   <entry>
     <title>RCE漏洞</title>
@@ -940,9 +932,6 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
         <category>Web安全</category>
         <category>RCE</category>
       </categories>
-      <tags>
-        <tag>RCE</tag>
-      </tags>
   </entry>
   <entry>
     <title>XSS漏洞</title>
@@ -1143,9 +1132,6 @@ Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密
         <category>Web安全</category>
         <category>XSS</category>
       </categories>
-      <tags>
-        <tag>XSS</tag>
-      </tags>
   </entry>
   <entry>
     <title>CSRF与SSRF漏洞</title>
@@ -1343,10 +1329,6 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
         <category>Web安全</category>
         <category>CSRF</category>
       </categories>
-      <tags>
-        <tag>CSRF</tag>
-        <tag>SSRF</tag>
-      </tags>
   </entry>
   <entry>
     <title>文件上传漏洞</title>
@@ -2426,9 +2408,6 @@ deny_arr：黑名单
         <category>Web安全</category>
         <category>文件上传</category>
       </categories>
-      <tags>
-        <tag>文件上传</tag>
-      </tags>
   </entry>
   <entry>
     <title>文件包含漏洞</title>
@@ -2584,8 +2563,5 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
         <category>Web安全</category>
         <category>文件包含</category>
       </categories>
-      <tags>
-        <tag>文件包含</tag>
-      </tags>
   </entry>
 </search>
