@@ -274,7 +274,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 ]]></content>
       <categories>
         <category>Web安全</category>
-        <category>SQL</category>
+        <category>数据库基础</category>
       </categories>
       <tags>
         <tag>SQL注入</tag>
@@ -938,6 +938,7 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>RCE</category>
       </categories>
       <tags>
         <tag>RCE</tag>
@@ -1140,6 +1141,7 @@ Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>XSS</category>
       </categories>
       <tags>
         <tag>XSS</tag>
@@ -1339,6 +1341,7 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>CSRF</category>
       </categories>
       <tags>
         <tag>CSRF</tag>
@@ -2421,6 +2424,7 @@ deny_arr：黑名单
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>文件上传</category>
       </categories>
       <tags>
         <tag>文件上传</tag>
@@ -2578,6 +2582,7 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>文件包含</category>
       </categories>
       <tags>
         <tag>文件包含</tag>
