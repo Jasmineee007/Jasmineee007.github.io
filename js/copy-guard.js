@@ -1,6 +1,6 @@
 (function(){
   // 只在文章页面生效
-  if (typeof GLOBAL_CONFIG !== 'undefined' && GLOBAL_CONFIG.pageType !== 'post') return;
+  if (typeof GLOBAL_CONFIG_SITE !== 'undefined' && GLOBAL_CONFIG_SITE.pageType !== 'post') return;
 
   var COPYRIGHT = '\n\n\n作者: Jasmine_Iris\n链接: '+window.location.href+'\n来源: Jasmine_Iris\n著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。';
   document.addEventListener('copy', function(e) {
