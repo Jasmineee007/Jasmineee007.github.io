@@ -37,25 +37,25 @@ html.not-home body {
   border-radius: 12px;
   transition: all 0.3s ease;
 }
-.recent-post-item:nth-child(7n+1) { background: linear-gradient(135deg, #fdf2f8 0%, #fce4ec 100%); }
-.recent-post-item:nth-child(7n+2) { background: linear-gradient(135deg, #eff6ff 0%, #e3f2fd 100%); }
-.recent-post-item:nth-child(7n+3) { background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%); }
-.recent-post-item:nth-child(7n+4) { background: linear-gradient(135deg, #fffbeb 0%, #fff3e0 100%); }
-.recent-post-item:nth-child(7n+5) { background: linear-gradient(135deg, #faf5ff 0%, #f3e5f5 100%); }
-.recent-post-item:nth-child(7n+6) { background: linear-gradient(135deg, #ecfeff 0%, #e0f7fa 100%); }
-.recent-post-item:nth-child(7n+7) { background: linear-gradient(135deg, #f5f3ff 0%, #ede7f6 100%); }
+.recent-post-item:nth-child(7n+1) { background: linear-gradient(135deg, #fdf2f8 0%, #fce4ec 100%) !important; }
+.recent-post-item:nth-child(7n+2) { background: linear-gradient(135deg, #eff6ff 0%, #e3f2fd 100%) !important; }
+.recent-post-item:nth-child(7n+3) { background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%) !important; }
+.recent-post-item:nth-child(7n+4) { background: linear-gradient(135deg, #fffbeb 0%, #fff3e0 100%) !important; }
+.recent-post-item:nth-child(7n+5) { background: linear-gradient(135deg, #faf5ff 0%, #f3e5f5 100%) !important; }
+.recent-post-item:nth-child(7n+6) { background: linear-gradient(135deg, #ecfeff 0%, #e0f7fa 100%) !important; }
+.recent-post-item:nth-child(7n+7) { background: linear-gradient(135deg, #f5f3ff 0%, #ede7f6 100%) !important; }
 
 .recent-post-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
 }
 
 /* 深色模式覆盖 */
 [data-theme="dark"] .recent-post-item:nth-child(n) {
-  background: #080808;
+  background: #080808 !important;
 }
 [data-theme="dark"] .recent-post-item:hover {
-  box-shadow: 0 4px 16px rgba(255,255,255,0.06);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.06) !important;
 }
 
 /* === Footer 非主页日间黑字 === */
