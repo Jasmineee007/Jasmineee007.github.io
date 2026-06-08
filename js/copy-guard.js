@@ -13,7 +13,7 @@
     e.clipboardData.setData('text/plain', t + COPYRIGHT);
     var d = document.createElement('div');
     d.className = 'copy-notice';
-    d.textContent = '复制成功，转载要标明出处哦~';
+    d.textContent = '转载要标明出处哦';
     document.body.appendChild(d);
     setTimeout(function(){ d.remove(); }, 1500);
   });
