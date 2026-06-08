@@ -103,10 +103,14 @@ html.not-home #footer a {
 .card-tag-cloud a:nth-child(8n+8),
 .article-tag-list a:nth-child(8n+8) { background: #ede7f6; color: #8b7ec8; }
 
+.card-tag-cloud a,
+.article-tag-list a {
+  cursor: default;
+}
 .card-tag-cloud a:hover,
 .article-tag-list a:hover {
-  opacity: 0.75;
-  transform: translateY(-1px);
+  opacity: 1;
+  transform: none;
 }
 
 /* === 公告内链接样式 === */
