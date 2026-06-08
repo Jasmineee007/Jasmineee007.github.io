@@ -14,7 +14,7 @@
   </entry>
   <entry>
     <title>数据库基础</title>
-    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
+    <url>/2026/06/08/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
 数据库层级结构（类比学校）
 
@@ -282,7 +282,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
   </entry>
   <entry>
     <title>SQL注入漏洞</title>
-    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
+    <url>/2026/06/08/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
 SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
 2. SQL 注入分类常见的注入点：
@@ -706,7 +706,7 @@ admin&#39;#的密码没变，修改的是admin的密码
   </entry>
   <entry>
     <title>RCE漏洞</title>
-    <url>/2026/06/07/RCE%E6%BC%8F%E6%B4%9E/index/</url>
+    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、RCE简介与危害
 RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
 成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
@@ -946,7 +946,7 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
   </entry>
   <entry>
     <title>XSS漏洞</title>
-    <url>/2026/05/24/XSS%E6%BC%8F%E6%B4%9E/index/</url>
+    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[XSS简介与危害定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
 危害
 盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
@@ -1149,7 +1149,7 @@ Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密
   </entry>
   <entry>
     <title>CSRF与SSRF漏洞</title>
-    <url>/2026/05/27/CSRF-SSRF/index/</url>
+    <url>/2026/06/08/CSRF-SSRF/index/</url>
     <content><![CDATA[一、CSRF（跨站请求伪造）1. 简介与危害
 全称：Cross-site request forgery，跨站请求伪造，也叫one-click attack
 原理：攻击者伪造请求，欺骗已登录用户点击，利用浏览器自动携带Cookie的特性，以用户身份执行未授权操作
@@ -1350,7 +1350,7 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
   </entry>
   <entry>
     <title>文件上传漏洞</title>
-    <url>/2026/06/03/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/index/</url>
+    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、文件上传漏洞基础1. 概念与危害
 概念：服务器未对上传文件严格验证、过滤，攻击者可上传恶意脚本文件，控制网站甚至服务器。
 核心危害：上传Web木马并被服务器解析，获取网站权限、读取&#x2F;修改文件、控制服务器。
@@ -2432,7 +2432,7 @@ deny_arr：黑名单
   </entry>
   <entry>
     <title>文件包含漏洞</title>
-    <url>/2026/06/05/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
+    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、漏洞检测与危害1.概念
 文件包含：开发中用于复用代码；
 漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
