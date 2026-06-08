@@ -127,25 +127,28 @@ html.not-home #footer a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  padding: 16px 32px;
+  background: #fff;
+  color: #333;
+  padding: 14px 28px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 15px;
   text-align: center;
-  line-height: 1.8;
   z-index: 9999;
   pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   animation: fadeInOut 2s ease;
-}
-.copy-notice strong {
-  font-size: 16px;
 }
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
   15% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
   70% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* 暗色模式下弹窗保持浅色 */
+[data-theme="dark"] .copy-notice {
+  background: #fff;
+  color: #333;
 }
 
 /* === Footer 非主页夜间 === */
