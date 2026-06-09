@@ -1,5 +1,5 @@
 /* === 非主页：隐藏背景图 === */
-body:has(.post) #web_bg {
+body:has(#body-wrap.post) #web_bg {
   display: none;
 }
 
@@ -53,11 +53,11 @@ body:has(.post) #web_bg {
 }
 
 /* === Footer 非主页日间黑字 === */
-body:has(.post) #footer,
-body:has(.post) #footer > * {
+body:has(#body-wrap.post) #footer,
+body:has(#body-wrap.post) #footer > * {
   color: #000 !important;
 }
-body:has(.post) #footer a {
+body:has(#body-wrap.post) #footer a {
   color: #000 !important;
 }
 
@@ -150,10 +150,10 @@ body:has(.post) #footer a {
 }
 
 /* === Footer 非主页夜间 === */
-[data-theme="dark"] body:has(.post) #footer,
-[data-theme="dark"] body:has(.post) #footer > * {
+[data-theme="dark"] body:has(#body-wrap.post) #footer,
+[data-theme="dark"] body:has(#body-wrap.post) #footer > * {
   color: #ccc !important;
 }
-[data-theme="dark"] body:has(.post) #footer a {
+[data-theme="dark"] body:has(#body-wrap.post) #footer a {
   color: #ddd !important;
 }
