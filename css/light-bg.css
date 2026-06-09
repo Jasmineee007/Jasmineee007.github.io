@@ -1,12 +1,6 @@
-/* === 非主页：隐藏背景图，使用纯色背景 === */
-html.not-home #web_bg {
+/* === 非主页：隐藏背景图 === */
+body:has(.post) #web_bg {
   display: none;
-}
-html.not-home body {
-  background: #fff;
-}
-[data-theme="dark"] html.not-home body {
-  background: #000;
 }
 
 /* === 深色模式 === */
@@ -59,11 +53,11 @@ html.not-home body {
 }
 
 /* === Footer 非主页日间黑字 === */
-html.not-home #footer,
-html.not-home #footer > * {
+body:has(.post) #footer,
+body:has(.post) #footer > * {
   color: #000 !important;
 }
-html.not-home #footer a {
+body:has(.post) #footer a {
   color: #000 !important;
 }
 
@@ -156,10 +150,10 @@ html.not-home #footer a {
 }
 
 /* === Footer 非主页夜间 === */
-[data-theme="dark"] html.not-home #footer,
-[data-theme="dark"] html.not-home #footer > * {
+[data-theme="dark"] body:has(.post) #footer,
+[data-theme="dark"] body:has(.post) #footer > * {
   color: #ccc !important;
 }
-[data-theme="dark"] html.not-home #footer a {
+[data-theme="dark"] body:has(.post) #footer a {
   color: #ddd !important;
 }
