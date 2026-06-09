@@ -163,14 +163,3 @@ html.not-home #footer a {
 [data-theme="dark"] html.not-home #footer a {
   color: #ddd !important;
 }
-
-/* === 文章有序列表序号显示 === */
-#article-container ol {
-  list-style: decimal;
-}
-#article-container ol ol {
-  list-style: lower-alpha;
-}
-#article-container ul {
-  list-style: disc;
-}
