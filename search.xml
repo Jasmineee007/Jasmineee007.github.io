@@ -191,6 +191,7 @@ Token、SameSite、来源校验
 IP过滤、协议限制
 
 
+
 四、总结Q1：CSRF 是什么？跨站请求伪造
 Q2：SSRF 是什么？服务端请求伪造
 Q3：CSRF 和 XSS 的区别是什么？CSRF 是跨站请求伪造，XSS 是跨站脚本攻击
@@ -1378,7 +1379,6 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 总结：输入框长度限制可通过修改URL或F12改前端代码绕过
-
 2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
 以 pikachu 靶场为例：
 
@@ -1389,7 +1389,6 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 只要刷新这个页面，就会重复出现这句话。
-
 3. DOM型（1）流程
 黑客诱导用户点击恶意URL
 
@@ -1413,7 +1412,6 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 点击之后：
-
 
 
 4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
@@ -1489,6 +1487,7 @@ button标签
 （2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
 
 （3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+
 
 四、总结Q1：XSS 是什么？跨站脚本攻击
 Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
