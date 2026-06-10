@@ -1,0 +1,6 @@
+[data-theme="dark"] #page-header {
+  background-color: #000;
+}
+[data-theme="dark"] body {
+  background: #000;
+}

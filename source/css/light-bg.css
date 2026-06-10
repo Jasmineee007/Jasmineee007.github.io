@@ -1,0 +1,165 @@
+/* === 非主页：隐藏背景图 === */
+body:has(#body-wrap.post) #web_bg {
+  display: none;
+}
+
+/* === banner 遮罩渐变 —— 底部渐透明，与内容区背景自然衔接（首页 + 归档/友链/关于等） === */
+#page-header.full_page:not(.not-top-img):before,
+#page-header.not-home-page:not(.not-top-img):before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.03) 88%, rgba(0,0,0,0) 100%) !important;
+}
+
+/* === 深色模式 === */
+[data-theme="dark"] #content-inner {
+  background: #000;
+  color: #fff;
+}
+[data-theme="dark"] #aside-content .card-widget {
+  background: #080808;
+  color: #fff;
+}
+[data-theme="dark"] .layout {
+  background: #000;
+  color: #fff;
+}
+[data-theme="dark"] #recent-posts {
+  background: transparent;
+}
+[data-theme="dark"] #article-container {
+  color: #fff;
+}
+[data-theme="dark"] .recent-post-item {
+  background: #080808;
+}
+
+/* === 首页文章卡片渐变浅色 === */
+.recent-post-item {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+#recent-posts .recent-post-item:nth-child(7n+1) { background: linear-gradient(to right, #fce4ec 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+2) { background: linear-gradient(to right, #e3f2fd 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+3) { background: linear-gradient(to right, #e8f5e9 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+4) { background: linear-gradient(to right, #fff3e0 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+5) { background: linear-gradient(to right, #f3e5f5 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+6) { background: linear-gradient(to right, #e0f7fa 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+7) { background: linear-gradient(to right, #ede7f6 0%, #fff 100%) !important; }
+
+.recent-post-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+}
+
+/* 深色模式覆盖 */
+[data-theme="dark"] #recent-posts .recent-post-item:nth-child(n) {
+  background: #080808 !important;
+}
+[data-theme="dark"] .recent-post-item:hover {
+  box-shadow: 0 4px 16px rgba(255,255,255,0.06) !important;
+}
+
+/* === Footer 非主页日间黑字 === */
+body:has(#body-wrap.post) #footer,
+body:has(#body-wrap.post) #footer > * {
+  color: #000 !important;
+}
+body:has(#body-wrap.post) #footer a {
+  color: #000 !important;
+}
+
+/* === 标签分散排列 === */
+.article-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start;
+}
+.card-tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.card-tag-cloud a {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 14px !important;
+  border: none !important;
+}
+.card-tag-cloud a:nth-child(8n+1),
+.article-tag-list a:nth-child(8n+1) { background: #fce4ec; color: #d4687c; }
+.card-tag-cloud a:nth-child(8n+2),
+.article-tag-list a:nth-child(8n+2) { background: #e3f2fd; color: #5b9bd5; }
+.card-tag-cloud a:nth-child(8n+3),
+.article-tag-list a:nth-child(8n+3) { background: #e8f5e9; color: #6aab73; }
+.card-tag-cloud a:nth-child(8n+4),
+.article-tag-list a:nth-child(8n+4) { background: #fff3e0; color: #e8a14b; }
+.card-tag-cloud a:nth-child(8n+5),
+.article-tag-list a:nth-child(8n+5) { background: #f3e5f5; color: #b380b8; }
+.card-tag-cloud a:nth-child(8n+6),
+.article-tag-list a:nth-child(8n+6) { background: #e0f7fa; color: #5cacb8; }
+.card-tag-cloud a:nth-child(8n+7),
+.article-tag-list a:nth-child(8n+7) { background: #fce4ec; color: #e8899b; }
+.card-tag-cloud a:nth-child(8n+8),
+.article-tag-list a:nth-child(8n+8) { background: #ede7f6; color: #8b7ec8; }
+
+.card-tag-cloud a,
+.article-tag-list a {
+  cursor: default;
+}
+.card-tag-cloud a:hover,
+.article-tag-list a:hover {
+  opacity: 1;
+  transform: none;
+}
+
+/* === 公告内链接样式 === */
+.announcement_content a {
+  color: inherit;
+  text-decoration: none;
+}
+.announcement_content a:hover {
+  color: #1e90ff;
+}
+[data-theme="dark"] .announcement_content a:hover {
+  color: #4da6ff;
+}
+
+/* === 复制版权提示 === */
+.copy-notice {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  color: #333;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  text-align: center;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: fadeInOut 2s ease;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
+  15% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 暗色模式下弹窗保持浅色 */
+[data-theme="dark"] .copy-notice {
+  background: #fff;
+  color: #333;
+}
+
+/* === Footer 非主页夜间 === */
+[data-theme="dark"] body:has(#body-wrap.post) #footer,
+[data-theme="dark"] body:has(#body-wrap.post) #footer > * {
+  color: #ccc !important;
+}
+[data-theme="dark"] body:has(#body-wrap.post) #footer a {
+  color: #ddd !important;
+}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx hexo *)",
+      "Bash(gh api *)",
+      "Bash(git ls-remote *)",
+      "WebFetch(domain:jasmineee007.github.io)",
+      "Bash(curl *)",
+      "Bash(git push *)",
+      "Bash(git reset *)"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+- class_name: 我的个人博客
+  class_desc:
+  link_list:
+    - name: Jasmine_Iris
+      link: https://jasmineee007.github.io
+      avatar: https://jasmineee007.github.io/img/photo.png
+      descr: 菜菜，带带~
+
+- class_name: 小伙伴们
+  class_desc:
+  link_list:
+    - name: HACKED
+      link: https://blog.ss0t-hacked.top
+      avatar: https://avatars.githubusercontent.com/u/200793472?v=4
+      descr: 大佬菜菜ddw，一个刚刚开始学习的pwner
