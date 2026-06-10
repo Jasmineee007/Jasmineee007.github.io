@@ -1,6 +1,9 @@
-/* === 非主页：隐藏背景图，纯色内容区 === */
-html:not(.is-home) #web_bg {
+/* === 默认隐藏背景图，只有首页显示 === */
+#web_bg {
   display: none;
+}
+body:has(#scroll-down) #web_bg {
+  display: block;
 }
 
 /* === 首页 banner 遮罩渐变 —— 底部渐透明，与内容区背景自然衔接 === */
