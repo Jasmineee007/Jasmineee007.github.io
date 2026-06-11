@@ -26,17 +26,28 @@
   background: #080808;
 }
 
-/* === 文章卡片样式 === */
+/* === 首页文章卡片渐变浅色 === */
 .recent-post-item {
   border-radius: 12px;
   transition: all 0.3s ease;
 }
+#recent-posts .recent-post-item:nth-child(7n+1) { background: linear-gradient(to right, #fce4ec 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+2) { background: linear-gradient(to right, #e3f2fd 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+3) { background: linear-gradient(to right, #e8f5e9 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+4) { background: linear-gradient(to right, #fff3e0 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+5) { background: linear-gradient(to right, #f3e5f5 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+6) { background: linear-gradient(to right, #e0f7fa 0%, #fff 100%) !important; }
+#recent-posts .recent-post-item:nth-child(7n+7) { background: linear-gradient(to right, #ede7f6 0%, #fff 100%) !important; }
 
 .recent-post-item:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
 }
 
+/* 深色模式覆盖 */
+[data-theme="dark"] #recent-posts .recent-post-item:nth-child(n) {
+  background: #080808 !important;
+}
 [data-theme="dark"] .recent-post-item:hover {
   box-shadow: 0 4px 16px rgba(255,255,255,0.06) !important;
 }
