@@ -97,11 +97,16 @@ body:has(#body-wrap.post) #footer a {
 .card-tag-cloud a:nth-child(8n+8),
 .article-tag-list a:nth-child(8n+8) { background: #ede7f6; color: #8b7ec8; }
 
-.card-tag-cloud a,
+.card-tag-cloud a {
+  cursor: pointer;
+}
 .article-tag-list a {
   cursor: default;
 }
-.card-tag-cloud a:hover,
+.card-tag-cloud a:hover {
+  opacity: .8;
+  transform: scale(1.05);
+}
 .article-tag-list a:hover {
   opacity: 1;
   transform: none;
