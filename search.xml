@@ -2571,11 +2571,11 @@ deny_arr：黑名单
   <entry>
     <title>御网杯Web部分题解</title>
     <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
-    <content><![CDATA[WEB-Snake_Game题目
+    <content><![CDATA[一、WEB-Snake_Game1. 题目
 
 
 
-解题思路
+2. 解题思路
 题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
 F12
 
@@ -2594,9 +2594,10 @@ F12
 
 
 
-WEB-PHP_Payment题目
 
-解题思路
+二、WEB-PHP_Payment1. 题目
+
+2. 解题思路
 根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
 
 
@@ -2631,7 +2632,6 @@ TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21v
 
 
 
-
 购买 Flag，看 buy.php
 
 
@@ -2651,11 +2651,12 @@ fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Con
 
 
 
-WEB-Enterprise_OA题目
+
+三、WEB-Enterprise_OA1. 题目
 
 
 
-解题思路
+2. 解题思路
 根据题目提示，这题考查目录穿越、文件包含
 先尝试访问 flag.php
 
@@ -2697,9 +2698,10 @@ PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAn
 
 
 
-迷宫题目
 
-解题思路
+四、迷宫1. 题目
+
+2. 解题思路
 根据题目要求依次解压附件，最后一层拿到一个文件，用记事本打开
 
 
@@ -2712,9 +2714,10 @@ PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAn
 
 
 
-签到题-损坏的压缩包题目
 
-解题思路
+五、签到题-损坏的压缩包1. 题目
+
+2. 解题思路
 查看附件，发现字符串很像 base64 编码的内容
 
 
