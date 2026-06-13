@@ -2698,33 +2698,6 @@ PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAn
 
 
 
-
-四、迷宫1. 题目
-
-2. 解题思路
-根据题目要求依次解压附件，最后一层拿到一个文件，用记事本打开
-
-
-
-
-
-看起来很像 base64 编码后的字符串
-
-利用 bugku 平台的在线工具，base64 解码，拿到 flag， flag{}格式：flag{a68764314a2e8d38182e45a8828413d27}
-
-
-
-
-五、签到题-损坏的压缩包1. 题目
-
-2. 解题思路
-查看附件，发现字符串很像 base64 编码的内容
-
-
-
-用 bugku 工具 base64 解码一下得到，再用 flag{}格式：flag{fkvl}
-
-
 ]]></content>
       <categories>
         <category>WP</category>
