@@ -1,7 +1,8 @@
 /* === 页面背景图 === */
 /* 首页用 home-bg.png（通过 JS 设置），其他页面用主题默认背景 */
 #web_bg {
-  background-position: center center !important;
+  background-position: left center !important;
+  background-size: auto 100% !important;
 }
 [data-theme="dark"] #web_bg {
   filter: brightness(0.3);
@@ -10,12 +11,22 @@
 /* 首页标题左移，避免被卡片遮挡 */
 #page-header.full_page #site-info {
   text-align: left;
-  padding-left: 60px;
+  padding-left: 38vw;
   box-sizing: border-box;
 }
 @media (max-width: 768px) {
   #page-header.full_page #site-info {
     padding-left: 20px;
+  }
+}
+
+/* 首页内容区右移 */
+#page-header.full_page ~ #content-inner {
+  margin-left: 35vw;
+}
+@media (max-width: 768px) {
+  #page-header.full_page ~ #content-inner {
+    margin-left: 0;
   }
 }
 
