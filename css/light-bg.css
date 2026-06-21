@@ -150,6 +150,18 @@ body:has(#body-wrap.post) #footer a {
   color: #ddd !important;
 }
 
+/* === About/归档/友链 banner 去动画 === */
+.type-special #page-header,
+.type-link #page-header {
+  transition: none !important;
+  animation: none !important;
+}
+.type-special #page-header::before,
+.type-link #page-header::before {
+  transition: none !important;
+  animation: none !important;
+}
+
 /* === About/归档/友链 透明卡片 === */
 .type-special #content-inner,
 .type-link #content-inner {
