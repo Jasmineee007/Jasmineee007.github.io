@@ -85,21 +85,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(newEle)
 
         const buttonRect = ele.getBoundingClientRect()
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
 
         // X-axis boundary check
         const halfWidth = newEle.offsetWidth / 2
-        const centerLeft = buttonRect.left + scrollLeft + buttonRect.width / 2
+        const centerLeft = buttonRect.left + buttonRect.width / 2
         const finalLeft = Math.max(halfWidth + 10, Math.min(window.innerWidth - halfWidth - 10, centerLeft))
 
         // Show tooltip below button if too close to top
-        const normalTop = buttonRect.top + scrollTop - 40
+        const normalTop = buttonRect.top - 40
         const shouldShowBelow = buttonRect.top < 60 || normalTop < 10
 
-        const topValue = shouldShowBelow ? buttonRect.top + scrollTop + buttonRect.height + 10 : normalTop
+        const topValue = shouldShowBelow ? buttonRect.top + buttonRect.height + 10 : normalTop
 
         newEle.style.cssText = `
+      position: fixed;
       top: ${topValue + 10}px;
       left: ${finalLeft}px;
       transform: translateX(-50%);
