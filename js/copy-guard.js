@@ -32,13 +32,7 @@
     var origWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
     navigator.clipboard.writeText = function(text) {
       // 判断是否来自代码块复制按钮
-      var active = document.activeElement;
-      var inCodeBlock = active && (
-        active.closest('figure.highlight') ||
-        active.closest('.code-block') ||
-        active.closest('pre')
-      );
-      if (inCodeBlock) {
+      if (window.__copyingCode) {
         return origWrite(text);
       }
       showNotice();

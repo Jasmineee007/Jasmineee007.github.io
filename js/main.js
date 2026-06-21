@@ -124,9 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const copy = async (text, ctx) => {
       try {
+        window.__copyingCode = true
         await navigator.clipboard.writeText(text)
+        window.__copyingCode = false
         alertInfo(ctx, GLOBAL_CONFIG.copy.success)
       } catch (err) {
+        window.__copyingCode = false
         console.error('Failed to copy: ', err)
         alertInfo(ctx, GLOBAL_CONFIG.copy.noSupport)
       }
