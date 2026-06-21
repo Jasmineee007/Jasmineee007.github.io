@@ -8,6 +8,12 @@
   filter: brightness(0.3);
 }
 
+/* === About 页面 banner === */
+.type-about #page-header {
+  background-position: left bottom !important;
+  background-size: auto 80% !important;
+}
+
 
 /* === 深色模式 === */
 [data-theme="dark"] #content-inner {
