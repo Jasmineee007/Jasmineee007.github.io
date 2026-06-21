@@ -27,10 +27,20 @@
     showNotice();
   });
 
-  // 2. 拦截代码块复制按钮（使用 navigator.clipboard.writeText，不触发 copy 事件）
+  // 2. 拦截 navigator.clipboard.writeText（部分操作不触发 copy 事件）
   try {
     var origWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
     navigator.clipboard.writeText = function(text) {
+      // 判断是否来自代码块复制按钮
+      var active = document.activeElement;
+      var inCodeBlock = active && (
+        active.closest('figure.highlight') ||
+        active.closest('.code-block') ||
+        active.closest('pre')
+      );
+      if (inCodeBlock) {
+        return origWrite(text);
+      }
       showNotice();
       return origWrite(text + COPYRIGHT);
     };
