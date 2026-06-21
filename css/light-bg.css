@@ -209,7 +209,14 @@ body:has(#body-wrap.post) #footer a {
 .type-link .layout {
   position: relative;
   z-index: 2;
+  margin-top: 400px;
   background: rgba(255,255,255,0.92);
+}
+@media (max-width: 768px) {
+  .type-special .layout,
+  .type-link .layout {
+    margin-top: 280px;
+  }
 }
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
