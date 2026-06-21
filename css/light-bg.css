@@ -12,18 +12,22 @@ body:has(#body-wrap.post) #web_bg {
 .type-special #nav a,
 .type-special #nav span.site-page,
 .type-special #nav .site-name,
+.type-special #nav #search-button,
 .type-link #nav a,
 .type-link #nav span.site-page,
-.type-link #nav .site-name {
+.type-link #nav .site-name,
+.type-link #nav #search-button {
   color: #555 !important;
   text-shadow: none !important;
 }
 [data-theme="dark"] .type-special #nav a,
 [data-theme="dark"] .type-special #nav span.site-page,
 [data-theme="dark"] .type-special #nav .site-name,
+[data-theme="dark"] .type-special #nav #search-button,
 [data-theme="dark"] .type-link #nav a,
 [data-theme="dark"] .type-link #nav span.site-page,
-[data-theme="dark"] .type-link #nav .site-name {
+[data-theme="dark"] .type-link #nav .site-name,
+[data-theme="dark"] .type-link #nav #search-button {
   color: #ccc !important;
 }
 
