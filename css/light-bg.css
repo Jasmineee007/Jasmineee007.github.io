@@ -1,9 +1,5 @@
 /* === 页面背景图 === */
-#web_bg {
-  background: url('/img/bg.jpg') center/cover fixed no-repeat;
-  opacity: 1;
-}
-
+/* 首页用 home-bg.png（通过 JS 设置），其他页面用主题默认背景 */
 [data-theme="dark"] #web_bg {
   filter: brightness(0.3);
 }
