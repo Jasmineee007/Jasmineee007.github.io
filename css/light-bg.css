@@ -9,7 +9,8 @@ body:has(#body-wrap.post) #web_bg {
 }
 /* 暗黑模式下关于/归档/友链不显示背景图 */
 [data-theme="dark"] body:has(.type-special) #web_bg,
-[data-theme="dark"] body:has(.type-link) #web_bg {
+[data-theme="dark"] body:has(.type-link) #web_bg,
+[data-theme="dark"] body:has(#body-wrap:has(#archive)) #web_bg {
   display: none;
 }
 
@@ -21,7 +22,11 @@ body:has(#body-wrap.post) #web_bg {
 .type-link #nav a,
 .type-link #nav span.site-page,
 .type-link #nav .site-name,
-.type-link #nav #search-button {
+.type-link #nav #search-button,
+#body-wrap:has(#archive) #nav a,
+#body-wrap:has(#archive) #nav span.site-page,
+#body-wrap:has(#archive) #nav .site-name,
+#body-wrap:has(#archive) #nav #search-button {
   color: #000 !important;
   text-shadow: none !important;
 }
@@ -32,18 +37,24 @@ body:has(#body-wrap.post) #web_bg {
 [data-theme="dark"] .type-link #nav a,
 [data-theme="dark"] .type-link #nav span.site-page,
 [data-theme="dark"] .type-link #nav .site-name,
-[data-theme="dark"] .type-link #nav #search-button {
+[data-theme="dark"] .type-link #nav #search-button,
+[data-theme="dark"] #body-wrap:has(#archive) #nav a,
+[data-theme="dark"] #body-wrap:has(#archive) #nav span.site-page,
+[data-theme="dark"] #body-wrap:has(#archive) #nav .site-name,
+[data-theme="dark"] #body-wrap:has(#archive) #nav #search-button {
   color: #ccc !important;
 }
 
 /* === About/归档/友链 页面标题 === */
 .type-special #page-header #site-title,
-.type-link #page-header #site-title {
+.type-link #page-header #site-title,
+#body-wrap:has(#archive) #page-header #site-title {
   color: #000 !important;
   text-shadow: none !important;
 }
 [data-theme="dark"] .type-special #page-header #site-title,
-[data-theme="dark"] .type-link #page-header #site-title {
+[data-theme="dark"] .type-link #page-header #site-title,
+[data-theme="dark"] #body-wrap:has(#archive) #page-header #site-title {
   color: #ccc !important;
 }
 
@@ -196,41 +207,48 @@ body:has(#body-wrap.post) #footer a {
 
 /* === About/归档/友链 banner === */
 .type-special #page-header,
-.type-link #page-header {
+.type-link #page-header,
+#body-wrap:has(#archive) #page-header {
   background-color: #fff !important;
   background-size: auto 80% !important;
   background-position: left bottom !important;
   transition: none !important;
 }
 .type-special #page-header::before,
-.type-link #page-header::before {
+.type-link #page-header::before,
+#body-wrap:has(#archive) #page-header::before {
   display: none !important;
 }
 
 /* 让 body 透明以显示 #web_bg 背景图 */
 body:has(.type-special),
-body:has(.type-link) {
+body:has(.type-link),
+body:has(#body-wrap:has(#archive)) {
   background: transparent !important;
 }
 
 /* 内容区透明显示背景图 */
 .type-special #content-inner,
-.type-link #content-inner {
+.type-link #content-inner,
+#body-wrap:has(#archive) #content-inner {
   background: transparent;
 }
 .type-special .layout,
-.type-link .layout {
+.type-link .layout,
+#body-wrap:has(#archive) .layout {
   background: transparent;
 }
 
 /* 暗黑模式 */
 [data-theme="dark"] .type-special #page-header,
-[data-theme="dark"] .type-link #page-header {
+[data-theme="dark"] .type-link #page-header,
+[data-theme="dark"] #body-wrap:has(#archive) #page-header {
   background-color: #000 !important;
   background-image: none !important;
 }
 [data-theme="dark"] .type-special #content-inner,
-[data-theme="dark"] .type-link #content-inner {
+[data-theme="dark"] .type-link #content-inner,
+[data-theme="dark"] #body-wrap:has(#archive) #content-inner {
   background: #000;
 }
 
