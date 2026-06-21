@@ -11,7 +11,7 @@
     d.className = 'copy-notice';
     d.textContent = '转载要标明出处哦';
     document.body.appendChild(d);
-    setTimeout(function(){ d.remove(); }, 1500);
+    setTimeout(function(){ d.remove(); }, 2000);
   }
 
   // 1. 拦截 Ctrl+C / 右键复制（触发 copy 事件）
