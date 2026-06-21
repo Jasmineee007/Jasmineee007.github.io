@@ -288,44 +288,58 @@ body:has(#body-wrap.page-custom-style) {
   background: #000;
 }
 
-/* === CTF-WP 分类页 === */
+/* === CTF-WP / Web安全 分类页 === */
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button {
+[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav a,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav span.site-page,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav .site-name,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav #search-button {
   color: #ccc !important;
 }
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title {
+[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #page-header #site-title {
   color: #ccc !important;
 }
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header {
+#body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
+#body-wrap:has(#page-header[style*="websec"]) #page-header {
   background-color: #fff !important;
   background-size: cover !important;
   background-position: center center !important;
   transition: none !important;
 }
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before {
+#body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before,
+#body-wrap:has(#page-header[style*="websec"]) #page-header::before {
   display: none !important;
 }
-body:has(#body-wrap:has(#page-header[style*="ctfwp"])) {
+body:has(#body-wrap:has(#page-header[style*="ctfwp"])),
+body:has(#body-wrap:has(#page-header[style*="websec"])) {
   background: transparent !important;
 }
-body:has(#body-wrap:has(#page-header[style*="ctfwp"])) #web_bg {
+body:has(#body-wrap:has(#page-header[style*="ctfwp"])) #web_bg,
+body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
   background-size: 70% !important;
   background-position: left bottom !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
-#body-wrap:has(#page-header[style*="ctfwp"]) .layout {
+#body-wrap:has(#page-header[style*="ctfwp"]) .layout,
+#body-wrap:has(#page-header[style*="websec"]) #content-inner,
+#body-wrap:has(#page-header[style*="websec"]) .layout {
   background: transparent;
 }
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header {
+[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #page-header {
   background-color: #000 !important;
   background-image: none !important;
 }
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner {
+[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #content-inner {
   background: #000;
 }
-[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="ctfwp"])) #web_bg {
+[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="ctfwp"])) #web_bg,
+[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
   display: none;
 }
 
