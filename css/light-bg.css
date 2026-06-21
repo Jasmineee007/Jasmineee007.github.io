@@ -7,6 +7,11 @@ body:has(#body-wrap.post) #web_bg {
 [data-theme="dark"] #web_bg {
   filter: brightness(0.3);
 }
+/* 暗黑模式下关于/归档/友链不显示背景图 */
+[data-theme="dark"] body:has(.type-special) #web_bg,
+[data-theme="dark"] body:has(.type-link) #web_bg {
+  display: none;
+}
 
 /* === About/归档/友链 导航栏字体 === */
 .type-special #nav a,
@@ -192,12 +197,6 @@ body:has(#body-wrap.post) #footer a {
 /* === About/归档/友链 banner === */
 .type-special #page-header,
 .type-link #page-header {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-  background-color: #fff !important;
   background-size: auto 80% !important;
   background-position: left bottom !important;
 }
@@ -205,26 +204,31 @@ body:has(#body-wrap.post) #footer a {
 .type-link #page-header::before {
   display: none !important;
 }
+
+/* 让 body 透明以显示 #web_bg 背景图 */
+body:has(.type-special),
+body:has(.type-link) {
+  background: transparent !important;
+}
+
+/* 内容区半透明白色 */
+.type-special #content-inner,
+.type-link #content-inner {
+  background: rgba(255,255,255,0.85);
+}
 .type-special .layout,
 .type-link .layout {
-  position: relative;
-  z-index: 2;
-  margin-top: 400px;
-  background: rgba(255,255,255,0.92);
+  background: transparent;
 }
-@media (max-width: 768px) {
-  .type-special .layout,
-  .type-link .layout {
-    margin-top: 280px;
-  }
-}
+
+/* 暗黑模式 */
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
   background-color: #000 !important;
   background-image: none !important;
 }
-[data-theme="dark"] .type-special .layout,
-[data-theme="dark"] .type-link .layout {
-  background: rgba(0,0,0,0.92);
+[data-theme="dark"] .type-special #content-inner,
+[data-theme="dark"] .type-link #content-inner {
+  background: rgba(0,0,0,0.85);
 }
 
