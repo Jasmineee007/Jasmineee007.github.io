@@ -37,13 +37,13 @@ body:has(#body-wrap.post) #web_bg {
 }
 
 /* === About/归档/友链 页面标题 === */
-.type-special #page-header .page-title,
-.type-link #page-header .page-title {
+.type-special #page-header #site-title,
+.type-link #page-header #site-title {
   color: #000 !important;
   text-shadow: none !important;
 }
-[data-theme="dark"] .type-special #page-header .page-title,
-[data-theme="dark"] .type-link #page-header .page-title {
+[data-theme="dark"] .type-special #page-header #site-title,
+[data-theme="dark"] .type-link #page-header #site-title {
   color: #ccc !important;
 }
 
