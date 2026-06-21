@@ -1,5 +1,48 @@
-/* === 非主页：隐藏背景图 === */
-body:has(#body-wrap.post) #web_bg {
+/* === 文章页 === */
+#body-wrap.post #page-header {
+  background-color: #fff !important;
+  background-size: auto 80% !important;
+  background-position: left bottom !important;
+  transition: none !important;
+}
+#body-wrap.post #page-header::before {
+  display: none !important;
+}
+#body-wrap.post #nav a,
+#body-wrap.post #nav span.site-page,
+#body-wrap.post #nav .site-name,
+#body-wrap.post #nav #search-button {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+#body-wrap.post #page-header #site-title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+body:has(#body-wrap.post) {
+  background: transparent !important;
+}
+#body-wrap.post #content-inner,
+#body-wrap.post .layout {
+  background: transparent;
+}
+[data-theme="dark"] #body-wrap.post #page-header {
+  background-color: #000 !important;
+  background-image: none !important;
+}
+[data-theme="dark"] #body-wrap.post #nav a,
+[data-theme="dark"] #body-wrap.post #nav span.site-page,
+[data-theme="dark"] #body-wrap.post #nav .site-name,
+[data-theme="dark"] #body-wrap.post #nav #search-button {
+  color: #ccc !important;
+}
+[data-theme="dark"] #body-wrap.post #page-header #site-title {
+  color: #ccc !important;
+}
+[data-theme="dark"] #body-wrap.post #content-inner {
+  background: #000;
+}
+[data-theme="dark"] body:has(#body-wrap.post) #web_bg {
   display: none;
 }
 
