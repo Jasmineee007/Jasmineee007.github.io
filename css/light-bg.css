@@ -39,17 +39,9 @@ body:has(#body-wrap.post) #web_bg {
   background: rgba(255, 255, 255, 0.85) !important;
 }
 
-.recent-post-item:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
-}
-
 /* 深色模式覆盖 */
 [data-theme="dark"] #recent-posts .recent-post-item:nth-child(n) {
   background: #080808 !important;
-}
-[data-theme="dark"] .recent-post-item:hover {
-  box-shadow: 0 4px 16px rgba(255,255,255,0.06) !important;
 }
 
 /* === Footer 非主页日间黑字 === */
@@ -156,4 +148,35 @@ body:has(#body-wrap.post) #footer a {
 }
 [data-theme="dark"] body:has(#body-wrap.post) #footer a {
   color: #ddd !important;
+}
+
+/* === About/归档/友链 页面 banner === */
+.type-special #page-header,
+.type-link #page-header {
+  background-color: #fff !important;
+  background-position: left bottom !important;
+  background-size: auto 70% !important;
+}
+[data-theme="dark"] .type-special #page-header,
+[data-theme="dark"] .type-link #page-header {
+  background-color: #000 !important;
+}
+
+/* === About/归档/友链 透明卡片 === */
+.type-special #content-inner,
+.type-link #content-inner {
+  background: transparent !important;
+}
+.type-special .card-widget,
+.type-special #article-container,
+.type-link .card-widget,
+.type-link #article-container {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-radius: 12px;
+}
+[data-theme="dark"] .type-special .card-widget,
+[data-theme="dark"] .type-special #article-container,
+[data-theme="dark"] .type-link .card-widget,
+[data-theme="dark"] .type-link #article-container {
+  background: #080808 !important;
 }
