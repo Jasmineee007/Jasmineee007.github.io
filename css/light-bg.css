@@ -343,3 +343,51 @@ body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
   display: none;
 }
 
+/* === 随笔等生成分类页（about-1 banner） === */
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
+  background-color: #fff !important;
+  background-size: auto 80% !important;
+  background-position: left bottom !important;
+  transition: none !important;
+}
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header::before {
+  display: none !important;
+}
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav a,
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav span.site-page,
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav .site-name,
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav #search-button {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header #site-title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+body:has(#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories)) {
+  background: transparent !important;
+}
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #content-inner,
+#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
+  background: transparent;
+}
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
+  background-color: #000 !important;
+  background-image: none !important;
+}
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav a,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav span.site-page,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav .site-name,
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav #search-button {
+  color: #ccc !important;
+}
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header #site-title {
+  color: #ccc !important;
+}
+[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #content-inner {
+  background: #000;
+}
+[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories)) #web_bg {
+  display: none;
+}
+
