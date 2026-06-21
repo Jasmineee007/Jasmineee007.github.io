@@ -150,18 +150,6 @@ body:has(#body-wrap.post) #footer a {
   color: #ddd !important;
 }
 
-/* === About/归档/友链 页面 banner === */
-.type-special #page-header,
-.type-link #page-header {
-  background-color: #fff !important;
-  background-position: left bottom !important;
-  background-size: auto 70% !important;
-}
-[data-theme="dark"] .type-special #page-header,
-[data-theme="dark"] .type-link #page-header {
-  background-color: #000 !important;
-}
-
 /* === About/归档/友链 透明卡片 === */
 .type-special #content-inner,
 .type-link #content-inner {
