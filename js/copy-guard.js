@@ -8,7 +8,7 @@
 
   function showNotice() {
     var d = document.createElement('div');
-    d.className = 'copy-notice';
+    d.className = 'copy-guard-notice';
     d.textContent = '转载要标明出处哦';
     document.body.appendChild(d);
     setTimeout(function(){ d.remove(); }, 2000);

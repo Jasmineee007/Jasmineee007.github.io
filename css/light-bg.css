@@ -124,8 +124,8 @@ body:has(#body-wrap.post) #footer a {
   color: #4da6ff;
 }
 
-/* === 复制版权提示 === */
-.copy-notice {
+/* === 复制版权提示（copy-guard 专用） === */
+.copy-guard-notice {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -149,7 +149,7 @@ body:has(#body-wrap.post) #footer a {
 }
 
 /* 暗色模式下弹窗保持浅色 */
-[data-theme="dark"] .copy-notice {
+[data-theme="dark"] .copy-guard-notice {
   background: #fff;
   color: #333;
 }
