@@ -289,30 +289,19 @@ body:has(#body-wrap.page-custom-style) {
 }
 
 /* === CTF-WP 分类页 === */
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button {
-  color: #000 !important;
-  text-shadow: none !important;
-}
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button {
   color: #ccc !important;
 }
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title {
-  color: #000 !important;
-  text-shadow: none !important;
-}
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title {
   color: #ccc !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header {
   background-color: #fff !important;
-  background-size: auto 80% !important;
-  background-position: left bottom !important;
+  background-size: cover !important;
+  background-position: center center !important;
   transition: none !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before {
