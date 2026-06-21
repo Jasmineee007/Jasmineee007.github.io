@@ -197,13 +197,15 @@ body:has(#body-wrap.page-custom-style) {
   background: transparent !important;
 }
 
-/* 内容区透明显示背景图 */
+/* 内容区半透明白色，与首页卡片风格一致 */
 .type-special #content-inner,
 .type-link #content-inner,
 .type-categories #content-inner,
 #body-wrap:has(#archive) #content-inner,
 #body-wrap.page-custom-style #content-inner {
-  background: transparent;
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  padding: 20px;
 }
 .type-special .layout,
 .type-link .layout,
