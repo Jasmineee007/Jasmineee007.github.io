@@ -197,6 +197,7 @@ body:has(#body-wrap.post) #footer a {
 /* === About/归档/友链 banner === */
 .type-special #page-header,
 .type-link #page-header {
+  background-color: #fff !important;
   background-size: auto 80% !important;
   background-position: left bottom !important;
 }
