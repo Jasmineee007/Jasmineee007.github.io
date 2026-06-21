@@ -15,10 +15,7 @@
   color: #fff;
 }
 [data-theme="dark"] #aside-content .card-widget {
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #080808;
   color: #fff;
 }
 [data-theme="dark"] .layout {
@@ -35,30 +32,24 @@
   background: rgba(20, 20, 20, 0.6);
 }
 
-/* === 首页文章卡片毛玻璃效果 === */
+/* === 首页文章卡片 === */
 .recent-post-item {
   border-radius: 12px;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.45) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.85) !important;
 }
 
 .recent-post-item:hover {
   transform: translateY(-2px) !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* 深色模式毛玻璃 */
+/* 深色模式卡片 */
 [data-theme="dark"] #recent-posts .recent-post-item {
-  background: rgba(20, 20, 20, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #080808 !important;
 }
 [data-theme="dark"] .recent-post-item:hover {
-  background: rgba(30, 30, 30, 0.7) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.06) !important;
 }
 
 /* === Footer 非主页日间黑字 === */
