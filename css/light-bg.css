@@ -3,6 +3,11 @@ body:has(#body-wrap.post) #web_bg {
   display: none;
 }
 
+/* === 暗黑模式背景图 === */
+[data-theme="dark"] #web_bg {
+  filter: brightness(0.3);
+}
+
 /* === banner 遮罩渐变 —— 底部渐透明，与内容区背景自然衔接（首页 + 归档/友链/关于等） === */
 #page-header.full_page:not(.not-top-img):before,
 #page-header.not-home-page:not(.not-top-img):before {
@@ -163,5 +168,6 @@ body:has(#body-wrap.post) #footer a {
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
   background-color: #000 !important;
+  filter: brightness(0.6);
 }
 
