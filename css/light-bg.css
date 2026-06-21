@@ -1,8 +1,8 @@
 /* === 文章页 === */
 #body-wrap.post #page-header {
   background-color: #fff !important;
-  background-size: auto 80% !important;
-  background-position: left bottom !important;
+  background-size: cover !important;
+  background-position: center center !important;
   transition: none !important;
 }
 #body-wrap.post #page-header::before {
@@ -15,7 +15,8 @@
   color: #000 !important;
   text-shadow: none !important;
 }
-#body-wrap.post #page-header #site-title {
+#body-wrap.post #page-header #site-title,
+#body-wrap.post #page-header .post-title {
   color: #000 !important;
   text-shadow: none !important;
 }
@@ -35,7 +36,8 @@ body:has(#body-wrap.post) {
 [data-theme="dark"] #body-wrap.post #nav #search-button {
   color: #ccc !important;
 }
-[data-theme="dark"] #body-wrap.post #page-header #site-title {
+[data-theme="dark"] #body-wrap.post #page-header #site-title,
+[data-theme="dark"] #body-wrap.post #page-header .post-title {
   color: #ccc !important;
 }
 [data-theme="dark"] #body-wrap.post #content-inner {
