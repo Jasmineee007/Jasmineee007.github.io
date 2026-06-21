@@ -4,6 +4,18 @@
   filter: brightness(0.3);
 }
 
+/* 首页标题左移，避免被卡片遮挡 */
+#page-header.full_page #site-info {
+  text-align: left;
+  padding-left: 60px;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  #page-header.full_page #site-info {
+    padding-left: 20px;
+  }
+}
+
 /* === 深色模式 === */
 [data-theme="dark"] #content-inner {
   background: transparent;
