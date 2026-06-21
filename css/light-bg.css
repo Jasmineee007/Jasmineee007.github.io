@@ -215,7 +215,7 @@ body:has(.type-link) {
 /* 内容区半透明白色 */
 .type-special #content-inner,
 .type-link #content-inner {
-  background: rgba(255,255,255,0.85);
+  background: #fff;
 }
 .type-special .layout,
 .type-link .layout {
