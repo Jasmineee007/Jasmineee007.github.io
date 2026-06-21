@@ -1,5 +1,8 @@
 /* === 页面背景图 === */
 /* 首页用 home-bg.png（通过 JS 设置），其他页面用主题默认背景 */
+#web_bg {
+  background-position: left center !important;
+}
 [data-theme="dark"] #web_bg {
   filter: brightness(0.3);
 }
