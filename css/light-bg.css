@@ -20,6 +20,11 @@
   color: #000 !important;
   text-shadow: none !important;
 }
+#body-wrap.post #post-info,
+#body-wrap.post #post-info a,
+#body-wrap.post #post-info span {
+  color: #000 !important;
+}
 body:has(#body-wrap.post) {
   background: transparent !important;
 }
@@ -38,6 +43,11 @@ body:has(#body-wrap.post) {
 }
 [data-theme="dark"] #body-wrap.post #page-header #site-title,
 [data-theme="dark"] #body-wrap.post #page-header .post-title {
+  color: #ccc !important;
+}
+[data-theme="dark"] #body-wrap.post #post-info,
+[data-theme="dark"] #body-wrap.post #post-info a,
+[data-theme="dark"] #body-wrap.post #post-info span {
   color: #ccc !important;
 }
 [data-theme="dark"] #body-wrap.post #content-inner {
