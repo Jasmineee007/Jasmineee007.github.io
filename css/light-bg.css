@@ -192,18 +192,32 @@ body:has(#body-wrap.post) #footer a {
 /* === About/归档/友链 banner === */
 .type-special #page-header,
 .type-link #page-header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
   background-color: #fff !important;
   background-size: auto 80% !important;
   background-position: left bottom !important;
-  background-attachment: fixed !important;
 }
 .type-special #page-header::before,
 .type-link #page-header::before {
   display: none !important;
 }
+.type-special .layout,
+.type-link .layout {
+  position: relative;
+  z-index: 2;
+  background: rgba(255,255,255,0.92);
+}
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
   background-color: #000 !important;
   background-image: none !important;
+}
+[data-theme="dark"] .type-special .layout,
+[data-theme="dark"] .type-link .layout {
+  background: rgba(0,0,0,0.92);
 }
 
