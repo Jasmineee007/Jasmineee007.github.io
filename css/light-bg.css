@@ -28,7 +28,6 @@ body:has(#body-wrap.post) {
 }
 [data-theme="dark"] #body-wrap.post #page-header {
   background-color: #000 !important;
-  background-image: none !important;
 }
 [data-theme="dark"] #body-wrap.post #nav a,
 [data-theme="dark"] #body-wrap.post #nav span.site-page,
@@ -321,7 +320,6 @@ body:has(#body-wrap.page-custom-style) {
 [data-theme="dark"] #body-wrap:has(#archive) #page-header,
 [data-theme="dark"] #body-wrap.page-custom-style #page-header {
   background-color: #000 !important;
-  background-image: none !important;
 }
 [data-theme="dark"] .type-special #content-inner,
 [data-theme="dark"] .type-link #content-inner,
@@ -375,7 +373,6 @@ body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #page-header {
   background-color: #000 !important;
-  background-image: none !important;
 }
 [data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #content-inner {
@@ -416,7 +413,6 @@ body:has(#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.
 }
 [data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
   background-color: #000 !important;
-  background-image: none !important;
 }
 [data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav a,
 [data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav span.site-page,
