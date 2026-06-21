@@ -150,3 +150,14 @@ body:has(#body-wrap.post) #footer a {
   color: #ddd !important;
 }
 
+/* === About/归档/友链 banner === */
+.type-special #page-header,
+.type-link #page-header {
+  background-color: #fff !important;
+  background-size: auto 80% !important;
+}
+[data-theme="dark"] .type-special #page-header,
+[data-theme="dark"] .type-link #page-header {
+  background-color: #000 !important;
+}
+
