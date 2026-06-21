@@ -1,7 +1,7 @@
 /* === 文章页 === */
 #body-wrap.post #page-header {
   background-color: #fff !important;
-  background-size: auto 90% !important;
+  background-size: auto 95% !important;
   background-position: right center !important;
   transition: none !important;
 }
@@ -32,43 +32,6 @@ body:has(#body-wrap.post) {
 #body-wrap.post .layout {
   background: transparent;
 }
-[data-theme="dark"] #body-wrap.post #page-header {
-  background-color: #000 !important;
-}
-[data-theme="dark"] #body-wrap.post #nav a,
-[data-theme="dark"] #body-wrap.post #nav span.site-page,
-[data-theme="dark"] #body-wrap.post #nav .site-name,
-[data-theme="dark"] #body-wrap.post #nav #search-button {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap.post #page-header #site-title,
-[data-theme="dark"] #body-wrap.post #page-header .post-title {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap.post #post-info,
-[data-theme="dark"] #body-wrap.post #post-info a,
-[data-theme="dark"] #body-wrap.post #post-info span {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap.post #content-inner {
-  background: #000;
-}
-[data-theme="dark"] body:has(#body-wrap.post) #web_bg {
-  display: none;
-}
-
-/* === 暗黑模式背景图 === */
-[data-theme="dark"] #web_bg {
-  filter: brightness(0.3);
-}
-/* 暗黑模式下关于/归档/友链/Categories不显示背景图 */
-[data-theme="dark"] body:has(.type-special) #web_bg,
-[data-theme="dark"] body:has(.type-link) #web_bg,
-[data-theme="dark"] body:has(.type-categories) #web_bg,
-[data-theme="dark"] body:has(#body-wrap:has(#archive)) #web_bg,
-[data-theme="dark"] body:has(#body-wrap.page-custom-style) #web_bg {
-  display: none;
-}
 
 /* === About/归档/友链/Categories 导航栏字体 === */
 .type-special #nav a,
@@ -94,28 +57,6 @@ body:has(#body-wrap.post) {
   color: #000 !important;
   text-shadow: none !important;
 }
-[data-theme="dark"] .type-special #nav a,
-[data-theme="dark"] .type-special #nav span.site-page,
-[data-theme="dark"] .type-special #nav .site-name,
-[data-theme="dark"] .type-special #nav #search-button,
-[data-theme="dark"] .type-link #nav a,
-[data-theme="dark"] .type-link #nav span.site-page,
-[data-theme="dark"] .type-link #nav .site-name,
-[data-theme="dark"] .type-link #nav #search-button,
-[data-theme="dark"] .type-categories #nav a,
-[data-theme="dark"] .type-categories #nav span.site-page,
-[data-theme="dark"] .type-categories #nav .site-name,
-[data-theme="dark"] .type-categories #nav #search-button,
-[data-theme="dark"] #body-wrap:has(#archive) #nav a,
-[data-theme="dark"] #body-wrap:has(#archive) #nav span.site-page,
-[data-theme="dark"] #body-wrap:has(#archive) #nav .site-name,
-[data-theme="dark"] #body-wrap:has(#archive) #nav #search-button,
-[data-theme="dark"] #body-wrap.page-custom-style #nav a,
-[data-theme="dark"] #body-wrap.page-custom-style #nav span.site-page,
-[data-theme="dark"] #body-wrap.page-custom-style #nav .site-name,
-[data-theme="dark"] #body-wrap.page-custom-style #nav #search-button {
-  color: #ccc !important;
-}
 
 /* === About/归档/友链/Categories 页面标题 === */
 .type-special #page-header #site-title,
@@ -126,13 +67,6 @@ body:has(#body-wrap.post) {
   color: #000 !important;
   text-shadow: none !important;
 }
-[data-theme="dark"] .type-special #page-header #site-title,
-[data-theme="dark"] .type-link #page-header #site-title,
-[data-theme="dark"] .type-categories #page-header #site-title,
-[data-theme="dark"] #body-wrap:has(#archive) #page-header #site-title,
-[data-theme="dark"] #body-wrap.page-custom-style #page-header #site-title {
-  color: #ccc !important;
-}
 
 /* === banner 遮罩渐变 —— 底部渐透明，与内容区背景自然衔接（首页 + 归档/友链/关于等） === */
 #page-header.full_page:not(.not-top-img):before,
@@ -140,39 +74,11 @@ body:has(#body-wrap.post) {
   background: linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.03) 88%, rgba(0,0,0,0) 100%) !important;
 }
 
-/* === 深色模式 === */
-[data-theme="dark"] #content-inner {
-  background: #000;
-  color: #fff;
-}
-[data-theme="dark"] #aside-content .card-widget {
-  background: #080808;
-  color: #fff;
-}
-[data-theme="dark"] .layout {
-  background: #000;
-  color: #fff;
-}
-[data-theme="dark"] #recent-posts {
-  background: transparent;
-}
-[data-theme="dark"] #article-container {
-  color: #fff;
-}
-[data-theme="dark"] .recent-post-item {
-  background: #080808;
-}
-
 /* === 首页文章卡片 === */
 .recent-post-item {
   border-radius: 12px;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.85) !important;
-}
-
-/* 深色模式覆盖 */
-[data-theme="dark"] #recent-posts .recent-post-item:nth-child(n) {
-  background: #080808 !important;
 }
 
 /* === Footer 非主页日间黑字 === */
@@ -238,9 +144,6 @@ body:has(#body-wrap.post) #footer a {
 .announcement_content a:hover {
   color: #1e90ff;
 }
-[data-theme="dark"] .announcement_content a:hover {
-  color: #4da6ff;
-}
 
 /* === 复制版权提示 === */
 .copy-notice {
@@ -264,21 +167,6 @@ body:has(#body-wrap.post) #footer a {
   15% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
   70% { opacity: 1; }
   100% { opacity: 0; }
-}
-
-/* 暗色模式下弹窗保持浅色 */
-[data-theme="dark"] .copy-notice {
-  background: #fff;
-  color: #333;
-}
-
-/* === Footer 非主页夜间 === */
-[data-theme="dark"] body:has(#body-wrap.post) #footer,
-[data-theme="dark"] body:has(#body-wrap.post) #footer > * {
-  color: #ccc !important;
-}
-[data-theme="dark"] body:has(#body-wrap.post) #footer a {
-  color: #ddd !important;
 }
 
 /* === About/归档/友链/Categories banner === */
@@ -325,37 +213,7 @@ body:has(#body-wrap.page-custom-style) {
   background: transparent;
 }
 
-/* 暗黑模式 */
-[data-theme="dark"] .type-special #page-header,
-[data-theme="dark"] .type-link #page-header,
-[data-theme="dark"] .type-categories #page-header,
-[data-theme="dark"] #body-wrap:has(#archive) #page-header,
-[data-theme="dark"] #body-wrap.page-custom-style #page-header {
-  background-color: #000 !important;
-}
-[data-theme="dark"] .type-special #content-inner,
-[data-theme="dark"] .type-link #content-inner,
-[data-theme="dark"] .type-categories #content-inner,
-[data-theme="dark"] #body-wrap:has(#archive) #content-inner,
-[data-theme="dark"] #body-wrap.page-custom-style #content-inner {
-  background: #000;
-}
-
 /* === CTF-WP / Web安全 分类页 === */
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav a,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav span.site-page,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav .site-name,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #nav #search-button {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #page-header #site-title {
-  color: #ccc !important;
-}
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
 #body-wrap:has(#page-header[style*="websec"]) #page-header {
   background-color: #fff !important;
@@ -381,18 +239,6 @@ body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
 #body-wrap:has(#page-header[style*="websec"]) #content-inner,
 #body-wrap:has(#page-header[style*="websec"]) .layout {
   background: transparent;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #page-header {
-  background-color: #000 !important;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="websec"]) #content-inner {
-  background: #000;
-}
-[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="ctfwp"])) #web_bg,
-[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="websec"])) #web_bg {
-  display: none;
 }
 
 /* === 随笔等生成分类页（about-1 banner） === */
@@ -423,22 +269,3 @@ body:has(#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
-  background-color: #000 !important;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav a,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav span.site-page,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav .site-name,
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav #search-button {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header #site-title {
-  color: #ccc !important;
-}
-[data-theme="dark"] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #content-inner {
-  background: #000;
-}
-[data-theme="dark"] body:has(#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories)) #web_bg {
-  display: none;
-}
-
