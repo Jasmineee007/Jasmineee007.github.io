@@ -156,6 +156,10 @@ body:has(#body-wrap.post) #footer a {
   background-color: #fff !important;
   background-size: auto 80% !important;
 }
+.type-special #page-header::before,
+.type-link #page-header::before {
+  display: none !important;
+}
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
   background-color: #000 !important;
