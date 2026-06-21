@@ -200,6 +200,7 @@ body:has(#body-wrap.post) #footer a {
   background-color: #fff !important;
   background-size: auto 80% !important;
   background-position: left bottom !important;
+  transition: none !important;
 }
 .type-special #page-header::before,
 .type-link #page-header::before {
@@ -230,6 +231,6 @@ body:has(.type-link) {
 }
 [data-theme="dark"] .type-special #content-inner,
 [data-theme="dark"] .type-link #content-inner {
-  background: rgba(0,0,0,0.85);
+  background: #000;
 }
 
