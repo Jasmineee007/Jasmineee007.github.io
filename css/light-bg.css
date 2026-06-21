@@ -189,6 +189,6 @@ body:has(#body-wrap.post) #footer a {
 [data-theme="dark"] .type-special #page-header,
 [data-theme="dark"] .type-link #page-header {
   background-color: #000 !important;
-  filter: brightness(0.6);
+  background-image: none !important;
 }
 
