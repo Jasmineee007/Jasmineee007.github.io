@@ -10,8 +10,12 @@
 
 /* === About 页面 banner === */
 .type-about #page-header {
+  background-color: #fff !important;
   background-position: left bottom !important;
   background-size: auto 80% !important;
+}
+[data-theme="dark"] .type-about #page-header {
+  background-color: #000 !important;
 }
 
 
