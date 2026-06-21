@@ -213,10 +213,10 @@ body:has(.type-link) {
   background: transparent !important;
 }
 
-/* 内容区半透明白色 */
+/* 内容区透明显示背景图 */
 .type-special #content-inner,
 .type-link #content-inner {
-  background: #fff;
+  background: transparent;
 }
 .type-special .layout,
 .type-link .layout {
