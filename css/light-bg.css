@@ -32,8 +32,9 @@
   background: rgba(20, 20, 20, 0.6);
 }
 
-/* === 首页文章卡片 === */
-.recent-post-item {
+/* === 首页文章卡片 + 关于页卡片 === */
+.recent-post-item,
+#content-inner > div:first-child:not(.nc) {
   border-radius: 12px;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.85) !important;
