@@ -5,7 +5,7 @@
   background: #000;
 }
 
-/* 防止首页背景图加载前闪烁蓝色底色 */
-body {
-  background: #fff !important;
+/* 主题默认底色从蓝色改为白色 */
+:root {
+  --default-bg-color: #fff;
 }
