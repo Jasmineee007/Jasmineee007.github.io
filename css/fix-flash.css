@@ -4,3 +4,8 @@
 [data-theme="dark"] body {
   background: #000;
 }
+
+/* 防止首页背景图加载前闪烁蓝色底色 */
+body {
+  background: #fff !important;
+}
