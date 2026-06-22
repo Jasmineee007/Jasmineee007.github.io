@@ -3384,6 +3384,7 @@ Web安全核心原则：不信任任何外部传入参数
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>PHP</category>
       </categories>
       <tags>
         <tag>PHP</tag>
