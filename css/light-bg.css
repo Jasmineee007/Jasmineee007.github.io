@@ -136,6 +136,13 @@ body:has(#body-wrap.post) #footer a {
   transform: none;
 }
 
+/* === 侧栏分类子菜单完整显示 === */
+.card-categories .card-category-list.child a span {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+}
+
 /* === 公告内链接样式 === */
 .announcement_content a {
   color: inherit;
