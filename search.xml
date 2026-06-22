@@ -2084,7 +2084,7 @@ PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAn
 ]]></content>
       <categories>
         <category>CTF-WP</category>
-        <category>比赛</category>
+        <category>Contest-WP</category>
       </categories>
       <tags>
         <tag>CTF</tag>
@@ -3388,6 +3388,180 @@ deny_arr：黑名单
       </categories>
       <tags>
         <tag>文件上传</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP特性利用之MD5</title>
+    <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/index/</url>
+    <content><![CDATA[一、[Bugku CTF] MD51. 题目
+
+2. 解题思路在题目页面，发现有一个下载文件。
+
+代码审计，md5。
+
+&lt;?php$md51 = md5(&#x27;QNKCDZO&#x27;); // 计算固定字符串的MD5，结果是0e83040045199491692543859291139$a = @$_GET[&#x27;a&#x27;];       // 接收GET参数a，@抑制错误$md52 = @md5($a);       // 计算a的MD5，@抑制错误if(isset($a))&#123;          // 检查是否传入参数a    if ($a != &#x27;QNKCDZO&#x27; &amp;&amp;$md51 ==$md52) &#123; // 核心条件：a≠QNKCDZO 且 两者MD5相等        echo &quot;flag**************&quot;; // 满足条件输出flag    &#125; else &#123;        echo &quot;false!!!&quot;;    &#125;&#125; else&#123;    echo &quot;please input a&quot;; // 未传a则提示&#125;?&gt;
+
+PHP MD5弱类型比较漏洞：
+
+md5(&#39;QNKCDZO&#39;) 的结果是 0e83040045199491692543859291139，以0e开头，PHP会将其解析为科学计数法的0；
+只要找一个**不等于QNKCDZO**的字符串，其MD5也以0e开头，就能满足 $md51 ==$md52；
+也可以用数组绕过（更通用）：md5(数组)返回NULL，但这里优先用经典的0e字符串解法。
+
+3. 构造Payload经典0e字符串：找MD5以0e开头且不等于QNKCDZO的字符串，常用的有：
+?a=s878926199a?a=240610708
+
+4. 拿到flag
+
+
+二、[ctf.show] web51. 题目
+2. 解题步骤读代码：
+&lt;?php$flag=&quot;&quot;;$v1=$_GET[&#x27;v1&#x27;];$v2=$_GET[&#x27;v2&#x27;];if(isset($v1) &amp;&amp; isset($v2))&#123;    if(!ctype_alpha($v1))&#123;        die(&quot;v1 error&quot;);    &#125;    if(!is_numeric($v2))&#123;        die(&quot;v2 error&quot;);    &#125;    if(md5($v1)==md5($v2)&#123;        echo $flag;    &#125;&#125;?&gt;
+
+
+ctype_alpha($v1)：要求 v1 必须是纯字母字符串。
+is_numeric($v2)：要求 v2 必须是数字或数字字符串。
+$v1 == $v2：使用了 PHP 的弱类型比较 ==，这是本题的突破口。
+
+所以要找两个不同的字符串，一个是纯字母，一个是纯数字，它们md5哈希值在弱类型下判定为0。
+0e 开头的 MD5 哈希值以及对应的原始明文：
+// 原始值 =&gt; MD5哈希&quot;240610708&quot; =&gt; &quot;0e462097431906509019562988736854&quot;,&quot;QNKCDZO&quot;   =&gt; &quot;0e830400451993494058024219903391&quot;,&quot;aabg7XSs&quot;  =&gt; &quot;0e087386482136013740957780965295&quot;,&quot;aabC9RqS&quot;  =&gt; &quot;0e041022518165728065344349536299&quot;,&quot;s878926199a&quot; =&gt; &quot;0e545993274517709034328855841020&quot;,&quot;s155964671a&quot; =&gt; &quot;0e342768416822451524974117254469&quot;,
+
+访问如下 URL 即可触发条件并获取 Flag：
+http://63a977ac-9022-493d-a0ff-b3294262a7be.challenge.ctf.show/?v1=QNKCDZO&amp;v2=240610708
+
+
+
+三、[BUUCTF-BJDCTF2020] Easy MD51. 题目
+2. 解题思路随便输入点东西点击”提交查询”发现没有任何回显，查看页面源代码，看一下是否有提示。
+看到header联想到HTTP的头。
+
+浏览器开发者工具，在消息头中找到线索hint。
+
+select * from &#x27;admin&#x27; where password=md5($pass,true)
+
+给了一个sql语句，我们需要输入一个密码但是我们并不知道正确密码。这里需要利用md5绕过，让sql语句变成如下形式：
+select * from &#x27;admin&#x27; where password=&#x27;&#x27; or &#x27;
+
+Payload：ffifdyop
+
+md5($pass, true) 会返回 16 位原始二进制字符串，而非 32 位十六进制字符串。
+Payload 原理：输入字符串 ffifdyop 时，md5(&#39;ffifdyop&#39;, true) 生成的二进制字符串开头为 &#39;or&#39;6，拼接后 SQL 语句变为：
+
+select * from admin where password=&#x27;or&#x27;6xxxxxxxx
+
+or 后面非空字符串 &#39;6xxx&#39; 等价 true，整个条件恒成立，构造永真条件，绕过密码验证。
+
+
+SQL 语言的「隐式类型转换规则」中，数据库在判断条件真假时，会自动将字符串（及其他类型）转换成布尔值，核心规则就是：非空字符串 → 布尔值 TRUE（真）；空字符串 → 布尔值 FALSE（假）
+
+3. 第二关查看页面源代码。
+
+PHP 中 == 是弱类型比较，以 0e 开头的字符串会被解析为科学计数法（值为 0），不同字符串的 MD5 若均以 0e 开头，比较结果为真。
+科学计数法绕过：”0e”开头的字符串都会以科学计数法来解析，而0的乘积都为0。所以构造md5加密后开头为0e的字符串即可：
+?a=QNKCDZO&amp;b=240610708
+
+
+数组绕过：
+?a[]=1&amp;b[]=2
+
+PHP 中 md5(数组) 返回 null，null == null 为真，且 a[] != b[]。
+
+用POST方法传递数值，不能用GET方式。
+
+param1[]=1&amp;param2[]=2
+
+
+
+
+四、[CTFShow] web91. 题目
+2. 解题思路尝试登录，盲猜密码，无报错，无反应。
+找源码泄露，先试最常见的泄露路径：
+
+index.php
+index.php.swp
+index.php.bak
+robots.txt
+index.phps
+
+访问 index.phps 成功拿到源码。
+
+分析源码：
+
+从泄露的源码里，看到核心逻辑：
+$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
+
+关键漏洞：md5($password, true) 返回原始二进制字符串，如果这个字符串包含 &#39;or&#39;，就会构造出恒成立的 SQL 语句。
+构造 payload：一个能让 MD5 二进制包含 &#39;or&#39; 的密码，用经典的 ffifdyop 作为密码。它的 MD5 原始二进制值包含 &#39;or&#39;，代入 SQL 后变成：
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6xxxx&#x27;
+
+输入 ffifdyop，拿到flag。
+
+
+五、知识点总结1. 常见Web源码泄露场景(1) 核心区分
+
+
+文件类型
+服务器处理逻辑
+访问结果
+
+
+
+index.php
+调用PHP解释器执行代码
+仅显示页面内容，无源码
+
+
+各类备份&#x2F;泄露文件
+直接返回纯文本&#x2F;缓存内容
+可查看完整PHP源码
+
+
+(2) 高频源码泄露文件&#x2F;路径
+
+
+泄露类型
+典型路径
+产生原因
+
+
+
+PHP源码预览文件
+index.phps
+服务器配置为直接返回.phps后缀源码
+
+
+Vim缓存文件
+index.php.swp&#x2F;.swo&#x2F;.swn
+Vim编辑意外退出（死机&#x2F;断电）生成的缓存
+
+
+手动备份文件
+index.php.bak&#x2F;.backup
+开发者手动保存的源码备份
+
+
+编辑器自动备份
+index.php~
+Emacs等编辑器自动生成的备份文件
+
+
+版本控制文件
+.git/&#x2F;.svn/
+代码版本控制文件夹未删除
+
+
+敏感路径提示
+robots.txt
+网站声明的禁止爬虫路径，可能泄露后台&#x2F;源码路径
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
       </tags>
   </entry>
 </search>
