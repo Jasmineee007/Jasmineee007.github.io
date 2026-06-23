@@ -3393,9 +3393,9 @@ deny_arr：黑名单
   <entry>
     <title>PHP特性利用之MD5</title>
     <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/index/</url>
-    <content><![CDATA[[Bugku CTF] MD5题目
+    <content><![CDATA[一、[Bugku CTF] MD51. 题目
 
-解题思路
+2. 解题思路
 在题目页面，发现有一个下载文件。
 
 
@@ -3426,8 +3426,8 @@ md5(&#39;QNKCDZO&#39;) 的结果是 0e83040045199491692543859291139，以0e开�
 
 
 
-[ctf.show] web5题目
-解题步骤
+二、[ctf.show] web51. 题目
+2. 解题步骤
 读代码：
 
 &lt;?php$flag=&quot;&quot;;$v1=$_GET[&#x27;v1&#x27;];$v2=$_GET[&#x27;v2&#x27;];if(isset($v1) &amp;&amp; isset($v2))&#123;    if(!ctype_alpha($v1))&#123;        die(&quot;v1 error&quot;);    &#125;    if(!is_numeric($v2))&#123;        die(&quot;v2 error&quot;);    &#125;    if(md5($v1)==md5($v2)&#123;        echo $flag;    &#125;&#125;?&gt;
@@ -3451,8 +3451,8 @@ $v1 == $v2：使用了 PHP 的弱类型比较 ==，这是本题的突破口。
 http://63a977ac-9022-493d-a0ff-b3294262a7be.challenge.ctf.show/?v1=QNKCDZO&amp;v2=240610708
 
 
-[BJDCTF2020] Easy MD5题目
-解题思路
+三、[BJDCTF2020] Easy MD51. 题目
+2. 解题思路
 随便输入点东西点击”提交查询”发现没有任何回显，所以这里查看一下页面源代码，看一下是否有提示。
 
 看到header联想到HTTP的头。
@@ -3508,8 +3508,8 @@ param1[]=1&amp;param2[]=2
 
 
 
-[CTFShow] web9题目
-解题思路
+四、[CTFShow] web91. 题目
+2. 解题思路
 尝试登录，盲猜密码，无报错，无反应。
 
 找源码泄露，先试最常见的泄露路径：
@@ -3548,7 +3548,7 @@ select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;o
 输入 ffifdyop，拿到flag。
 
 
-知识点总结常见Web源码泄露场景核心区分
+3. 知识点总结(1) 常见Web源码泄露场景核心区分
 
 
 文件类型
