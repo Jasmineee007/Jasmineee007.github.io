@@ -62,6 +62,7 @@ MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
 
 2.2 命令行连接mysql -u root -p
 
+
 -u：指定用户名
 -p：需要输入密码（输入时不显示，属正常现象）
 回车后输入密码，再次回车即可登录
@@ -72,17 +73,19 @@ MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
 
 4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
 
-4.1.1 创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
+创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 
 CHARACTER SET：指定字符集
 COLLATE：指定排序规则
 
 4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
 
-4.2.1 创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
+创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
 
 
 5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
+
 
 INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
 VALUES(值1, 值2)：批量填数据，顺序与字段对应
@@ -90,8 +93,10 @@ VALUES(值1, 值2)：批量填数据，顺序与字段对应
 5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
 
 5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
+
 注意：漏写 WHERE 会修改表中所有数据。
 5.4 删除 DELETEDELETE FROM users WHERE id = 1;
+
 同样，漏写 WHERE 会清空整张表，且难以恢复。
 
 6. 常用条件语法6.1 运算符
@@ -123,9 +128,9 @@ IN(值1, 值2)
 多值匹配
 
 
-6.1.1 AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
+AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
 
-6.1.2 OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
+OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
 
 6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
 
@@ -162,23 +167,82 @@ AVG()
 8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
 
 
-9. 联合查询 UNION将多个 SELECT 结果合并，前提：字段数相同、字段类型兼容。
-SELECT 列1, 列2 FROM 表1UNIONSELECT 列1, 列2 FROM 表2;-- UNION：合并结果并去重-- UNION ALL：保留重复数据
+9. 查询9.1 多表连接查询9.1.1 内连接 INNER JOIN只保留两边匹配数据
+-- 三表关联示例select a.userno,a.username,b.lessonname,c.scorefrom userinfo ainner join score c on a.userno = c.usernoinner join lesson b on c.lessonno = b.lessonno;
+
+特点：只返回两表关联条件匹配成功的行，无匹配数据全部过滤。
+9.1.2 右外连接 RIGHT JOIN右表全部保留，左表无匹配填NULL
+select b.userno, a.username, b.numfrom userinfo aright join signin bon a.userno = b.userno;
+
+执行结果说明：
+
+signin 表所有数据全部展示；
+userinfo 中不存在的用户，username 字段显示 NULL。
+
+9.1.3 左外连接 LEFT JOIN左表全部保留，右表无匹配填NULL
+select a.userno, a.username, b.numfrom userinfo aleft join signin bon a.userno = b.userno;
+
+9.1.4 连接规则
+必须使用 on 写关联条件，区分 where 过滤条件；
+多表关联时建议给表起别名简化书写；
+区分内外连接：内连接只留交集，外连接保留单侧全量数据。
+
+9.2 UNION 联合查询多条查询结果纵向合并
+9.2.1 基础语法-- UNION：自动去除重复行select 列1,列2 from 表1UNIONselect 列1,列2 from 表2;-- UNION ALL：直接拼接，不去重，性能更高select 列1,列2 from 表1UNION ALLselect 列1,列2 from 表2;
+
+注意：
+
+列数量必须完全一致：前后两条select查询返回的字段个数相同；
+对应位置字段数据类型兼容：第1列都是字符串、第2列都是数字，不能一列字符串一列数字；
+最终字段名以第一条select的列名为准；
+排序写法：order by 写在整条语句末尾，作用于合并后的全部结果
+
+select userno,username from userinfoUNION ALLselect userno,&#x27;&#x27; from signinorder by userno asc;
+
+9.2.2 UNION vs UNION ALL
 
 
-10. SQL 注入漏洞10.1 万能密码10.1.1 漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+关键字
+去重
+性能
+使用场景
+
+
+
+UNION
+自动剔除完全重复数据
+低（底层排序比对去重）
+需要合并后剔除重复数据
+
+
+UNION ALL
+保留所有数据，不做去重
+高（直接拼接结果）
+确认无重复，追求查询速度
+
+
+9.3 连接查询 vs UNION
+JOIN（左右内连接）：横向拼接多张表按关联条件左右合并字段，一行数据同时包含多表列；例：用户表+签到表，一行同时有用户名、签到次数。
+UNION：纵向拼接多条查询结果上下合并行，字段结构完全一致，只是叠加数据；例：把1班学生表、2班学生表合成一张完整学生列表。
+示例：
+
+-- 左连接结果 + 右连接结果 合并select a.userno,a.username,b.num from userinfo a left join signin b on a.userno=b.usernoUNIONselect b.userno,a.username,b.num from userinfo a right join signin b on a.userno=b.userno;
+
+
+10. SQL 注入漏洞10.1 万能密码漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+
 
 直接将用户输入拼接到 SQL 语句的单引号中执行
 未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
 攻击者可输入恶意字符篡改 SQL 逻辑
 
-10.1.2 攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
+攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
 
 闭合原有 SQL 语句的单引号，打破查询限制
 添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
 注释多余内容，避免 SQL 语法错误
 
-10.1.3 篡改后的 SQL 对比原正常 SQL：
+篡改后的 SQL 对比原正常 SQL：
 SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
 
 篡改后 SQL：
@@ -187,7 +251,7 @@ SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or
 无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
 SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
 
-10.2 CTF 注入常用语句10.2.1 核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
+10.2 CTF 注入常用语句核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
 
 
 
@@ -232,7 +296,7 @@ column_name
 字段（列）名
 
 
-10.2.2 常用注入语句
+常用注入语句
 查看当前库、版本
 
 SELECT DATABASE();SELECT VERSION();
