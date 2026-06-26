@@ -573,7 +573,6 @@ unserialize()：将序列化字符串还原为对象&#x2F;变量
 &lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
 
 输出结果：s:3:&quot;KFC&quot;;
-
 格式说明：s代表字符串，6代表字符串字符长度。
 构造 payload：?str=s:3:&quot;KFC&quot;;
 案例2 CTF Cookie序列化题目页面代码：
@@ -586,11 +585,12 @@ unserialize()：将序列化字符串还原为对象&#x2F;变量
 输出：s:0:&quot;&quot;;构造请求包，设置Cookie: ISecer=s:0:&quot;&quot;;
 3. 类与对象序列化（1）对象序列化&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$p = new Person();$obj = serialize($p);print_r($obj);?&gt;
 
+
 运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
 （2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
 
 
-（3）修改属性后反序列化简单来说，”修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的”序列化字符串”的内容。
+（3）修改属性后反序列化简单来说，“修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的“序列化字符串”的内容。
 &lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
 
 
@@ -609,10 +609,9 @@ private（私有）：仅本类内部可访问，序列化格式：\x00类名\x0
 动作： 将 O:6:&quot;Person&quot;:1:{...} 中的 1 改为 2 或更大。
 用途： 绕过 __wakeup 中可能存在的安全检测。
 
-
 二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
 
-注：测试 PHP，为直观显示输出结果，我将”\n”纯文本换行符换成了 ““ HTML换行标签，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行\n只会显示成空格，只有&lt;br&gt;才能实现页面换行效果。
+注：测试 PHP，为直观显示输出结果，我将&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;HTML”换行标签,换成了&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;\n&lt;/font&gt;“纯文本”换行符，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;\n&lt;/font&gt;只会显示成空格，只有&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;才能实现页面换行效果。
 
 1. __construct 与 __destruct
 __construct()：构造方法，对象创建时自动调用。
@@ -638,15 +637,15 @@ __wakeup()：对象反序列化时自动调用。
 
 流程推演：
 
-new 一个对象 $a，触发 __construct。
+new 一个对象 $a，触发 __construct。 
 调用 serialize($a)，在转换为字符串之前，触发 __sleep。
 echo 打印序列化结果。
 调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
 var_dump 打印反序列化结果。
-当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），连续触发了两次 __destruct。
+当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），**连续触发了两次 ****__destruct**。
 
 注意：
-反序列化的入口必须是字符串，绝对不能是对象本身。unserialize()这个函数的功能是”把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
+反序列化的入口必须是字符串，绝对不能是对象本身。**unserialize()**** **这个函数的功能是“把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
 因此代码不可以写成：
 $a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
 
@@ -660,24 +659,24 @@ __set()：赋值给不存在&#x2F;私有属性时自动调用。
 
 流程推演：
 
-new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
-读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 __get 方法。
+****new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
+读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 **__get** 方法。
 __get 内部先输出了 调用 __get。
 然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
 
 
 echo 拿到返回值，打印出了 hello。
-写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 __set 方法。
+写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 **__set** 方法。
 __set 内部先输出了 调用 __set。
 接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
 
 
 再次读拦截： 执行 echo $a-&gt;str;
-系统再次触发 __get，输出 调用 __get。
+系统再次触发 **__get**，输出 调用 __get。
 此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
 
 
-脚本执行结束，内存清空销毁对象，自动触发 __destruct，输出 调用 __destruct()。
+脚本执行结束，内存清空销毁对象，自动触发 **__destruct**，输出 调用 __destruct()。
 
 4. __call 与 __callStatic
 __call()：调用对象中不存在的实例方法时自动调用。
@@ -720,7 +719,7 @@ echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的�
 流程推演：
 
 创建对象 $a，触发 __construct()。调用 __construct()。
-echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（$a）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
+echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（**$a**）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
 先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
 程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
 
@@ -734,13 +733,12 @@ __unset()：对不可访问属性执行unset()销毁时自动调用。
 
 流程推演：
 
-new 一个对象，包含公开属性 sex，私有属性 name 和 age。
+new 一个对象，包含公开属性 sex，私有属性 name 和 age。 
 echo isset($person-&gt;sex);代码可以直接拿到公开的数据 sex（不触发魔术方法）；但是对于私有数据无法直接接触。因为 sex 是 public，系统直接放行，结果为 true。经过 echo 的强制类型转换，屏幕上打出了数字 1。
-echo isset($person-&gt;name); echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。
+echo isset($person-&gt;name);``echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。 
 代码试图用 unset 销毁私有的 name，再次被拦截，触发了 __unset 方法并输出提示。
-当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。
+当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。 
 最后用三目运算符再次探测 sex 时，发现它已经被删没了，所以输出了 not_has。
-
 
 三、CTF 序列化实战题目示例：CTF-XSS 结合反序列化页面代码 ctf_xss.php
 &lt;?phphighlight_file(__file__);$a = unserialize($_GET[&#x27;k&#x27;]);echo $a;?&gt;
@@ -769,9 +767,8 @@ SSRF (内网探针) ： 利用 SoapClient。触发其 __call 方法可强行向�
 文件&#x2F;目录遍历： 利用 DirectoryIterator 或 FilesystemIterator 配合 __toString 读取敏感目录。
 Phar 反序列化： 利用 Phar。无需 unserialize，只需普通文件读取操作（如 file_exists, filesize, file_get_contents, md5_file 等）即可引爆反序列化。
 
-
 四、PHP 反序列化攻击
-核心： 寻找从入口unserialize()到危险函数的”多米诺骨牌”（POP 链）。
+核心： 寻找从入口unserialize()到危险函数的“多米诺骨牌”（POP 链）。
 显式入口 (函数类)： 代码直接调用 unserialize()。
 隐式入口 (协议&#x2F;机制类)：
 Phar 协议： 利用 phar:// 伪协议，通过文件操作触发。
@@ -785,8 +782,8 @@ Exception XSS
 关键点： 触发 Exception::__toString。
 
 Session 反序列化
-触发条件： 存在”存取引擎不一致” (php vs php_serialize)。
-动作：
+触发条件： 存在“存取引擎不一致” (php vs php_serialize)。
+动作： 
 寻找写入 Session 的接口，投毒 Payload：| + 序列化字符串。
 触发读取 Session 的页面，触发引擎自动反序列化。
 
@@ -799,7 +796,6 @@ Phar 反序列化
 动作： phar:// + 伪装后缀 (.jpg)。
 关键点： 利用 PHP 底层 phar:// 协议强制反序列化。
 注：Phar 文件必须包含合法签名（如 \x00\x00\xfe\x01）。若手动修改或生成时破坏了签名，PHP 将拒绝识别文件，导致漏洞无法触发。
-
 
 五、总结Q1: PHP 序列化漏洞中，有哪些魔术方法？
 __construct ⭐️构造方法，仅new创建对象时自动触发，反序列化不会执行。
@@ -824,7 +820,7 @@ php 保存 session 的过程是序列化，php 读取 session 的过程是反序
 
 Q8: session 反序列化的危害是什么？RCE（远程代码执行）
 Q9: session 序列化引擎有哪些？PHP、PHP_serialize、PHP_binary
-username=zhangsan的结果是PHP引擎：username | s:8:&quot;zhangsan&quot;;PHP_serialize引擎:a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125;php_binary引擎:[BS]�usernames:8:&quot;zhangsan&quot;;
+username=zhangsan的结果是 PHP引擎： username | s:8:&quot;zhangsan&quot;; PHP_serialize引擎: a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125; php_binary引擎: [BS]�usernames:8:&quot;zhangsan&quot;;
 
 Q10: 文件上传进度反序列化是什么？文件上传进度反序列化是指攻击者通过在上传表单中构造恶意的进度标识符，利用 PHP 自动将上传信息存入 session 的机制，结合 session 引擎解析差异，强制服务器在后台还原恶意对象从而触发代码执行。
 Q11: 文件上传进度反序列化的作用是什么？php会话上传进度，phpinfo信息泄露可以看到对应的信息
@@ -835,6 +831,40 @@ session.upload_progress.cleanup 会话上传进度是否会自动清理
 
 当一个文件上传时，PHP 会检查 HTTP 请求。如果发现请求中包含一个特定的变量（默认名称为PHP_SESSION_UPLOAD_PROGRESS），它就会在 $_SESSION 数组中创建一个特殊的键。可用于Session序列化漏洞
 这个键里包含了文件的总大小、当前已上传的大小、预计剩余时间等实时数据。前端可以通过另一个异步请求（AJAX）读取这些 Session 数据，从而绘制出进度条。
+三个战例（Exception XSS、Session 错位、Phar 协议）
+假设你是一个杀手，你的目标是把一颗炸弹（恶意代码）送进防守极其严密的瑞士银行（服务器）内部并引爆。
+💣 战例一：Exception XSS （合法包裹的背刺）背景： 银行的安检机器（代码）虽然允许你往里面寄包裹（有 unserialize 函数），但银行内部被清理得干干净净，没有任何你可以利用的工具（没有自定义类）。
+黑客怎么做：
+
+黑客发现，银行出厂自带了一个“官方应急广播器”（也就是 Exception 报错类）。这是一个合法的官方物品，安检绝对不会拦。
+黑客把炸弹塞进这个“官方广播器”里，打包寄了过去。
+银行签收了包裹（反序列化成功）。
+此时炸弹还没炸。但是，银行有一个规定：遇到不认识的包裹，门卫要用大喇叭把包裹上的字念出来（代码里写了 echo $a;）。
+门卫一念，触发了广播器的自动播报功能（__toString），结果直接把里面的炸弹（XSS 恶意脚本）顺着大喇叭喷到了大门外的人群里（用户的浏览器）。
+结局：炸弹在人群中（前端浏览器）爆炸，XSS 攻击成功。
+
+
+💣 战例二：Session 错位 （交接班的致命误会）背景： 银行痛定思痛，把寄包裹的安检机器彻底拆了！（代码里没有 unserialize 函数了）。大门完全焊死。
+黑客怎么做：
+
+既然不能寄包裹，黑客就去银行的前台办业务（比如修改自己的昵称）。
+白班柜员（新引擎 php_serialize）非常死板，黑客说：“我的名字叫 竖线|炸弹图纸”。白班柜员就原封不动地把这串字记在了银行的访客登记本（Session 文件）上。这时候它只是一行字，非常安全。
+到了晚上，夜班柜员（旧引擎 php）来接班了。黑客故意去触发一个需要查验身份的业务。
+夜班柜员翻开登记本，看到了 竖线|炸弹图纸。致命的误会来了！夜班柜员的脑回路不一样，他认为：“在我的规矩里，竖线左边的是名字，竖线右边的必须是被组装出来的实物！”
+于是，夜班柜员硬生生地照着右边的“炸弹图纸”，在银行内部当场捏造了一颗真炸弹出来（强制反序列化）。
+结局：炸弹在银行内部爆炸，RCE 达成。
+
+
+💣 战例三：Phar 协议 （看一眼就会爆炸的画）背景： 银行再次升级防御，不仅拆了包裹机，还把所有柜员的规矩统一了（修复了 Session 错位）。现在既不能寄包裹，也没有交接班误会。
+黑客怎么做：
+
+黑客发现，银行虽然不收包裹，但是允许客户上传自己的头像照片。
+黑客制造了一颗极其微小的炸弹，把它塞进了一个压缩包里，然后把这个压缩包强行改名为 头像.jpg（这就是 Phar 文件），上传给了银行。
+银行的门卫用肉眼看了一下名字，确认是 .jpg 后缀，就放进去了。
+接下来是最可怕的一步：黑客不需要银行去“拆开”这个包裹。黑客只要让银行的清洁工，去“确认一下这张照片存不存在”（利用 file_exists() 等最普通的文件读取函数）。
+当清洁工的手碰到这个 头像.jpg 的瞬间，PHP 系统的底层诅咒被触发了：只要碰到 phar:// 协议传过来的文件，系统就会不受控制地强制解压并复活里面的所有东西。
+结局：仅仅是摸了一下文件，炸弹就在内存中瞬间复活并引爆，RCE 达成。
+
 
 本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
 
