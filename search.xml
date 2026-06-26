@@ -573,6 +573,7 @@ unserialize()：将序列化字符串还原为对象&#x2F;变量
 &lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
 
 输出结果：s:3:&quot;KFC&quot;;
+
 格式说明：s代表字符串，6代表字符串字符长度。
 构造 payload：?str=s:3:&quot;KFC&quot;;
 案例2 CTF Cookie序列化题目页面代码：
@@ -588,8 +589,10 @@ unserialize()：将序列化字符串还原为对象&#x2F;变量
 运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
 （2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
 
+
 （3）修改属性后反序列化简单来说，”修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的”序列化字符串”的内容。
 &lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
+
 
 4. 不同访问修饰符的序列化格式
 public（公共）：本类、子类、外部均可访问，序列化直接显示属性名。
@@ -598,6 +601,7 @@ private（私有）：仅本类内部可访问，序列化格式：\x00类名\x0
 
 示例：
 &lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;protected $hobby = &#x27;eat&#x27;;private $age = 18;&#125;$p = new Person();$obj = serialize($p);echo &quot;&lt;br&gt;&quot;;print_r($obj);?&gt;
+
 
 输出结果：O:6:&quot;Person&quot;:3:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:8:&quot;*hobby&quot;;s:3:&quot;eat&quot;;s:11:&quot;Personage&quot;;i:18;}
 5. __wakeup 绕过
@@ -617,6 +621,7 @@ __destruct()：析构方法，对象销毁时自动调用。
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;&lt;br&gt;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);echo &quot;&lt;br&gt;&quot;;?&gt;
 
+
 流程推演：
 
 new 一个对象会触发 __construct 并 echo ‘调用 construct’
@@ -629,6 +634,7 @@ __wakeup()：对象反序列化时自动调用。
 
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __sleep()&#123;echo &quot;调用&quot;.&quot;__sleep&quot;;echo &quot;&lt;br&gt;&quot;;return array(&quot;name&quot;);&#125;function __wakeup()&#123;echo &quot;调用&quot;.&quot;__wakeup&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;echo &quot;&lt;br&gt;&quot;;$c=unserialize($b);var_dump($c);?&gt;
+
 
 流程推演：
 
@@ -650,6 +656,7 @@ __set()：赋值给不存在&#x2F;私有属性时自动调用。
 
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;private $str = &#x27;hello&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __get($b) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__get&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;function __set($name,$value) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__set&quot;;echo &quot;&lt;br&gt;&quot;;$this-&gt;str = $value;&#125;&#125;$a= new Person();echo $a-&gt;age;$a-&gt;age=13;echo $a-&gt;str;?&gt;
+
 
 流程推演：
 
@@ -679,6 +686,7 @@ __callStatic()：调用类中不存在的静态方法时自动调用。
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;public $str = &#x27;hello&#x27;;public static function myStaticMethod() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;myStaticMethod&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __call($b,$q) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__call&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;public static function __callStatic($func, $arguments)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__callStatic&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a-&gt;method();Person::myStaticMethod();Person::method2();?&gt;
 
+
 流程推演：
 
 创建对象 $a。自动触发 __construct()。输出调用 __construct()
@@ -694,6 +702,7 @@ __clone()：使用clone关键字克隆对象时自动调用。
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __toString() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__toString&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;name;&#125;function __clone() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__clone&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a . &#x27;&lt;br&gt;&#x27;;$b = $a;echo $a === $b;$c = clone $a;echo $a === $c;?&gt;
 
+
 流程推演：
 
 new 一个对象$a，输出调用 __construct()
@@ -706,6 +715,7 @@ echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的�
 
 6. __invoke将对象当作函数直接调用时自动触发。示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __invoke($p1,$p2) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__invoke&quot;;echo &quot;&lt;br&gt;&quot;;return $p1 . &quot;---&quot; . $p2;&#125;&#125;$a= new Person();echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);?&gt;
+
 
 流程推演：
 
@@ -720,6 +730,7 @@ __unset()：对不可访问属性执行unset()销毁时自动调用。
 
 示例：
 &lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $sex;private $name;private $age;public function __construct($name = &#x27;&#x27;, $age = 25, $sex = &#x27;男&#x27;)&#123;$this-&gt;name = $name;$this-&gt;age = $age;$this-&gt;sex = $sex;&#125;public function __isset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __isset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;public function __unset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __unset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$person = new Person(&#x27;Jack&#x27;, 18, &#x27;male&#x27;);// __isset()echo isset($person-&gt;sex);echo isset($person-&gt;name);echo isset($person-&gt;age);// __unset()echo &quot;\n&quot;;unset($person-&gt;name);unset($person-&gt;sex);echo isset($person-&gt;sex) ? &#x27;has&#x27; : &#x27;not_has&#x27;, &quot;\n&quot;;?&gt;
+
 
 流程推演：
 
