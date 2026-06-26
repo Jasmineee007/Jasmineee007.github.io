@@ -611,7 +611,7 @@ private（私有）：仅本类内部可访问，序列化格式：\x00类名\x0
 
 二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
 
-注：测试 PHP，为直观显示输出结果，我将&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;HTML”换行标签,换成了&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;\n&lt;/font&gt;“纯文本”换行符，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;\n&lt;/font&gt;只会显示成空格，只有&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&lt;br&gt;&lt;/font&gt;才能实现页面换行效果。
+注：测试 PHP，为直观显示输出结果，我将 &lt;br&gt; HTML换行标签换成了 \n 纯文本换行符，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用 &lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行 \n 只会显示成空格，只有 &lt;br&gt; 才能实现页面换行效果。
 
 1. __construct 与 __destruct
 __construct()：构造方法，对象创建时自动调用。
