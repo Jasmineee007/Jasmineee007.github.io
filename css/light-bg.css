@@ -74,11 +74,15 @@ body:has(#body-wrap.post) {
   background: linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.03) 88%, rgba(0,0,0,0) 100%) !important;
 }
 
+/* === 全站卡片透明 === */
+:root {
+  --card-bg: rgba(255, 255, 255, 0.85);
+}
+
 /* === 首页文章卡片 === */
 .recent-post-item {
   border-radius: 12px;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* === Footer 非主页日间黑字 === */
