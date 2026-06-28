@@ -642,10 +642,10 @@ new 一个对象 $a，触发 __construct。
 echo 打印序列化结果。
 调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
 var_dump 打印反序列化结果。
-当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），**连续触发了两次 ****__destruct**。
+当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），连续触发了两次 __destruct。
 
 注意：
-反序列化的入口必须是字符串，绝对不能是对象本身。**unserialize()**** **这个函数的功能是“把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
+反序列化的入口必须是字符串，绝对不能是对象本身。unserialize() 这个函数的功能是”把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
 因此代码不可以写成：
 $a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
 
@@ -659,24 +659,24 @@ __set()：赋值给不存在&#x2F;私有属性时自动调用。
 
 流程推演：
 
-****new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
-读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 **__get** 方法。
+new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
+读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 __get 方法。
 __get 内部先输出了 调用 __get。
 然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
 
 
 echo 拿到返回值，打印出了 hello。
-写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 **__set** 方法。
+写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 __set 方法。
 __set 内部先输出了 调用 __set。
 接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
 
 
 再次读拦截： 执行 echo $a-&gt;str;
-系统再次触发 **__get**，输出 调用 __get。
+系统再次触发 __get，输出 调用 __get。
 此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
 
 
-脚本执行结束，内存清空销毁对象，自动触发 **__destruct**，输出 调用 __destruct()。
+脚本执行结束，内存清空销毁对象，自动触发 __destruct，输出 调用 __destruct()。
 
 4. __call 与 __callStatic
 __call()：调用对象中不存在的实例方法时自动调用。
@@ -719,7 +719,7 @@ echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的�
 流程推演：
 
 创建对象 $a，触发 __construct()。调用 __construct()。
-echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（**$a**）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
+echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（$a）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
 先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
 程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
 
@@ -2049,7 +2049,7 @@ fofa搜索命令
 
 
 进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
+如果 fofa 访问失败，可以自己搭建pikachu靶场。
 pikachu靶场：反射型XSS 练习
 
 反射型xss
@@ -3322,7 +3322,7 @@ POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST �
 将 PHP 一句话木马插入到这些不发生变化的区域，重新上传即可。
 
 14. 条件竞争绕过
-原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 unlink() 删除文件。在“判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
+原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 unlink() 删除文件。在”判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
 绕过方法：
 
 
@@ -3432,10 +3432,10 @@ str_ireplace(&#39;::$DATA&#39;, ...) 擦除 Windows 的 NTFS 流特征
 trim() 首尾去空格
 
  apache服务器能够使⽤php解析.phtml.php5， 使用 .phtml 或 .php5 后缀  
-但是这关不可以用**1.php. . ** 因为代码强制重命名，使用了时间戳 date() 保存。上传**1.php. . ** 后又抓到这个包
+但是这关不可以用1.php. .  因为代码强制重命名，使用了时间戳 date() 保存。上传1.php. .  后又抓到这个包
 
 
-这就是我们上传的**1.php. . ** ，被改名了
+这就是我们上传的1.php. .  ，被改名了
 
 
 
@@ -3482,11 +3482,11 @@ strtolower() 强制转小写
 str_ireplace(&#39;::$DATA&#39;, ...) 擦除 Windows 的 NTFS 流特征
 trim() 首尾去空格
 
-可以上传一个**1.php. . ** (点 + 空格 + 点 + 空格)  
+可以上传一个1.php. .  (点 + 空格 + 点 + 空格)  
 末尾只有一个空格，绕过了 deldot() 函数的操作,$file_name 依然是：1.php. . ；
-strrchr() 截取后缀，从右往左找最后一个点，截取了 .  （一个点 + 一个空格）, 新变量 $file_ext &#x3D; **. **
+strrchr() 截取后缀，从右往左找最后一个点，截取了 .  （一个点 + 一个空格）, 新变量 $file_ext &#x3D; . 
 trim() 它把 $file_ext 里的那个空格削掉了。 此时 $file_ext 变成了 . （只有一个点）。  
- 代码拿 **.** 去对比黑名单，发现不在里面。绕过校验！
+ 代码拿 . 去对比黑名单，发现不在里面。绕过校验！
 3、操作方法一：.htaccess配置文件条件：服务器是 apache、
 知识补充：
 在 Apache 环境下，.htaccess写入内容：
@@ -3648,11 +3648,11 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 
 
-**trim()**：接收上传的原始文件名，并去掉首尾的空格。
-**str_ireplace()**：PHP 中专门用于字符串替换的内置核心函数。只替换一次。
+trim()：接收上传的原始文件名，并去掉首尾的空格。
+str_ireplace()：PHP 中专门用于字符串替换的内置核心函数。只替换一次。
 补充：区分
-**str_replace()**：大小写敏感。如果开发者用了这个函数，并且黑名单里只有 &quot;php&quot;，根本不需要用 pphphp 这种复杂的双写。直接传 webshell.PhP 就可以，因为小写的 php 根本匹配不到大写的 PhP。
-**str_ireplace()**：大小写不敏感。遇到它，大小写混淆战术彻底失效（比如 .PhP 也会被它揪出来删掉），这时候就只能pphphp 双写嵌套
+str_replace()：大小写敏感。如果开发者用了这个函数，并且黑名单里只有 &quot;php&quot;，根本不需要用 pphphp 这种复杂的双写。直接传 webshell.PhP 就可以，因为小写的 php 根本匹配不到大写的 PhP。
+str_ireplace()：大小写不敏感。遇到它，大小写混淆战术彻底失效（比如 .PhP 也会被它揪出来删掉），这时候就只能pphphp 双写嵌套
 
 
 
@@ -3677,7 +3677,7 @@ Pass-11-%00 截断1、题目
 对文件的保存路径（  $_GET[‘save_path’]   ）可控，没有做过滤，直接信任拼接。
 
 
-%00 截断的作用机制 ，是让底层函数遇到空字符（Null Byte）时以为字符串已经结束，从而强制丢弃了 **%00** 之后由服务器强制拼接的“随机数字、时间戳以及合法的 .jpg 后缀”。
+%00 截断的作用机制 ，是让底层函数遇到空字符（Null Byte）时以为字符串已经结束，从而强制丢弃了 %00 之后由服务器强制拼接的”随机数字、时间戳以及合法的 .jpg 后缀”。
 
 3、操作：
 上传一句话木马（1.php）
@@ -3760,19 +3760,19 @@ function isImage($filename)&#123;    $types = &#x27;.jpeg|.png|.gif&#x27;;    if
 2、解题思路
 分析源代码
 这段代码放弃了自己去读底层字节，而是调用了 PHP 内置的专业图像处理函数。核心防线有三道：
-**getimagesize()** 函数不仅会读取文件头（Magic Bytes），还会去解析图像的完整结构（长、宽、MIME 类型等）。如果随便拿个 .php 文件硬改后缀成 .jpg，或者用 010 Editor 只加两个字节的伪造头，在面对严格配置的 getimagesize() 时，极有可能会被直接识破并返回 false。
+getimagesize() 函数不仅会读取文件头（Magic Bytes），还会去解析图像的完整结构（长、宽、MIME 类型等）。如果随便拿个 .php 文件硬改后缀成 .jpg，或者用 010 Editor 只加两个字节的伪造头，在面对严格配置的 getimagesize() 时，极有可能会被直接识破并返回 false。
 image_type_to_extension()是将一个 PHP 内部的“图像类型常量（整型 ID）”翻译成标准的“文件后缀名字符串”。
 
 
 
 $info = getimagesize($filename);$ext = image_type_to_extension($info[2]);
 
-当 getimagesize() 成功扫描完一张合法图片后，它会返回一个数组。这个数组的**索引 ****[2]**存放的就是代表图像真实类型的整型 ID（也就是 IMAGETYPE_XXX 常量）。
+当 getimagesize() 成功扫描完一张合法图片后，它会返回一个数组。这个数组的索引 [2]存放的就是代表图像真实类型的整型 ID（也就是 IMAGETYPE_XXX 常量）。
     * 如果扫描的是 **JPG**：`$info[2]` 的值是 `2`。
     * 如果扫描的是 **PNG**：`$info[2]` 的值是 `3`。
     * 如果扫描的是 **GIF**：`$info[2]` 的值是 `1`。
 
-紧接着，把这个查出来的数字 2，塞给了 image_type_to_extension(2)。 这个函数一查内部字典，发现 2 对应的是 JPEG，于是直接吐出字符串 **&#39;.jpeg&#39;**。
+紧接着，把这个查出来的数字 2，塞给了 image_type_to_extension(2)。 这个函数一查内部字典，发现 2 对应的是 JPEG，于是直接吐出字符串 &#39;.jpeg&#39;。
 4.  文件保存路径不可控
 
 3、操作
@@ -3836,7 +3836,7 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;]))&#123;    /
 imagecreatefromjpeg(string $filename)：由文件或 URL 创建一个新图象。imagejpeg()处理完内存数据后，把内存里的纯净像素重新保存成硬盘文件 。（jpeg、png、gif 都一样有这个系统函数）
 $im = imagecreatefromjpeg($target_path); 这几个内置的 GD 库函数，只把文件里符合合法图片规范的“像素数据”吸入内存，构建成一个纯净的图像资源对象（$im）。 因此， 在尾部追加的 &lt;?php phpinfo(); ?&gt; 等一句话木马，在这里统统丢弃。 
 imagejpeg($im, $img_path);将被 imagecreatefromjpeg 抽提出来的、保存在内存中的纯净像素资源，封装成新的图片。
-**unlink()**：物理删除文件的内置函数。在这里将带有木马的原始文件（$target_path）从硬盘上抹除。
+unlink()：物理删除文件的内置函数。在这里将带有木马的原始文件（$target_path）从硬盘上抹除。
 
 
 
@@ -3971,8 +3971,8 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 分析代码：
 
 
-POST 传参， 上传的 save_name 可以自由控制 。在这段代码中，文件名 $file_name 是直接通过 $_POST[&#39;save_name&#39;] 获取的，这与之前的 $_FILES 有着本质的区别！ 文件最后叫什么名字，是由 $_FILES[&#39;name&#39;]（浏览器受限提供）或者服务器自己生成（如时间戳）来决定的，控制权在系统手里。 到了这一关，允许用户自定义文件名，把文件命名的控制权直接交给了 $_POST
-解题核心在于，要不在黑名单里，还要能让文件最终以 .php 的真实身份落地。那就要利用**/.**，后缀是空（**&quot;&quot;**）。空后缀确实不在黑名单范围内
+POST 传参，上传的 save_name 可以自由控制 。在这段代码中，文件名 $file_name 是直接通过 $_POST[&#39;save_name&#39;] 获取的，这与之前的 $_FILES 有着本质的区别！ 文件最后叫什么名字，是由 $_FILES[&#39;name&#39;]（浏览器受限提供）或者服务器自己生成（如时间戳）来决定的，控制权在系统手里。 到了这一关，允许用户自定义文件名，把文件命名的控制权直接交给了 $_POST
+解题核心在于，要不在黑名单里，还要能让文件最终以 .php 的真实身份落地。那就要利用/./，后缀是空（&quot;&quot;）。空后缀确实不在黑名单范围内
 
 3、操作方法一：%00 截断注意：如果数据是在 POST 请求体里，不能直接敲 %00 字符，必须将其进行 URL Decode（变成真正的空字节）才能生效。
 
@@ -4079,7 +4079,7 @@ http://127.0.0.1/upload/upload-20.php
 
 (2) 步骤新建IIS.ASP文件，内容：&lt;% response.write(&quot;i am hacker&quot;)%&gt;复制一份改名为IIS.asp;IIS.jpg，放到网站目录C:\IIS6\WEB，访问：192.168.0.11/IIS.asp;IIS.jpg，页面输出i am hacker。
 2. Tomcat文件解析漏洞 CVE-2017-12615(1) 漏洞简介与条件
-简介： Tomcat 的 conf/web.xml 中有一个 DefaultServlet。默认情况下，它的 readonly 参数是 true，意味着服务器是只读的。 但有些开发者为了方便调试或出于某些特殊业务需求，将其改为了 false。 一旦设为 false，Tomcat 就直接允许客户端使用 HTTP 的 **PUT** 和 **DELETE** 方法来直接操作服务器上的文件。虽然 PUT 方法被放开了，但 Tomcat 的安全机制会拦截以 .jsp 或 .jspx 结尾的请求，防止直接写个 Java 木马进去执行。 
+简介： Tomcat 的 conf/web.xml 中有一个 DefaultServlet。默认情况下，它的 readonly 参数是 true，意味着服务器是只读的。 但有些开发者为了方便调试或出于某些特殊业务需求，将其改为了 false。 一旦设为 false，Tomcat 就直接允许客户端使用 HTTP 的 PUT 和 DELETE 方法来直接操作服务器上的文件。虽然 PUT 方法被放开了，但 Tomcat 的安全机制会拦截以 .jsp 或 .jspx 结尾的请求，防止直接写个 Java 木马进去执行。 
 条件：Tomcat部署在Windows系统、开启HTTP PUT请求方法，攻击者可PUT上传JSP木马。
 
 (2) 环境部署注意： Docker 的核心后台服务（Daemon）默认是要求 root 最高权限才能调用的。sudo su   // 切换为 Root 最高权限cd /home/enjoy/vulhub-master/tomcat/CVE-2017-12615		// 进入目标漏洞的靶场目录 (按需修改路径)docker-compose build	// 启动靶场docker-compose up -d	//验证 docker-compose.yml 配置文件格式是否正确docker-compose config	// 强制根据当前配置重新构建镜像docker-compose down		// 测试完毕后，安全销毁容器并释放端口！！！
@@ -4102,8 +4102,8 @@ PUT /1.jsp/ HTTP/1.1Host: 192.168.23.134:8080Accept: */*Accept-Language: enUser-
 
 PUT &#x2F;1.jsp&#x2F; HTTP&#x2F;1.1：在目标中新建一个 1.jsp
 Host: 192.168.23.134:8080：改成自己的 IP
-**pwd=023**：这是木马的密码。如果别人扫描到了你的木马，但不知道密码是 023，就无法利用它。
-**cmd=xxxx**：你要执行的系统命令。
+pwd=023：这是木马的密码。如果别人扫描到了你的木马，但不知道密码是 023，就无法利用它。
+cmd=xxxx：你要执行的系统命令。
 防御伪装：如果密码不对，或者没有传命令，页面会无辜地打印出一个笑脸 :-)。只有密码对且传了命令，才会调用上面的 excuteCmd 并在页面上用 &lt;pre&gt; 标签（保持格式）把命令执行结果吐出来。
 
 
