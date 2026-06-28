@@ -1,10 +1,3 @@
-[data-theme="dark"] #page-header {
-  background-color: #000;
-}
-[data-theme="dark"] body {
-  background: #000;
-}
-
 /* 主题默认底色从蓝色改为白色 */
 :root {
   --default-bg-color: #fff;
