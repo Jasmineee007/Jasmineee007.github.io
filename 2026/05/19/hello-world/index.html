@@ -222,8 +222,8 @@
   if ('Waline' === 'Waline' || !false) {
     if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
     else setTimeout(loadWaline, 0)
-    // Start pageview immediately
-    if (true) initPageview()
+    // Start pageview — use setTimeout to ensure DOM is ready
+    if (true) setTimeout(initPageview, 50)
   } else {
     window.loadOtherComment = loadWaline
   }
