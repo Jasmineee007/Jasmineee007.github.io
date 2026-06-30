@@ -4252,4 +4252,218 @@ deny_arr：黑名单
         <tag>文件上传</tag>
       </tags>
   </entry>
+  <entry>
+    <title>弱口令与命令爆破</title>
+    <url>/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/</url>
+    <content><![CDATA[弱口令定义复杂度极低、极易被猜到&#x2F;爆破的账号密码，是渗透最常见突破口。
+弱⼝令的来源：
+
+密码设置的⼈员疏忽⼤意，安全意识薄弱，为了⽅便记忆在不同的平台设置简单或同样的密码
+某些管理平台有默认的密码，⽽没有及时的修改密码
+
+危害直接登录后台拿权限、篡改数据、上传木马、接管服务器
+密码字典定义字典：存放大量常用账号、密码的文本文件，一行一个，用于弱口令爆破遍历尝试。
+密码字典生成通用模式基于人类通性和历史数据的概率盲打，获取方式简单，数量众多。
+常见密码
+收录高频弱口令（如 123456、password）。
+包含不同类型的变体，能否破解出完全看运气和字典质量。
+
+默认密码
+各种操作系统、中间件、网络设备安装后的出厂默认密码（如 Tomcat: tomcat/tomcat）。
+
+定制模式针对特定目标（某人或某企业）的信息生成的定制字典，命中率极高。
+社工信息收集
+自主收集: 通过 FOFA、Google Dorks 等搜索引擎获取资产与人员信息。（有关信息收集的笔记供参考：https://blog.ss0t-hacked.top/2026/information-gathering）
+泄露查询: 使用公开合法渠道（如 https://www.reg007.com/）查验目标信息是否在已知泄露事件中（注意：数据通常不全）。
+
+
+⚠️ 法律与安全红线:** 最好只使用自己收集的公开情报，千万不要私自搭建对外的社工库（严重违法）。
+
+社工字典生成将收集到的碎片信息转化为可用的弱口令字典。
+
+信息组合: 平台原密码、邮箱前缀、QQ号、电话、生日、公司名等。
+规则变形:
+姓名拼音 + 生日后缀（例：zhangsan1990）
+首字母大写 + 特殊符号（例：Zhangsan@2026）
+
+
+本地生成工具: 社⼯字典⽣成 weakpass
+
+自动化爆破工具bp 爆破模式：Sniper Attack（狙击手模式）
+字典数：1 个
+爆破点：1 个
+对单个定位点进行爆破，例如单独爆破密码。
+
+Battering Ram Attack
+字典数：1 个
+爆破点：≥2 个
+多点爆破，对多个点位同时爆破，所有爆破点使用同一个字典
+
+Pitchfork Attack
+字典数：2 个（payload1、payload2）
+爆破点：≥2 个
+多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，平行爆破，一一对应。
+
+Cluster Bomb Attack （集束炸弹）
+字典数：2 个
+变量数：≥2 个
+多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，双字典全组合，一对多。
+
+怎么判断爆破成功
+通过响应状态码判断
+通过响应长度
+通过具体响应内容
+
+配置 bp 爆破的几种情况只知道用户名但不知道密码示例：已知用户名是 admin，但是不知道密码
+
+抓包，发送到 intruder
+
+
+
+配置BP爆破
+
+
+
+
+
+判断爆破成功–通过响应状态码判断
+
+
+用户名和密码都不知道
+依旧先抓包
+配置 bp 爆破
+
+
+
+在用户名和密码都未知的情况下，爆破成功率极低，不建议尝试。
+
+使用 bp 验证码爆破（需要拓展插件 xiapao、使用 Cluster Bomb Attack ）
+
+示例：seacms 靶场
+首先安装好靶场，再进入后台管理系统。
+
+
+http://127.0.0.1/weakpasswd/CMS/upload/4qy2hw
+
+
+配置 xiapao 插件
+
+
+
+注意：不要关掉终端页面，否则刚刚访问的网页也会没。
+
+往 bp 安装插件
+注意：插件的路径不能有中文。
+
+
+
+
+
+只有【输出】板块有内容，【错误】里面没有就是安装成功了
+
+成功导入插件。
+抓包
+先复制验证码的图像地址：
+http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
+
+
+抓包
+
+爆破密码
+
+爆破验证码
+
+
+
+
+把线程设置为1。
+刚刚复制的图片地址
+xiapao: http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
+
+
+开始攻击
+
+九头蛇（hydra）定义hydra是著名组织thc的⼀款开源的暴⼒破解密码⼯具。kali下是默认安装的，⼏乎⽀持所有协议的在线破解。 密码能否破解，在于字典是否强⼤以及电脑的性能。、
+参数
+-llogin⼩写，指定⽤户名进⾏破解
+-Lfile⼤写，指定⽤户的⽤户名字典
+-ppass⼩写，⽤于指定密码破解，很少使⽤，⼀般采⽤密码字典。
+-Pfile⼤写，⽤于指定密码字典。
+-ens额外的选项，n：空密码试探，s：使⽤指定账⼾和密码试探
+-Mfile指定⽬标ip列表⽂件，批量破解。
+-ofile指定结果输出⽂件 -f找到第⼀对登录名或者密码的时候中⽌破解。
+-ttasks同时运⾏的线程数，默认是16
+-wtime设置最⼤超时时间，单位
+-v&#x2F;-V显⽰详细过程
+-R恢复爆破（如果破解中断了，下次执⾏hydra-R&#x2F;path&#x2F;to&#x2F;hydra.restore就可以继续任务。）
+-x⾃定义密码。
+
+使用# 切换root权限sudo su
+
+
+# 先进入文件所在目录cd /home/kali/弱口令爆破/passwordDict/
+
+破解 SSH 密码命令：
+hydra -l &lt;已知用户名,例如root或kali&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; ssh
+
+示例：
+针对 Linux 服务器的默认远程管理端口（22）进行爆破， 拿本机的 kali 账号进行测试。  
+# 先要确定ssh是启动的service ssh restart#指定kali账号 用password.txt文件 使用3个线程，爆破本地的sshhydra -l kali -P top500.txt -t 3 -e ns 127.0.0.1 ssh
+
+
+成功拿到 kali 的账号和密码。
+破解 Windows RDP 远程桌面命令：
+hydra -l administrator -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; rdp
+
+
+-l administrator: Windows 的最高权限默认管理员账号通常是 administrator（注意拼写）。
+rdp: 指定攻击模块为 Remote Desktop Protocol。
+
+示例：
+ 针对 Windows 主机的 3389 端口进行爆破。用同一局域网内的 Windows2003 进行测试。
+靶机 IP：
+
+# nmap扫描靶机的3389端口是否开放nmap -p 3389 192.168.23.129hydra -l administrator -P top500.txt -t 3 -e ns 192.168.23.129 rdp
+
+
+
+成功拿到 Windows2003 的账号和密码。
+破解 MySQL 密码MySQL 端口 3306
+场景 A：已知高权限用户名（如 root），仅爆破密码
+hydra -l root -P &lt;你的密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
+
+
+-l root : 指定单个用户名（小写 l）。
+-P dict.txt : 指定密码字典文件（大写 P）。
+-t 3 : 线程数设为 3（线程过高容易导致服务拒绝连接）。
+-e ns : 附加测试空密码 (null) 和同用户名密码 (same)。
+
+场景 B：用户名和密码均未知（双字典交叉爆破）
+hydra -L &lt;用户名字典路径.txt&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
+
+
+-L users.txt : 指定用户名字典文件（大写 L）。
+
+破解 HTTP 表单登录（POST）命令：
+hydra -t 3 -l &lt;已知用户名&gt; -P &lt;密码字典路径.txt&gt; -s &lt;目标端口&gt; &lt;目标IP&gt; http-post-form &quot;&lt;表单提交路径&gt;:&lt;POST请求数据，使用^USER^和^PASS^占位&gt;:&lt;失败特征码&gt;&quot;
+
+ 格式说明：登录URL:POST参数格式:失败提示字符串
+
+^USER^ 和 ^PASS^ 是 Hydra 的占位符，会自动替换为用户名和字典中的密码
+用户名或密码错误是登录失败时页面返回的提示，Hydra 以此判断登录是否失败
+
+示例：
+hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;
+
+破解 HTTP 表单登录（GET）hydra -t 3 -l admin -P password.txt -s 80 192.168.209.1 http-get-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+      </categories>
+      <tags>
+        <tag>弱口令</tag>
+        <tag>爆破</tag>
+      </tags>
+  </entry>
 </search>
