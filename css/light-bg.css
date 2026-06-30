@@ -242,8 +242,8 @@ body:has(#page-header[style*="websec"]) {
 }
 body:has(#page-header[style*="ctfwp"]) #web_bg,
 body:has(#page-header[style*="websec"]) #web_bg {
-  background-size: cover !important;
-  background-position: center !important;
+  background-size: 70% !important;
+  background-position: left bottom !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
 #body-wrap:has(#page-header[style*="ctfwp"]) .layout,
