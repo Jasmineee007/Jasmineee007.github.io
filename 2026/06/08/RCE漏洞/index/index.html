@@ -414,12 +414,28 @@
   // Initialize pageview immediately (before comments are lazy-loaded)
   const initPageview = () => {
     if (true) {
-      import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js')
-        .then(({ pageviewCount }) => {
-          if (pageviewCount) {
-            pageviewCount({ serverURL: 'https://waline.jasmine-iris.top', update: true })
-          }
-        })
+      const el = document.querySelector('.waline-pageview-count')
+      if (!el) return
+      const api = 'https://waline.jasmine-iris.top'.replace(/\/$/, '') + '/api/article'
+      const path = el.getAttribute('data-path')
+      const lang = navigator.language || 'en'
+      // Increment counter
+      fetch(api + '?lang=' + lang, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: path, type: 'time', action: 'inc' })
+      }).then(r => r.json()).then(data => {
+        const count = data && data.data && data.data[0] ? data.data[0].time : undefined
+        if (typeof count === 'number') el.innerText = count
+      }).catch(() => {
+        // Fallback: just get count
+        fetch(api + '?path=' + encodeURIComponent(path) + '&type=time&lang=' + lang)
+          .then(r => r.json())
+          .then(data => {
+            const count = data && data.data && data.data[0] ? data.data[0].time : undefined
+            if (typeof count === 'number') el.innerText = count
+          }).catch(() => {})
+      })
     }
   }
 
