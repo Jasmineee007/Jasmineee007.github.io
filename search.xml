@@ -4462,10 +4462,10 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
 ]]></content>
       <categories>
         <category>Web安全</category>
+        <category>弱口令爆破</category>
       </categories>
       <tags>
         <tag>弱口令</tag>
-        <tag>爆破</tag>
       </tags>
   </entry>
 </search>
