@@ -334,33 +334,6 @@
     }
   }
 
-  // Initialize pageview immediately (before comments are lazy-loaded)
-  const initPageview = () => {
-    if (true) {
-      const el = document.querySelector('.waline-pageview-count')
-      if (!el) return
-      const api = 'https://waline.jasmine-iris.top'.replace(/\/$/, '') + '/api/article'
-      const path = el.getAttribute('data-path')
-      const lang = navigator.language || 'en'
-      // Increment counter
-      fetch(api + '?lang=' + lang, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: path, type: 'time', action: 'inc' })
-      }).then(r => r.json()).then(data => {
-        const count = data && data.data && data.data[0] ? data.data[0].time : undefined
-        if (typeof count === 'number') el.innerText = count
-      }).catch(() => {
-        // Fallback: just get count
-        fetch(api + '?path=' + encodeURIComponent(path) + '&type=time&lang=' + lang)
-          .then(r => r.json())
-          .then(data => {
-            const count = data && data.data && data.data[0] ? data.data[0].time : undefined
-            if (typeof count === 'number') el.innerText = count
-          }).catch(() => {})
-      })
-    }
-  }
 
   if (isShuoshuo) {
     'Waline' === 'Waline'
@@ -372,9 +345,7 @@
   if ('Waline' === 'Waline' || !false) {
     if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
     else setTimeout(loadWaline, 0)
-    // Start pageview — use setTimeout to ensure DOM is ready
-    if (true) setTimeout(initPageview, 50)
   } else {
     window.loadOtherComment = loadWaline
   }
-})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js"></script><script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');var img='';if(bw&&bw.classList.contains('post')){img='/img/post-2.png'}else if(p==='/about/'||p==='/archives/'||p==='/links/'||p==='/categories/'){img='/img/about-2.png'}else if(p.indexOf('/categories/CTF-WP')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/Web')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/')===0){img='/img/about-2.png'}else if(p.indexOf('/archives/')===0){img='/img/about-2.png';if(bw)bw.classList.add('page-custom-style')}if(img){bg.style.backgroundImage='url('+img+')'}})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js"></script><script>(function(){var els=document.querySelectorAll('.waline-pageview-count');if(!els.length)return;var api='https://waline.jasmine-iris.top/api/article';var lang=navigator.language||'en';els.forEach(function(el){var p=el.getAttribute('data-path');if(!p)return;fetch(api+'?lang='+lang,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:p,type:'time',action:'inc'})}).then(function(r){return r.json()}).then(function(d){var c=d&&d.data&&d.data[0]?d.data[0].time:0;el.innerText=c}).catch(function(){fetch(api+'?path='+encodeURIComponent(p)+'&type=time&lang='+lang).then(function(r){return r.json()}).then(function(d){var c=d&&d.data&&d.data[0]?d.data[0].time:0;el.innerText=c}).catch(function(){})})})})()</script><script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');var img='';if(bw&&bw.classList.contains('post')){img='/img/post-2.png'}else if(p==='/about/'||p==='/archives/'||p==='/links/'||p==='/categories/'){img='/img/about-2.png'}else if(p.indexOf('/categories/CTF-WP')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/Web')===0){img='/img/ctfwp-2.png'}else if(p.indexOf('/categories/')===0){img='/img/about-2.png'}else if(p.indexOf('/archives/')===0){img='/img/about-2.png';if(bw)bw.classList.add('page-custom-style')}if(img){bg.style.backgroundImage='url('+img+')'}})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
