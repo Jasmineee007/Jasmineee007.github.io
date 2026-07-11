@@ -4471,9 +4471,14 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
   <entry>
     <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
-    <content><![CDATA[MSF基础概述一、定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。二、安装目录（Kali默认）/usr/share/metasploit-framework/
+    <content><![CDATA[MSF基础概述
+定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
+安装目录（Kali默认）/usr/share/metasploit-framework/
 
-三、核心目录分工
+
+
+核心目录分工
+
 
 
 
@@ -4502,7 +4507,9 @@ tools
 独立编码、漏洞分析小工具
 
 
-四、modules六大子模块详解
+
+modules六大子模块详解
+
 
 
 auxiliary：辅助模块，扫描、嗅探、弱口令爆破、漏洞探测
@@ -4576,15 +4583,25 @@ exit / quit
 退出会话或MSF控制台
 
 
-一、msfconsole
 
-二、？
+msfconsole
 
-三、search
 
-四、use
 
-五、exit
+？
+
+
+
+search
+
+
+
+use
+
+
+
+exit
+
 
 退出 msf
 MSF 渗透测试MS08-067简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
