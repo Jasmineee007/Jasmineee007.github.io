@@ -4469,7 +4469,7 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
     <content><![CDATA[一、MSF基础概述
 定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
@@ -4914,5 +4914,13 @@ run vnc         # 开启VNC远程桌面控制
 
 
 ]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>渗透测试</category>
+      </categories>
+      <tags>
+        <tag>MSF</tag>
+        <tag>渗透测试</tag>
+      </tags>
   </entry>
 </search>
