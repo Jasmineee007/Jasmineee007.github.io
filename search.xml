@@ -4473,9 +4473,8 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
     <content><![CDATA[一、MSF基础概述
 定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
-
+主要功能：漏洞利用、载荷生成、连接监听
 安装目录（Kali默认）/usr/share/metasploit-framework/
-
 
 
 
