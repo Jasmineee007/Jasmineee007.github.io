@@ -9,6 +9,17 @@
 #body-wrap.post #page-header::before {
   display: none !important;
 }
+#body-wrap.post #nav a,
+#body-wrap.post #nav span.site-page,
+#body-wrap.post #nav .site-name,
+#body-wrap.post #nav #search-button {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+#body-wrap.post #page-header #site-title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
 
 /* === 全站背景图 === */
 #web_bg {
