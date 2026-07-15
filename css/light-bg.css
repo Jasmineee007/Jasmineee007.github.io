@@ -9,7 +9,8 @@
 
 /* === 全站背景图 === */
 #web_bg {
-  background-size: 70% !important;
+  background-image: url('/img/bg2.png') !important;
+  background-size: auto !important;
   background-position: left bottom !important;
 }
 .is-home #web_bg {
@@ -17,8 +18,6 @@
 }
 body:has(#body-wrap.post) #web_bg {
   background-image: url('/img/post-2.png') !important;
-  background-size: 70% !important;
-  background-position: left bottom !important;
 }
 html .type-special #web_bg,
 html .type-link #web_bg {
