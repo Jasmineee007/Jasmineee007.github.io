@@ -1,4 +1,12 @@
 
+/* === 文章页顶部banner === */
+#body-wrap.post #page-header {
+  background-image: url('/img/post-banner.png') !important;
+  background-size: auto 140% !important;
+  background-position: right center !important;
+  background-color: #fff !important;
+}
+
 /* === About/归档/友链/Categories 导航栏字体 === */
 .type-special #nav a,
 .type-special #nav span.site-page,
