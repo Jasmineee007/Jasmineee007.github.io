@@ -1833,51 +1833,26 @@ union 注入要求存在注入点，有回显
 (二) 报错注入1. 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
 2. 使⽤条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
 3. 报错注⼊命令该部分参考：https://cloud.tencent.com/developer/article/2159753
-(一) groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
+(一) groupby重复键冲突利用count()、rand()、floor()、groupby这几个特定的函数结合在一起产生的注入漏洞
 ?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
 
 核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
 
-命令解释
-count(*)
+命令解释a. count(*) - 统计有多少行数据，用来触发分组b. rand(0) - 生成固定的随机数（不是真随机， predictable）c. floor(rand(0)*2) - 结果只有两个：0 或者 1d. group by x - 按 x 分组，MySQL 会建一张临时表存分组结果e. concat(0x5e, 数据, 0x5e) - 把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里
+
+0x5e &#x3D; ^ 符号，只是分隔符
 
 
+问题：a. 为什么会报错？
 
-统计有多少行数据，用来触发分组。   2. rand(0)
-生成固定的随机数（不是真随机， predictable）   3. floor(rand(0)*2)
-结果只有两个：0 或者 1   4. group by x
-按 x 分组，MySQL 会建一张临时表存分组结果。   5. concat(0x5e, 数据, 0x5e)
-把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
-- `0x5e` = **^** 符号，只是分隔符
+MySQL 做 group by 时：i. 先算 floor(rand(0)*2) → 得到 0 或 1ii. 把结果插入临时表iii. 插入时又算了一次 rand(0)iv. 两次结果不一样 → 出现重复键v. 直接报错：Duplicate entry（重复条目）vi. 关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。b. 为什么 rand(14) 更好？
+rand(14) 只需要 2 条数据就能触发冲突，rand(0) 需要 3 条数据才会报错。
 
 
-问题：
-为什么会报错？
-
-
-
-MySQL 做 group by 时：
-- 先算 `floor(rand(0)*2)` → 得到 0 或 1
-- 把结果插入**临时表**
-- 插入时又算了一次 rand (0)
-- 两次结果不一样 → 出现**重复键**
-- 直接报错：**Duplicate entry**（重复条目）
-- 关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
-
-
-为什么 rand (14) 更好？
-
-rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
-
-总结
-用 rand() 生成 0&#x2F;1
-用 group by 建临时表
-插入时重复计算 rand ()
-产生重复键报错
-错误信息里带出我们要的数据
-
+总结a. 用 rand() 生成 0&#x2F;1b. 用 group by 建临时表c. 插入时重复计算 rand()d. 产生重复键报错e. 错误信息里带出我们要的数据
 
 如何使用
+
 
 不懂原理知道如何使用即可，想查什么，就把 version() 换成：
 
