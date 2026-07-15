@@ -1,8 +1,12 @@
-/* === 文章页 === */
+/* === 文章页全屏封面 === */
 #body-wrap.post #page-header {
-  background-color: #fff !important;
-  background-size: auto 140% !important;
-  background-position: right center !important;
+  position: relative !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  background-color: #1a1a2e !important;
+  background-image: url('/img/post-3.png') !important;
+  background-size: cover !important;
+  background-position: center center !important;
   transition: none !important;
 }
 #body-wrap.post #page-header::before {
@@ -12,25 +16,23 @@
 #body-wrap.post #nav span.site-page,
 #body-wrap.post #nav .site-name,
 #body-wrap.post #nav #search-button {
-  color: #000 !important;
-  text-shadow: none !important;
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
 }
 #body-wrap.post #page-header #site-title,
 #body-wrap.post #page-header .post-title {
-  color: #000 !important;
-  text-shadow: none !important;
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6) !important;
 }
 #body-wrap.post #post-info,
 #body-wrap.post #post-info a,
 #body-wrap.post #post-info span {
-  color: #000 !important;
-}
-body:has(#body-wrap.post) {
-  background: transparent !important;
+  color: rgba(255,255,255,0.9) !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
 }
 #body-wrap.post #content-inner,
 #body-wrap.post .layout {
-  background: transparent;
+  background: #fff !important;
 }
 
 /* === About/归档/友链/Categories 导航栏字体 === */
