@@ -1,5 +1,12 @@
 /* === 文章页全屏背景 === */
 #body-wrap.post #page-header {
+  background: none !important;
+  min-height: 0 !important;
+}
+#body-wrap.post #page-header::before {
+  display: none !important;
+}
+#body-wrap.post #page-header .title {
   display: none !important;
 }
 body:has(#body-wrap.post) {
