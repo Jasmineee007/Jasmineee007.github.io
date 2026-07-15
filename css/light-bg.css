@@ -219,6 +219,19 @@ body:has(#body-wrap.post) #footer a {
   display: none !important;
 }
 
+/* === banner-night 导航栏和标题黑色（随笔等） === */
+#body-wrap:has(#page-header[style*="banner-night"]) #nav a,
+#body-wrap:has(#page-header[style*="banner-night"]) #nav span.site-page,
+#body-wrap:has(#page-header[style*="banner-night"]) #nav .site-name,
+#body-wrap:has(#page-header[style*="banner-night"]) #nav #search-button {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+#body-wrap:has(#page-header[style*="banner-night"]) #page-header #site-title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
 /* 让 body 透明以显示 #web_bg 背景图 */
 body:has(.type-special),
 body:has(.type-link),
