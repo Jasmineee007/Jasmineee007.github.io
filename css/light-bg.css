@@ -1,6 +1,7 @@
 /* === 文章页 === */
 #body-wrap.post #page-header {
   background-color: #fff !important;
+  background-image: url('/img/post-1.png') !important;
   background-size: auto 140% !important;
   background-position: right center !important;
   transition: none !important;
@@ -30,7 +31,7 @@ body:has(#body-wrap.post) {
 }
 #body-wrap.post #content-inner,
 #body-wrap.post .layout {
-  background: transparent;
+  background: rgba(255,255,255,0.95) !important;
 }
 
 /* === About/归档/友链/Categories 导航栏字体 === */
