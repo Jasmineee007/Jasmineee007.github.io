@@ -214,7 +214,8 @@ body:has(#body-wrap.post) #footer a {
 .type-link #page-header::before,
 .type-categories #page-header::before,
 #body-wrap:has(#archive) #page-header::before,
-#body-wrap.page-custom-style #page-header::before {
+#body-wrap.page-custom-style #page-header::before,
+#body-wrap:has(#page-header[style*="banner-night"]) #page-header::before {
   display: none !important;
 }
 
