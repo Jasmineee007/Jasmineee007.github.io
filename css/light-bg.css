@@ -15,7 +15,7 @@
 .is-home #web_bg {
   background-image: url('/img/bg.jpg') !important;
 }
-html #body-wrap.post #web_bg {
+body:has(#body-wrap.post) #web_bg {
   background-image: url('/img/post-2.png') !important;
 }
 html .type-special #web_bg,
