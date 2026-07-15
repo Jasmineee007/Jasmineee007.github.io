@@ -6,6 +6,9 @@
   background-position: center center !important;
   background-color: #fff !important;
 }
+#body-wrap.post #page-header::before {
+  display: none !important;
+}
 
 /* === 全站背景图 === */
 #web_bg {
