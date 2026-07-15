@@ -2,14 +2,14 @@
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
   background-image: url('/img/post-banner.png') !important;
-  background-size: auto 100% !important;
+  background-size: auto !important;
   background-position: right center !important;
   background-color: #fff !important;
 }
 
 /* === 全站背景图 === */
 #web_bg {
-  background-size: 70% !important;
+  background-size: auto !important;
   background-position: left bottom !important;
 }
 .is-home #web_bg {
