@@ -184,9 +184,10 @@ body:has(#body-wrap.post) #footer a {
 .type-categories #page-header,
 #body-wrap:has(#archive) #page-header,
 #body-wrap.page-custom-style #page-header {
+  background-image: url('/img/banner-night.png') !important;
   background-color: #fff !important;
-  background-size: auto 80% !important;
-  background-position: left bottom !important;
+  background-size: cover !important;
+  background-position: center center !important;
   transition: none !important;
 }
 .type-special #page-header::before,
