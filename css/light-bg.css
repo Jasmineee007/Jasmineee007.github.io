@@ -32,7 +32,6 @@ body:has(#body-wrap.post) {
 #body-wrap.post .layout {
   background: transparent;
 }
-}
 
 /* === About/归档/友链/Categories 导航栏字体 === */
 .type-special #nav a,
