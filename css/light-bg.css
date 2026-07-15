@@ -20,6 +20,11 @@
   color: #000 !important;
   text-shadow: none !important;
 }
+#body-wrap.post #post-info,
+#body-wrap.post #post-info a,
+#body-wrap.post #post-info span {
+  color: #000 !important;
+}
 
 /* === 全站背景图 === */
 #web_bg {
