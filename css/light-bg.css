@@ -16,7 +16,8 @@
   color: #000 !important;
   text-shadow: none !important;
 }
-#body-wrap.post #page-header #site-title {
+#body-wrap.post #page-header #site-title,
+#body-wrap.post .post-title {
   color: #000 !important;
   text-shadow: none !important;
 }
