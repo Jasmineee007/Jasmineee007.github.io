@@ -2,19 +2,19 @@
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
   background-image: url('/img/post-banner.png') !important;
-  background-size: cover !important;
-  background-position: center center !important;
+  background-size: auto 140% !important;
+  background-position: right center !important;
   background-color: #fff !important;
 }
 
 /* === 全站背景图 === */
 #web_bg {
-  background-image: none !important;
-  background-color: #fff !important;
+  background-image: url('/img/bg3.png') !important;
+  background-size: auto !important;
+  background-position: left bottom !important;
 }
 body:has(#body-wrap.post) #web_bg {
-  background-image: none !important;
-  background-color: #fff !important;
+  background-image: url('/img/bg3.png') !important;
 }
 html .type-special #web_bg,
 html .type-link #web_bg {
