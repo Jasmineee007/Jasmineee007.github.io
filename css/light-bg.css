@@ -15,21 +15,21 @@
 .is-home #web_bg {
   background-image: url('/img/bg.jpg') !important;
 }
-#body-wrap.post #web_bg {
+html #body-wrap.post #web_bg {
   background-image: url('/img/post-2.png') !important;
 }
-.type-special #web_bg,
-.type-link #web_bg {
+html .type-special #web_bg,
+html .type-link #web_bg {
   background-image: url('/img/about-2.png') !important;
 }
-.type-categories #web_bg {
+html .type-categories #web_bg {
   background-image: url('/img/about-2.png') !important;
 }
-#body-wrap:has(#archive) #web_bg {
+html #body-wrap:has(#archive) #web_bg {
   background-image: url('/img/about-2.png') !important;
 }
-#body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
-#body-wrap:has(#page-header[style*="websec"]) #web_bg {
+html #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
+html #body-wrap:has(#page-header[style*="websec"]) #web_bg {
   background-image: url('/img/ctfwp-2.png') !important;
 }
 
