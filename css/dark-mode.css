@@ -1,0 +1,100 @@
+/* === 夜间模式覆盖 === */
+
+/* 文章页 header */
+[data-theme='dark'] #body-wrap.post #page-header {
+  background-color: #1a1a1a !important;
+}
+[data-theme='dark'] #body-wrap.post #nav a,
+[data-theme='dark'] #body-wrap.post #nav span.site-page,
+[data-theme='dark'] #body-wrap.post #nav .site-name,
+[data-theme='dark'] #body-wrap.post #nav #search-button {
+  color: #e0e0e0 !important;
+  text-shadow: none !important;
+}
+[data-theme='dark'] #body-wrap.post #page-header #site-title,
+[data-theme='dark'] #body-wrap.post #page-header .post-title {
+  color: #e0e0e0 !important;
+  text-shadow: none !important;
+}
+[data-theme='dark'] #body-wrap.post #post-info,
+[data-theme='dark'] #body-wrap.post #post-info a,
+[data-theme='dark'] #body-wrap.post #post-info span {
+  color: #e0e0e0 !important;
+}
+
+/* About/归档/友链/Categories 导航栏字体 */
+[data-theme='dark'] .type-special #nav a,
+[data-theme='dark'] .type-special #nav span.site-page,
+[data-theme='dark'] .type-special #nav .site-name,
+[data-theme='dark'] .type-special #nav #search-button,
+[data-theme='dark'] .type-link #nav a,
+[data-theme='dark'] .type-link #nav span.site-page,
+[data-theme='dark'] .type-link #nav .site-name,
+[data-theme='dark'] .type-link #nav #search-button,
+[data-theme='dark'] .type-categories #nav a,
+[data-theme='dark'] .type-categories #nav span.site-page,
+[data-theme='dark'] .type-categories #nav .site-name,
+[data-theme='dark'] .type-categories #nav #search-button,
+[data-theme='dark'] #body-wrap:has(#archive) #nav a,
+[data-theme='dark'] #body-wrap:has(#archive) #nav span.site-page,
+[data-theme='dark'] #body-wrap:has(#archive) #nav .site-name,
+[data-theme='dark'] #body-wrap:has(#archive) #nav #search-button,
+[data-theme='dark'] #body-wrap.page-custom-style #nav a,
+[data-theme='dark'] #body-wrap.page-custom-style #nav span.site-page,
+[data-theme='dark'] #body-wrap.page-custom-style #nav .site-name,
+[data-theme='dark'] #body-wrap.page-custom-style #nav #search-button {
+  color: #e0e0e0 !important;
+  text-shadow: none !important;
+}
+
+/* About/归档/友链/Categories 页面标题 */
+[data-theme='dark'] .type-special #page-header #site-title,
+[data-theme='dark'] .type-link #page-header #site-title,
+[data-theme='dark'] .type-categories #page-header #site-title,
+[data-theme='dark'] #body-wrap:has(#archive) #page-header #site-title,
+[data-theme='dark'] #body-wrap.page-custom-style #page-header #site-title {
+  color: #e0e0e0 !important;
+  text-shadow: none !important;
+}
+
+/* About/归档/友链/Categories header */
+[data-theme='dark'] .type-special #page-header,
+[data-theme='dark'] .type-link #page-header,
+[data-theme='dark'] .type-categories #page-header,
+[data-theme='dark'] #body-wrap:has(#archive) #page-header,
+[data-theme='dark'] #body-wrap.page-custom-style #page-header {
+  background-color: #1a1a1a !important;
+}
+
+/* Footer */
+[data-theme='dark'] body:has(#body-wrap.post) #footer,
+[data-theme='dark'] body:has(#body-wrap.post) #footer > * {
+  color: #e0e0e0 !important;
+}
+[data-theme='dark'] body:has(#body-wrap.post) #footer a {
+  color: #e0e0e0 !important;
+}
+
+/* 标签颜色调整 */
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+1),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+1) { background: #3d2a2e; color: #f4a0aa; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+2),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+2) { background: #2a3a4a; color: #7db8e8; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+3),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+3) { background: #2a3d2a; color: #7ec87e; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+4),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+4) { background: #3d3520; color: #f0c060; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+5),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+5) { background: #352a3d; color: #d0a0d8; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+6),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+6) { background: #1a3d3d; color: #6ad0d8; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+7),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+7) { background: #3d2a30; color: #f0a0b0; }
+[data-theme='dark'] .card-tag-cloud a:nth-child(8n+8),
+[data-theme='dark'] .article-tag-list a:nth-child(8n+8) { background: #2a2a3d; color: #a0a0f0; }
+
+/* 复制版权提示 */
+[data-theme='dark'] .copy-notice {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}

