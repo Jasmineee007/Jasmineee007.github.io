@@ -2,7 +2,7 @@
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
   background-image: url('/img/post-1.png') !important;
-  background-size: auto !important;
+  background-size: cover !important;
   background-position: center center !important;
   background-color: #fff !important;
 }
