@@ -1,7 +1,6 @@
 /* === 文章页 === */
 #body-wrap.post #page-header {
-  background-color: transparent !important;
-  background-image: url('/img/post-1.png') !important;
+  background-color: #fff !important;
   background-size: auto 140% !important;
   background-position: right center !important;
   transition: none !important;
