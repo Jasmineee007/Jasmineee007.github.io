@@ -180,15 +180,18 @@ body:has(#body-wrap.post) #footer a {
   100% { opacity: 0; }
 }
 
-/* === About/归档/友链/Categories banner === */
+/* === About/归档/友链/Categories 全屏 banner === */
 .type-special #page-header,
 .type-link #page-header,
 .type-categories #page-header,
 #body-wrap:has(#archive) #page-header,
 #body-wrap.page-custom-style #page-header {
-  background-color: #fff !important;
-  background-size: auto 80% !important;
-  background-position: left bottom !important;
+  position: relative !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  background-color: transparent !important;
+  background-size: cover !important;
+  background-position: center center !important;
   transition: none !important;
 }
 .type-special #page-header::before,
@@ -197,6 +200,27 @@ body:has(#body-wrap.post) #footer a {
 #body-wrap:has(#archive) #page-header::before,
 #body-wrap.page-custom-style #page-header::before {
   display: none !important;
+}
+.type-special #page-header #site-title,
+.type-link #page-header #site-title,
+.type-categories #page-header #site-title,
+#body-wrap:has(#archive) #page-header #site-title,
+#body-wrap.page-custom-style #page-header #site-title {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+}
+.type-special #nav a,
+.type-special #nav span.site-page,
+.type-link #nav a,
+.type-link #nav span.site-page,
+.type-categories #nav a,
+.type-categories #nav span.site-page,
+#body-wrap:has(#archive) #nav a,
+#body-wrap:has(#archive) #nav span.site-page,
+#body-wrap.page-custom-style #nav a,
+#body-wrap.page-custom-style #nav span.site-page {
+  color: #fff !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
 }
 
 /* 让 body 透明以显示 #web_bg 背景图 */
