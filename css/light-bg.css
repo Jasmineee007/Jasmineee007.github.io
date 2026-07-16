@@ -313,11 +313,3 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
-
-/* === 夜间模式字体黑色 === */
-[data-theme='dark'] {
-  color: #000 !important;
-}
-[data-theme='dark'] a {
-  color: #ee9748 !important;
-}
