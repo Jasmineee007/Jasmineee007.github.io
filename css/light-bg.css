@@ -196,7 +196,7 @@ body:has(#body-wrap.post) #footer a {
 }
 
 /* === 复制版权提示 === */
-.copy-notice {
+.copy-guard-notice {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -211,6 +211,10 @@ body:has(#body-wrap.post) #footer a {
   pointer-events: none;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   animation: fadeInOut 2s ease;
+}
+[data-theme='dark'] .copy-guard-notice {
+  background: #1a1a2e;
+  color: #fff;
 }
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
