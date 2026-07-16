@@ -413,18 +413,3 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   --tags-purple-color-lighten: rgba(238, 151, 72, 0.15);
   --tags-green-color-lighten: rgba(238, 151, 72, 0.15);
 }
-
-/* === Footer 毛玻璃效果 === */
-#footer {
-  background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Footer 深色模式 */
-[data-theme='dark'] #footer,
-html.dark #footer {
-  background: rgba(30, 30, 30, 0.75) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
