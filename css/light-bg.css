@@ -115,6 +115,9 @@ body:has(#body-wrap.post) #footer > * {
 body:has(#body-wrap.post) #footer a {
   color: #000 !important;
 }
+#footer {
+  background: rgba(255,255,255,0.85) !important;
+}
 
 /* === 标签分散排列 === */
 .article-tag-list {
