@@ -390,3 +390,10 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 [data-theme='dark'] #footer a {
   color: #fff !important;
 }
+[data-theme='dark'] #nav a,
+[data-theme='dark'] #nav span.site-page,
+[data-theme='dark'] #nav .site-name,
+[data-theme='dark'] #nav #search-button {
+  color: #fff !important;
+}
+}
