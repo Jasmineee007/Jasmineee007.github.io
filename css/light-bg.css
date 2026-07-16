@@ -117,6 +117,10 @@ body:has(#body-wrap.post) #footer a {
 }
 #footer {
   background: rgba(255,255,255,0.85) !important;
+  color: #333 !important;
+}
+#footer a {
+  color: #333 !important;
 }
 
 /* === 标签分散排列 === */
