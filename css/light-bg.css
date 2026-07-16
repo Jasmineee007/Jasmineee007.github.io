@@ -123,7 +123,10 @@ body:has(#body-wrap.post) #footer a {
   color: #000 !important;
 }
 #footer {
-  background: rgba(255,255,255,0.85) !important;
+  background-color: rgba(255,255,255,0.85) !important;
+  color: #000 !important;
+}
+#footer > * {
   color: #000 !important;
 }
 #footer a {
@@ -378,7 +381,10 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   background: transparent !important;
 }
 [data-theme='dark'] #footer {
-  background: rgba(0,0,0,0.15) !important;
+  background-color: rgba(0,0,0,0.15) !important;
+  color: #fff !important;
+}
+[data-theme='dark'] #footer > * {
   color: #fff !important;
 }
 [data-theme='dark'] #footer a {
