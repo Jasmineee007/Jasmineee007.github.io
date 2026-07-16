@@ -330,6 +330,25 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   --btn-color: #ee9748;
 }
 
+/* 暗色模式banner样式 */
+[data-theme='dark'] #page-header.full_page,
+[data-theme='dark'] #page-header.not-home-page,
+[data-theme='dark'] #body-wrap.post #page-header {
+  background-color: #1a1a1a !important;
+}
+
+[data-theme='dark'] #page-header::before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 88%, rgba(0,0,0,0) 100%) !important;
+}
+
+[data-theme='dark'] #page-header #site-title,
+[data-theme='dark'] .post-title,
+[data-theme='dark'] #post-info,
+[data-theme='dark'] #post-info a {
+  color: rgba(255,255,255,0.9) !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
+}
+
 /* 亮色模式下标签的暖橙色 */
 :root {
   --tags-blue-color-lighten: rgba(238, 151, 72, 0.15);
