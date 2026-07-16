@@ -2747,11 +2747,11 @@ shellid		#查看当前执行权限ip addr
 使用低权限账号运行 PHP 程序；
 监控日志与进程行为，及时发现漏洞攻击尝试。
 
-msfvenom 生成后门木马Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
+(五) msfvenom 生成后门木马Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
 使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
 核心参数
--p 指定使用的攻击 payload（后门类型），例如windows/meterpreter/reverse_tcp
-LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
+-p 指定使用的攻击 payload（后门类型），例如 windows/meterpreter/reverse_tcp
+LHOST Local Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
 LPORT 攻击机开启监听的端口
 -f 文件输出格式（elf、exe、so、raw 等）
 -o 保存生成的后门文件（output）
