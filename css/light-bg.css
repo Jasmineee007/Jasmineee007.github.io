@@ -313,3 +313,84 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
+
+/* === 暖橙色暗色模式（参考simple9656） === */
+:root[data-theme='dark'] {
+  --primary: #ee9748;
+  --primary-color: #ee9748;
+  --btn-bg: #523d2d;
+  --btn-hover: #68503c;
+  --btn-active: #795d46;
+  --card-background: #291f18;
+  --page-background: #120c07;
+  --text-color: rgba(255,255,255,0.75);
+  --text-color-secondary: rgba(255,255,255,0.5);
+  --link-color: #ee9748;
+  --blockquote-bg: #1d140d;
+  --highlight-selection-bg: #483628;
+}
+
+:root[data-theme='dark'] #web_bg {
+  background-color: #120c07 !important;
+  background-image: url('/img/bg3.png') !important;
+  background-size: auto !important;
+  background-position: left bottom !important;
+  background-blend-mode: overlay;
+}
+
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .recent-post-item,
+:root[data-theme='dark'] .widget,
+:root[data-theme='dark'] .article-container,
+:root[data-theme='dark'] #aside-content {
+  background: rgba(41, 31, 24, 0.9) !important;
+  border-radius: 16px;
+}
+
+:root[data-theme='dark'] #nav {
+  background: rgba(18, 12, 7, 0.95) !important;
+}
+
+:root[data-theme='dark'] .article-meta,
+:root[data-theme='dark'] .article-meta a {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+:root[data-theme='dark'] .article-title,
+:root[data-theme='dark'] .page-title {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+:root[data-theme='dark'] #footer {
+  background: rgba(18, 12, 7, 0.9) !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+
+:root[data-theme='dark'] #footer a {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+:root[data-theme='dark'] code {
+  background: #523d2d !important;
+  color: #ee9748 !important;
+}
+
+:root[data-theme='dark'] pre {
+  background: #1d140d !important;
+}
+
+:root[data-theme='dark'] .copy-guard-notice,
+:root[data-theme='dark'] .copy-notice {
+  background: #291f18 !important;
+  color: rgba(255,255,255,0.9) !important;
+}
+
+/* 暗色模式标签颜色 */
+:root[data-theme='dark'] .card-tag-cloud a,
+:root[data-theme='dark'] .article-tag-list a {
+  opacity: 0.85;
+}
+:root[data-theme='dark'] .card-tag-cloud a:hover,
+:root[data-theme='dark'] .article-tag-list a:hover {
+  opacity: 1;
+}
