@@ -349,6 +349,33 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
 }
 
+/* 暗色模式文章内容文字颜色 */
+[data-theme='dark'] #article-container,
+[data-theme='dark'] .article-content,
+[data-theme='dark'] .article-text,
+[data-theme='dark'] .post-content,
+[data-theme='dark'] #content-inner {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+[data-theme='dark'] #article-container a,
+[data-theme='dark'] .article-content a {
+  color: #ee9748 !important;
+}
+
+[data-theme='dark'] #article-container h1,
+[data-theme='dark'] #article-container h2,
+[data-theme='dark'] #article-container h3,
+[data-theme='dark'] #article-container h4,
+[data-theme='dark'] #article-container h5,
+[data-theme='dark'] #article-container h6 {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+[data-theme='dark'] #article-container p {
+  color: rgba(255,255,255,0.8) !important;
+}
+
 /* 亮色模式下标签的暖橙色 */
 :root {
   --tags-blue-color-lighten: rgba(238, 151, 72, 0.15);
