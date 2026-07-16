@@ -313,3 +313,29 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
+
+/* === 暖橙色主题色（参考simple9656） === */
+:root {
+  --theme-color: #ee9748;
+  --primary-color: #ee9748;
+  --primary: #ee9748;
+}
+
+/* 暗色模式下的暖橙色 */
+[data-theme='dark'] {
+  --theme-color: #ee9748;
+  --primary-color: #ee9748;
+  --primary: #ee9748;
+  --link-color: #ee9748;
+  --btn-color: #ee9748;
+}
+
+/* 亮色模式下标签的暖橙色 */
+:root {
+  --tags-blue-color-lighten: rgba(238, 151, 72, 0.15);
+  --tags-pink-color-lighten: rgba(238, 151, 72, 0.15);
+  --tags-red-color-lighten: rgba(238, 151, 72, 0.15);
+  --tags-orange-color-lighten: rgba(238, 151, 72, 0.15);
+  --tags-purple-color-lighten: rgba(238, 151, 72, 0.15);
+  --tags-green-color-lighten: rgba(238, 151, 72, 0.15);
+}
