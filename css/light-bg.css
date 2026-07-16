@@ -363,15 +363,16 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
 }
 
-/* 暗色模式文章内容文字颜色 */
+/* 暗色模式文章内容文字颜色 - 黑色 */
 [data-theme='dark'] #article-container,
 [data-theme='dark'] .article-content,
 [data-theme='dark'] .article-text,
 [data-theme='dark'] .post-content,
 [data-theme='dark'] #content-inner,
 [data-theme='dark'] .layout,
-[data-theme='dark'] article {
-  color: rgba(255,255,255,0.9) !important;
+[data-theme='dark'] article,
+[data-theme='dark'] body {
+  color: #000000 !important;
 }
 
 [data-theme='dark'] #article-container a,
@@ -392,12 +393,12 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 [data-theme='dark'] article h4,
 [data-theme='dark'] article h5,
 [data-theme='dark'] article h6 {
-  color: rgba(255,255,255,0.95) !important;
+  color: #000000 !important;
 }
 
 [data-theme='dark'] #article-container p,
 [data-theme='dark'] article p {
-  color: rgba(255,255,255,0.85) !important;
+  color: #111111 !important;
 }
 
 /* 亮色模式下标签的暖橙色 */
