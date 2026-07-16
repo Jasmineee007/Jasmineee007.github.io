@@ -314,101 +314,10 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   background: transparent;
 }
 
-/* === 暖橙色主题色（参考simple9656） === */
-:root {
-  --theme-color: #ee9748;
-  --primary-color: #ee9748;
-  --primary: #ee9748;
-}
-
-/* 暗色模式下的暖橙色 */
+/* === 夜间模式字体黑色 === */
 [data-theme='dark'] {
-  --theme-color: #ee9748;
-  --primary-color: #ee9748;
-  --primary: #ee9748;
-  --link-color: #ee9748;
-  --btn-color: #ee9748;
+  color: #000 !important;
 }
-
-/* 暗色模式卡片样式 - 只改字体颜色，不改背景 */
-[data-theme='dark'] .card,
-[data-theme='dark'] .recent-post-item,
-[data-theme='dark'] .widget,
-[data-theme='dark'] #aside-content,
-[data-theme='dark'] .article-container,
-[data-theme='dark'] #card-toc {
-  color: #111111 !important;
-}
-
-[data-theme='dark'] #article-container,
-[data-theme='dark'] .article-content,
-[data-theme='dark'] .post-content {
-  color: #111111 !important;
-}
-
-/* 暗色模式banner样式 */
-[data-theme='dark'] #page-header.full_page,
-[data-theme='dark'] #page-header.not-home-page,
-[data-theme='dark'] #body-wrap.post #page-header {
-  background-color: #1a1a1a !important;
-}
-
-[data-theme='dark'] #page-header::before {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 88%, rgba(0,0,0,0) 100%) !important;
-}
-
-[data-theme='dark'] #page-header #site-title,
-[data-theme='dark'] .post-title,
-[data-theme='dark'] #post-info,
-[data-theme='dark'] #post-info a {
-  color: rgba(255,255,255,0.9) !important;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
-}
-
-/* 暗色模式文章内容文字颜色 - 黑色 */
-[data-theme='dark'] #article-container,
-[data-theme='dark'] .article-content,
-[data-theme='dark'] .article-text,
-[data-theme='dark'] .post-content,
-[data-theme='dark'] #content-inner,
-[data-theme='dark'] .layout,
-[data-theme='dark'] article,
-[data-theme='dark'] body {
-  color: #000000 !important;
-}
-
-[data-theme='dark'] #article-container a,
-[data-theme='dark'] .article-content a,
-[data-theme='dark'] article a {
+[data-theme='dark'] a {
   color: #ee9748 !important;
-}
-
-[data-theme='dark'] #article-container h1,
-[data-theme='dark'] #article-container h2,
-[data-theme='dark'] #article-container h3,
-[data-theme='dark'] #article-container h4,
-[data-theme='dark'] #article-container h5,
-[data-theme='dark'] #article-container h6,
-[data-theme='dark'] article h1,
-[data-theme='dark'] article h2,
-[data-theme='dark'] article h3,
-[data-theme='dark'] article h4,
-[data-theme='dark'] article h5,
-[data-theme='dark'] article h6 {
-  color: #000000 !important;
-}
-
-[data-theme='dark'] #article-container p,
-[data-theme='dark'] article p {
-  color: #111111 !important;
-}
-
-/* 亮色模式下标签的暖橙色 */
-:root {
-  --tags-blue-color-lighten: rgba(238, 151, 72, 0.15);
-  --tags-pink-color-lighten: rgba(238, 151, 72, 0.15);
-  --tags-red-color-lighten: rgba(238, 151, 72, 0.15);
-  --tags-orange-color-lighten: rgba(238, 151, 72, 0.15);
-  --tags-purple-color-lighten: rgba(238, 151, 72, 0.15);
-  --tags-green-color-lighten: rgba(238, 151, 72, 0.15);
 }
