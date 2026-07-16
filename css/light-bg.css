@@ -313,3 +313,13 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
+
+/* === 夜间模式：banner和卡片区域变暗 === */
+[data-theme='dark'] #page-header {
+  background-color: rgba(0,0,0,0.3) !important;
+}
+[data-theme='dark'] #article-container,
+[data-theme='dark'] .article-content {
+  background: rgba(255,255,255,0.1) !important;
+  border-radius: 12px;
+}
