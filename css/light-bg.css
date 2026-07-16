@@ -330,20 +330,6 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   --btn-color: #ee9748;
 }
 
-/* 暗色模式背景 - 深棕黑色确保白色文字清晰可见 */
-[data-theme='dark'] body,
-[data-theme='dark'] #body-wrap,
-[data-theme='dark'] .layout,
-[data-theme='dark'] #content-inner,
-[data-theme='dark'] #article-container {
-  background-color: #121212 !important;
-  color: rgba(255,255,255,0.9) !important;
-}
-
-[data-theme='dark'] #web_bg {
-  background-color: #0d0d0d !important;
-}
-
 /* 暗色模式卡片样式 - 深色卡片配黑色字体 */
 [data-theme='dark'] .card,
 [data-theme='dark'] .recent-post-item,
