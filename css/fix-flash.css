@@ -2,3 +2,6 @@
 :root {
   --default-bg-color: #fff;
 }
+[data-theme='dark'] {
+  --default-bg-color: #1a1a2e;
+}

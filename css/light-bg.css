@@ -6,6 +6,10 @@
   background-position: center center !important;
   background-color: #fff !important;
 }
+[data-theme='dark'] #body-wrap.post #page-header {
+  background-color: rgba(0,0,0,0.55) !important;
+  background-blend-mode: multiply !important;
+}
 #body-wrap.post #page-header::before {
   display: none !important;
 }
@@ -38,17 +42,17 @@ body:has(#body-wrap.post) #web_bg {
 }
 html .type-special #web_bg,
 html .type-link #web_bg {
-  background-image: url('/img/about-2.png') !important;
+  background-image: url('/img/bg3.png') !important;
 }
 html .type-categories #web_bg {
-  background-image: url('/img/about-2.png') !important;
+  background-image: url('/img/bg3.png') !important;
 }
 html #body-wrap:has(#archive) #web_bg {
-  background-image: url('/img/about-2.png') !important;
+  background-image: url('/img/bg3.png') !important;
 }
 html #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
 html #body-wrap:has(#page-header[style*="websec"]) #web_bg {
-  background-image: url('/img/ctfwp-2.png') !important;
+  background-image: url('/img/bg3.png') !important;
 }
 
 /* === About/归档/友链/Categories 导航栏字体 === */
@@ -218,6 +222,14 @@ body:has(#body-wrap.post) #footer a {
 #body-wrap:has(#page-header[style*="banner-night"]) #page-header::before {
   display: none !important;
 }
+[data-theme='dark'] .type-special #page-header,
+[data-theme='dark'] .type-link #page-header,
+[data-theme='dark'] .type-categories #page-header,
+[data-theme='dark'] #body-wrap:has(#archive) #page-header,
+[data-theme='dark'] #body-wrap.page-custom-style #page-header {
+  background-color: rgba(0,0,0,0.55) !important;
+  background-blend-mode: multiply !important;
+}
 
 /* === banner-night 导航栏和标题黑色（随笔等） === */
 #body-wrap:has(#page-header[style*="banner-night"]) #nav a,
@@ -275,7 +287,7 @@ body:has(#page-header[style*="websec"]) {
 }
 body:has(#page-header[style*="ctfwp"]) #web_bg,
 body:has(#page-header[style*="websec"]) #web_bg {
-  background-size: 70% !important;
+  background-size: auto !important;
   background-position: left bottom !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
@@ -283,6 +295,15 @@ body:has(#page-header[style*="websec"]) #web_bg {
 #body-wrap:has(#page-header[style*="websec"]) #content-inner,
 #body-wrap:has(#page-header[style*="websec"]) .layout {
   background: transparent;
+}
+[data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #page-header {
+  background-color: rgba(0,0,0,0.55) !important;
+  background-blend-mode: multiply !important;
+}
+[data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #web_bg {
+  opacity: 0.8 !important;
 }
 
 /* === 随笔等生成分类页（about-1 banner） === */
@@ -313,11 +334,39 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
   background: transparent;
 }
+[data-theme='dark'] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
+  background-color: rgba(0,0,0,0.55) !important;
+  background-blend-mode: multiply !important;
+}
+[data-theme='dark'] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #web_bg {
+  opacity: 0.8 !important;
+}
 
-/* === 夜间模式：banner、文章主体、卡片统一变暗 === */
-[data-theme='dark'] #page-header,
-[data-theme='dark'] #article-container,
-[data-theme='dark'] .article-content,
-[data-theme='dark'] .card {
+/* === 夜间模式：全站统一规则 === */
+[data-theme='dark'] #page-header {
+  background-color: rgba(0,0,0,0.55) !important;
+  background-blend-mode: multiply !important;
+}
+[data-theme='dark'] #page-header::before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.15) 100%) !important;
+}
+[data-theme='dark'] #web_bg {
+  opacity: 0.8 !important;
+}
+[data-theme='dark'] {
+  --card-bg: rgba(0,0,0,0.2) !important;
+}
+[data-theme='dark'] body {
+  background: transparent !important;
+}
+[data-theme='dark'] #content-inner,
+[data-theme='dark'] .layout {
+  background: transparent !important;
+}
+[data-theme='dark'] #footer {
   background: rgba(0,0,0,0.15) !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+[data-theme='dark'] #footer a {
+  color: rgba(255,255,255,0.7) !important;
 }
