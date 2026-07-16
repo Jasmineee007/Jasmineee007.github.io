@@ -330,14 +330,13 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   --btn-color: #ee9748;
 }
 
-/* 暗色模式卡片样式 - 深色卡片配黑色字体 */
+/* 暗色模式卡片样式 - 只改字体颜色，不改背景 */
 [data-theme='dark'] .card,
 [data-theme='dark'] .recent-post-item,
 [data-theme='dark'] .widget,
 [data-theme='dark'] #aside-content,
 [data-theme='dark'] .article-container,
 [data-theme='dark'] #card-toc {
-  background: rgba(30, 25, 20, 0.95) !important;
   color: #111111 !important;
 }
 
