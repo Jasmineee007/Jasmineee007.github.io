@@ -2,7 +2,7 @@
 title: 关于
 date: 2026-05-19 23:25:02
 comments: false
-top_img: /img/about-1.png
+top_img: /img/banner-night.png
 type: special
 ---
 
