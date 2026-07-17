@@ -59,8 +59,13 @@ Web安全 下的子分类（每篇文章归入一个子分类）：
 | RCE | RCE漏洞 |
 | 文件上传 | 文件上传漏洞 |
 | 文件包含 | 文件包含漏洞 |
+| PHP | PHP基础安全 |
 
-其他顶级分类：随笔
+其他顶级分类：
+- CTF-WP：Contest-WP（比赛）、Lab-WP（练习）
+- 随笔
+
+CTF-WP 分类的文章默认添加 CTF 标签。
 
 ## 图片处理
 
@@ -173,6 +178,12 @@ CSS 版本号通过 `inject.head` 中的 `?v=N` 参数管理，修改后需 +1 �
 `scripts/` 目录下的所有 `.js` 文件会被 Hexo 自动加载执行。
 工具脚本必须加 `if (require.main === module) main();` 守卫，防止 `hexo generate` 时误执行。
 不需要 Hexo 加载的工具脚本放在项目根目录外用 `_` 前缀命名（如 `_import-yuque.js`）。
+
+### append-note.js
+自动在每篇文章末尾追加 `> 本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。`
+- 使用 `after_render:html` 过滤器（Hexo 8 兼容）
+- 排除 hello-world
+- 已有该句的文章不会重复添加
 
 ## 标签页与标签点击
 

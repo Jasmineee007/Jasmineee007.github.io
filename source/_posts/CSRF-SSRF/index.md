@@ -7,6 +7,7 @@ categories:
 tags:
   - CSRF
   - SSRF
+description: 跨站请求伪造（CSRF）与服务器端请求伪造（SSRF）的工作原理、攻击手法与防御策略
 ---
 
 # 一、CSRF（跨站请求伪造）

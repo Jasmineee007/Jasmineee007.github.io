@@ -6,6 +6,7 @@ categories:
   - RCE
 tags:
   - RCE
+description: 远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施
 ---
 
 # 一、RCE简介与危害

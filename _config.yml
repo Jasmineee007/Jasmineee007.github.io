@@ -13,7 +13,7 @@ timezone: 'Asia/Chongqing'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://Jasmineee007.github.io
+url: https://jasmine-iris.top
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -110,5 +110,5 @@ search:
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: git@github.com:Jasmineee007/Jasmineee007.github.io.git
+  repo: https://github.com/Jasmineee007/Jasmineee007.github.io.git
   branch: main

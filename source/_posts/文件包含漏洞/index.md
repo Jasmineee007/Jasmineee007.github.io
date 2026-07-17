@@ -6,6 +6,7 @@ categories:
   - 文件包含
 tags:
   - 文件包含
+description: 文件包含漏洞的原理、本地/远程包含攻击手法、伪协议利用与防御方案
 ---
 
 # 一、漏洞检测与危害
@@ -56,7 +57,7 @@ include($filename.".html");
 + 原理：%00终止字符串，`.html`被舍弃。
 + 访问：`http://localhost/include/upload2.php?filename=1.txt%00`
 
-#### ②超长路径截断
+#### 2. 超长路径截断
 + 原理：Windows文件名上限255字符、Linux4096字符，大量`.`填充耗尽路径，末尾.html被丢弃.
 + `?filename=1.txt......................................................................`
 
@@ -92,7 +93,7 @@ PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换
 | data:// | ≥5.2 | on | on | ?file=data://text/plain, |
 
 
-## 1、http/https协议
+## 1. http/https协议
 远程包含常规协议。
 
 (高亮的部分是伪协议）

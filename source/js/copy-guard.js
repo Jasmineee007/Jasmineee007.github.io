@@ -8,10 +8,10 @@
 
   function showNotice() {
     var d = document.createElement('div');
-    d.className = 'copy-notice';
+    d.className = 'copy-guard-notice';
     d.textContent = '转载要标明出处哦';
     document.body.appendChild(d);
-    setTimeout(function(){ d.remove(); }, 1500);
+    setTimeout(function(){ d.remove(); }, 2000);
   }
 
   // 1. 拦截 Ctrl+C / 右键复制（触发 copy 事件）
@@ -27,10 +27,14 @@
     showNotice();
   });
 
-  // 2. 拦截代码块复制按钮（使用 navigator.clipboard.writeText，不触发 copy 事件）
+  // 2. 拦截 navigator.clipboard.writeText（部分操作不触发 copy 事件）
   try {
     var origWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
     navigator.clipboard.writeText = function(text) {
+      // 判断是否来自代码块复制按钮
+      if (window.__copyingCode) {
+        return origWrite(text);
+      }
       showNotice();
       return origWrite(text + COPYRIGHT);
     };
