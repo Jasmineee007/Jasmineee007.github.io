@@ -5224,4 +5224,335 @@ session.upload_progress.cleanup 会话上传进度是否会自动清理
         <tag>PHP</tag>
       </tags>
   </entry>
+  <entry>
+    <title>流量分析</title>
+    <url>/2026/08/13/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/index/</url>
+    <content><![CDATA[一、[陇剑杯 2021]jwtQ1：JWT 是什么？JWT（JSON Web Token）：JSON格式的Web令牌，是一种轻量级、无状态的身份认证、授权标准（RFC7519）。用于前后端分离、分布式系统登录鉴权，替代传统 Session。
+1. 核心特点
+无状态：服务端不用存储会话数据，全部信息存在Token里，天然适配集群、微服务
+轻量化：Base64编码字符串，体积小，可放URL、Header、Cookie
+自包含：Token自带用户身份、权限、过期时间等业务信息
+防篡改：通过签名校验，数据无法被随意修改
+
+2. JWT 三段结构（用 . 分割）格式：Header.Payload.Signature
+2.1 Header 头部 —- Base64URL编码作用：声明加密算法、令牌类型示例JSON：
+&#123;  &quot;alg&quot;: &quot;HS256&quot;, // 签名算法：HS256对称加密，RS256非对称  &quot;typ&quot;: &quot;JWT&quot;    // 类型固定JWT&#125;
+
+2.2 Payload 载荷—-Base64URL编码存放业务数据，分标准声明和自定义声明
+
+重要：Payload只是编码，未加密，不能存密码、密钥等敏感数据！
+
+标准内置字段（
+
+
+字段
+含义
+
+
+
+iss
+签发者（服务端域名）
+
+
+sub
+用户唯一标识（用户ID）
+
+
+aud
+接收方（客户端）
+
+
+exp
+过期时间戳（必填，超时失效）
+
+
+nbf
+生效时间（在此之前不可用）
+
+
+iat
+签发时间
+
+
+jti
+令牌唯一ID（用于注销、黑名单）
+
+
+自定义字段存放权限、角色、用户名等，例：{&quot;role&quot;:&quot;admin&quot;,&quot;uid&quot;:1001}
+2.3 Signature 签名防止Header+Payload被篡改，生成逻辑：
+
+将 Header、Payload 分别做 Base64URL 编码
+拼接成 base64(header).base64(payload)
+使用 Header 指定算法 + 密钥&#x2F;私钥 加密，得到签名
+
+
+对称加密 HS256：服务端统一一个密钥，签发、校验都用同一密钥
+非对称加密 RS256：私钥签发Token，公钥校验，适合多服务场景
+
+
+签到https://www.nssctf.cn/problem/271
+
+查看协议分级
+
+按字节百分比看，占比最多的是 HTTP
+
+所以 flag：NSSCTF{http}
+
+问 1https://www.nssctf.cn/problem/272
+
+追踪 HTTP 流
+
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
+
+认证方式：jwt
+flag：NSSCTF{jwt}
+
+问 2https://www.nssctf.cn/problem/273
+
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
+
+
+flag：NSSCTF{10086#admin}
+
+看题，发现说的是绕过验证使用的 jwt，所以要先找到登录成功的一条流量。登录成功之后会执行的常见命令是 whoami
+
+登录失败了。
+如何查找当前所有数据包拥有 whoami 这个命令的数据？
+使用过滤器，输入 http contains &quot;whoami&quot;
+
+逐个追踪 http 流
+
+发现这次登录成功了。
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODcsIk1hcENsYWltcyI6eyJ1c2VybmFtZSI6ImFkbWluIn19.rurQD5RYgMrFZow8r-k7KCP13P32sF-RpTXhKsxzvD0
+
+
+flag：NSSCTF{10087#admin}
+
+问 3https://www.nssctf.cn/problem/274
+
+由问 2 知道获得的权限是 root
+flag：NSSCTF{root}
+
+问 4https://www.nssctf.cn/problem/275
+
+上传文件通常不使用 GET 请求，而是使用 POST 或 PUT 请求。
+直接过滤查找 POST 请求的数据包。http.request.method==&quot;POST&quot; 
+
+由前两题，在第 97 条数据包登录成功。所以从 97 条开始看数据包详情
+
+
+在第 107 条数据包中得到信息 cat /tmp/1.c
+说明恶意文件可能是 1.cflag：NSSCTF{1.c}
+
+问 5https://www.nssctf.cn/problem/276
+
+恶意 so 文件，找 后缀为 so 的
+
+flag：NSSCTF{looter.so}
+
+问 6https://www.nssctf.cn/problem/277
+
+找配置文件的绝对路径
+
+flag：NSSCTF{&#x2F;etc&#x2F;pam.d&#x2F;common-auth}
+Q2：PAM 认证后门是什么？1. 定义PAM（Pluggable Authentication Modules，可插拔认证模块） 是Linux系统统一的底层认证框架。系统登录、sudo提权、修改用户密码、SSH登录等所有身份校验操作，底层都会调用PAM模块。
+
+主配置目录：/etc/pam.d/
+全局公共认证配置：/etc/pam.d/common-auth，所有系统服务共用这套认证规则。
+工作机制：通过加载.so动态链接库文件，执行认证校验逻辑。
+
+2. PAM认证后门核心原理攻击者利用PAM加载自定义动态库的特性制作持久后门：
+
+编写恶意C代码，编译生成恶意动态链接库（示例：looter.so）；
+修改全局认证配置 /etc/pam.d/common-auth，添加加载恶意.so模块的配置；
+恶意模块实现两大攻击能力：
+万能密码绕过：输入攻击者预设的特殊密码，直接放行认证，无视用户真实密码；
+窃取明文密码：合法用户正常登录、sudo时，悄悄捕获并落地用户输入的明文账号密码。
+
+
+
+3. 后门特点PAM属于系统底层认证机制，隐蔽性极强：
+
+普通改密码、重启服务无法清除后门；
+就算原始入侵漏洞被修复、管理员重置所有用户密码，攻击者依旧能靠万能密码重新登录；
+常规进程、日志排查很难定位PAM恶意模块。
+
+
+二、[陇剑杯 2021]webshell问 1https://www.nssctf.cn/problem/278
+
+过滤器查找http contains &quot;password&quot;
+
+查看数据详情
+
+flag：NSSCTF{Admin123!@#}
+
+问 2https://www.nssctf.cn/problem/279
+
+修改日志文件
+可以通过过滤器查找 http.request.method==&quot;POST&quot; and http contains &quot;log&quot; 
+
+并且修改文件需要权限，我们可以从上一题登录成功后的数据包开始查找。
+
+但是 data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log 并不是绝对路径
+直到第 332 条数据包，我们可以发现黑客在往 1.php 中写入东西
+
+flag：NSSCTF{&#x2F;var&#x2F;www&#x2F;html&#x2F;data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log}
+
+问 3https://www.nssctf.cn/problem/280
+
+查看权限
+过滤器 http contains &quot;whoami&quot;
+
+
+在 Linux 系统中，Apache&#x2F;Nginx 等 Web 服务通常以低权限用户 www-data 运行。黑客获取的权限是：www-data
+flag：NSSCTF{www-data}
+
+问 4https://www.nssctf.cn/problem/281
+
+从问 2 知道写入的文件是 1.php
+flag：NSSCTF{1.php}
+
+问 5https://www.nssctf.cn/problem/282
+
+过滤器查找 http.request.uri contains &quot;1.php&quot;
+
+flag：NSSCTF{frpc}
+Q1：frp 是什么？frp &#x3D; Fast Reverse Proxy
+快速反向代理，一款开源内网穿透工具
+1. 组成
+
+frps → frp server 服务端部署在有公网IP的云服务器上
+frpc → frp client 客户端部署在内网设备（家里电脑、校园网主机）
+
+2. 核心用途（内网穿透）
+实现外网访问局域网内设备，常见场景：
+
+外网远程SSH连接家里Linux主机
+在外远程桌面控制Windows电脑
+将本地Web项目暴露公网，给他人测试
+外网访问NAS网盘、智能家居服务
+
+3. 简单工作流程
+
+内网机器启动 frpc，主动出站连接云服务器 frps，维持长连接隧道
+外网用户访问「云服务器IP:远端端口」
+frps收到请求，通过隧道转发给frpc
+frpc把流量交给内网本地程序
+返回数据原路送回外网访问者
+
+4. 支持协议
+TCP、UDP、HTTP、HTTPS、STCP（安全隧道，访客验证）、XTCP（点对点P2P穿透）
+5. 基础文件说明
+
+frps.ini：服务端配置
+frpc.ini：客户端配置
+
+配置示例：
+(注：frp 在较新的版本中官方推荐使用 .toml 格式)
+
+frps.ini：服务端配置 (部署在公网服务器)
+
+这份配置告诉公网服务器，应该在哪些端口监听客户端的连接，以及开放哪些端口给外部用户访问。
+[common]# 核心通信端口：frp 服务端监听的端口，等待你本地的 frpc 来连接bind_port = 7000# 身份验证：设置一个 token 防止别人随意连接你的服务端token = my_secure_password_123# Web 穿透专用：如果需要穿透 HTTP 服务，必须配置这个公网访问端口vhost_http_port = 8080
+
+
+
+frpc.ini：客户端配置
+
+这份配置告诉本地程序，去哪里寻找服务端，以及要把本地的哪些服务（如 Web 测试环境、SSH 终端）映射到公网出去。
+[common]# 指向服务端的公网 IP 地址server_addr = 1.2.3.4# 必须与服务端 bind_port 保持一致server_port = 7000# 必须与服务端 token 保持一致token = my_secure_password_123# --- 示例 1：穿透本地的 Web 测试环境 ---# （比如你本地用 phpStudy 或 Ubuntu 的 Vulhub 搭建了一个漏洞靶场，运行在 80 端口）[web_test_env]type = httplocal_ip = 127.0.0.1local_port = 80# 外部访问的域名。配置好后，访问 http://test.yourdomain.com:8080 就能看到本地 80 端口的内容custom_domains = test.yourdomain.com# --- 示例 2：穿透 SSH 端口进行远程管理 ---[ssh_access]type = tcplocal_ip = 127.0.0.1local_port = 22# 将公网服务器的 6000 端口，映射到本地的 22 端口# 配置好后，在外部通过 ssh -p 6000 user@1.2.3.4 即可连接到这台本地机器remote_port = 6000
+
+当启动这两个服务后：
+
+本地的 frpc 会带着 token，去敲公网 IP 1.2.3.4 的 7000 端口的门。
+frps 验证通过后，两者建立起一条隐秘的隧道。
+当外部网络有人访问 1.2.3.4:6000 时，frps 就会把流量顺着隧道丢给 frpc，frpc 再把流量转发给本机的 22 端口。
+
+
+问 6https://www.nssctf.cn/problem/283
+
+过滤数据包：http.request.uri contains &quot;1.php&quot;
+查看数据包内容，根据 length，一般数值大的，即进行了文件写入操作。
+
+十六进制数，对其进行 Hex 解码，得到 frpc 配置文件的内容。
+
+黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了frpc的参数，里面包含服务端的IP信息。
+flag: NSSCTF{192.168.239.123}
+
+问 7https://www.nssctf.cn/problem/284
+
+黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了socks5代理的参数。
+
+flag：NSSCTF{0HDFt16cLQJ#JTN276Gp}
+Q2：SOCKS5 是什么？1. 定义
+SOCKS5 是一种代理协议（Socket Secure Version 5），工作在会话层。
+SOCKS5 ≠ HTTP代理
+HTTP代理：只支持网页HTTP&#x2F;HTTPS流量
+SOCKS5：几乎所有流量都能转发（TCP绝大多数程序）
+2.  特点
+
+支持 TCP、UDP
+不解读应用层数据（只管转发数据包）
+支持账号密码认证
+可以搭配 FRP、V2Ray、Clash 等工具使用
+本身不加密。原始SOCKS5流量是明文传输；想要加密，一般外面套一层隧道（FRP&#x2F;TLS、ShadowSocks等）。
+
+3. 和 FRP 的结合
+frp 可以直接在客户端配置开启SOCKS5隧道作用：在内网电脑运行frpc，外网通过frps连接这条socks5代理，使用内网机器的网络上网。
+frpc.ini 里 SOCKS5 配置实例
+[common]server_addr = x.x.x.xserver_port = 7000token = 自定义密钥[socks-proxy]type = tcplocal_ip = 127.0.0.1local_port = 1080remote_port = 1080
+
+
+内网本机开启 socks5：127.0.0.1:1080
+外网设备连接 服务器IP:1080流量 → frps → frpc → 内网socks代理 → 使用内网网络
+
+
+另一种：frp内置socks5服务（不用本地额外开socks程序）
+
+[proxy-socks5]type = socks5remote_port = 1080
+
+ 4. SOCKS5 常见使用场景
+
+浏览器&#x2F;Clash设置代理，走SOCKS5
+SSH动态端口转发本质就是SOCKS5代理
+FRP内网穿透，对外提供内网代理
+游戏、FTP、远程工具都能使用SOCKS5
+
+
+三、[陇剑杯 2021]简单日志分析问 1https://www.nssctf.cn/problem/285
+
+ 在大量 404 响应中出现了一个 500（服务器内部错误），说明该请求触发了服务端异常，这类请求往往对应注入、文件包含等攻击行为。定位到该请求，可从中找到关键字 user
+
+flag：NSSCTF{user}
+
+问 2https://www.nssctf.cn/problem/286
+
+
+发现很像 base64 编码。
+对可疑请求中的字符串做 base64 解码，得到：
+
+flag：NSSCTF{&#x2F;Th4s_IS_VERY_Import_Fi1e}
+
+问 3https://www.nssctf.cn/problem/287
+
+
+base64 解码
+
+flag：NSSCTF{192.168.2.197:8888}
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>流量分析</tag>
+      </tags>
+  </entry>
 </search>
