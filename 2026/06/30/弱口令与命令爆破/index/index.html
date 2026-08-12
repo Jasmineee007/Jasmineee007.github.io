@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jasmine-iris.top/img/photo.png">
 <meta property="article:published_time" content="2026-06-30T15:08:00.000Z">
-<meta property="article:modified_time" content="2026-08-12T07:33:07.365Z">
+<meta property="article:modified_time" content="2026-08-12T07:49:24.984Z">
 <meta property="article:author" content="Jasmine_Iris">
 <meta property="article:tag" content="弱口令">
 <meta name="twitter:card" content="summary">
@@ -18,7 +18,7 @@
   "url": "https://jasmine-iris.top/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/",
   "image": "https://jasmine-iris.top/img/photo.png",
   "datePublished": "2026-06-30T15:08:00.000Z",
-  "dateModified": "2026-08-12T07:33:07.365Z",
+  "dateModified": "2026-08-12T07:49:24.984Z",
   "author": [
     {
       "@type": "Person",
@@ -177,7 +177,7 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=85"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">弱口令与命令爆破</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">弱口令与命令爆破</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-30T15:08:00.000Z" title="发表于 2026-06-30 23:08:00">2026-06-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-12T07:33:07.365Z" title="更新于 2026-08-12 15:33:07">2026-08-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E7%88%86%E7%A0%B4/">弱口令爆破</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="一、弱口令"><a href="#一、弱口令" class="headerlink" title="一、弱口令"></a>一、弱口令</h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h2><p><strong>复杂度极低、极易被猜到&#x2F;爆破的账号密码</strong>，是渗透最常见突破口。</p>
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=85"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">弱口令与命令爆破</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">弱口令与命令爆破</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-30T15:08:00.000Z" title="发表于 2026-06-30 23:08:00">2026-06-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-12T07:49:24.984Z" title="更新于 2026-08-12 15:49:24">2026-08-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E7%88%86%E7%A0%B4/">弱口令爆破</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="一、弱口令"><a href="#一、弱口令" class="headerlink" title="一、弱口令"></a>一、弱口令</h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h2><p><strong>复杂度极低、极易被猜到&#x2F;爆破的账号密码</strong>，是渗透最常见突破口。</p>
 <p>弱⼝令的来源：</p>
 <ol>
 <li>密码设置的⼈员疏忽⼤意，安全意识薄弱，为了⽅便记忆在不同的平台设置简单或同样的密码</li>
@@ -242,71 +242,71 @@
 <ol>
 <li>抓包，发送到 intruder</li>
 </ol>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519504455_z2c3gx.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520876206_8sbv0o.png"></p>
 <ol start="2">
 <li>配置BP爆破</li>
 </ol>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519507223_91enky.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519510298_q1vzuk.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519512393_lpelrw.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520880216_lp40ev.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520882879_h2zp9l.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520885057_w2kggj.png"></p>
 <ol start="2">
 <li>判断爆破成功–通过响应状态码判断</li>
 </ol>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519514189_tg96yu.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520887504_dt2g6f.png"></p>
 <h4 id="用户名和密码都不知道"><a href="#用户名和密码都不知道" class="headerlink" title="用户名和密码都不知道"></a>用户名和密码都不知道</h4><ol>
 <li>依旧先抓包</li>
 <li>配置 bp 爆破</li>
 </ol>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519515918_jxu03v.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519518190_1jwma4.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520889555_dtrv6k.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520892219_hdp73u.png"></p>
 <p>在用户名和密码都未知的情况下，爆破成功率极低，不建议尝试。</p>
 <ol start="3">
 <li>使用 bp 验证码爆破（需要拓展插件 xiapao、使用 Cluster Bomb Attack ）</li>
 </ol>
 <p>示例：seacms 靶场</p>
 <p>首先安装好靶场，再进入后台管理系统。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519520418_vyspo9.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519522167_mgninw.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520895199_j1rkja.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520897142_gozi7g.png"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/weakpasswd/CMS/upload/4qy2hw</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519523919_n2n4cb.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520899103_862pm2.png"></p>
 <p>配置 xiapao 插件</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519525927_wnxiuv.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519526953_f1no9h.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519528503_q2wacg.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520901224_8qo89i.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520902614_vp1eih.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520904209_gjyut2.png"></p>
 <p>注意：不要关掉终端页面，否则刚刚访问的网页也会没。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519530165_a6884u.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520905766_bavr7c.png"></p>
 <p>往 bp 安装插件</p>
 <p>注意：插件的路径不能有中文。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519532008_nq41yk.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519533738_94h3x1.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519535432_bpq37a.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519537785_shfgfh.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519540030_kc7cnj.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520908664_iuy0kp.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520910939_tf9qn0.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520912967_j723zs.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520916292_0l37zp.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520918528_vrv3e6.png"></p>
 <p>只有【输出】板块有内容，【错误】里面没有就是安装成功了</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519541248_9lf20g.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520920412_hj0ew1.png"></p>
 <p>成功导入插件。</p>
 <p>抓包</p>
 <p>先复制验证码的图像地址：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519543415_65o4pr.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520922494_kw77ay.png"></p>
 <p>抓包</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519545186_w522as.png"><br><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519546779_d7t3yc.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520924168_baa5us.png"><br><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520926139_0lfxzi.png"></p>
 <p>爆破密码</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519548719_ap8ioq.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520927997_exxxzn.png"></p>
 <p>爆破验证码</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519550785_h0s7te.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519553052_dxbzyk.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519555093_bpdb1j.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519557408_nokke9.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520929794_6w2puz.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520931861_pu89j4.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520934138_2n2zos.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520936199_si3359.png"></p>
 <p>把线程设置为1。</p>
 <p>刚刚复制的图片地址</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xiapao: http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519559272_4vfym0.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520938253_5x039k.png"></p>
 <p>开始攻击</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519561054_oyfybn.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520940398_6ch35j.png"></p>
 <h2 id="2-九头蛇（Hydra）"><a href="#2-九头蛇（Hydra）" class="headerlink" title="2. 九头蛇（Hydra）"></a>2. 九头蛇（Hydra）</h2><h3 id="1-定义-2"><a href="#1-定义-2" class="headerlink" title="(1) 定义"></a>(1) 定义</h3><p>hydra是著名组织thc的⼀款开源的暴⼒破解密码⼯具。kali下是默认安装的，⼏乎⽀持所有协议的在线破解。 密码能否破解，在于字典是否强⼤以及电脑的性能。、</p>
 <h3 id="2-参数"><a href="#2-参数" class="headerlink" title="(2) 参数"></a>(2) 参数</h3><ul>
 <li>-llogin⼩写，指定⽤户名进⾏破解</li>
@@ -324,7 +324,7 @@
 </ul>
 <h3 id="3-使用"><a href="#3-使用" class="headerlink" title="(3) 使用"></a>(3) 使用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 切换root权限</span></span><br><span class="line"><span class="built_in">sudo</span> su</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519563040_ir3h6t.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520942840_t1nce7.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先进入文件所在目录</span></span><br><span class="line"><span class="built_in">cd</span> /home/kali/弱口令爆破/passwordDict/</span><br></pre></td></tr></table></figure>
 
 <h4 id="破解-SSH-密码"><a href="#破解-SSH-密码" class="headerlink" title="破解 SSH 密码"></a>破解 SSH 密码</h4><p><strong>命令：</strong></p>
@@ -334,7 +334,7 @@
 <p>针对 Linux 服务器的默认远程管理端口（22）进行爆破， 拿本机的 <code>kali</code> 账号进行测试。  </p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先要确定ssh是启动的</span></span><br><span class="line">service ssh restart</span><br><span class="line"></span><br><span class="line"><span class="comment">#指定kali账号 用password.txt文件 使用3个线程，爆破本地的ssh</span></span><br><span class="line">hydra -l kali -P top500.txt -t 3 -e ns 127.0.0.1 ssh</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519564654_77x8gm.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520944863_8fw746.png"></p>
 <p>成功拿到 kali 的账号和密码。</p>
 <h4 id="破解-Windows-RDP-远程桌面"><a href="#破解-Windows-RDP-远程桌面" class="headerlink" title="破解 Windows RDP 远程桌面"></a>破解 Windows RDP 远程桌面</h4><p><strong>命令：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hydra -l administrator -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; rdp</span><br></pre></td></tr></table></figure>
@@ -346,11 +346,11 @@
 <p><strong>示例：</strong></p>
 <p> 针对 Windows 主机的 3389 端口进行爆破。用同一局域网内的 Windows2003 进行测试。</p>
 <p>靶机 IP：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519566688_kb9dq5.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520947096_qwvtv2.png"></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># nmap扫描靶机的3389端口是否开放</span></span><br><span class="line">nmap -p 3389 192.168.23.129</span><br><span class="line">hydra -l administrator -P top500.txt -t 3 -e ns 192.168.23.129 rdp</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519567684_gbh1by.png"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786519569568_qivpst.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520948288_97uxmy.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Jasmineee007/blog-img@main/posts/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/1786520951095_4k4u3c.png"></p>
 <p>成功拿到 Windows2003 的账号和密码。</p>
 <h4 id="破解-MySQL-密码"><a href="#破解-MySQL-密码" class="headerlink" title="破解 MySQL 密码"></a>破解 MySQL 密码</h4><p>MySQL 端口 3306</p>
 <p><strong>场景 A：已知高权限用户名（如 root），仅爆破密码</strong></p>
