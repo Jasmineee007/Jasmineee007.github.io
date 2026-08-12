@@ -5242,7 +5242,7 @@ session.upload_progress.cleanup 会话上传进度是否会自动清理
 
 重要：Payload只是编码，未加密，不能存密码、密钥等敏感数据！
 
-标准内置字段（
+标准内置字段
 
 
 字段
