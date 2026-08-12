@@ -51,7 +51,8 @@ html #body-wrap:has(#archive) #web_bg {
   background-image: url('/img/bg3.png') !important;
 }
 html #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
-html #body-wrap:has(#page-header[style*="websec"]) #web_bg {
+html #body-wrap:has(#page-header[style*="websec"]) #web_bg,
+html #body-wrap:has(#page-header[style*="SecOps"]) #web_bg {
   background-image: url('/img/bg3.png') !important;
 }
 
@@ -292,38 +293,46 @@ body:has(#body-wrap.page-custom-style) {
 
 /* === CTF-WP / Web安全 分类页 === */
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
-#body-wrap:has(#page-header[style*="websec"]) #page-header {
+#body-wrap:has(#page-header[style*="websec"]) #page-header,
+#body-wrap:has(#page-header[style*="SecOps"]) #page-header {
   background-color: #fff !important;
   background-size: cover !important;
   background-position: center center !important;
   transition: none !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before,
-#body-wrap:has(#page-header[style*="websec"]) #page-header::before {
+#body-wrap:has(#page-header[style*="websec"]) #page-header::before,
+#body-wrap:has(#page-header[style*="SecOps"]) #page-header::before {
   display: none !important;
 }
 body:has(#page-header[style*="ctfwp"]),
-body:has(#page-header[style*="websec"]) {
+body:has(#page-header[style*="websec"]),
+body:has(#page-header[style*="SecOps"]) {
   background: transparent !important;
 }
 body:has(#page-header[style*="ctfwp"]) #web_bg,
-body:has(#page-header[style*="websec"]) #web_bg {
+body:has(#page-header[style*="websec"]) #web_bg,
+body:has(#page-header[style*="SecOps"]) #web_bg {
   background-size: auto !important;
   background-position: left bottom !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
 #body-wrap:has(#page-header[style*="ctfwp"]) .layout,
 #body-wrap:has(#page-header[style*="websec"]) #content-inner,
-#body-wrap:has(#page-header[style*="websec"]) .layout {
+#body-wrap:has(#page-header[style*="websec"]) .layout,
+#body-wrap:has(#page-header[style*="SecOps"]) #content-inner,
+#body-wrap:has(#page-header[style*="SecOps"]) .layout {
   background: transparent;
 }
 [data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #page-header {
+[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #page-header,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #page-header {
   background-color: rgba(0,0,0,0.55) !important;
   background-blend-mode: multiply !important;
 }
 [data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #web_bg {
+[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #web_bg,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #web_bg {
   opacity: 0.8 !important;
 }
 
