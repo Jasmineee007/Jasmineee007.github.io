@@ -675,12 +675,12 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-align: left;
 }
 
-/* === 自定义光标（初音未来 Miku × Cinnamoroll 光标）=== */
+/* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，64px 高清）=== */
 body {
-  cursor: url("/img/miku-cinnamoroll-arrow.png"), default;
+  cursor: url("/img/miku-cinnamoroll-arrow-64.png"), default;
 }
 a, button, label, .site-card, [role="button"], input[type="submit"] {
-  cursor: url("/img/miku-cinnamoroll-pointer.png"), pointer;
+  cursor: url("/img/miku-cinnamoroll-pointer-64.png"), pointer;
 }
 input, textarea, select {
   cursor: text;
