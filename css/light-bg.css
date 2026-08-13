@@ -675,43 +675,21 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-align: left;
 }
 
-/* === 自定义光标 + 光环跟随 + 点击特效 === */
-@media (hover: hover) and (pointer: fine) {
-  body { cursor: none; }
-  a, button, label, .site-card, [role="button"] { cursor: none; }
-  input, textarea, select { cursor: text; }
+/* === 自定义光标（初音未来 Miku 爱心光标）+ 点击特效 === */
+body {
+  cursor: url("/img/miku-cursor.png"), default;
 }
-.custom-cursor-dot,
-.custom-cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 99999;
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(var(--cursor-scale, 1));
+a, button, label, .site-card, [role="button"], input[type="submit"] {
+  cursor: url("/img/miku-pointer.png"), pointer;
 }
-.custom-cursor-dot {
-  width: 6px;
-  height: 6px;
-  background: #49b1f5;
-}
-.custom-cursor-ring {
-  width: 30px;
-  height: 30px;
-  border: 2px solid rgba(73, 177, 245, .5);
-  transition: transform .15s ease, border-color .15s ease, background-color .15s ease;
-}
-.custom-cursor-ring.is-hover {
-  --cursor-scale: 1.6;
-  background: rgba(73, 177, 245, .08);
-  border-color: rgba(73, 177, 245, .9);
+input, textarea, select {
+  cursor: text;
 }
 .click-effect {
   position: fixed;
   z-index: 99999;
   pointer-events: none;
-  color: #49b1f5;
+  color: #ff7eb9;
   font-size: 18px;
   line-height: 1;
   animation: click-float 1s ease-out forwards;
