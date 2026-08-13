@@ -530,3 +530,20 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 #article-container .flink > p:first-of-type {
   margin-top: 40px;
 }
+
+/* === 关于页标题：主题蓝左边框（同友链板块标题）=== */
+#body-wrap.type-special #article-container h2 {
+  margin: 28px 0 14px;
+  padding-left: 12px;
+  border-left: 4px solid #49b1f5;
+  font-size: 1.15em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+}
+#body-wrap.type-special #article-container h2 .headerlink {
+  display: none;
+}
+[data-theme=dark] #body-wrap.type-special #article-container h2 {
+  color: #e5e7eb;
+}
