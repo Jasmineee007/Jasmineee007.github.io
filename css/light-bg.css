@@ -52,7 +52,8 @@ html #body-wrap:has(#archive) #web_bg {
 }
 html #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
 html #body-wrap:has(#page-header[style*="websec"]) #web_bg,
-html #body-wrap:has(#page-header[style*="SecOps"]) #web_bg {
+html #body-wrap:has(#page-header[style*="SecOps"]) #web_bg,
+html #body-wrap:has(#page-header[style*="LAN"]) #web_bg {
   background-image: url('/img/bg3.png') !important;
 }
 
@@ -294,7 +295,8 @@ body:has(#body-wrap.page-custom-style) {
 /* === CTF-WP / Web安全 分类页 === */
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
 #body-wrap:has(#page-header[style*="websec"]) #page-header,
-#body-wrap:has(#page-header[style*="SecOps"]) #page-header {
+#body-wrap:has(#page-header[style*="SecOps"]) #page-header,
+#body-wrap:has(#page-header[style*="LAN"]) #page-header {
   background-color: #fff !important;
   background-size: cover !important;
   background-position: center center !important;
@@ -302,17 +304,20 @@ body:has(#body-wrap.page-custom-style) {
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before,
 #body-wrap:has(#page-header[style*="websec"]) #page-header::before,
-#body-wrap:has(#page-header[style*="SecOps"]) #page-header::before {
+#body-wrap:has(#page-header[style*="SecOps"]) #page-header::before,
+#body-wrap:has(#page-header[style*="LAN"]) #page-header::before {
   display: none !important;
 }
 body:has(#page-header[style*="ctfwp"]),
 body:has(#page-header[style*="websec"]),
-body:has(#page-header[style*="SecOps"]) {
+body:has(#page-header[style*="SecOps"]),
+body:has(#page-header[style*="LAN"]) {
   background: transparent !important;
 }
 body:has(#page-header[style*="ctfwp"]) #web_bg,
 body:has(#page-header[style*="websec"]) #web_bg,
-body:has(#page-header[style*="SecOps"]) #web_bg {
+body:has(#page-header[style*="SecOps"]) #web_bg,
+body:has(#page-header[style*="LAN"]) #web_bg {
   background-size: auto !important;
   background-position: left bottom !important;
 }
@@ -321,18 +326,22 @@ body:has(#page-header[style*="SecOps"]) #web_bg {
 #body-wrap:has(#page-header[style*="websec"]) #content-inner,
 #body-wrap:has(#page-header[style*="websec"]) .layout,
 #body-wrap:has(#page-header[style*="SecOps"]) #content-inner,
-#body-wrap:has(#page-header[style*="SecOps"]) .layout {
+#body-wrap:has(#page-header[style*="SecOps"]) .layout,
+#body-wrap:has(#page-header[style*="LAN"]) #content-inner,
+#body-wrap:has(#page-header[style*="LAN"]) .layout {
   background: transparent;
 }
 [data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
 [data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #page-header,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #page-header {
+[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #page-header,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="LAN"]) #page-header {
   background-color: rgba(0,0,0,0.55) !important;
   background-blend-mode: multiply !important;
 }
 [data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
 [data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #web_bg,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #web_bg {
+[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #web_bg,
+[data-theme='dark'] #body-wrap:has(#page-header[style*="LAN"]) #web_bg {
   opacity: 0.8 !important;
 }
 
