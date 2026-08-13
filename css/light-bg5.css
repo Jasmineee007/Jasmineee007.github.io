@@ -2,7 +2,7 @@
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
   height: 520px !important;
-  background-size: cover !important;
+  background-size: 100% auto !important;
   background-position: center center !important;
   background-color: #fff !important;
 }
