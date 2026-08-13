@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>阶段复盘暨 CCF2026 网络安全运维参赛总结 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="CCF2026 网络安全运维参赛总结：从初赛混入到国赛实战的复盘与经验教训，附初赛 SQL 注入日志附件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="阶段复盘暨 CCF2026 网络安全运维参赛总结">
+<meta property="og:url" content="https://jasmine-iris.top/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="CCF2026 网络安全运维参赛总结：从初赛混入到国赛实战的复盘与经验教训，附初赛 SQL 注入日志附件。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jasmine-iris.top/img/photo.png">
+<meta property="article:published_time" content="2026-08-13T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-13T13:46:08.289Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jasmine-iris.top/img/photo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "阶段复盘暨 CCF2026 网络安全运维参赛总结",
+  "url": "https://jasmine-iris.top/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/",
+  "image": "https://jasmine-iris.top/img/photo.png",
+  "datePublished": "2026-08-13T12:00:00.000Z",
+  "dateModified": "2026-08-13T13:46:08.289Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '阶段复盘暨 CCF2026 网络安全运维参赛总结',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=101"><link rel="preload" as="image" href="/img/miku-cinnamoroll-arrow-48.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">阶段复盘暨 CCF2026 网络安全运维参赛总结</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">阶段复盘暨 CCF2026 网络安全运维参赛总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-13T12:00:00.000Z" title="发表于 2026-08-13 20:00:00">2026-08-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-13T13:46:08.289Z" title="更新于 2026-08-13 21:46:08">2026-08-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="hbe hbe-container" id="hexo-blog-encrypt"
+     data-hbe-format="4"
+     data-wpm="密码错误，请重试。"
+     data-whm="密码错误，请重试。"
+     data-salt="985de890f59fd67c678913b638d64a2a9cac9bc4cb71c2ac5304ddb6f07c8fc8"
+     data-nonce="50cdb8b579727c0cd06f294b"
+     data-kdf-iterations="250000"
+     data-auto-save="false">
+  <script id="hbeData" type="hbeData">
+    a582d7526ff7b97f92ec5cf99d2e5c0767b5ca3bb8217f85ba257f3f73a7f6ab843a82c0182b2747c925f1b2fd1ab4184e965ed1345e3d49aefbc97d4af5b99a48690d7c077d9df3ac8235e0bfe049f3163da21ba35e1cbca5bfd258953873fa32b02c84316ba03ca3eb8ffd9eac109742f8f2f2e53b6dc8e267794d4739694ade320a299b1b33b6f063e514fbb70a88404c5dab0be6ec939a66a43a4ae17b184fb766bbdd8b3fecba723875f22964dd3bb63e75068296f90986bd306d18ab03d7265e09385b3ca2c24d7a651298ba09599a39b4ad885201c14ce0db23a97443abaa29af8b4d2a6879ddd0818d4383039a019ff1cac3a3cce8d41c6b0ea4ad7ef15542fce6cda8166b650b3342390c1b10889984c465f01e9e37bff6b88865422e29ca8f8aae4bed3fa2a18e1d0bd3a7d2f28b4ba3263a6be5b1ca355b8e28587ae96765123958180fb281ab652d9a97978efb1dab57cf5254a9f68248a2b6e28bd7e11a64383d507f10a11aa7f98565fce5266b6951ff9d6b6e3e5b698bcccac859ca6bb1e57c2eb92c1bc33c6bf5c67855eeb1f2836a7583cdf5ea9be44ec2f117dd2b162e0ffa931f78695ffd5630ccf9a7b8f4176b13ca83c958652fb511cdb2b9a68f82bed41fcf5dad83db6aac93de8af8a6c89fb7a751659937ccd8fe126d85923339bdd22a7c868b19a0f269dc026eeacfca89687274fb22b2c65c4f697e265382b260e88953691fe8ed55d5fbbcefbd35e2bc7dd7f1ccf48da6cc11880984bf5ebcbba287a5aa1a08523d1328b6643602768f0a73bd80e4a515c39c9ef0f5ce5aa193c3d2f48e3469814eff0868a9513e6353dd0c98b84f8f524e80bf27fbdefa6bd9199ed19b45231f0a1c11ae0a75965ad08c6e60e151e4701b5f0a7ea167588d2524c63ba9c9ad987cb48f07df55155e86680d915b445fdf4e53287e5257035602d56fdd8ce238dce558245d97565ccd763333962b02bfb55fdaa1545b526129ccf24bf722c0b98ff6777c9b95c8eaf57d9fd8db027699a2d6123ef3204973c4be140a3fbb56713724aaa28dd67ac7ab25dfccc5664e34a48048e388a3ded3d0feacce8734d7cf818f36af4cb83b8e0c7614a7f0091931b7a1ae229616caba04259fd8095c7c8a634f326d69fe9370d86d6c7cc1a1f67318832db449ef52e5044c285f30bc448de54eca63e77e6af5207aced401da62c72f95ae606b2ebf981c9d233f31d2d51e5bddf8e06aedff55c296b0c99e2d7b2316fb0ff866a3ca41f9e5fc0d46fdf970fc9be221c5e9214cbffff043f5935a5a051d76f220e5eb65bd6d752dff3f944cb8f05e0340b87d6aa22ff0d160c2a0b1e4b2a1274d078e4aa4e4bed834fc6a2deec54c90eb0a47deb66b5a62d1abf7a017de7bb9dcebbf4a333b291bbfa081fb7d417d3b7aa39756da571f8aeab898841d8a687e0504302641392949f61ebe3d94bfff6de56fe1ed85ba6ac368372bdcc1b8762c81fd777acc8d8ed9610159247b14a879badad2402e7a6f3c7d26adc6e5ae8b1e442f400e6c5d55ae0c7408a47e5603d7d9b2a6d9cee2ecc9faa47f292bbef84e2ed046b2ea5962527f253f1a7bd6a7971c6d50a7e1e48b641f94acab01b240a7c8bbfe49fec2c545b3c49802c0222630a9523714a4a07e87a8007ede11348b571384cbdf42232e5a9479f23839db8317ce2e264942c724333cc3f330a2392ffe23a835bc69a73dc31e764d9afc57f4add131b019a5038d6b1aa841af8b6289fbaaa3682db52ac4ef95d4780bda1df44c9cccafd3b7649e881c9a15b4c4cf8375fbec39418444f2f6047a7b67810b66e6001589d873598becf7b9a3329f2bdc2bcc177f53c2433b0dee7d0c51d517581918f333567cb4d4575cbbcbce991ee46affe1f947d2a7beda7121d8baa05c4aa2cbd25b9e9cc093d4ee7523f512020b5932714ca8635aa9e763c883593e1a3245aa498b1d953155498bc380841b710f48d3b92a8163fe1338e882073fad1a85a7dbb7bad6185771dc7895ea2ed352af4afc4450ada2cd8b7ccbb62bee1da6416aa8c5b925cb0492aed58b2930641bc477f398bd46d3b2fd05e7122cc47bc8db4f1af8d746827c61624e6e122d907cdc7781d0fbaf15094bef860543e798fe43625cd63ee6ae47ec60f0889f92660f40c02d18e7c17dd544439b7d406099c122374896e21d045e94822bcf61c4bbbe5eb7a125e4b88a5b4eac53929b215906192d94ffae0efaea3cf7f86f33e4a4a75d56e75259e97ff3cebbdd7035817c6ab93584b8aa75da38daea88e82af1e197d42016cb2b67dbbb3bcd03bc41e804d22bb4da52f746749f48381d5b11c6bcf1c2964bf5b592f25b376caae2222ce968f7035003c449bad524b29e1a2747386664246a41d95186feb36452d20d61bae7ff394d282336d588fa1d8f08da182d5dcb1bd824e2b11fdba3214af76668f980fa99dcd070d968b88727822987c1f52818153882e71f05d71a1a85ca27a2170ea42619a1271baff36cc54017de50ca06d8c5447bf629fd21b3cc012df7c3da3e1f35cadb051e70dc798fec38c5dda4a5ddabbb1970ff8391f8916cc801fa119f19f973fc2d53d11062553c4fb1895d9252584ab92a2b56b0274df6476dc7ffd5b6e55a80cf59853ba4009b9ff7f858649b247f2ed14c707a778a1e3b4be1fa1d36a93ad66defa2bca416bf45c463e0e6008fe6d7eb9e09e6f5307560ea5c76e405f9cece3d8dfd2de6a2916e9e1f864be9722cdb82f8f1d76059cb6d818cd75f36b616c660c8f85fa94af2cf7e8e9bd363370a6aacb2bdc06525cc25fbdf6aca09e866a1f6d2b3ca52ce3dff0611050ce0e94f664d83ea7226a759c6ddf916b6b0cabc6a09d78f87beb8ffd3d2ff23cf512dda4c7137c4401b7e0b4af67e8a74a4166662d80764039baf388782640fe96bc57d965ca1c1937312b5c694237d5c1be478898e565d72147aac56f018b9bdadce8c01d0ac03b95b4153f6e397bb2f103a13b415cdeb3e0e81821984a33b1c98109af8706dfaa778d412ec1901ab3160cc9d21468df91717ccc2a9399bcb7dd5835431c3861a2025eed2f43e45a32d866c36b84baa877d0694497ccf6270bc8ad3393fd9cb248ef98862ddb92cf32609348f2efdb6603bda616c08f5ecde6355b5e1e140cf42652798fe4b641f73afd971e973d1f9ba4fcbbd3f9680f44934c4eb6ac934232bfe6a9cca1aa09dc716672885bcbb9015f470030183fd66803131f8ddf5abe937e4cb4f7fbe372d660a7b26e94f2fff64d6c8905a1aae3ba9ee401f241f1dfd6dcb10eb00e76d84fedaa6019971166cbe3aae578e1d929cd0ad680204e2f2260e220aab66d16585ce55176472e96e61c6b310f382770cf1ed362051736868db65a421820fa958b926d65289921b56c2da55f1366cd25b12e708268de260e80f218e3442295579eca092283246233207dae8878776bb5e279355bd9e0d20783254555c3094e57a492275f83d3477d752bae726ac16f4cf623f3b14e9239344f0ca112a2780904da4c6bd45b63242b14b52cb65cd36c1d9c5e8d57ec330c4a49dfaa1b85d20f84462867f912925681d9429c0b834f84a8223dd6fa364e3024d061c3625107d49b05a292a3dd057235aae12bd177c4eebf918565c0b5c5b7414ad07568c99d7da54e4adc3f5321bd4732e8b5c6667333f0f3759c137d4b4c355882339aca2b831176ba441b714679a2f450342bbe8de49dda82fbdc65d85f458eb950fe7f68c5af6f96928fab77526680257e7b10df48d014c973694731124e591612f778a68cd25de9e1f527aebc70019d85dec08cfb51cd98523af679b9cb3d3d573f6c4893a997121a638c0153b1101ff00e18b2b50c4daab23a717bfc1e0618da7b92c2b7fd6b11cafb2a9245eb09aa79e3a43a483f3ed9882177249fc58ec3f480eb8a0f80cdb78ec30fde7c17c69e523cc8b0c997102da6d2a13d1858aaf4d3578c585b7110e7b5abd6d73f528d77e81c0a147285854e019443c6f9f835b95e1854f47a1b837dc2600c6edcb77cf73fe77e07329a34a52cef24c3ac99cc2df13bc60d85db5b73e66514b98a74103db7f3f5ae2e357b3f05cdbbe4419ea89ed2346c0f543f9ba37caf83797adfb916a62960770f1985df459908d48e56299170b29d57269b1b18b772a609c3e6debad92ee7fc8a4f579dd1ea53712dff6647fa34d57ace3f23a24e1d6d1888f37bd5db62adc8a94fee2bc9329fbca7170585f2368242e27ec049438d1fa12052669e45024cc07369630a735bf0bc1d3b865210330c966eef86364da3c55b2aa629d27ae70eabb6bec4e57a0cda1d6a2ea3e5b874fb6db8ece041c6ae9a3fce4e913b344bf20445eb9dd76c3a3b2b7fa0a8cbba1f0dddf3a2a3c01681586267a74e1d565f187e03060852a0a0c07ee388232f93cc5e7b4f0859a45609b244ab68c4dbc3420fc57a1d7dbd42a9c96b3d9a695d86c94c93c3b1d315d31c98af29fd62e999ca6831ecc4b3acd208eb4cf33ae8617027410b1ee91fbedf0ca298ed7273793f28a7c4fff5be0b39ee09f0531b32cdbd0129583bb689bdef4d3dc5f99ba6d687d7b35f9b426267c8ae383d37f6d9714a07a2fa972ed10cecfb5ea77e89cbef44c74be44b6bf992de27e2dfec37e78f0450517baa6c89cf492f490fa09706a8acd4fb73d16beb77abfa40e67ba09e12396390df105aac64b77a4a914e3b3ee8e5401db07442bf6be3eae0fa89dbb3ad9174b8bbfd01bf48569cc276f90719d84d7a915690af337ef81b3a8edc9d9fa2043ed890c5f53b559b28b710a0f6b3e8fd59ef287a1739189d4795bd1f348bde5dbd9bea185d2da0c04a071a4cb12a1d068439e19601d8c8fe535a5f104c256e4857c5b154d5c07a3691489638b8fb414c80573dd93809d28b99d43307a052412dffbc889bf2436e551127e187db53277f77503f88ffaa916eb0fd39cb82930a48d87c56a7d2d602d92ec61f06a6b2e223d537159951850308dc2fa6a00f06ff944266742862c26f6a61f95e0ba613180ff4e57025a73c5bd72b2283bdb4e8d5bebc429fe6b174cd5f3771979e2037cf75b0538c7f246aa77c64a9d0af11d21730f69ff67a677fcce72fe92b681007eed6dd43e75d11ab68c560488dae00b7ac579757d90e31aec4d70215a00355369d80ae8a9f5da660527a5620cda7e6ad121274e4da9feb058fad8b1862f1e62760cab8ba20bb1c76b55308332398801dee1e9502d356e4584a9755f4815653c69f1d46243596ae6ed501d1b4f2559e1bdee752d61670b0d56c36019ffd870102220da5982b160dbda4a98df67c474ababefdb1e9243a51eb9d9b15acd95c107b2f94d492563ee0e43fe686f46847c6279477985a3f4a6f172f4c5b8096ef0168482d8cdb5543c3c7c1ed89ae0f5c57f074cfab16685a399fe532995f744d702d93b7c2518ad6e4eaff5ea79f5fd9408726292ae02c5a35a505892030ad26830d2fc6167b440a96f57f016c42f553a5959c178455978d48c76d7f1ff59d198856d403a458911bc0555cd762aeebe430213e67c44f2ab26888d101fa6d72c9792e9ac46a83afea5630bfd424dc880b24f0d2a9d945d75a99574f7e19338f47802e565510b263a785d2a5731f77d7f3535f98056d6704ac1456765c794
+  </script>
+  <div class="hbe hbe-content">
+    <form id="hbeForm" class="hbe hbe-form" onsubmit="return false">
+      <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">A hint is actually no hint at all.</span>
+      </label>
+    </div>
+      <button class="hbe hbe-button" type="submit">Decrypt</button>
+      <div class="hbe hbe-error" role="alert" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.9e70f1e1d2.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css"><blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/">https://jasmine-iris.top/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/" title="Windows 提权"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Windows 提权</div></div><div class="info-2"><div class="info-item-1">Windows 本地提权实战：蚁剑转MSF、土豆提权、MS16-032内核漏洞、BypassUAC</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br/><hr/>最近更新：2026-08-13<br/><br/>新增文章：<br/><a href="/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/">阶段复盘暨 CCF2026 网络安全运维参赛总结</a><br/><a href="/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/">Windows 提权</a><br/><a href="/2026/08/13/CCF-2026/index/">CCF 2026.6</a><br/><a href="/2026/08/13/%E9%99%87%E5%89%91%E6%9D%AF2021-%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90%E9%A2%98%E8%A7%A3/index/">陇剑杯2021 流量分析题解</a><br/></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content toc-div-class is-expand" style="display:none"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%B5%9B-6-14"><span class="toc-text">初赛 6.14</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BD%E8%B5%9B-8-7"><span class="toc-text">国赛 8.7</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/13/%E9%98%B6%E6%AE%B5%E5%A4%8D%E7%9B%98%E6%9A%A8-CCF2026-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E5%8F%82%E8%B5%9B%E6%80%BB%E7%BB%93/index/" title="阶段复盘暨 CCF2026 网络安全运维参赛总结">阶段复盘暨 CCF2026 网络安全运维参赛总结</a><time datetime="2026-08-13T12:00:00.000Z" title="发表于 2026-08-13 20:00:00">2026-08-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/" title="Windows 提权">Windows 提权</a><time datetime="2026-08-13T08:00:00.000Z" title="发表于 2026-08-13 16:00:00">2026-08-13</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js"></script><script src="/js/cursor.js"></script><script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');if(p==='/archives/'&&bw){bw.classList.add('page-custom-style')}})()</script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
