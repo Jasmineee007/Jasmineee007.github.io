@@ -675,9 +675,9 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-align: left;
 }
 
-/* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，64px，全站单图）=== */
+/* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，48px，全站单图）=== */
 html, body, body * {
-  cursor: url("/img/miku-cinnamoroll-arrow-64.png"), default !important;
+  cursor: url("/img/miku-cinnamoroll-arrow-48.png"), default !important;
 }
 
 /* 文本输入框保留文本光标 */
