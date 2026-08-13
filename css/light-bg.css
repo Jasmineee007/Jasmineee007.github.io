@@ -1,7 +1,6 @@
 
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
-  background-image: url('/img/banner-night.png') !important;
   background-size: cover !important;
   background-position: center center !important;
   background-color: #fff !important;
