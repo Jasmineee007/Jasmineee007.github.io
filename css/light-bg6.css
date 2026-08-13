@@ -317,7 +317,39 @@ body:has(#body-wrap.page-custom-style) {
 #body-wrap:has(#page-header[style*="websec"]) #page-header::before,
 #body-wrap:has(#page-header[style*="SecOps"]) #page-header::before,
 #body-wrap:has(#page-header[style*="LAN"]) #page-header::before {
-  display: none !important;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.35);
+}
+#body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
+#body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
+#body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
+#body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button,
+#body-wrap:has(#page-header[style*="websec"]) #nav a,
+#body-wrap:has(#page-header[style*="websec"]) #nav span.site-page,
+#body-wrap:has(#page-header[style*="websec"]) #nav .site-name,
+#body-wrap:has(#page-header[style*="websec"]) #nav #search-button,
+#body-wrap:has(#page-header[style*="SecOps"]) #nav a,
+#body-wrap:has(#page-header[style*="SecOps"]) #nav span.site-page,
+#body-wrap:has(#page-header[style*="SecOps"]) #nav .site-name,
+#body-wrap:has(#page-header[style*="SecOps"]) #nav #search-button,
+#body-wrap:has(#page-header[style*="LAN"]) #nav a,
+#body-wrap:has(#page-header[style*="LAN"]) #nav span.site-page,
+#body-wrap:has(#page-header[style*="LAN"]) #nav .site-name,
+#body-wrap:has(#page-header[style*="LAN"]) #nav #search-button {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+#body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title,
+#body-wrap:has(#page-header[style*="websec"]) #page-header #site-title,
+#body-wrap:has(#page-header[style*="SecOps"]) #page-header #site-title,
+#body-wrap:has(#page-header[style*="LAN"]) #page-header #site-title {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 body:has(#page-header[style*="ctfwp"]),
 body:has(#page-header[style*="websec"]),
