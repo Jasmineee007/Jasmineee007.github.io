@@ -429,34 +429,19 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M11.984%200A12%2012%200%200%200%200%2012a12%2012%200%200%200%2012%2012%2012%2012%200%200%200%2012-12A12%2012%200%200%200%2012%200a12%2012%200%200%200-.016%200zm6.09%205.333c.328%200%20.593.266.592.593v1.482a.594.594%200%200%201-.593.592H9.777c-.982%200-1.778.796-1.778%201.778v5.63c0%20.327.266.592.593.592h5.63c.982%200%201.778-.796%201.778-1.778v-.296a.593.593%200%200%200-.592-.593h-4.15a.592.592%200%200%201-.592-.592v-1.482a.593.593%200%200%201%20.593-.592h6.815c.327%200%20.593.265.593.592v3.408a4%204%200%200%201-4%204H5.926a.593.593%200%200%201-.593-.593V9.778a4.444%204.444%200%200%201%204.445-4.445h8.296Z'%2F%3E%3C%2Fsvg%3E") no-repeat center / contain;
   mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M11.984%200A12%2012%200%200%200%200%2012a12%2012%200%200%200%2012%2012%2012%2012%200%200%200%2012-12A12%2012%200%200%200%2012%200a12%2012%200%200%200-.016%200zm6.09%205.333c.328%200%20.593.266.592.593v1.482a.594.594%200%200%201-.593.592H9.777c-.982%200-1.778.796-1.778%201.778v5.63c0%20.327.266.592.593.592h5.63c.982%200%201.778-.796%201.778-1.778v-.296a.593.593%200%200%200-.592-.593h-4.15a.592.592%200%200%201-.592-.592v-1.482a.593.593%200%200%201%20.593-.592h6.815c.327%200%20.593.265.593.592v3.408a4%204%200%200%201-4%204H5.926a.593.593%200%200%201-.593-.593V9.778a4.444%204.444%200%200%201%204.445-4.445h8.296Z'%2F%3E%3C%2Fsvg%3E") no-repeat center / contain;
 }
-}
-/* === 友链板块标题：彩色胶囊标签 === */
+/* === 友链板块标题：简洁左边框 === */
 #article-container .flink > h2 {
-  display: inline-block;
-  margin: 26px 0 12px;
-  padding: 7px 22px;
-  border: none;
-  border-radius: 999px;
-  font-size: 1.08em;
+  margin: 28px 0 14px;
+  padding-left: 12px;
+  border-left: 4px solid #49b1f5;
+  font-size: 1.15em;
   font-weight: 600;
-  line-height: 1.5;
-  color: #fff;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
-}
-#article-container .flink > h2:nth-of-type(2) {
-  background: linear-gradient(135deg, #f093fb, #f5576c);
-  box-shadow: 0 4px 14px rgba(240, 147, 251, 0.35);
-}
-#article-container .flink > h2:nth-of-type(3) {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  box-shadow: 0 4px 14px rgba(79, 172, 254, 0.35);
+  line-height: 1.4;
+  color: #1f2937;
 }
 #article-container .flink > h2 .headerlink {
   display: none;
 }
-#article-container .flink .flink-desc {
-  margin: -4px 0 12px 6px;
-  color: #858585;
-  font-size: 0.9em;
+[data-theme=dark] #article-container .flink > h2 {
+  color: #e5e7eb;
 }
