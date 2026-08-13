@@ -675,7 +675,7 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
   text-align: left;
 }
 
-/* === 自定义光标（初音未来 Miku 爱心光标）+ 点击特效 === */
+/* === 自定义光标（初音未来 Miku 光标）=== */
 body {
   cursor: url("/img/miku-cursor.png"), default;
 }
@@ -684,18 +684,4 @@ a, button, label, .site-card, [role="button"], input[type="submit"] {
 }
 input, textarea, select {
   cursor: text;
-}
-.click-effect {
-  position: fixed;
-  z-index: 99999;
-  pointer-events: none;
-  color: #ff7eb9;
-  font-size: 18px;
-  line-height: 1;
-  animation: click-float 1s ease-out forwards;
-}
-@keyframes click-float {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
-  20% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, calc(-50% - 50px)) scale(1); }
 }
