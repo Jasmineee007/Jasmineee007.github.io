@@ -37,9 +37,15 @@
     return tocCache;
   }
 
-  // 只拦截「选中文字后复制」（Ctrl+C / 右键复制）。
-  // 代码块复制按钮走 navigator.clipboard.writeText，不受影响。
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }
+
+  // 拦截「选中文字后复制」（Ctrl+C / 右键复制）
   document.addEventListener('copy', function(e) {
+    // 代码块复制按钮（Butterfly 走 navigator.clipboard.writeText + __copyingCode）不拦截
+    if (window.__copyingCode) return;
+
     var s = window.getSelection();
     if (!s || !s.rangeCount) return;
     var n = s.getRangeAt(0).commonAncestorContainer;
@@ -53,9 +59,21 @@
       return;
     }
 
-    // 复制多：拦截，剪贴板只放目录
+    // 复制多：拦截，剪贴板只放目录（同时覆盖 text/plain 和 text/html，避免正文泄漏）
     e.preventDefault();
-    e.clipboardData.setData('text/plain', getTOC());
+    if (e.clipboardData) {
+      var toc = getTOC();
+      e.clipboardData.setData('text/plain', toc);
+      try { e.clipboardData.setData('text/html', escapeHtml(toc)); } catch (err) {}
+    }
     showNotice('复制内容过多，已替换为文章目录');
   });
+
+  // 代码块复制按钮走 navigator.clipboard.writeText，直接放行（不追加版权、不改内容）
+  try {
+    var origWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
+    navigator.clipboard.writeText = function(text) {
+      return origWrite(text);
+    };
+  } catch (err) {}
 })();
