@@ -273,9 +273,18 @@ body:has(#body-wrap.post) #footer a {
   color: #000 !important;
   text-shadow: none !important;
 }
-#body-wrap:has(#page-header[style*="banner-night"]) #page-header #site-title {
+#body-wrap:has(#page-header[style*="banner-night"]) #page-header #site-title,
+#body-wrap:has(#page-header[style*="banner-night"]) .post-title {
   color: #000 !important;
   text-shadow: none !important;
+}
+#body-wrap:has(#page-header[style*="banner-night"]) #post-info,
+#body-wrap:has(#page-header[style*="banner-night"]) #post-info a,
+#body-wrap:has(#page-header[style*="banner-night"]) #post-info span {
+  color: #000 !important;
+}
+#body-wrap.post:has(#page-header[style*="banner-night"]) #page-header::before {
+  display: none !important;
 }
 
 /* 让 body 透明以显示 #web_bg 背景图 */
