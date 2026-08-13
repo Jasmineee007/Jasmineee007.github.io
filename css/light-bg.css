@@ -525,3 +525,8 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 [data-theme=dark] .site-card .info .desc {
   color: #9ca3af;
 }
+
+/* === 友链页引导语与卡片间距 === */
+#article-container .flink > p:first-of-type {
+  margin-top: 40px;
+}
