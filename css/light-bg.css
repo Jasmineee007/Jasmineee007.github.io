@@ -676,12 +676,26 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 }
 
 /* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，64px 高清）=== */
-body {
+html, body {
   cursor: url("/img/miku-cinnamoroll-arrow-64.png"), default;
 }
-a, button, label, .site-card, [role="button"], input[type="submit"] {
-  cursor: url("/img/miku-cinnamoroll-pointer-64.png"), pointer;
+
+/* 所有可交互元素统一用自定义手型，覆盖主题里的 cursor:pointer，避免系统光标闪烁 */
+a, a *,
+button, button *,
+[role="button"], [role="link"], [onclick],
+label, summary, select,
+input[type="submit"], input[type="button"], input[type="reset"],
+input[type="checkbox"], input[type="radio"],
+.site-card, .flink-list-item, .toc-link, .toc-item,
+.copy-button, .back-to-top, .reward-button,
+.pagination a, .card-item, .recent-post-item {
+  cursor: url("/img/miku-cinnamoroll-pointer-64.png"), pointer !important;
 }
-input, textarea, select {
-  cursor: text;
+
+/* 文本输入框保留文本光标 */
+input:not([type]), input[type="text"], input[type="password"], input[type="email"],
+input[type="search"], input[type="number"], input[type="tel"], input[type="url"],
+textarea {
+  cursor: text !important;
 }
