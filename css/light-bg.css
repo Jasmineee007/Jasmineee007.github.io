@@ -547,3 +547,177 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 [data-theme=dark] #body-wrap.type-special #article-container h2 {
   color: #e5e7eb;
 }
+
+/* === 加密表单美化（覆盖 hexo-blog-encrypt 默认样式）=== */
+#hexo-blog-encrypt.hbe-container {
+  max-width: 430px;
+  margin: 24px auto;
+  padding: 30px 26px;
+  background: #fff;
+  border: 1px solid #e5e9ef;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .06);
+}
+[data-theme=dark] #hexo-blog-encrypt.hbe-container {
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(255, 255, 255, .1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .3);
+}
+#hexo-blog-encrypt .hbe-content {
+  padding: 0;
+  text-align: left;
+  font-size: 100%;
+}
+#hexo-blog-encrypt .hbe-input {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+#hexo-blog-encrypt .hbe-input-field,
+#hexo-blog-encrypt .hbe-input-field-default {
+  float: none;
+  width: 100%;
+  opacity: 1;
+  padding: 10px 14px;
+  background: #f5f7fa;
+  border: 1px solid #e1e5eb;
+  border-radius: 8px;
+  color: #1f2937;
+  font-size: 15px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+#hexo-blog-encrypt .hbe-input-field:focus,
+#hexo-blog-encrypt .hbe-input-field-default:focus {
+  outline: none;
+  background: #fff;
+  border-color: #49b1f5;
+  box-shadow: 0 0 0 3px rgba(73, 177, 245, .15);
+}
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-field,
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-field-default {
+  background: rgba(255, 255, 255, .05);
+  border-color: rgba(255, 255, 255, .12);
+  color: #e5e7eb;
+}
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-field:focus,
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-field-default:focus {
+  background: rgba(255, 255, 255, .08);
+}
+#hexo-blog-encrypt .hbe-input-label,
+#hexo-blog-encrypt .hbe-input-label-default {
+  position: static;
+  float: none;
+  width: auto;
+  padding: 0;
+  margin: 0 0 8px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+#hexo-blog-encrypt .hbe-input-label::before,
+#hexo-blog-encrypt .hbe-input-label::after,
+#hexo-blog-encrypt .hbe-input-label-default::before,
+#hexo-blog-encrypt .hbe-input-label-default::after {
+  display: none;
+  content: none;
+}
+#hexo-blog-encrypt .hbe-input-label-content,
+#hexo-blog-encrypt .hbe-input-label-content-default {
+  position: static;
+  display: block;
+  padding: 0;
+  transform: none;
+  color: inherit;
+  font-size: inherit;
+}
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-label,
+[data-theme=dark] #hexo-blog-encrypt .hbe-input-label-default {
+  color: #9ca3af;
+}
+#hexo-blog-encrypt .hbe-button {
+  width: 100%;
+  height: 42px;
+  margin: 4px 0 0;
+  padding: 0;
+  background: #49b1f5;
+  border: none;
+  border-bottom: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  text-indent: 0;
+  text-shadow: none;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+#hexo-blog-encrypt .hbe-button::after {
+  display: none;
+  content: none;
+}
+#hexo-blog-encrypt .hbe-button:hover {
+  background: #3a9ce0;
+}
+#hexo-blog-encrypt .hbe-button:active {
+  top: 0;
+  transform: scale(.98);
+  box-shadow: none;
+}
+#hexo-blog-encrypt .hbe-error {
+  margin-top: 12px;
+  color: #e74c3c;
+  font-size: 13px;
+  text-align: left;
+}
+
+/* === 自定义光标 + 光环跟随 + 点击特效 === */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  a, button, label, .site-card, [role="button"] { cursor: none; }
+  input, textarea, select { cursor: text; }
+}
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(var(--cursor-scale, 1));
+}
+.custom-cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #49b1f5;
+}
+.custom-cursor-ring {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(73, 177, 245, .5);
+  transition: transform .15s ease, border-color .15s ease, background-color .15s ease;
+}
+.custom-cursor-ring.is-hover {
+  --cursor-scale: 1.6;
+  background: rgba(73, 177, 245, .08);
+  border-color: rgba(73, 177, 245, .9);
+}
+.click-effect {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  color: #49b1f5;
+  font-size: 18px;
+  line-height: 1;
+  animation: click-float 1s ease-out forwards;
+}
+@keyframes click-float {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 50px)) scale(1); }
+}
