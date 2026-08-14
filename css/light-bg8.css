@@ -497,6 +497,15 @@ body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(
 [data-theme=dark] #article-container .flink > h2 {
   color: #e5e7eb;
 }
+#article-container .flink .flink-desc {
+  margin: -10px 0 16px 16px;
+  font-size: .82em;
+  color: #888;
+  line-height: 1.5;
+}
+[data-theme=dark] #article-container .flink .flink-desc {
+  color: #9ca3af;
+}
 
 /* === 友链：站点截图卡片 (volantis site-card) === */
 .site-card-group {
