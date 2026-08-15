@@ -1,52 +1,34 @@
 
-/* 文章页头部（一图流）样式见 top-img.css */
+/* === 全站一图流：深色背景 bg.jpg + 透明头部 + 白字 === */
 
-/* === 全站背景图（一图流：夜空铺满）=== */
+/* 背景图 */
 #web_bg {
-  background-image: url('/img/bg-night-sky.jpg') !important;
+  background-image: url('/img/bg.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
 }
 
-/* === About/归档/友链/Categories 导航栏字体 === */
-.type-special #nav a,
-.type-special #nav span.site-page,
-.type-special #nav .site-name,
-.type-special #nav #search-button,
-.type-link #nav a,
-.type-link #nav span.site-page,
-.type-link #nav .site-name,
-.type-link #nav #search-button,
-.type-categories #nav a,
-.type-categories #nav span.site-page,
-.type-categories #nav .site-name,
-.type-categories #nav #search-button,
-#body-wrap:has(#archive) #nav a,
-#body-wrap:has(#archive) #nav span.site-page,
-#body-wrap:has(#archive) #nav .site-name,
-#body-wrap:has(#archive) #nav #search-button,
-#body-wrap.page-custom-style #nav a,
-#body-wrap.page-custom-style #nav span.site-page,
-#body-wrap.page-custom-style #nav .site-name,
-#body-wrap.page-custom-style #nav #search-button {
-  color: #000 !important;
-  text-shadow: none !important;
+/* 所有页面头部透明 */
+#page-header {
+  background: transparent !important;
 }
 
-/* === About/归档/友链/Categories 页面标题 === */
-.type-special #page-header #site-title,
-.type-link #page-header #site-title,
-.type-categories #page-header #site-title,
-#body-wrap:has(#archive) #page-header #site-title,
-#body-wrap.page-custom-style #page-header #site-title {
-  color: #000 !important;
-  text-shadow: none !important;
+/* 去掉头部遮罩 */
+#page-header::before {
+  display: none !important;
 }
 
-/* === banner 遮罩渐变 —— 底部渐透明，与内容区背景自然衔接（首页 + 归档/友链/关于等） === */
-#page-header.full_page:not(.not-top-img):before,
-#page-header.not-home-page:not(.not-top-img):before {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.03) 88%, rgba(0,0,0,0) 100%) !important;
+/* 导航栏 + 标题：白色 + 阴影（透明头部 + 深色背景） */
+#nav a,
+#nav span.site-page,
+#nav .site-name,
+#nav #search-button,
+#page-header #site-title,
+#page-header #post-info,
+#page-header #post-info a,
+#page-header #post-info span {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* === 全站卡片透明 === */
@@ -176,194 +158,11 @@ body:has(#body-wrap.post) #footer a {
   100% { opacity: 0; }
 }
 
-/* === About/归档/友链/Categories banner === */
-.type-special #page-header,
-.type-link #page-header,
-.type-categories #page-header,
-#body-wrap:has(#archive) #page-header,
-#body-wrap.page-custom-style #page-header {
-  background-image: url('/img/banner-night.png') !important;
-  background-color: #fff !important;
-  background-size: cover !important;
-  background-position: center bottom !important;
-  transition: none !important;
-}
-.type-special #page-header::before,
-.type-link #page-header::before,
-.type-categories #page-header::before,
-#body-wrap:has(#archive) #page-header::before,
-#body-wrap.page-custom-style #page-header::before,
-#body-wrap:has(#page-header[style*="banner-night"]) #page-header::before {
-  display: none !important;
-}
-[data-theme='dark'] .type-special #page-header,
-[data-theme='dark'] .type-link #page-header,
-[data-theme='dark'] .type-categories #page-header,
-[data-theme='dark'] #body-wrap:has(#archive) #page-header,
-[data-theme='dark'] #body-wrap.page-custom-style #page-header {
-  background-color: rgba(0,0,0,0.55) !important;
-  background-blend-mode: multiply !important;
-}
-
-/* === banner-night 导航栏和标题黑色（随笔等） === */
-#body-wrap:has(#page-header[style*="banner-night"]) #nav a,
-#body-wrap:has(#page-header[style*="banner-night"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="banner-night"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="banner-night"]) #nav #search-button {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-#body-wrap:has(#page-header[style*="banner-night"]) #page-header #site-title,
-#body-wrap:has(#page-header[style*="banner-night"]) .post-title {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-#body-wrap:has(#page-header[style*="banner-night"]) #post-info,
-#body-wrap:has(#page-header[style*="banner-night"]) #post-info a,
-#body-wrap:has(#page-header[style*="banner-night"]) #post-info span {
-  color: #000 !important;
-}
-#body-wrap.post:has(#page-header[style*="banner-night"]) #page-header::before {
-  display: none !important;
-}
-
-/* 让 body 透明以显示 #web_bg 背景图 */
-body:has(.type-special),
-body:has(.type-link),
-body:has(.type-categories),
-body:has(#archive),
-body:has(#body-wrap.page-custom-style) {
+/* 全站 body/内容区透明以显示背景图 */
+body,
+#content-inner,
+.layout {
   background: transparent !important;
-}
-
-/* 内容区透明显示背景图 */
-.type-special #content-inner,
-.type-link #content-inner,
-.type-categories #content-inner,
-#body-wrap:has(#archive) #content-inner,
-#body-wrap.page-custom-style #content-inner {
-  background: transparent;
-}
-.type-special .layout,
-.type-link .layout,
-.type-categories .layout,
-#body-wrap:has(#archive) .layout,
-#body-wrap.page-custom-style .layout {
-  background: transparent;
-}
-
-/* === CTF-WP / Web安全 分类页 === */
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
-#body-wrap:has(#page-header[style*="websec"]) #page-header,
-#body-wrap:has(#page-header[style*="SecOps"]) #page-header,
-#body-wrap:has(#page-header[style*="LAN"]) #page-header {
-  background-color: #fff !important;
-  background-size: cover !important;
-  background-position: center bottom !important;
-  transition: none !important;
-}
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before,
-#body-wrap:has(#page-header[style*="websec"]) #page-header::before,
-#body-wrap:has(#page-header[style*="SecOps"]) #page-header::before,
-#body-wrap:has(#page-header[style*="LAN"]) #page-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.35);
-}
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav a,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="ctfwp"]) #nav #search-button,
-#body-wrap:has(#page-header[style*="websec"]) #nav a,
-#body-wrap:has(#page-header[style*="websec"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="websec"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="websec"]) #nav #search-button,
-#body-wrap:has(#page-header[style*="SecOps"]) #nav a,
-#body-wrap:has(#page-header[style*="SecOps"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="SecOps"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="SecOps"]) #nav #search-button,
-#body-wrap:has(#page-header[style*="LAN"]) #nav a,
-#body-wrap:has(#page-header[style*="LAN"]) #nav span.site-page,
-#body-wrap:has(#page-header[style*="LAN"]) #nav .site-name,
-#body-wrap:has(#page-header[style*="LAN"]) #nav #search-button {
-  color: #fff !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-#body-wrap:has(#page-header[style*="ctfwp"]) #page-header #site-title,
-#body-wrap:has(#page-header[style*="websec"]) #page-header #site-title,
-#body-wrap:has(#page-header[style*="SecOps"]) #page-header #site-title,
-#body-wrap:has(#page-header[style*="LAN"]) #page-header #site-title {
-  color: #fff !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-body:has(#page-header[style*="ctfwp"]),
-body:has(#page-header[style*="websec"]),
-body:has(#page-header[style*="SecOps"]),
-body:has(#page-header[style*="LAN"]) {
-  background: transparent !important;
-}
-#body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
-#body-wrap:has(#page-header[style*="ctfwp"]) .layout,
-#body-wrap:has(#page-header[style*="websec"]) #content-inner,
-#body-wrap:has(#page-header[style*="websec"]) .layout,
-#body-wrap:has(#page-header[style*="SecOps"]) #content-inner,
-#body-wrap:has(#page-header[style*="SecOps"]) .layout,
-#body-wrap:has(#page-header[style*="LAN"]) #content-inner,
-#body-wrap:has(#page-header[style*="LAN"]) .layout {
-  background: transparent;
-}
-[data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #page-header,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #page-header,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #page-header,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="LAN"]) #page-header {
-  background-color: rgba(0,0,0,0.55) !important;
-  background-blend-mode: multiply !important;
-}
-[data-theme='dark'] #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="websec"]) #web_bg,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="SecOps"]) #web_bg,
-[data-theme='dark'] #body-wrap:has(#page-header[style*="LAN"]) #web_bg {
-  opacity: 0.8 !important;
-}
-
-/* === 随笔等生成分类页（about-1 banner） === */
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
-  background-color: #fff !important;
-  background-size: auto 80% !important;
-  background-position: left bottom !important;
-  transition: none !important;
-}
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header::before {
-  display: none !important;
-}
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav a,
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav span.site-page,
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav .site-name,
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #nav #search-button {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header #site-title {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-body:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) {
-  background: transparent !important;
-}
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #content-inner,
-#body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) .layout {
-  background: transparent;
-}
-[data-theme='dark'] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #page-header {
-  background-color: rgba(0,0,0,0.55) !important;
-  background-blend-mode: multiply !important;
-}
-[data-theme='dark'] #body-wrap:has(#page-header[style*="about-1"]):not(.type-special):not(.type-link):not(.type-categories) #web_bg {
-  opacity: 0.8 !important;
 }
 
 /* === 夜间模式：全站统一规则 === */
