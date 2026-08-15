@@ -3,7 +3,7 @@
 #body-wrap.post #page-header {
   height: 350px !important;
   background-size: 100% auto !important;
-  background-position: center center !important;
+  background-position: center bottom !important;
   background-color: #fff !important;
 }
 @media screen and (max-width: 768px) {
@@ -245,7 +245,7 @@ body:has(#body-wrap.post) #footer a {
   background-image: url('/img/banner-night.png') !important;
   background-color: #fff !important;
   background-size: cover !important;
-  background-position: center center !important;
+  background-position: center bottom !important;
   transition: none !important;
 }
 .type-special #page-header::before,
@@ -319,7 +319,7 @@ body:has(#body-wrap.page-custom-style) {
 #body-wrap:has(#page-header[style*="LAN"]) #page-header {
   background-color: #fff !important;
   background-size: cover !important;
-  background-position: center center !important;
+  background-position: center bottom !important;
   transition: none !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #page-header::before,
