@@ -1,46 +1,5 @@
 
-/* === 文章页顶部banner === */
-#body-wrap.post #page-header {
-  height: 350px !important;
-  background-size: 100% auto !important;
-  background-position: center bottom !important;
-  background-color: #fff !important;
-}
-@media screen and (max-width: 768px) {
-  #body-wrap.post #page-header {
-    height: 250px !important;
-  }
-}
-[data-theme='dark'] #body-wrap.post #page-header {
-  background-color: rgba(0,0,0,0.55) !important;
-  background-blend-mode: multiply !important;
-}
-#body-wrap.post #page-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.35);
-}
-#body-wrap.post #nav a,
-#body-wrap.post #nav span.site-page,
-#body-wrap.post #nav .site-name,
-#body-wrap.post #nav #search-button {
-  color: #fff !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-#body-wrap.post #page-header #site-title,
-#body-wrap.post .post-title {
-  color: #fff !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-#body-wrap.post #post-info,
-#body-wrap.post #post-info a,
-#body-wrap.post #post-info span {
-  color: #fff !important;
-}
+/* 文章页头部（一图流）样式见 top-img.css */
 
 /* === 全站背景图 === */
 #web_bg {
@@ -49,7 +8,9 @@
   background-position: left bottom !important;
 }
 body:has(#body-wrap.post) #web_bg {
-  background-image: url('/img/bg3.png') !important;
+  background-image: url('/img/bg-night-sky.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
 }
 html .type-special #web_bg,
 html .type-link #web_bg {
