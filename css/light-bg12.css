@@ -8,6 +8,15 @@
   background-position: center !important;
 }
 
+/* 全站白纱罩（日间）：背景上蒙一层淡淡的白色 */
+#web_bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+
 /* 所有页面头部透明 */
 #page-header {
   background: transparent !important;
@@ -175,6 +184,10 @@ body,
 }
 [data-theme='dark'] #web_bg {
   opacity: 0.8 !important;
+}
+/* 夜间：黑纱罩弱一些 */
+[data-theme='dark'] #web_bg::after {
+  background: rgba(0, 0, 0, 0.06);
 }
 [data-theme='dark'] {
   --card-bg: rgba(0,0,0,0.2) !important;
