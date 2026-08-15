@@ -1,0 +1,415 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>社会工程学 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="社会工程学的核心原理、八大心理按钮、常见攻击手段（钓鱼/尾随/诱饵/水洞攻击）、攻击链全流程与防御策略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="社会工程学">
+<meta property="og:url" content="https://jasmine-iris.top/2026/06/08/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="社会工程学的核心原理、八大心理按钮、常见攻击手段（钓鱼/尾随/诱饵/水洞攻击）、攻击链全流程与防御策略">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/posts/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/cover.webp">
+<meta property="article:published_time" content="2026-06-08T06:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-15T17:13:25.429Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="社工">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/posts/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/cover.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "社会工程学",
+  "url": "https://jasmine-iris.top/2026/06/08/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/",
+  "image": "https://img.jasmine-iris.top/posts/社会工程学/cover.webp",
+  "datePublished": "2026-06-08T06:00:00.000Z",
+  "dateModified": "2026-08-15T17:13:25.429Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/06/08/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '社会工程学',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg13.css"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="/img/miku-cinnamoroll-arrow-48.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><!-- hexo injector head_end start -->
+<script src="/components/bilibili-card/bilibili-card.js"></script>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">18</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://img.jasmine-iris.top/posts/社会工程学/cover.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">社会工程学</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">社会工程学</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-08T06:00:00.000Z" title="发表于 2026-06-08 14:00:00">2026-06-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-15T17:13:25.429Z" title="更新于 2026-08-16 01:13:25">2026-08-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%94%BB%E9%98%B2%E5%AE%9E%E6%88%98/">攻防实战</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image:url(https://img.jasmine-iris.top/posts/社会工程学/cover.webp);"></div><article class="container post-content" id="article-container"><h1 id="一、认识社会工程学"><a href="#一、认识社会工程学" class="headerlink" title="一、认识社会工程学"></a>一、认识社会工程学</h1><h2 id="1-核心定义"><a href="#1-核心定义" class="headerlink" title="1. 核心定义"></a>1. 核心定义</h2><p>社会工程学<strong>不是黑客技术、不是代码漏洞攻击</strong>，是利用<strong>人性弱点、心理弱点、贪欲、恐惧、信任、惰性</strong>欺骗目标，诱导对方主动泄露信息、交出权限、执行危险操作的攻击手段。<br>核心逻辑：<strong>人是网络安全体系里最大的漏洞</strong>，比起破解密码、入侵服务器，欺骗人成本更低、成功率更高。</p>
+<p><strong>拓展参考视频（16:20 之后）：</strong></p>
+<bilibili-card vid="BV18p4y157Tk" type="video" title="一口气看完4K画质《我是谁，没有绝对安全的系统》，高分反转悬疑佳作" author="峥峥爱漫画" cover="http://i1.hdslb.com/bfs/archive/7e320e52dce18428e7392598180f1cd35a423218.jpg" duration="01:54:24" views="1.8万" danmakus="187" comments="19" favorites="368" coins="62" likes="234" info-types="views danmakus" image-proxy="https://images.weserv.nl/?url=" theme="system"></bilibili-card>
+
+
+<p>AI 技术的应用：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ImYCzm4zFRv4Q2w3IhdDlA">https://mp.weixin.qq.com/s/ImYCzm4zFRv4Q2w3IhdDlA</a></p>
+<p>ModelScop：<a target="_blank" rel="noopener" href="https://www.modelscope.cn/models">https://www.modelscope.cn</a></p>
+<blockquote>
+<p>阿里达摩院发起的<strong>国内 AI 开源模型平台</strong>，对标国外 Hugging Face，国内直连不用代理。 <code>/models</code>就是模型仓库页面，存放大量开源 AI 模型 ：大语言模型、OCR、语音识别、文生图、代码模型、安全检测模型等。</p>
+<p>如：声音克隆</p>
+<!-- 这是一张图片，ocr 内容为： --><p><img src="https://img.jasmine-iris.top/posts/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/1786813910761_fpmc02.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： --><p><img src="https://img.jasmine-iris.top/posts/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/1786813913999_wdw4c4.webp" loading='lazy'></p>
+</blockquote>
+<hr>
+<h2 id="2-软安全与硬安全"><a href="#2-软安全与硬安全" class="headerlink" title="2. 软安全与硬安全"></a>2. 软安全与硬安全</h2><h3 id="2-1-硬安全（物理安全、硬件安全）"><a href="#2-1-硬安全（物理安全、硬件安全）" class="headerlink" title="2.1 硬安全（物理安全、硬件安全）"></a>2.1 硬安全（物理安全、硬件安全）</h3><p>指<strong>看得见、摸得着的实体设备、物理环境防护</strong>，依靠硬件、物理隔离、实体管控实现安全。<br>防护对象：机房、服务器、电脑、门禁、U盘、监控、锁具、网线、交换机、设备机身等实体资产。</p>
+<h4 id="2-1-1-硬安全措施"><a href="#2-1-1-硬安全措施" class="headerlink" title="2.1.1 硬安全措施"></a>2.1.1 硬安全措施</h4><ol>
+<li>物理门禁、刷卡闸机、访客登记、防止尾随（对应物理社工尾随攻击）</li>
+<li>机房门锁、保险柜存放服务器/密钥U盘</li>
+<li>监控摄像头、红外报警、机房专人值守</li>
+<li>硬件加密狗、硬盘加密、硬件防火墙</li>
+<li>禁止外来U盘、陌生数据线接入内网设备（防御诱饵攻击Baiting）</li>
+<li>设备锁、机箱防盗锁，防止硬件被偷、硬盘被拆走</li>
+</ol>
+<h4 id="2-1-2-安全威胁（硬件层面）"><a href="#2-1-2-安全威胁（硬件层面）" class="headerlink" title="2.1.2 安全威胁（硬件层面）"></a>2.1.2 安全威胁（硬件层面）</h4><p>尾随蹭门禁、盗取电脑、窃取U盘、物理拆机拷贝数据、投放恶意硬件（窃听充电线）</p>
+<hr>
+<h3 id="2-2-软安全（逻辑安全、人为安全、系统软件安全）"><a href="#2-2-软安全（逻辑安全、人为安全、系统软件安全）" class="headerlink" title="2.2 软安全（逻辑安全、人为安全、系统软件安全）"></a>2.2 软安全（逻辑安全、人为安全、系统软件安全）</h3><p>分为两层：<strong>软件系统安全 + 人员/管理安全</strong><br>不靠实体硬件阻挡，依靠代码、策略、制度、人员意识防护。</p>
+<h4 id="分支1：软件-系统安全"><a href="#分支1：软件-系统安全" class="headerlink" title="分支1：软件/系统安全"></a>分支1：软件/系统安全</h4><p>操作系统、应用软件、网站代码、网络协议、防火墙策略、账号密码、病毒查杀、漏洞修复、加密算法。<br>威胁：木马、病毒、Web漏洞、钓鱼链接、恶意附件、网络渗透。</p>
+<h4 id="分支2：人员-管理安全"><a href="#分支2：人员-管理安全" class="headerlink" title="分支2：人员/管理安全"></a>分支2：人员/管理安全</h4><p>依靠员工安全意识、公司管理制度规避人为漏洞，<strong>社会工程学全部属于软安全范畴</strong>。<br>核心：弥补“人”这个最大漏洞，也就是防御心理按钮操纵、各类社工欺骗。</p>
+<h4 id="2-2-1-软安全措施"><a href="#2-2-1-软安全措施" class="headerlink" title="2.2.1 软安全措施"></a>2.2.1 软安全措施</h4><ol>
+<li>账号密码复杂度、定期改密、二次验证码</li>
+<li>员工安全培训，识别钓鱼短信、冒充领导诈骗</li>
+<li>财务转账复核制度、陌生信息官方核验制度（防御权威+紧迫心理按钮）</li>
+<li>软件定期打补丁、杀毒软件、邮件过滤恶意附件</li>
+<li>权限分级，普通员工无服务器高权限</li>
+<li>保密制度：社交平台禁止泄露公司信息（防御前期OSINT信息搜集）</li>
+</ol>
+<h4 id="2-2-2-安全威胁（软件-人）"><a href="#2-2-2-安全威胁（软件-人）" class="headerlink" title="2.2.2 安全威胁（软件/人）"></a>2.2.2 安全威胁（软件/人）</h4><p>钓鱼攻击、冒充领导社工、木马病毒、系统漏洞、弱密码、员工泄密</p>
+<hr>
+<h2 id="2-3-对比"><a href="#2-3-对比" class="headerlink" title="2.3 对比"></a>2.3 对比</h2><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>核心防护对象</th>
+<th>防护手段</th>
+<th>包含内容</th>
+<th>典型攻击方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>硬安全</td>
+<td>物理实体、硬件设备、场地</td>
+<td>物理隔离、实体管控、硬件防护</td>
+<td>门禁、机房锁、监控、硬件加密、防盗</td>
+<td>尾随混入、盗取U盘、拆机取数据、恶意硬件诱饵</td>
+</tr>
+<tr>
+<td>软安全</td>
+<td>软件系统、人、网络逻辑、管理制度</td>
+<td>代码防护、策略、人员意识培训</td>
+<td>系统、账号、安全制度、员工意识、社工防范</td>
+<td>钓鱼、木马、系统漏洞、全部社会工程学攻击</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="二、底层核心原理：心理按钮"><a href="#二、底层核心原理：心理按钮" class="headerlink" title="二、底层核心原理：心理按钮"></a>二、底层核心原理：心理按钮</h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h2><p>心理按钮也叫心理扳机，是社会工程学<strong>底层核心心理学理论</strong>。<br>攻击者通过话术、场景、身份刻意触发这套心理机制，让人跳过理性思考，本能顺从对方，主动泄露信息、转账、开放权限。<br>内在逻辑：人性弱点是人自带的内在特质，心理按钮是攻击者用来引爆弱点的外部操纵方式。</p>
+<h2 id="2-八大心理按钮"><a href="#2-八大心理按钮" class="headerlink" title="2. 八大心理按钮"></a>2. 八大心理按钮</h2><ol>
+<li><strong>权威按钮</strong><br>人本能服从上级、警察、运维、官方人员，主动放下防备。<br>例：冒充老板、公安索要账号。</li>
+<li><strong>紧迫感按钮</strong><br>制造时间限制，不给思考、核实机会。关键词：立刻、10分钟、超时冻结。</li>
+<li><strong>稀缺按钮（FOMO错失恐惧）</strong><br>限量福利、内部名额，害怕损失利益而冲动操作。</li>
+<li><strong>互惠按钮</strong><br>先给小好处（资料、福利），使人产生亏欠感，愿意回报对方敏感信息。</li>
+<li><strong>好感/熟悉按钮</strong><br>伪装熟人、同行，利用相似感、熟悉感降低警惕。</li>
+<li><strong>恐惧按钮</strong><br>用违法、冻结、起诉、设备中毒制造恐慌，逼迫妥协。</li>
+<li><strong>好奇心按钮</strong><br>利用人对私密内部文件的好奇，比如标注工资、裁员表的木马U盘。</li>
+<li><strong>同情&amp;从众按钮</strong><br>同情：编造困难借钱；从众：所有人都办理，诱导跟风操作。</li>
+</ol>
+<hr>
+<h1 id="三、常见社会工程攻击手段"><a href="#三、常见社会工程攻击手段" class="headerlink" title="三、常见社会工程攻击手段"></a>三、常见社会工程攻击手段</h1><h2 id="1-钓鱼攻击（Phishing）"><a href="#1-钓鱼攻击（Phishing）" class="headerlink" title="1. 钓鱼攻击（Phishing）"></a>1. 钓鱼攻击（Phishing）</h2><ul>
+<li>邮件钓鱼：伪装银行、企业官方，附带恶意链接/恶意附件，诱导输入账号密码。</li>
+<li>短信钓鱼（Smishing）：冒充快递、运营商、政务机构，发送带木马链接短信。</li>
+<li>语音钓鱼（Vishing）：电话伪装客服、工作人员，套取银行卡、验证码信息。</li>
+</ul>
+<h2 id="2-借口伪装（Pretexting）"><a href="#2-借口伪装（Pretexting）" class="headerlink" title="2. 借口伪装（Pretexting）"></a>2. 借口伪装（Pretexting）</h2><p>编造合理身份、虚构场景骗取信息。</p>
+<blockquote>
+<p>例子：伪装IT运维，谎称系统升级索要账号密码；冒充公检法恐吓受害者进行转账。</p>
+</blockquote>
+<h2 id="3-尾随-蹭门禁（物理社工-Tailgating）"><a href="#3-尾随-蹭门禁（物理社工-Tailgating）" class="headerlink" title="3. 尾随 / 蹭门禁（物理社工 Tailgating）"></a>3. 尾随 / 蹭门禁（物理社工 Tailgating）</h2><p>攻击者紧跟授权员工身后，跟随刷卡混入办公区、机房；伪装访客骗取进入内部区域，窃取硬件、资料。</p>
+<h2 id="4-诱饵攻击（Baiting）"><a href="#4-诱饵攻击（Baiting）" class="headerlink" title="4. 诱饵攻击（Baiting）"></a>4. 诱饵攻击（Baiting）</h2><p>投放带有诱惑的载体植入恶意程序。</p>
+<blockquote>
+<p>例子：楼道丢弃标注“财务资料”的U盘，员工插入电脑即中毒；恶意充电线、共享充电宝窃取数据。</p>
+</blockquote>
+<h2 id="5-反向社会工程学-信息搜集"><a href="#5-反向社会工程学-信息搜集" class="headerlink" title="5. 反向社会工程学 + 信息搜集"></a>5. 反向社会工程学 + 信息搜集</h2><p>前期通过社交平台、企查查、招聘网站收集目标姓名、岗位、同事、生日等信息；掌握大量真实信息后进行精准伪装，提升欺骗成功率。</p>
+<h2 id="6-水洞攻击（Watering‑hole）"><a href="#6-水洞攻击（Watering‑hole）" class="headerlink" title="6. 水洞攻击（Watering‑hole）"></a>6. 水洞攻击（Watering‑hole）</h2><p>攻陷目标群体经常访问的网站（行业站点、内部论坛），植入恶意代码，等待受害者主动访问网站中招。</p>
+<h2 id="7-职场施压-人情胁迫"><a href="#7-职场施压-人情胁迫" class="headerlink" title="7. 职场施压 / 人情胁迫"></a>7. 职场施压 / 人情胁迫</h2><p>冒充上级领导发送紧急指令，利用层级权威心理，要求私下转账、导出机密资料，禁止走正规流程。</p>
+<hr>
+<h1 id="四、攻击链"><a href="#四、攻击链" class="headerlink" title="四、攻击链"></a>四、攻击链</h1><blockquote>
+<p>社工攻击链完整流程：<strong>信息收集 → 建立信任 → 触发心理按钮 → 诱导执行动作 → 达成目标 → 痕迹清理</strong></p>
+</blockquote>
+<h2 id="1-信息收集（侦察-Recon）"><a href="#1-信息收集（侦察-Recon）" class="headerlink" title="1. 信息收集（侦察 Recon）"></a>1. 信息收集（侦察 Recon）</h2><p>攻击者先搜集目标情报，为后续欺骗做铺垫。</p>
+<ul>
+<li>公开渠道：社交平台、企业官网、招聘网站、公开新闻、朋友圈</li>
+<li>获取信息：员工姓名、岗位、部门、联系方式、工作习惯、组织架构</li>
+<li>垃圾搜寻（Dumpster diving）：翻垃圾桶获取打印废纸、单据、便签密码</li>
+</ul>
+<blockquote>
+<p>目的：拿到素材，让伪装显得真实可信。</p>
+</blockquote>
+<h2 id="2-建立信任（确定攻击手段）"><a href="#2-建立信任（确定攻击手段）" class="headerlink" title="2. 建立信任（确定攻击手段）"></a>2. 建立信任（确定攻击手段）</h2><p>伪造身份，降低目标警惕。<br>伪装身份示例：客服、上级领导、运维工程师、公检法、快递、第三方服务商。<br>手段：打电话、钓鱼邮件、微信/QQ、线下上门、短信。<br>利用搜集到的信息，说出目标真实信息，让对方认为“自己人”。</p>
+<h2 id="3-触发心理按钮（心理操纵，社工核心）"><a href="#3-触发心理按钮（心理操纵，社工核心）" class="headerlink" title="3. 触发心理按钮（心理操纵，社工核心）"></a>3. 触发心理按钮（心理操纵，社工核心）</h2><p>调用人性弱点施压，逼迫/引诱对方快速行动，不给思考时间。<br>常见心理按钮：</p>
+<ul>
+<li><strong>权威</strong>：我是领导/警察，你必须配合</li>
+<li><strong>紧急/稀缺</strong>：马上冻结账号，限时处理</li>
+<li><strong>恐惧</strong>：涉嫌违规，否则承担法律责任</li>
+<li><strong>互惠/贪婪</strong>：福利、红包、内部资料</li>
+<li><strong>同情</strong>：遇到麻烦，请帮忙救急</li>
+<li><strong>从众</strong>：其他人都已经提交</li>
+</ul>
+<blockquote>
+<p>关键：制造压力，让受害者跳过理性判断。</p>
+</blockquote>
+<h2 id="4-诱导执行操作（执行阶段）"><a href="#4-诱导执行操作（执行阶段）" class="headerlink" title="4. 诱导执行操作（执行阶段）"></a>4. 诱导执行操作（执行阶段）</h2><p>欺骗受害者主动做出危险行为，<strong>人主动犯错，不是破解漏洞</strong>。<br>典型动作：</p>
+<ul>
+<li>泄露密码、验证码、工号、内部文档</li>
+<li>点开钓鱼链接、打开恶意附件</li>
+<li>插入陌生U盘</li>
+<li>转账汇款</li>
+<li>开门放行外来人员</li>
+</ul>
+<h2 id="5-达成攻击目标"><a href="#5-达成攻击目标" class="headerlink" title="5. 达成攻击目标"></a>5. 达成攻击目标</h2><p>拿到想要的资源：</p>
+<ul>
+<li>获取账号权限、敏感数据</li>
+<li>获取物理访问权限进入机房</li>
+<li>拿到资金、内部机密资料</li>
+</ul>
+<h2 id="6-痕迹清除"><a href="#6-痕迹清除" class="headerlink" title="6. 痕迹清除"></a>6. 痕迹清除</h2><p>销毁聊天记录、删除邮件、挂断电话，减少被溯源的线索。</p>
+<h2 id="📌防御对应"><a href="#📌防御对应" class="headerlink" title="📌防御对应"></a>📌防御对应</h2><table>
+<thead>
+<tr>
+<th>攻击链阶段</th>
+<th>对应防御手段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>信息收集</td>
+<td>管控对外公开信息；敏感纸张碎纸销毁</td>
+</tr>
+<tr>
+<td>建立信任</td>
+<td>严格访客管理；陌生身份必须二次核验</td>
+</tr>
+<tr>
+<td>心理操纵</td>
+<td>安全培训，识别心理按钮，拒绝紧急施压下操作</td>
+</tr>
+<tr>
+<td>诱导执行</td>
+<td>MFA多因素认证；不提供验证码密码；外设管控</td>
+</tr>
+<tr>
+<td>达成目标</td>
+<td>最小权限、双人复核，缩小损失范围</td>
+</tr>
+<tr>
+<td>痕迹清除</td>
+<td>留存聊天、通话记录，保留证据便于溯源</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、防御手段"><a href="#五、防御手段" class="headerlink" title="五、防御手段"></a>五、防御手段</h1><ol>
+<li>主机立即断网隔离，禁止重启（保留恶意样本、内存攻击痕迹）；</li>
+<li>提取邮件、恶意附件、进程日志溯源钓鱼来源；</li>
+<li>重置该主机所有账号密码，排查内网横向移动痕迹；</li>
+<li>全网复盘同类钓鱼邮件，同步更新邮件网关拦截规则；</li>
+<li>针对中招员工开展一对一社工安全再培训。</li>
+</ol>
+<blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/06/08/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/">https://jasmine-iris.top/2026/06/08/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%A4%BE%E5%B7%A5/">社工</a></div><div class="post-share"><div class="social-share" data-image="https://img.jasmine-iris.top/posts/社会工程学/cover.webp" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/" title="RCE漏洞"><img class="cover" src="https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">RCE漏洞</div></div><div class="info-2"><div class="info-item-1">远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施</div></div></div></a><a class="pagination-related" href="/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" title="文件包含漏洞"><img class="cover" src="https://img.jasmine-iris.top/posts/文件包含漏洞/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">文件包含漏洞</div></div><div class="info-2"><div class="info-item-1">文件包含漏洞的原理、本地/远程包含攻击手法、伪协议利用与防御方案</div></div></div></a></nav><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">18</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-08-15<br><br>新增文章：<br><a href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/">APT攻击手段之钓鱼邮件</a><br><a href="/2026/08/15/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7-Cobalt-Strike/">内网渗透工具-Cobalt Strike</a><br></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%AE%A4%E8%AF%86%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6"><span class="toc-text">一、认识社会工程学</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%B9%89"><span class="toc-text">1. 核心定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BD%AF%E5%AE%89%E5%85%A8%E4%B8%8E%E7%A1%AC%E5%AE%89%E5%85%A8"><span class="toc-text">2. 软安全与硬安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%A1%AC%E5%AE%89%E5%85%A8%EF%BC%88%E7%89%A9%E7%90%86%E5%AE%89%E5%85%A8%E3%80%81%E7%A1%AC%E4%BB%B6%E5%AE%89%E5%85%A8%EF%BC%89"><span class="toc-text">2.1 硬安全（物理安全、硬件安全）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-1-%E7%A1%AC%E5%AE%89%E5%85%A8%E6%8E%AA%E6%96%BD"><span class="toc-text">2.1.1 硬安全措施</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-2-%E5%AE%89%E5%85%A8%E5%A8%81%E8%83%81%EF%BC%88%E7%A1%AC%E4%BB%B6%E5%B1%82%E9%9D%A2%EF%BC%89"><span class="toc-text">2.1.2 安全威胁（硬件层面）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%BD%AF%E5%AE%89%E5%85%A8%EF%BC%88%E9%80%BB%E8%BE%91%E5%AE%89%E5%85%A8%E3%80%81%E4%BA%BA%E4%B8%BA%E5%AE%89%E5%85%A8%E3%80%81%E7%B3%BB%E7%BB%9F%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%EF%BC%89"><span class="toc-text">2.2 软安全（逻辑安全、人为安全、系统软件安全）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%94%AF1%EF%BC%9A%E8%BD%AF%E4%BB%B6-%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="toc-text">分支1：软件/系统安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%94%AF2%EF%BC%9A%E4%BA%BA%E5%91%98-%E7%AE%A1%E7%90%86%E5%AE%89%E5%85%A8"><span class="toc-text">分支2：人员/管理安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-1-%E8%BD%AF%E5%AE%89%E5%85%A8%E6%8E%AA%E6%96%BD"><span class="toc-text">2.2.1 软安全措施</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-2-%E5%AE%89%E5%85%A8%E5%A8%81%E8%83%81%EF%BC%88%E8%BD%AF%E4%BB%B6-%E4%BA%BA%EF%BC%89"><span class="toc-text">2.2.2 安全威胁（软件/人）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E5%AF%B9%E6%AF%94"><span class="toc-text">2.3 对比</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BA%95%E5%B1%82%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%EF%BC%9A%E5%BF%83%E7%90%86%E6%8C%89%E9%92%AE"><span class="toc-text">二、底层核心原理：心理按钮</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">1. 定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%85%AB%E5%A4%A7%E5%BF%83%E7%90%86%E6%8C%89%E9%92%AE"><span class="toc-text">2. 八大心理按钮</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5"><span class="toc-text">三、常见社会工程攻击手段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%EF%BC%88Phishing%EF%BC%89"><span class="toc-text">1. 钓鱼攻击（Phishing）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%80%9F%E5%8F%A3%E4%BC%AA%E8%A3%85%EF%BC%88Pretexting%EF%BC%89"><span class="toc-text">2. 借口伪装（Pretexting）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%B0%BE%E9%9A%8F-%E8%B9%AD%E9%97%A8%E7%A6%81%EF%BC%88%E7%89%A9%E7%90%86%E7%A4%BE%E5%B7%A5-Tailgating%EF%BC%89"><span class="toc-text">3. 尾随 / 蹭门禁（物理社工 Tailgating）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AF%B1%E9%A5%B5%E6%94%BB%E5%87%BB%EF%BC%88Baiting%EF%BC%89"><span class="toc-text">4. 诱饵攻击（Baiting）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%8F%8D%E5%90%91%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6-%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="toc-text">5. 反向社会工程学 + 信息搜集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%B0%B4%E6%B4%9E%E6%94%BB%E5%87%BB%EF%BC%88Watering%E2%80%91hole%EF%BC%89"><span class="toc-text">6. 水洞攻击（Watering‑hole）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E8%81%8C%E5%9C%BA%E6%96%BD%E5%8E%8B-%E4%BA%BA%E6%83%85%E8%83%81%E8%BF%AB"><span class="toc-text">7. 职场施压 / 人情胁迫</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-text">四、攻击链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%EF%BC%88%E4%BE%A6%E5%AF%9F-Recon%EF%BC%89"><span class="toc-text">1. 信息收集（侦察 Recon）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%BB%BA%E7%AB%8B%E4%BF%A1%E4%BB%BB%EF%BC%88%E7%A1%AE%E5%AE%9A%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%EF%BC%89"><span class="toc-text">2. 建立信任（确定攻击手段）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%A7%A6%E5%8F%91%E5%BF%83%E7%90%86%E6%8C%89%E9%92%AE%EF%BC%88%E5%BF%83%E7%90%86%E6%93%8D%E7%BA%B5%EF%BC%8C%E7%A4%BE%E5%B7%A5%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-text">3. 触发心理按钮（心理操纵，社工核心）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AF%B1%E5%AF%BC%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C%EF%BC%88%E6%89%A7%E8%A1%8C%E9%98%B6%E6%AE%B5%EF%BC%89"><span class="toc-text">4. 诱导执行操作（执行阶段）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%BE%BE%E6%88%90%E6%94%BB%E5%87%BB%E7%9B%AE%E6%A0%87"><span class="toc-text">5. 达成攻击目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%97%95%E8%BF%B9%E6%B8%85%E9%99%A4"><span class="toc-text">6. 痕迹清除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C%E9%98%B2%E5%BE%A1%E5%AF%B9%E5%BA%94"><span class="toc-text">📌防御对应</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%98%B2%E5%BE%A1%E6%89%8B%E6%AE%B5"><span class="toc-text">五、防御手段</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/" title="APT攻击手段之钓鱼邮件"><img src="https://img.jasmine-iris.top/posts/APT攻击手段之钓鱼邮件/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="APT攻击手段之钓鱼邮件" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/" title="APT攻击手段之钓鱼邮件">APT攻击手段之钓鱼邮件</a><time datetime="2026-08-15T05:50:00.000Z" title="发表于 2026-08-15 13:50:00">2026-08-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/15/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7-Cobalt-Strike/" title="内网渗透工具-Cobalt Strike"><img src="https://img.jasmine-iris.top/posts/内网渗透工具-Cobalt-Strike/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="内网渗透工具-Cobalt Strike" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/15/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7-Cobalt-Strike/" title="内网渗透工具-Cobalt Strike">内网渗透工具-Cobalt Strike</a><time datetime="2026-08-15T04:00:00.000Z" title="发表于 2026-08-15 12:00:00">2026-08-15</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
