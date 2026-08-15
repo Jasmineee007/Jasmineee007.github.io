@@ -176,21 +176,22 @@ body,
 
 /* === 夜间模式：全站统一规则 === */
 [data-theme='dark'] #page-header {
-  background-color: rgba(0,0,0,0.55) !important;
-  background-blend-mode: multiply !important;
+  background: transparent !important;
 }
-[data-theme='dark'] #page-header::before {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.15) 100%) !important;
-}
+/* 背景：完整显示 bg.jpg，黑纱从主题默认 0.7 弱化到 0.45 */
 [data-theme='dark'] #web_bg {
-  opacity: 0.8 !important;
+  opacity: 1 !important;
+}
+[data-theme='dark'] #web_bg::before {
+  background-color: rgba(0, 0, 0, 0.45) !important;
 }
 /* 夜间：黑纱罩弱一些 */
 [data-theme='dark'] #web_bg::after {
   background: rgba(0, 0, 0, 0.06);
 }
+/* 卡片：磨砂深色（原 0.2 太透，卡片与背景糊成一团） */
 [data-theme='dark'] {
-  --card-bg: rgba(0,0,0,0.2) !important;
+  --card-bg: rgba(30, 30, 42, 0.72) !important;
 }
 [data-theme='dark'] body {
   background: transparent !important;
