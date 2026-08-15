@@ -1,32 +1,11 @@
 
 /* 文章页头部（一图流）样式见 top-img.css */
 
-/* === 全站背景图 === */
+/* === 全站背景图（一图流：夜空铺满）=== */
 #web_bg {
-  background-image: url('/img/bg3.png') !important;
-  background-size: auto !important;
-  background-position: left bottom !important;
-}
-body:has(#body-wrap.post) #web_bg {
   background-image: url('/img/bg-night-sky.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
-}
-html .type-special #web_bg,
-html .type-link #web_bg {
-  background-image: url('/img/bg3.png') !important;
-}
-html .type-categories #web_bg {
-  background-image: url('/img/bg3.png') !important;
-}
-html #body-wrap:has(#archive) #web_bg {
-  background-image: url('/img/bg3.png') !important;
-}
-html #body-wrap:has(#page-header[style*="ctfwp"]) #web_bg,
-html #body-wrap:has(#page-header[style*="websec"]) #web_bg,
-html #body-wrap:has(#page-header[style*="SecOps"]) #web_bg,
-html #body-wrap:has(#page-header[style*="LAN"]) #web_bg {
-  background-image: url('/img/bg3.png') !important;
 }
 
 /* === About/归档/友链/Categories 导航栏字体 === */
@@ -326,13 +305,6 @@ body:has(#page-header[style*="websec"]),
 body:has(#page-header[style*="SecOps"]),
 body:has(#page-header[style*="LAN"]) {
   background: transparent !important;
-}
-body:has(#page-header[style*="ctfwp"]) #web_bg,
-body:has(#page-header[style*="websec"]) #web_bg,
-body:has(#page-header[style*="SecOps"]) #web_bg,
-body:has(#page-header[style*="LAN"]) #web_bg {
-  background-size: auto !important;
-  background-position: left bottom !important;
 }
 #body-wrap:has(#page-header[style*="ctfwp"]) #content-inner,
 #body-wrap:has(#page-header[style*="ctfwp"]) .layout,
