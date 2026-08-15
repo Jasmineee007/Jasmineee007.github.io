@@ -1,14 +1,14 @@
 
 /* === 文章页顶部banner === */
 #body-wrap.post #page-header {
-  height: 520px !important;
+  height: 350px !important;
   background-size: 100% auto !important;
   background-position: center center !important;
   background-color: #fff !important;
 }
 @media screen and (max-width: 768px) {
   #body-wrap.post #page-header {
-    height: 360px !important;
+    height: 250px !important;
   }
 }
 [data-theme='dark'] #body-wrap.post #page-header {
