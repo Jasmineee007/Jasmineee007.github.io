@@ -349,9 +349,13 @@ body,
   max-width: calc(100% - 48px);
 }
 .site-card-link2::before {
-  content: "→ ";
-  font-weight: bold;
-  font-size: .85em;
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  vertical-align: -2px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2349b1f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>") center/contain no-repeat;
 }
 .site-card-link2:hover {
   background: rgba(73, 177, 245, .2);
