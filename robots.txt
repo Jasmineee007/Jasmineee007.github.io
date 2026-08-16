@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /archives/
+Disallow: /tags/
+Disallow: /categories/
+Disallow: /page/
+Allow: /
+
+Sitemap: https://jasmine-iris.top/sitemap.xml
