@@ -3,7 +3,7 @@
 
 /* 背景图 */
 #web_bg {
-  background-image: url('/img/bg.jpg') !important;
+  background-image: url('https://img.jasmine-iris.top/img/bg.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
 }
@@ -526,7 +526,7 @@ body,
 
 /* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，48px，全站单图）=== */
 html, body, body * {
-  cursor: url("/img/miku-cinnamoroll-arrow-48.png"), default !important;
+  cursor: url("https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png"), default !important;
 }
 
 /* 文本输入框保留文本光标 */
