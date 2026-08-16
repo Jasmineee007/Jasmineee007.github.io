@@ -349,7 +349,8 @@ body,
   max-width: calc(100% - 48px);
 }
 .site-card-link2::before {
-  content: "🔗 ";
+  content: "→ ";
+  font-weight: bold;
   font-size: .85em;
 }
 .site-card-link2:hover {
