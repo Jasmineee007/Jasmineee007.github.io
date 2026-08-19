@@ -566,11 +566,30 @@ body,
 }
 
 /* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，48px，全站单图）=== */
+/* 热点坐标 22 4 = 箭头尖端位置，保证点击点与视觉尖端对齐（否则默认热点是图片左上角，点不准） */
 html, body, body * {
-  cursor: url("https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png"), default !important;
+  cursor: url("https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png") 22 4, default !important;
 }
 
 /* 文本输入框保留文本光标 */
 input, textarea, [contenteditable="true"] {
   cursor: text !important;
+}
+
+/* === 代码块复制成功内联提示（显示在复制按钮旁边，非弹窗）=== */
+.copy-success-inline {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 1;
+  transition: opacity .35s;
+  pointer-events: none;
+}
+.copy-success-inline.ok {
+  color: #6aab73;
+}
+.copy-success-inline.fail {
+  color: #d4687c;
 }
