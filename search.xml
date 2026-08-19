@@ -1122,6 +1122,7 @@ Q9：CORS跨域漏洞是什么？CORS 跨域漏洞的产生原因是因为没有
       <categories>
         <category>Web安全</category>
         <category>CSRF</category>
+        <category>SSRF</category>
       </categories>
       <tags>
         <tag>CSRF</tag>
