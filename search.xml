@@ -10394,11 +10394,13 @@ WordPress 漏洞审计 &#x2F; 密码爆破
 
 ]]></content>
       <categories>
-        <category>CTF-WP</category>
-        <category>Lab-WP</category>
+        <category>靶机练习</category>
+        <category>vulnhub</category>
       </categories>
       <tags>
-        <tag>CTF</tag>
+        <tag>MSF</tag>
+        <tag>靶机</tag>
+        <tag>内核漏洞</tag>
       </tags>
   </entry>
 </search>
