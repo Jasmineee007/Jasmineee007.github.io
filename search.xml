@@ -1726,8 +1726,8 @@ run vnc         # 开启VNC远程桌面控制
 
 ]]></content>
       <categories>
-        <category>Web安全</category>
-        <category>渗透测试</category>
+        <category>靶机练习</category>
+        <category>vulhub</category>
       </categories>
       <tags>
         <tag>MSF</tag>
