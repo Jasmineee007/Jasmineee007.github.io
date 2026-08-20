@@ -4499,57 +4499,7 @@ union 注入要求存在注入点，有回显
 ?id=1 and (select 1 from (select count(*),concat(0x5e,(目标查询语句),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)
 
 核心是利用 count(*) + rand() + group by 触发主键重复错误，把 concat 包裹的目标数据（如版本号、表名）带出，无需页面回显也能拿到数据（当 union 被禁用时）。
-
-命令解释
-count(*)
-
-
-
-统计有多少行数据，用来触发分组。
-2. `rand(0)`
-
-生成固定的随机数（不是真随机， predictable）
-3. `floor(rand(0)*2)`
-
-结果只有两个：0 或者 1
-4. `group by x`
-
-按 x 分组，MySQL 会建一张临时表存分组结果。
-5. `concat(0x5e, 数据, 0x5e)`
-
-把 版本号 &#x2F; 库名 &#x2F; 表名 拼进字符串里。
-- `0x5e` = **^** 符号，只是分隔符
-
-
-问题：
-为什么会报错？
-
-
-
-MySQL 做 group by 时：
-- 先算 `floor(rand(0)*2)` → 得到 0 或 1
-- 把结果插入**临时表**
-- 插入时又算了一次 rand (0)
-- 两次结果不一样 → 出现**重复键**
-- 直接报错：**Duplicate entry**（重复条目）
-- 关键：**报错的时候，会把我们拼接的【数据】一起输出来！**数据就这样拿到了。
-
-
-
-2. 为什么 rand (14) 更好？
-
-rand (14) 只需要 2 条数据就能触发冲突rand (0) 需要 3 条数据 才会报错。
-
-总结
-用 rand() 生成 0&#x2F;1
-用 group by 建临时表
-插入时重复计算 rand ()
-产生重复键报错
-错误信息里带出我们要的数据
-
-
-如何使用
-
+如何使用？？？
 不懂原理知道如何使用即可，想查什么，就把 version() 换成：
 
 database() → 查库名
