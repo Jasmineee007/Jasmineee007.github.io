@@ -51,30 +51,18 @@
   transition: all 0.3s ease;
 }
 
-/* === Footer 非主页日间黑字 === */
-body:has(#body-wrap.post) #footer,
-body:has(#body-wrap.post) #footer > * {
-  color: #000 !important;
-}
-body:has(#body-wrap.post) #footer a {
-  color: #000 !important;
+/* === Footer 全站透明（日间/夜间一致）+ 白字 === */
+#footer {
+  background-color: transparent !important;
 }
 #footer,
-#footer > * {
-  color: #000 !important;
-}
+#footer > *,
 #footer a {
-  color: #000 !important;
+  color: #fff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.55);
 }
-#footer {
-  background-color: rgba(255,255,255,0.85) !important;
-  color: #000 !important;
-}
-#footer > * {
-  color: #000 !important;
-}
-#footer a {
-  color: #000 !important;
+#footer a:hover {
+  color: rgba(255,255,255,0.8) !important;
 }
 
 /* === 标签分散排列 === */
@@ -201,14 +189,7 @@ body,
   background: transparent !important;
 }
 [data-theme='dark'] #footer {
-  background-color: rgba(0,0,0,0.15) !important;
-  color: #fff !important;
-}
-[data-theme='dark'] #footer > * {
-  color: #fff !important;
-}
-[data-theme='dark'] #footer a {
-  color: #fff !important;
+  background-color: transparent !important;
 }
 [data-theme='dark'] #nav a,
 [data-theme='dark'] #nav span.site-page,
