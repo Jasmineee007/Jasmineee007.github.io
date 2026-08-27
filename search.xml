@@ -1569,24 +1569,49 @@ Q3：页面存在&lt;form&gt;标签，SET 依然抓不到密码是什么原因�
     <url>/2026/06/22/PHP-MD5%E7%89%B9%E6%80%A7%E5%88%A9%E7%94%A8/</url>
     <content><![CDATA[一、[Bugku CTF] MD51. 题目
 
-2. 解题思路1、 在题目页面，发现有一个下载文件
-2、 代码审计，md5
+
+
+2. 解题思路
+在题目页面，发现有一个下载文件
+
+
+
+
+代码审计，md5
+
+
+
 &lt;?php$md51 = md5(&#x27;QNKCDZO&#x27;); // 计算固定字符串的MD5，结果是0e83040045199491692543859291139$a = @$_GET[&#x27;a&#x27;];       // 接收GET参数a，@抑制错误$md52 = @md5($a);       // 计算a的MD5，@抑制错误if(isset($a))&#123;          // 检查是否传入参数a    if ($a != &#x27;QNKCDZO&#x27; &amp;&amp;$md51 ==$md52) &#123; // 核心条件：a≠QNKCDZO 且 两者MD5相等        echo &quot;flag**************&quot;; // 满足条件输出flag    &#125; else &#123;        echo &quot;false!!!&quot;;    &#125;&#125; else&#123;    echo &quot;please input a&quot;; // 未传a则提示&#125;?&gt;
 
-PHP MD5弱类型比较漏洞：
-1. `md5(&#39;QNKCDZO&#39;)` 的结果是 `0e83040045199491692543859291139`，以`0e`开头，PHP会将其解析为**科学计数法的0**；
-2. 只要找一个**不等于`QNKCDZO`*的字符串，其MD5也以`0e`开头，就能满足 `$md51 ==$md52`；
-3. 也可以用**数组绕过**（更通用）：`md5(数组)`返回`NULL`，但这里优先用经典的`0e`字符串解法。
 
-3、 访问网页，它让我输入a。
-4、 经典0e字符串
+
+Q1：PHP MD5弱类型比较漏洞
+
+md5(‘QNKCDZO’) 的结果是 0e83040045199491692543859291139，以0e开头，PHP会将其解析为科学计数法的0；
+只要找一个不等于QNKCDZO的字符串，其MD5也以0e开头，就能满足 $md51 &#x3D;&#x3D;$md52；
+也可以用数组绕过（更通用）：md5(数组)返回NULL，但这里优先用经典的0e字符串解法。
+
+
+
+访问网页，它让我输入a。
+
+经典0e字符串
+
+
 找MD5以0e开头且不等于QNKCDZO的字符串，常用的有：
 ?a=s878926199a?a=240610708
 
-5、 拿到flag
 
-二、[ctf.show] web5题目
-解题步骤
+
+
+拿到flag
+
+
+
+
+二、[ctf.show] web51. 题目
+
+2. 解题步骤
 读代码：
 
 &lt;?php$flag=&quot;&quot;;$v1=$_GET[&#x27;v1&#x27;];$v2=$_GET[&#x27;v2&#x27;];if(isset($v1) &amp;&amp; isset($v2))&#123;    if(!ctype_alpha($v1))&#123;        die(&quot;v1 error&quot;);    &#125;    if(!is_numeric($v2))&#123;        die(&quot;v2 error&quot;);    &#125;    if(md5($v1)==md5($v2)&#123;        echo $flag;    &#125;&#125;?&gt;
@@ -1598,9 +1623,13 @@ $v1 == $v2：使用了 PHP 的弱类型比较 ==，这是本题的突破口。
 
 
 所以要找两个不同的字符串，一个是纯字母，一个是纯数字，它们md5哈希值在弱类型下判定为0
+
 0e 开头的 MD5 哈希值以及对应的原始明文：
 
+
 // 原始值 =&gt; MD5哈希$vulnerable_pairs = [    &quot;240610708&quot; =&gt; &quot;0e462097431906509019562988736854&quot;,    &quot;QNKCDZO&quot;   =&gt; &quot;0e830400451993494058024219903391&quot;,    &quot;aabg7XSs&quot;  =&gt; &quot;0e087386482136013740957780965295&quot;,    &quot;aabC9RqS&quot;  =&gt; &quot;0e041022518165728065344349536299&quot;,    &quot;s878926199a&quot; =&gt; &quot;0e545993274517709034328855841020&quot;,    &quot;s155964671a&quot; =&gt; &quot;0e342768416822451524974117254469&quot;,];
+
+
 
 
 访问如下 URL 即可触发条件并获取 Flag：
@@ -1610,11 +1639,21 @@ QNKCDZO 240610708
 http://63a977ac-9022-493d-a0ff-b3294262a7be.challenge.ctf.show/?v1=QNKCDZO&amp;v2=240610708
 
 
+
+
 三、[BJDCTF2020]Easy MD51. 题目
+
 2. 解题思路
 随便输入点东西点击“提交查询”发现没有任何回显，所以这里查看一下页面源代码，看一下是否有提示
+
 看到header联想到HTTP的头
+
+
+
+
+
 浏览器开发者工具，在消息头中找到线索hint
+
 
 
 select * from &#x27;admin&#x27; where password=md5($pass,true)
@@ -1623,17 +1662,20 @@ select * from &#x27;admin&#x27; where password=md5($pass,true)
 select * from &#x27;admin&#x27; where password=&#x27;&#x27; or &#x27;
 
 
+
+
 payload： ffifdyop
 
 
 md5($pass, true) 会返回 16 位原始二进制字符串，而非 32 位十六进制字符串。
-Payload 原理：输入字符串 ffifdyop 时，md5(&#39;ffifdyop&#39;, true) 生成的二进制字符串开头为 &#39;or&#39;6，拼接后 SQL 语句变为：
 
+Q2：ffifdyop原理输入字符串 ffifdyop 时，md5(&#39;ffifdyop&#39;, true) 生成的二进制字符串开头为 &#39;or&#39;6，拼接后 SQL 语句变为：
 select * from admin where password=&#x27;or&#x27;6xxxxxxxx
 
-or 后面非空字符串 &#39;6xxx&#39; 等价 true 整个条件恒成立，构造永真条件，绕过密码验证。
+&lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;or&lt;/font&gt; 后面非空字符串 &lt;font style=&quot;color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);&quot;&gt;&#39;6xxx&#39;&lt;/font&gt; 等价 true 整个条件恒成立，构造永真条件，绕过密码验证。
 
 查看页面源代码
+
 
 
 PHP 中 == 是弱类型比较，以 0e 开头的字符串会被解析为科学计数法（值为 0），不同字符串的 MD5 若均以 0e 开头，比较结果为真。
@@ -1646,6 +1688,7 @@ Payload（任选其一）：
 ?a=QNKCDZO&amp;b=240610708
 
 
+
 - 数组绕过：
 
 ?a[]=1&amp;b[]=2
@@ -1655,13 +1698,19 @@ Payload（任选其一）：
 用POST方法传递数值，不能用GET方式
 
 
+
 param1[]=1&amp;param2[]=2
 
 
+
+
 四、[CTFShow]web91. 题目
+
 2. 解题思路
 尝试登录，盲猜密码，无报错，无反应。
+
 找源码泄露，先试最常见的泄露路径：
+
 
 
 index.php
@@ -1672,7 +1721,10 @@ index.phps
 
 
 访问 index.phps 成功拿到源码。
+
 分析源码
+
+
 
 
 从泄露的源码里，看到核心逻辑：
@@ -1690,10 +1742,14 @@ $sql = &quot;select * from user where username =&#x27;admin&#x27; and password =
 select * from user where username =&#x27;admin&#x27; and password =&#x27;&#x27;or&#x27;6xxxx&#x27;
 
 
+
+
 输入 ffifdyop ，拿到flag
 
 
-3. 知识点总结常见Web源码泄露场景3.1 核心区分
+
+
+3. 知识点总结Q3：常见Web源码泄露场景3.1 核心区分
 
 
 文件类型
@@ -1749,6 +1805,21 @@ Emacs等编辑器自动生成的备份文件
 敏感路径提示
 robots.txt
 网站声明的禁止爬虫路径，可能泄露后台&#x2F;源码路径
+
+
+
+五、Easy MD5 11. 题目
+
+2. 解题思路
+username !&#x3D; password（还得互不相等）
+但 md5(username) &#x3D;&#x3D;&#x3D; md5(password) 必须成立 —— 注意是三个等号的严格比较
+
+Q4：MD5 强比较绕过数组绕过
+
+payload
+
+username[]=1&amp;password[]=2
+
 
 
 ]]></content>
