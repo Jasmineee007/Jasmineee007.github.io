@@ -1814,7 +1814,7 @@ robots.txt
 username !&#x3D; password（还得互不相等）
 但 md5(username) &#x3D;&#x3D;&#x3D; md5(password) 必须成立 —— 注意是三个等号的严格比较
 
-Q4：MD5 强比较绕过数组绕过
+Q4：MD5 强比较绕过数组绕过： PHP 中 md5(数组) 不会报错，返回 NULL
 
 payload
 
