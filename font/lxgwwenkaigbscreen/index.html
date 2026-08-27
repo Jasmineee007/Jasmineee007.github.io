@@ -1,0 +1,641 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Jasmine_Iris | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="body {             overflow-wrap: break-word;             font-size: 18px;         }         h3 {             font-family:">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Jasmine_Iris">
+<meta property="og:url" content="https://jasmine-iris.top/font/lxgwwenkaigbscreen/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="body {             overflow-wrap: break-word;             font-size: 18px;         }         h3 {             font-family:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/img/photo.png">
+<meta property="article:published_time" content="2026-08-27T08:26:48.115Z">
+<meta property="article:modified_time" content="2026-08-27T08:26:48.115Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/img/photo.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="https://img.jasmine-iris.top/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/font/lxgwwenkaigbscreen/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Jasmine_Iris',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="preload" as="style" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="stylesheet" href="/css/light-bg13.css?v=8"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://img.jasmine-iris.top/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page fixed" id="page-header" style="background: transparent;"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title"></h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container">
+
+    
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title></title>
+    
+
+    <style>
+        body {
+            overflow-wrap: break-word;
+            font-size: 18px;
+        }
+        h3 {
+            font-family:
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                Roboto,
+                Oxygen,
+                Ubuntu,
+                Cantarell,
+                'Open Sans',
+                'Helvetica Neue',
+                sans-serif;
+            font-weight: normal;
+        }
+    </style>
+
+    
+    <script type="module">
+        import {
+            createSignal,
+            createResource,
+            onMount,
+            createEffect,
+        } from 'https://esm.sh/solid-js';
+        import html from 'https://esm.sh/solid-js/html';
+        import prettyBytes from 'https://esm.sh/pretty-bytes';
+        import { UnicodeRange } from 'https://esm.sh/@japont/unicode-range@1.0.0';
+        /** 延迟获取 Echarts*/
+        const getECharts = () =>
+            import('https://esm.sh/echarts@5.3.3/dist/echarts.esm.min.js');
+        const getFontData = (nameTable) =>
+            Object.fromEntries(
+                Object.entries(nameTable).map(([key, val]) => {
+                    return [key, typeof val === 'string' ? val : val.en];
+                }),
+            );
+        const range = [
+            ['基本汉字', 0x4e00, 0x9fa5],
+            ['基本汉字补充', 0x9fa6, 0x9fff],
+            ['扩展A', 0x3400, 0x4dbf],
+            ['扩展B', 0x20000, 0x2a6df],
+            ['扩展C', 0x2a700, 0x2b738],
+            ['扩展D', 0x2b740, 0x2b81d],
+            ['扩展E', 0x2b820, 0x2cea1],
+            ['扩展F', 0x2ceb0, 0x2ebe0],
+            ['扩展G', 0x30000, 0x3134a],
+            ['康熙部首', 0x2f00, 0x2fd5],
+            ['部首扩展', 0x2e80, 0x2ef3],
+            ['兼容汉字', 0xf900, 0xfad9],
+            ['兼容扩展', 0x2f800, 0x2fa1d],
+            ['PUA(GBK)部件', 0xe815, 0xe86f],
+            ['部件扩展', 0xe400, 0xe5e8],
+            ['PUA增补', 0xe600, 0xe6cf],
+            ['汉字笔画', 0x31c0, 0x31e3],
+            ['汉字结构', 0x2ff0, 0x2ffb],
+            ['汉语注音', 0x3105, 0x312f],
+            ['注音扩展', 0x31a0, 0x31ba],
+            ['〇', 0x3007, 0x3007],
+        ];
+
+        const RangeAnalyze = (data) => {
+            const total = data.reduce((col, cur) => {
+                if (cur.chars.startsWith('U+')) {
+                    return (
+                        col +
+                        String.fromCodePoint(
+                            ...UnicodeRange.parse(cur.chars.split(',')),
+                        )
+                    );
+                }
+                return col + cur.chars;
+            }, '');
+            const result = range.map(([name, min, max]) => {
+                let exist = '';
+                let voids = '';
+                for (let i = min; i <= max; i++) {
+                    const char = String.fromCodePoint(i);
+                    const isExist = total.includes(char);
+                    if (isExist) {
+                        exist += char;
+                    } else {
+                        voids += char;
+                    }
+                }
+                return [name, exist, voids];
+            });
+            return html`
+                <table style="width:80%;margin:auto;padding:1rem">
+                    <thead>
+                        <tr>
+                            <th>位置</th>
+                            <th>存在</th>
+                            <th>不存在</th>
+                            <th>覆盖率</th>
+                        </tr>
+                    </thead>
+                    ${result.map(([name, exist, voids]) => {
+                        const coverage =
+                            (exist.length * 100) /
+                            (exist.length + voids.length);
+                        return html`
+                            <tr>
+                                <td>${name}</td>
+                                <td>${exist.length}</td>
+                                <td>${voids.length}</td>
+                                <td>${coverage.toFixed(2)}%</td>
+                            </tr>
+                        `;
+                    })}
+                </table>
+            `;
+        };
+
+        const TimeAnalyze = (record, message) => {
+            record.pop(); // 最后一个记录是没有用的
+            const total = record.reduce(
+                (col, cur) => col + cur.end - cur.start,
+                0,
+            );
+            let chartDom;
+            // console.log(record, total);
+
+            onMount(() => {
+                // 问就是渲染代价太大，等 1000ms 让浏览器冷静一下
+                setTimeout(async () => {
+                    const echarts = await getECharts();
+                    let myChart = echarts.init(chartDom);
+                    let option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow',
+                            },
+                        },
+                        title: {
+                            text: '打包时间分布图',
+                            subtext: `时间为 ms; 总时间 ${total} ms;\n${message.fontFamily}`,
+                        },
+                        legend: {
+                            top: '15%',
+                        },
+                        grid: {
+                            left: '10%',
+                            right: '10%',
+                            bottom: '30%',
+                            top: '30%',
+                        },
+                        xAxis: {
+                            type: 'value',
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: ['时间轴'],
+                        },
+                        series: record.map((i) => {
+                            return {
+                                name: i.name,
+                                type: 'bar',
+                                stack: 'total',
+                                label: {
+                                    show: true,
+                                },
+                                emphasis: {
+                                    focus: 'series',
+                                },
+                                data: [
+                                    parseFloat((i.end - i.start).toFixed(1)),
+                                ],
+                            };
+                        }),
+                    };
+
+                    option && myChart.setOption(option);
+                }, 1500);
+            });
+            return html`<div
+                ref=${function (dom) {
+                    chartDom = dom;
+                }}
+                style="width: 600px;height:400px;margin:auto"
+            ></div>`;
+        };
+        const DataAnalyze = (data, message) => {
+            const total = data.reduce((col, cur) => col + cur.size, 0);
+            // console.log(data, total);
+            let chartDom;
+            onMount(() => {
+                // 问就是渲染代价太大，等 1000ms 让浏览器冷静一下
+                setTimeout(async () => {
+                    const echarts = await getECharts();
+                    let myChart = echarts.init(chartDom);
+                    let option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter(data) {
+                                return (
+                                    `第 ${data.dataIndex + 1} 分包\n` +
+                                    data.data.name +
+                                    '\n' +
+                                    prettyBytes(data.data.value)
+                                );
+                            },
+                        },
+
+                        title: {
+                            text: message.fontFamily,
+                            subtext: `总共 ${
+                                data.length
+                            } 分包; 总大小 ${prettyBytes(
+                                total,
+                            )} 点击跳转查看；`,
+                            left: 'center',
+                        },
+                        series: [
+                            {
+                                name: '分包信息',
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                avoidLabelOverlap: false,
+                                itemStyle: {
+                                    borderRadius: 10,
+                                    borderColor: '#fff',
+                                    borderWidth: 2,
+                                },
+
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: '18',
+                                        fontWeight: 'bold',
+                                    },
+                                },
+                                labelLine: {
+                                    show: true,
+                                },
+                                label: {
+                                    show: true,
+                                    minMargin: 5,
+                                    edgeDistance: 10,
+                                    lineHeight: 15,
+                                    formatter(data) {
+                                        return (
+                                            (
+                                                (data.data.value * 100) /
+                                                total
+                                            ).toFixed(2) + '%'
+                                        );
+                                    },
+                                },
+                                data: data.map((i) => ({
+                                    value: i.size,
+                                    name: i.name.slice(0, 7),
+                                    hash: i.name,
+                                })),
+                            },
+                        ],
+                    };
+
+                    option && myChart.setOption(option);
+                    myChart.on('click', (data) => {
+                        document
+                            .getElementById(data.data.hash)
+                            .scrollIntoView();
+                    });
+                }, 300);
+            });
+            return html`<div
+                ref=${function (dom) {
+                    chartDom = dom;
+                }}
+                style="width: 600px;height:600px;margin:auto"
+            ></div>`;
+        };
+        const CharList = (data) => {
+            return data.map((i) => {
+                const chars = i.chars.startsWith('U+')
+                    ? String.fromCodePoint(
+                          ...UnicodeRange.parse(i.chars.split(',')),
+                      )
+                    : i.chars;
+                return html`<div>
+                    <h3 id="${i.name}">
+                        分片名称 ${i.name} | 分片大小 ${prettyBytes(i.size)}
+                    </h3>
+                    <p>${chars}</p>
+                </div>`;
+            });
+        };
+        const BaseMessage = (message) => {
+            return html`
+                <table style="margin:auto">
+                    ${Object.entries(message).map((i) => {
+                        return html`
+                            <tr>
+                                <td>${i[0]}</td>
+                                <td>${i[1]}</td>
+                            </tr>
+                        `;
+                    })}
+                </table>
+            `;
+        };
+        const App = () => {
+            const [data] = createResource(() =>
+                fetch('./reporter.json')
+                    .then((res) => res.json())
+                    .then((res) => {
+                        res.message =
+                            res.message.windows || res.message.macintosh;
+                        return res;
+                    }),
+            );
+            createEffect(() => {
+                if (data()) {
+                    console.log(data().message);
+                    document.body.style.fontFamily = `"${
+                        getFontData(data().message).fontFamily ||
+                        getFontData(data().message).preferredFamily
+                    }"`;
+
+                    document.querySelector('title').textContent = getFontData(
+                        data().message,
+                    ).fontFamily;
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href =
+                        './' + (data().config.cssFileName || 'result') + '.css';
+                    document.head.appendChild(link);
+                }
+            });
+            const content = () =>
+                html` <div>
+                        ${RangeAnalyze(
+                            data().data,
+                            getFontData(data().message),
+                        )}
+                        ${DataAnalyze(data().data, getFontData(data().message))}
+                        ${TimeAnalyze(
+                            data().record,
+                            getFontData(data().message),
+                        )}
+                        ${BaseMessage(getFontData(data().message))}
+                    </div>
+                    ${CharList(data().data)}`;
+            return html`<div>
+                ${() => (data.loading ? `<div>加载中</div>` : content())}
+            </div>`;
+        };
+
+        import { render } from 'https://esm.sh/solid-js/web';
+        render(App, document.body);
+    </script>
+
+</div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-08-21<br><br>最新文章：<br><a href="/2026/08/21/SQLi-Labs/">SQLi-Labs</a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/SQLi-Labs/" title="SQLi-Labs"><img src="https://img.jasmine-iris.top/posts/SQLi-Labs/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQLi-Labs" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/21/SQLi-Labs/" title="SQLi-Labs">SQLi-Labs</a><time datetime="2026-08-21T07:48:15.000Z" title="发表于 2026-08-21 15:48:15">2026-08-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough"><img src="https://img.jasmine-iris.top/posts/Basic_Pentesting_1_Walkthrough/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Basic Pentesting 1 Walkthrough" loading='lazy'></a><div class="content"><a class="title" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough">Basic Pentesting 1 Walkthrough</a><time datetime="2026-08-19T04:10:39.000Z" title="发表于 2026-08-19 12:10:39">2026-08-19</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list expandBtn" id="aside-cat-list">
+            <li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/CTF-WP/"><span class="card-category-list-name">CTF-WP</span><span class="card-category-list-count">2</span><i class="fas fa-caret-left expand"></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/CTF-WP/Contest-WP/"><span class="card-category-list-name">Contest-WP</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/CTF-WP/Lab-WP/"><span class="card-category-list-name">Lab-WP</span><span class="card-category-list-count">3</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/SecOps/"><span class="card-category-list-name">SecOps</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">Web安全</span><span class="card-category-list-count">10</span><i class="fas fa-caret-left expand"></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/CSRF/"><span class="card-category-list-name">CSRF</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/PHP/"><span class="card-category-list-name">PHP</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/RCE/"><span class="card-category-list-name">RCE</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/SQL/"><span class="card-category-list-name">SQL</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/SSRF/"><span class="card-category-list-name">SSRF</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/XSS/"><span class="card-category-list-name">XSS</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/%E5%BC%B1%E5%8F%A3%E4%BB%A4%E7%88%86%E7%A0%B4/"><span class="card-category-list-name">弱口令爆破</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"><span class="card-category-list-name">文件上传</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/"><span class="card-category-list-name">文件包含</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Web%E5%AE%89%E5%85%A8/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/"><span class="card-category-list-name">逻辑漏洞</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"><span class="card-category-list-name">内网渗透</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%94%BB%E9%98%B2%E5%AE%9E%E6%88%98/"><span class="card-category-list-name">攻防实战</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9A%8F%E7%AC%94/"><span class="card-category-list-name">随笔</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/"><span class="card-category-list-name">靶机练习</span><span class="card-category-list-count">2</span><i class="fas fa-caret-left expand"></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/vulhub/"><span class="card-category-list-name">vulhub</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/vulnhub/"><span class="card-category-list-name">vulnhub</span><span class="card-category-list-count">1</span></a></li></ul></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/CTF/" style="font-size: 1.5em; color: #99a9bf">CTF</a> <a href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" style="font-size: 1.1em; color: #999">文件上传</a> <a href="/tags/%E9%9D%B6%E6%9C%BA/" style="font-size: 1.1em; color: #999">靶机</a> <a href="/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" style="font-size: 1.1em; color: #999">流量分析</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 1.1em; color: #999">工具使用</a> <a href="/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" style="font-size: 1.1em; color: #999">应急响应</a> <a href="/tags/%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E/" style="font-size: 1.1em; color: #999">内核漏洞</a> <a href="/tags/%E9%9D%B6%E5%9C%BA/" style="font-size: 1.1em; color: #999">靶场</a> <a href="/tags/XSS/" style="font-size: 1.1em; color: #999">XSS</a> <a href="/tags/%E5%BC%B1%E5%8F%A3%E4%BB%A4/" style="font-size: 1.1em; color: #999">弱口令</a> <a href="/tags/%E6%8F%90%E6%9D%83/" style="font-size: 1.1em; color: #999">提权</a> <a href="/tags/SQL%E6%B3%A8%E5%85%A5/" style="font-size: 1.3em; color: #99a1ac">SQL注入</a> <a href="/tags/MSF/" style="font-size: 1.2em; color: #999da3">MSF</a> <a href="/tags/PHP/" style="font-size: 1.4em; color: #99a5b6">PHP</a> <a href="/tags/APT/" style="font-size: 1.1em; color: #999">APT</a> <a href="/tags/%E7%A4%BE%E5%B7%A5/" style="font-size: 1.1em; color: #999">社工</a> <a href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" style="font-size: 1.2em; color: #999da3">渗透测试</a> <a href="/tags/CS/" style="font-size: 1.1em; color: #999">CS</a> <a href="/tags/RCE/" style="font-size: 1.1em; color: #999">RCE</a> <a href="/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" style="font-size: 1.1em; color: #999">文件包含</a> <a href="/tags/%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6/" style="font-size: 1.1em; color: #999">钓鱼邮件</a> <a href="/tags/%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E/" style="font-size: 1.1em; color: #999">逻辑漏洞</a> <a href="/tags/CSRF/" style="font-size: 1.1em; color: #999">CSRF</a> <a href="/tags/SSRF/" style="font-size: 1.1em; color: #999">SSRF</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/08/">
+            <span class="card-archive-list-date">
+              八月 2026
+            </span>
+            <span class="card-archive-list-count">9</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/07/">
+            <span class="card-archive-list-date">
+              七月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/06/">
+            <span class="card-archive-list-date">
+              六月 2026
+            </span>
+            <span class="card-archive-list-count">12</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/05/">
+            <span class="card-archive-list-date">
+              五月 2026
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">25</div></div><div class="webinfo-item"><div class="item-name">运行时间 :</div><div class="item-count" id="runtimeshow" data-publishdate="2026-05-18T16:00:00.000Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总字数 :</div><div class="item-count">128.4k</div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastpushdate="2026-08-27T08:33:19.134Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/copy-feedback.js?v=1"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
