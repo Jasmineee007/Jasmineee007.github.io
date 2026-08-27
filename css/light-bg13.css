@@ -574,3 +574,32 @@ input, textarea, [contenteditable="true"] {
 .copy-success-inline.fail {
   color: #d4687c;
 }
+
+/* === 文章页侧栏「本文浏览」单行小卡（pv-post.js 注入） === */
+.card-pv-post {
+  padding: 13px 22px !important;
+}
+.card-pv-post .pv-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.93em;
+  line-height: 1.2;
+}
+.card-pv-post .pv-row > .fa-eye {
+  opacity: 0.55;
+}
+.card-pv-post .pv-label {
+  color: var(--font-color);
+  opacity: 0.8;
+}
+.card-pv-post .pv-count {
+  margin-left: auto;
+  font-size: 1.15em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #49b1f5;
+}
+[data-theme='dark'] .card-pv-post .pv-count {
+  color: #6ec6ff;
+}
