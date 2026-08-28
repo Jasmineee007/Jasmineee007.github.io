@@ -40,9 +40,39 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* === 全站卡片透明 === */
+/* === 全站卡片：毛玻璃 + 分层软阴影（立体感）=== */
 :root {
-  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: rgba(255, 255, 255, 0.64);
+  --card-box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 16px 36px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .45);
+  --card-hover-box-shadow: 0 4px 8px rgba(0, 0, 0, .10), 0 28px 56px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.recent-post-item,
+.card-widget,
+#article-container {
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid rgba(255, 255, 255, .4);
+}
+[data-theme='dark'] .recent-post-item,
+[data-theme='dark'] .card-widget,
+[data-theme='dark'] #article-container {
+  border-color: rgba(255, 255, 255, .07);
+}
+
+/* === 首页文章卡悬浮上浮 === */
+.recent-post-item:hover {
+  transform: translateY(-8px);
+}
+
+/* === 滚动入场动画（scroll-reveal.js 配套，只播一次）=== */
+html.reveal-init .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+}
+html.reveal-init .reveal-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .55s ease, transform .55s ease;
 }
 
 /* === 首页文章卡片 === */
@@ -177,9 +207,11 @@ body,
 [data-theme='dark'] #web_bg::after {
   background: rgba(0, 0, 0, 0.06);
 }
-/* 卡片：磨砂深色（原 0.2 太透，卡片与背景糊成一团） */
+/* 卡片：磨砂深色（毛玻璃透一些，配合 backdrop blur） */
 [data-theme='dark'] {
-  --card-bg: rgba(30, 30, 42, 0.72) !important;
+  --card-bg: rgba(30, 30, 42, 0.55) !important;
+  --card-box-shadow: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08);
+  --card-hover-box-shadow: 0 4px 8px rgba(0, 0, 0, .40), 0 28px 56px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .10);
 }
 [data-theme='dark'] body {
   background: transparent !important;
@@ -625,7 +657,7 @@ input, textarea, [contenteditable="true"] {
 /* === 侧栏「今日诗签」暖阳小卡（poem-card.js 注入，公告卡下方）=== */
 .card-poem {
   padding: 18px 20px !important;
-  background: linear-gradient(165deg, rgba(255, 243, 214, .82) 0%, rgba(255, 233, 210, .78) 55%, rgba(253, 226, 220, .76) 100%) !important;
+  background: linear-gradient(165deg, rgba(255, 243, 214, .62) 0%, rgba(255, 233, 210, .58) 55%, rgba(253, 226, 220, .56) 100%) !important;
   border: 1px solid rgba(240, 196, 120, .38);
   overflow: hidden;
 }
@@ -664,7 +696,7 @@ input, textarea, [contenteditable="true"] {
   color: #9c7a4a;
 }
 [data-theme='dark'] .card-poem {
-  background: linear-gradient(165deg, rgba(58, 49, 33, .72) 0%, rgba(48, 43, 40, .72) 100%) !important;
+  background: linear-gradient(165deg, rgba(58, 49, 33, .55) 0%, rgba(48, 43, 40, .55) 100%) !important;
   border-color: rgba(245, 176, 65, .22);
 }
 [data-theme='dark'] .card-poem .poem-sun {
