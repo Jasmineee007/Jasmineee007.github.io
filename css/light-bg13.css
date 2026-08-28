@@ -630,11 +630,23 @@ input, textarea, [contenteditable="true"] {
   overflow: hidden;
 }
 .card-poem .poem-sun {
-  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   color: #f5a623;
   font-size: 15px;
   margin-bottom: 10px;
   text-shadow: 0 1px 4px rgba(245, 166, 35, .35);
+}
+.card-poem .poem-time {
+  font-size: 13px;
+  color: #c08a3e;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .5px;
+  text-shadow: none;
+}
+[data-theme='dark'] .card-poem .poem-time {
+  color: #e8c064;
 }
 .card-poem .poem-sun i {
   display: inline-block;
