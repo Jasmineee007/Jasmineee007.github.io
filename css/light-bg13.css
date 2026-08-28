@@ -397,6 +397,24 @@ body,
   color: #9ca3af;
 }
 
+/* === 网站运行实时计时：数字等宽 + 强制单行（名字列不折、值列弹性右对齐）=== */
+#runtimeshow {
+  font-variant-numeric: tabular-nums;
+}
+.card-webinfo .webinfo-item {
+  flex-wrap: nowrap !important;
+}
+.card-webinfo .webinfo-item .item-name {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+.card-webinfo .webinfo-item .item-count {
+  flex: 1 1 auto !important;
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap !important;
+}
+
 /* === 友链页引导语与卡片间距 === */
 #article-container .flink > p:first-of-type {
   margin-top: 40px;
@@ -602,4 +620,45 @@ input, textarea, [contenteditable="true"] {
 }
 [data-theme='dark'] .card-pv-post .pv-count {
   color: #6ec6ff;
+}
+
+/* === 侧栏「今日诗签」暖阳小卡（poem-card.js 注入，公告卡下方）=== */
+.card-poem {
+  padding: 18px 20px !important;
+  background: linear-gradient(165deg, rgba(255, 243, 214, .82) 0%, rgba(255, 233, 210, .78) 55%, rgba(253, 226, 220, .76) 100%) !important;
+  border: 1px solid rgba(240, 196, 120, .38);
+  overflow: hidden;
+}
+.card-poem .poem-sun {
+  text-align: left;
+  color: #f5a623;
+  font-size: 15px;
+  margin-bottom: 10px;
+  text-shadow: 0 1px 4px rgba(245, 166, 35, .35);
+}
+.card-poem .poem-sun i {
+  display: inline-block;
+  animation: poem-sun-spin 14s linear infinite;
+}
+@keyframes poem-sun-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.card-poem .poem-text {
+  text-align: left;
+  font-size: .86em;
+  line-height: 2.1;
+  letter-spacing: .5px;
+  color: #9c7a4a;
+}
+[data-theme='dark'] .card-poem {
+  background: linear-gradient(165deg, rgba(58, 49, 33, .72) 0%, rgba(48, 43, 40, .72) 100%) !important;
+  border-color: rgba(245, 176, 65, .22);
+}
+[data-theme='dark'] .card-poem .poem-sun {
+  color: #e8c064;
+  text-shadow: 0 1px 4px rgba(232, 192, 100, .25);
+}
+[data-theme='dark'] .card-poem .poem-text {
+  color: #d9c49a;
 }
