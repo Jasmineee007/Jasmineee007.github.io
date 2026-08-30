@@ -11953,7 +11953,7 @@ Level 16
 
 Level 17
 
-1.  标签注入&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level17&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level17&lt;/h1&gt;&lt;?phpini_set(&quot;display_errors&quot;, 0);echo &quot;&lt;embed src=xsf01.swf?&quot;.htmlspecialchars($_GET[&quot;arg01&quot;]).&quot;=&quot;.htmlspecialchars($_GET[&quot;arg02&quot;]).&quot; width=100% heigth=100%&gt;&quot;;?&gt;&lt;h2 align=center&gt;成功后，&lt;a href=level18.php?arg01=a&amp;arg02=b&gt;点我进入下一关&lt;/a&gt;&lt;/h2&gt;&lt;/body&gt;&lt;/html&gt;
+1. &lt;embed&gt; 标签注入&lt;!DOCTYPE html&gt;&lt;!--STATUS OK--&gt;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot;&gt;&lt;script&gt;window.alert = function()  &#123;     confirm(&quot;完成的不错！&quot;); &#125;&lt;/script&gt;&lt;title&gt;欢迎来到level17&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;h1 align=center&gt;欢迎来到level17&lt;/h1&gt;&lt;?phpini_set(&quot;display_errors&quot;, 0);echo &quot;&lt;embed src=xsf01.swf?&quot;.htmlspecialchars($_GET[&quot;arg01&quot;]).&quot;=&quot;.htmlspecialchars($_GET[&quot;arg02&quot;]).&quot; width=100% heigth=100%&gt;&quot;;?&gt;&lt;h2 align=center&gt;成功后，&lt;a href=level18.php?arg01=a&amp;arg02=b&gt;点我进入下一关&lt;/a&gt;&lt;/h2&gt;&lt;/body&gt;&lt;/html&gt;
 
 
 
