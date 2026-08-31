@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>反馈中心 - Jasmine_Iris</title>
+<link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e1420;--card:rgba(28,34,50,.82);--glass:rgba(23,30,48,.55);
+  --veil:rgba(8,12,22,0);--text:#e2e8f0;--muted:#8b99b0;
+  --primary:#49b1f5;--primary2:#2b8fd9;--border:rgba(255,255,255,.1);
+  --green:#16a34a;--greenbg:rgba(22,163,74,.12);--red:#dc2626;--redbg:rgba(220,38,38,.1);
+  --bluebg:rgba(73,177,245,.1);--amber:#d97706;--amberbg:rgba(217,119,6,.1);
+  --shadow:0 2px 4px rgba(0,0,0,.08),0 16px 36px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.1);
+}
+body{font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue','Microsoft YaHei',sans-serif;background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),url("https://img.jasmine-iris.top/img/bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);line-height:1.65;font-size:14.5px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.glass-card{background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:var(--shadow);border:1px solid var(--border);border-radius:16px;padding:40px 44px;max-width:540px;width:92%;position:relative;overflow:hidden}
+.glass-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#49b1f5,#00c4b6,#7c5fdb);border-radius:16px 16px 0 0}
+
+/* 标题区 */
+.header{text-align:center;margin-bottom:32px}
+.header .icon{font-size:42px;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 12px rgba(73,177,245,.5))}
+.header h1{font-size:22px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--muted)}
+
+/* 漏洞类型选择 */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.type-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s ease;user-select:none}
+.type-btn:hover{background:rgba(73,177,245,.1);border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+.type-btn.active{background:var(--bluebg);border-color:var(--primary);color:var(--primary);font-weight:600}
+.type-btn .emoji{font-size:16px;display:block;margin-bottom:2px}
+
+/* 严重程度 */
+.rating-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.rating-row label{font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.stars{display:flex;gap:6px}
+.star{font-size:22px;cursor:pointer;color:var(--border);transition:color .15s,transform .15s;user-select:none;line-height:1}
+.star.lit{color:#f59e0b;transform:scale(1.15)}
+.star:hover{transform:scale(1.2)}
+.rating-hint{font-size:12px;color:var(--muted);margin-left:auto}
+
+/* 描述框 */
+textarea{width:100%;min-height:110px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(73,177,245,.15)}
+textarea::placeholder{color:var(--muted);opacity:.7}
+
+/* 联系方式 */
+.contact-row{display:flex;gap:10px;margin-bottom:24px}
+.contact-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.contact-row input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(73,177,245,.15)}
+.contact-row input::placeholder{color:var(--muted);opacity:.7}
+
+/* 提交按钮 */
+.submit-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#49b1f5 0%,#2b8fd9 100%);color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s ease;letter-spacing:.5px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(43,143,217,.4)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(43,143,217,.5)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn.sending{opacity:.7;pointer-events:none}
+.submit-btn.success{background:linear-gradient(135deg,#16a34a 0%,#15803d 100%)}
+
+/* 成功动画 */
+.success-overlay{position:absolute;inset:0;background:var(--glass);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;border-radius:16px}
+.success-overlay.show{opacity:1;pointer-events:auto}
+.success-overlay .check{font-size:56px;line-height:1;margin-bottom:12px;animation:bounceIn .5s ease}
+.success-overlay .msg{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.success-overlay .sub{font-size:13px;color:var(--muted)}
+
+@keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* 页脚 */
+.footer{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);opacity:.6}
+
+/* 保密提示 */
+.privacy{font-size:11px;color:var(--muted);opacity:.6;text-align:center;margin-top:10px;letter-spacing:.3px}
+</style>
+</head>
+<body>
+<div class="glass-card">
+  <div class="header">
+    <div class="icon">📮</div>
+    <h1>意见箱</h1>
+    <p>巩固学习路上的每一个反馈都很重要</p>
+  </div>
+
+  <div class="field">
+    <label>反馈类型</label>
+    <div class="type-grid">
+      <div class="type-btn active" data-type="suggest" onclick="selectType(this)">
+        <span class="emoji">💡</span>功能建议
+      </div>
+      <div class="type-btn" data-type="error" onclick="selectType(this)">
+        <span class="emoji">🔍</span>内容纠错
+      </div>
+      <div class="type-btn" data-type="new" onclick="selectType(this)">
+        <span class="emoji">📝</span>新题推荐
+      </div>
+      <div class="type-btn" data-type="bug" onclick="selectType(this)">
+        <span class="emoji">🐛</span>体验问题
+      </div>
+      <div class="type-btn" data-type="other" onclick="selectType(this)">
+        <span class="emoji">💬</span>其他
+      </div>
+      <div class="type-btn" data-type="praise" onclick="selectType(this)">
+        <span class="emoji">🙌</span>正向鼓励
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>影响程度</label>
+    <div class="rating-row">
+      <label>重要度</label>
+      <div class="stars">
+        <span class="star" data-v="1" onclick="setRating(1)">★</span>
+        <span class="star" data-v="2" onclick="setRating(2)">★</span>
+        <span class="star" data-v="3" onclick="setRating(3)">★</span>
+        <span class="star" data-v="4" onclick="setRating(4)">★</span>
+        <span class="star" data-v="5" onclick="setRating(5)">★</span>
+      </div>
+      <span class="rating-hint" id="ratingHint">一般</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>详细描述</label>
+    <textarea id="detail" placeholder="请详细描述您的反馈内容，越具体越有助于改进~"></textarea>
+  </div>
+
+  <div class="field">
+    <label>联系方式（选填）</label>
+    <div class="contact-row">
+      <input type="text" id="contact" placeholder="邮箱 / QQ / 微信（选填）">
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submit()">
+    🚀 提交反馈
+  </button>
+
+  <p class="privacy">🔒 内容仅发送至博主私人邮箱，不公开显示</p>
+
+  <div class="success-overlay" id="successOverlay">
+    <div class="check">✅</div>
+    <div class="msg">反馈已提交</div>
+    <div class="sub">感谢您的反馈，会认真阅读！</div>
+  </div>
+</div>
+
+<script>
+let selectedType = 'suggest';
+let rating = 3;
+
+const hints = ['','微乎其微','较小','一般','重要','关键'];
+
+function selectType(el) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedType = el.dataset.type;
+}
+
+function setRating(v) {
+  rating = v;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('lit', parseInt(s.dataset.v) <= v);
+  });
+  document.getElementById('ratingHint').textContent = hints[v];
+}
+
+// 初始化默认星级
+setRating(3);
+
+function submit() {
+  const detail = document.getElementById('detail').value.trim();
+  if (!detail) {
+    document.getElementById('detail').focus();
+    return;
+  }
+
+  const typeMap = {
+    suggest:'功能建议',error:'内容纠错',new:'新题推荐',
+    bug:'体验问题',other:'其他',praise:'正向鼓励'
+  };
+  const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+
+  const subject = encodeURIComponent(`[SecLearn反馈] ${typeMap[selectedType]} ${stars}`);
+  const typeLabel = typeMap[selectedType];
+  const contact = document.getElementById('contact').value.trim();
+  const contactLine = contact ? `\n联系方式：${contact}` : '';
+
+  const body = encodeURIComponent(
+`【反馈类型】${typeLabel}
+【重要程度】${stars}（${hints[rating]}）
+【详细内容】
+${detail}${contactLine}
+`
+  );
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('sending');
+  btn.textContent = '⏳ 正在跳转...';
+
+  // 延迟跳转，显示成功动画
+  setTimeout(() => {
+    btn.classList.add('success');
+    btn.textContent = '✅ 跳转中...';
+    document.getElementById('successOverlay').classList.add('show');
+
+    window.location.href = `mailto:jasmine_iris@qq.com?subject=${subject}&body=${body}`;
+  }, 600);
+
+  // 无论如何都显示成功
+  setTimeout(() => {
+    btn.classList.remove('sending');
+    btn.textContent = '🚀 重新提交';
+  }, 3000);
+}
+</script>
+</body>
+</html>
