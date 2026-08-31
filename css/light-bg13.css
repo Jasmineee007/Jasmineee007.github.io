@@ -596,10 +596,10 @@ body,
   text-align: left;
 }
 
-/* === 自定义光标（初音未来 Miku × Cinnamoroll 光标，48px，全站单图）=== */
-/* 热点坐标 22 4 = 箭头尖端位置，保证点击点与视觉尖端对齐（否则默认热点是图片左上角，点不准） */
+/* === 自定义光标（叶子箭头森林像素光标，48px，全站单图）=== */
+/* 热点坐标 1 1 = 箭头尖端位置，保证点击点与视觉尖端对齐（否则默认热点是图片左上角，点不准） */
 html, body, body * {
-  cursor: url("https://img.jasmine-iris.top/img/miku-cinnamoroll-arrow-48.png") 22 4, default !important;
+  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-48.png") 1 1, default !important;
 }
 
 /* 文本输入框保留文本光标 */
