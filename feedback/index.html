@@ -68,6 +68,14 @@ textarea::placeholder{color:var(--muted);opacity:.7}
 .success-overlay .check{font-size:56px;line-height:1;margin-bottom:12px;animation:bounceIn .5s ease}
 .success-overlay .msg{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
 .success-overlay .sub{font-size:13px;color:var(--muted)}
+.overlay-actions{display:flex;gap:10px;margin-top:22px}
+.overlay-actions a,.overlay-actions button{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px 18px;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;text-decoration:none;transition:all .2s ease}
+.overlay-actions a:hover,.overlay-actions button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+.overlay-actions .primary{background:linear-gradient(135deg,#49b1f5,#2b8fd9);border:none;color:#fff;font-weight:600}
+.overlay-actions .primary:hover{color:#fff;box-shadow:0 4px 14px rgba(43,143,217,.4)}
+.fly-rocket{position:fixed;z-index:999;font-size:30px;line-height:1;pointer-events:none;opacity:0}
+.fly-rocket.go{opacity:1;animation:flyUp .9s cubic-bezier(.2,.6,.2,1) forwards}
+@keyframes flyUp{0%{transform:translate(-50%,-50%);opacity:1}70%{transform:translate(-50%,-50%) translateY(-46vh) rotate(35deg);opacity:1}100%{transform:translate(-50%,-50%) translateY(-72vh) rotate(45deg);opacity:0}}
 
 @keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
@@ -84,7 +92,22 @@ textarea::placeholder{color:var(--muted);opacity:.7}
   <div class="header">
     <div class="icon">📮</div>
     <h1>意见箱</h1>
-    <p>巩固学习路上的每一个反馈都很重要</p>
+    <p>你的每一条反馈，都会飞向博主的邮箱</p>
+  </div>
+
+  <div class="field">
+    <label>反馈项目</label>
+    <div class="type-grid">
+      <div class="type-btn project-btn active" data-proj="seclearn" onclick="selectProject(this)">
+        <span class="emoji">🎓</span>SecLearn
+      </div>
+      <div class="type-btn project-btn" data-proj="blog" onclick="selectProject(this)">
+        <span class="emoji">✍️</span>博客
+      </div>
+      <div class="type-btn project-btn" data-proj="other" onclick="selectProject(this)">
+        <span class="emoji">🧩</span>其他
+      </div>
+    </div>
   </div>
 
   <div class="field">
@@ -145,23 +168,48 @@ textarea::placeholder{color:var(--muted);opacity:.7}
   <p class="privacy">🔒 内容仅发送至博主私人邮箱，不公开显示</p>
 
   <div class="success-overlay" id="successOverlay">
-    <div class="check">✅</div>
-    <div class="msg">反馈已提交</div>
-    <div class="sub">感谢您的反馈，会认真阅读！</div>
+    <div class="check">📨</div>
+    <div class="msg">反馈已发射！</div>
+    <div class="sub">你的想法正乘着纸飞机飞向博主邮箱</div>
+    <div class="overlay-actions">
+      <a class="primary" href="/">返回首页</a>
+      <button onclick="resetForm()">再写一条</button>
+    </div>
   </div>
 </div>
 
 <script>
 let selectedType = 'suggest';
 let rating = 3;
+let project = 'seclearn';
 
+const projects = { seclearn:'SecLearn 刷题平台', blog:'Jasmine_Iris 博客', other:'其他项目' };
 const hints = ['','微乎其微','较小','一般','重要','关键'];
 
 function selectType(el) {
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.type-btn[data-type]').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   selectedType = el.dataset.type;
 }
+
+function selectProject(el) {
+  document.querySelectorAll('.type-btn[data-proj]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  project = el.dataset.proj;
+}
+
+// URL ?p= 参数预选项目来源（SecLearn 入口 /feedback/?p=seclearn，博客菜单 /feedback/?p=blog）
+(function() {
+  const p = new URLSearchParams(location.search).get('p');
+  if (p && projects[p]) {
+    const btn = document.querySelector(`.type-btn[data-proj="${p}"]`);
+    if (btn) {
+      document.querySelectorAll('.type-btn[data-proj]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      project = p;
+    }
+  }
+})();
 
 function setRating(v) {
   rating = v;
@@ -187,13 +235,14 @@ function submit() {
   };
   const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
-  const subject = encodeURIComponent(`[SecLearn反馈] ${typeMap[selectedType]} ${stars}`);
+  const subject = encodeURIComponent(`[反馈 · ${projects[project]}] ${typeMap[selectedType]} ${stars}`);
   const typeLabel = typeMap[selectedType];
   const contact = document.getElementById('contact').value.trim();
   const contactLine = contact ? `\n联系方式：${contact}` : '';
 
   const body = encodeURIComponent(
-`【反馈类型】${typeLabel}
+`【项目】${projects[project]}
+【反馈类型】${typeLabel}
 【重要程度】${stars}（${hints[rating]}）
 【详细内容】
 ${detail}${contactLine}
@@ -202,22 +251,48 @@ ${detail}${contactLine}
 
   const btn = document.getElementById('submitBtn');
   btn.classList.add('sending');
-  btn.textContent = '⏳ 正在跳转...';
+  btn.textContent = '⏳ 点火发射...';
+  launchRocket(btn);
 
-  // 延迟跳转，显示成功动画
+  // 火箭飞出后跳转邮件，并显示成功面板
   setTimeout(() => {
     btn.classList.add('success');
-    btn.textContent = '✅ 跳转中...';
+    btn.textContent = '✅ 已发射';
     document.getElementById('successOverlay').classList.add('show');
 
     window.location.href = `mailto:3381905188@qq.com?subject=${subject}&body=${body}`;
-  }, 600);
+  }, 650);
 
-  // 无论如何都显示成功
+  // 按钮恢复可再次提交
   setTimeout(() => {
     btn.classList.remove('sending');
-    btn.textContent = '🚀 重新提交';
-  }, 3000);
+    btn.classList.remove('success');
+    btn.textContent = '🚀 提交反馈';
+  }, 3500);
+}
+
+// 火箭从按钮位置起飞
+function launchRocket(btn) {
+  const r = btn.getBoundingClientRect();
+  const rocket = document.createElement('div');
+  rocket.className = 'fly-rocket';
+  rocket.textContent = '🚀';
+  rocket.style.left = (r.left + r.width / 2) + 'px';
+  rocket.style.top = (r.top + r.height / 2) + 'px';
+  document.body.appendChild(rocket);
+  requestAnimationFrame(() => rocket.classList.add('go'));
+  setTimeout(() => rocket.remove(), 1000);
+}
+
+// 再写一条
+function resetForm() {
+  document.getElementById('detail').value = '';
+  document.getElementById('contact').value = '';
+  setRating(3);
+  document.getElementById('successOverlay').classList.remove('show');
+  const btn = document.getElementById('submitBtn');
+  btn.classList.remove('success', 'sending');
+  btn.textContent = '🚀 提交反馈';
 }
 </script>
 </body>
