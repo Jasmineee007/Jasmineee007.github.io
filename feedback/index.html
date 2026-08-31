@@ -47,7 +47,7 @@ input,textarea,[contenteditable="true"]{cursor:text!important}
 .page{width:min(1080px,94vw);display:flex;flex-direction:column;align-items:center}
 
 /* 顶部返回导航 */
-.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:4px 2px 14px;border-bottom:1px solid var(--border);margin-bottom:34px}
+.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;margin-bottom:24px}
 .topbar .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:14px;padding:4px 8px;border-radius:8px;transition:color .2s,background .2s}
 .topbar .back:hover{color:var(--primary);background:rgba(73,177,245,.08)}
 .topbar .tb-label{font-size:13px;color:var(--muted);letter-spacing:1px}
@@ -56,13 +56,10 @@ input,textarea,[contenteditable="true"]{cursor:text!important}
 .theme-btn:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
 
 /* 标题区 */
-.header{text-align:center;margin-bottom:34px}
+.header{text-align:center;margin-bottom:24px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;padding:26px 30px;width:100%}
 .header .icon{font-size:38px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 14px rgba(73,177,245,.55))}
 .header h1{font-size:23px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:4px}
 .header p{font-size:13.5px;color:var(--sub)}
-/* 顶栏 + 标题区：深色背景图上统一白字 + 阴影（与博客导航一致） */
-.topbar .back,.topbar .tb-label,.header h1,.header p{color:#fff!important;text-shadow:1px 1px 3px rgba(0,0,0,.5)}
-.topbar .back:hover{color:var(--primary)!important}
 
 /* 两栏独立玻璃卡：左导航 + 右内容 */
 .main{width:100%;display:flex;gap:24px;align-items:flex-start}
