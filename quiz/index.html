@@ -203,37 +203,6 @@ summary .badge{flex:none;align-self:center}
 .sk-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
 .sk-actions .btn{padding:8px 18px;font-size:13px;border-radius:9px}
 
-/* AI 悬浮面板 */
-.aifab{position:fixed;right:22px;bottom:22px;width:50px;height:50px;border-radius:14px;border:none;background:var(--primary);color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.3);z-index:60;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center}
-.aifab:hover{transform:scale(1.06)}
-.aipanel{position:fixed;right:22px;bottom:86px;width:396px;max-width:calc(100vw - 32px);height:min(600px,calc(100vh - 130px));display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.18);z-index:59;overflow:hidden;opacity:0;transform:translateY(12px) scale(.98);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
-.aipanel.open{opacity:1;transform:none;pointer-events:auto}
-.aihead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--card);flex:none}
-.aihead b{font-size:14px;flex:1}
-.aihead .btn{padding:5px 10px;font-size:12.5px;border-radius:8px}
-.aibody{flex:1;overflow-y:auto;padding:14px}
-.chat{display:flex;flex-direction:column;gap:12px;overflow-y:auto;padding:4px}
-.bub{max-width:88%;padding:11px 14px;border-radius:12px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
-.bub.user{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:4px}
-.bub.ai{align-self:flex-start;background:var(--bluebg);border:1px solid var(--border);border-bottom-left-radius:4px}
-.bub.ai.err{background:var(--redbg);border-color:var(--red)}
-.bub.ai.err,.bub.ai.err *{color:var(--red)!important}
-.dots span{display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
-.dots span:nth-child(2){animation-delay:.2s}
-.dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.aisetbox{display:none;flex:none;max-height:46%;overflow-y:auto;padding:4px 14px 12px;border-top:1px dashed var(--border)}
-.aisetbox.open{display:block}
-.aiset input[type=text],.aiset input:not([type]){width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;outline:none}
-.aiset input:focus{border-color:var(--primary)}
-.aiset label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
-.aiset .row{display:flex;gap:8px;align-items:center}
-.aiset .row input{flex:1}
-.chatin{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex:none}
-.chatin textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);padding:10px 12px;font-family:inherit;font-size:13.5px;line-height:1.6;outline:none;min-height:44px;max-height:120px}
-.chatin textarea:focus{border-color:var(--primary)}
-@media(max-width:640px){.aipanel{right:12px;left:12px;width:auto;bottom:82px}}
-
 /* 公告页内容块样式 */
 .note-sec{margin-bottom:16px}
 .note-sec h4{font-size:13px;margin-bottom:6px;color:var(--primary)}
@@ -252,8 +221,7 @@ summary .badge{flex:none;align-self:center}
 .note-body p{margin:8px 0}
 
 /* ============ 博客同款质感：磨砂玻璃主面板 + Miku 光标 + 克制微动效 ============ */
-.side,.card,.qcard,.aipanel,.stat,.todo{background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:var(--shadow)}
-.aihead{background:transparent}
+.side,.card,.qcard,.stat,.todo{background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:var(--shadow)}
 .navi,.chip,.navc,.catrow{transition:transform .18s ease,background .15s,border-color .15s,color .15s}
 .navi:hover,.chip:hover,.navc:hover,.catrow:hover{transform:translateY(-1px)}
 *{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1,auto!important}
@@ -289,7 +257,6 @@ input,textarea{cursor:text!important}
     <div class="navgroup">工具</div>
     <a class="navi" data-key="browse" onclick="sideGo('browse')"><span class="nico" data-icon="search"></span>背题浏览</a>
     <a class="navi" data-key="patrol" onclick="sideGo('patrol')"><span class="nico" data-icon="shield"></span>可疑题巡检<span class="navbadge" id="nbReport"></span></a>
-    <a class="navi" onclick="toggleAIPanel()">🤖 AI 答疑</a>
     <div class="sidefoot">
       <a class="btn ghost sm" href="/" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px"><span data-icon="home" data-size="14"></span> 返回博客</a>
       <button class="btn ghost sm" onclick="toggleTheme()"><span data-icon="moon" data-size="14"></span> 主题</button>
@@ -298,8 +265,6 @@ input,textarea{cursor:text!important}
   </aside>
   <div class="mainarea"><div id="app"></div></div>
 </div>
-<button id="aiFab" class="aifab" onclick="toggleAIPanel()" title="AI 答疑"><span data-icon="bot" data-size="22"></span></button>
-<div id="aiPanel" class="aipanel"></div>
 <script>
 /* ==================== 题库数据 ==================== */
 /* c:分类  t:s单选/f判断  q:题干  o:选项  a:答案下标  e:解析 */
@@ -321,8 +286,6 @@ const CATS={
 };
 QUESTIONS.forEach((q,i)=>q.id=i+1);
 
-/* ==================== 知识库文本（AI 答疑注入用，来自《网络安全运维理论知识点总结》） ==================== */
-const KB_TEXT="# 网络安全运维理论知识点总结\n\n> 适配CCF网络与信息安全专业知识与技能比赛（初赛）\n> \n> 基于CCF初赛题目素材整理，含核心知识点速查表\n\n---\n\n## 一、网络协议基础\n\n### 1.1 TCP/IP协议簇四层模型\n\n| 层次 | 主要协议 | 核心功能 |\n|------|----------|----------|\n| 应用层 | HTTP、HTTPS、FTP、SMTP、POP3、IMAP、DNS、SSH、TELNET | 为用户提供网络应用服务 |\n| 传输层 | TCP、UDP | 端到端数据传输、流量控制、差错控制 |\n| 网络层 | IP、ICMP、ARP、RARP | 路由选择、逻辑寻址、分组转发 |\n| 链路层 | Ethernet、PPP、HDLC | 物理传输、MAC寻址、帧封装 |\n\n### 1.2 邮件传输协议\n\n| 协议 | 默认端口 | 功能说明 | 安全版本 |\n|------|----------|----------|----------|\n| **SMTP** | **25/587** | 发送邮件 | SMTPS (465/587) |\n| **POP3** | **110** | 收取并下载邮件到本地 | POP3S (995) |\n| **IMAP** | **143** | 同步管理服务器端邮件 | IMAPS (993) |\n\n> **记忆要点：**\n>\n> - SMTP = **发**邮件\n> - POP3 = **收**邮件\n> - IMAP = **同步**管理\n\n### 1.3 TELNET vs SSH 对比\n\n| 对比项 | TELNET | SSH |\n|--------|--------|-----|\n| **安全性** | **明文传输** | **加密传输** |\n| 默认端口 | 23 | 22 |\n| 数据完整性 | 无校验 | 消息完整性校验 |\n| 口令传输 | 明文 | 加密 |\n\n> **考试重点：TELNET与SSH的主要区别是SSH采用加密传输，TELNET为明文传输。生产环境中远程管理必须使用SSH。**\n\n### 1.4 IPv6地址\n\n**缩写规则：**\n- 规则一：每组前导0可省略\n- 规则二：连续全0组可用`::`代替（每个地址只能使用一次）\n\n**例题：** 2011:0000:0000:1a30:0000:0000:0100:45ff\n- 步骤1：省略前导0 → 2011:0:0:1a30:0:0:100:45ff\n- 步骤2：合并连续0为:: → **2011::1a30:0:0:100:45ff**\n\n> **易错点：**\n> - `1a30`不能缩写为`1a3`（中间单个0不能省略）\n> - `::`在一个地址中只能出现一次\n\n### 1.5 DNS记录类型\n\n| 记录类型 | 作用 |\n|----------|------|\n| A记录 | 将域名解析为IPv4地址 |\n| AAAA记录 | 将域名解析为IPv6地址 |\n| CNAME | 域名别名解析（Canonical Name） |\n| MX记录 | 邮件交换器记录，指定邮件服务器 |\n| NS记录 | 权威名称服务器记录 |\n| PTR记录 | 反向解析（IP转域名） |\n\n### 1.6 HTTP与HTTPS\n\n| 对比项 | HTTP | HTTPS |\n|--------|------|-------|\n| 默认端口 | 80 | 443 |\n| 传输加密 | 明文 | SSL/TLS加密 |\n| 身份认证 | 无 | 数字证书认证服务器身份 |\n| 数据完整性 | 无校验 | MAC消息认证码校验 |\n\n> **考点提示：实现HTML超文本传输的协议是HTTP协议。**\n\n---\n\n## 二、等保2.0合规规范\n\n### 2.1 安全保护等级划分\n\n| 等级 | 名称 | 受侵害客体 | 侵害程度 |\n|------|------|------------|----------|\n| 第一级 | 自主保护级 | 公民、法人和其他组织的合法权益 | 一般损害 |\n| 第二级 | 指导保护级 | 公民、法人和其他组织的合法权益 | 严重损害或一般损害 |\n| 第三级 | 监督保护级 | 社会秩序、公共利益、国家安全 | 严重损害或一般损害 |\n| 第四级 | 强制保护级 | 社会秩序、公共利益、国家安全 | 特别严重损害 |\n| 第五级 | 专控保护级 | 国家安全 | 特别严重损害 |\n\n### 2.2 一个中心、三重防护\n\n**等保2.0的核心防护理念：**\n\n- **一个中心：** 安全管理中心（态势感知、安全运营中心）\n- **三重防护：**\n  - 安全计算环境（主机、应用、数据）\n  - 安全区域边界（边界防护、访问控制）\n  - 安全通信网络（网络架构、传输安全）\n\n### 2.3 等级测评流程\n\n| 阶段 | 主要内容 | 输出文档 |\n|------|----------|----------|\n| 定级 | 确定保护等级，编制定级报告 | 定级报告 |\n| 备案 | 向公安机关提交备案材料 | 备案证明 |\n| 建设整改 | 依据等级要求建设安全防护 | 整改方案 |\n| 等级测评 | 测评机构进行符合性测评 | 测评报告 |\n| 监督检查 | 公安机关监督检查 | 监督检查记录 |\n\n### 2.4 等保三级技术要求\n\n| 控制类 | 主要要求 |\n|--------|----------|\n| 身份鉴别 | 采用**两种或两种以上组合**的鉴别技术（如口令+指纹、口令+U盾） |\n| 访问控制 | 实施基于角色的访问控制，限制用户权限 |\n| 安全审计 | 记录用户行为、安全事件，审计记录保护6个月以上 |\n| 入侵防范 | 检测和阻止网络攻击、应用攻击 |\n| 恶意代码防范 | 部署防病毒软件，及时更新特征库 |\n| 数据安全 | 数据保密性、完整性保护，备份恢复 |\n\n### 2.5 等保1.0与2.0对比\n\n| 对比项 | 等保1.0 | 等保2.0 |\n|--------|---------|---------|\n| 标准名称 | 信息系统安全等级保护 | 网络安全等级保护 |\n| 保护对象 | 传统信息系统 | **网络基础设施、云平台、物联网、工控系统** |\n| 定级流程 | 自主定级 | **专家评审、主管部门审核** |\n| 可信验证 | 未明确要求 | 强调可信验证要求 |\n| 风险评估 | 可选 | 作为安全管理重要环节 |\n\n---\n\n## 三、商用密码知识\n\n### 3.1 密码体制分类\n\n| 密码类型 | 特点 | 代表算法 |\n|----------|------|----------|\n| **对称加密** | 加密解密使用同一密钥，速度快 | DES、3DES、AES、SM4 |\n| **非对称加密** | 公钥加密、私钥解密，或私钥签名、公钥验证 | RSA、ECC、SM2 |\n| **哈希函数** | 单向散列，不可逆，用于完整性校验 | MD5、SHA系列、SM3 |\n\n### 3.2 国密算法体系（SM系列）\n\n| 算法 | 类型 | 关键参数 | 应用场景 |\n|------|------|----------|----------|\n| **SM1** | 对称加密 | 128位分组 | 芯片内置，不公开 |\n| **SM2** | 非对称加密 | 椭圆曲线密码 | 数字签名、密钥交换 |\n| **SM3** | 哈希算法 | **256位输出（32字节）** | 消息认证、数字签名 |\n| **SM4** | 对称加密 | 128位分组、32轮迭代 | 数据加密（类AES结构） |\n| SM7 | 对称加密 | 64位分组 | 门禁卡、SIM卡 |\n| SM9 | 身份加密 | 标识密码 | 基于标识的加密 |\n\n> **重要数据：SM3杂凑值长度为256位（32字节），2018年成为ISO/IEC 10118-3国际标准**\n\n### 3.3 常见哈希算法对比\n\n| 算法 | 输出长度 | 安全性 | 说明 |\n|------|----------|--------|------|\n| MD5 | 128位（16字节） | **不安全** | 存在碰撞攻击，已被破解 |\n| SHA-1 | 160位（20字节） | **不安全** | 2017年谷歌宣布实际碰撞 |\n| SHA-256 | 256位（32字节） | 安全 | SHA-2家族，当前推荐使用 |\n| **SM3** | 256位（32字节） | 安全 | 中国国密标准 |\n\n### 3.4 密码分析攻击类型\n\n> **按攻击难度从高到低排列（攻击者能力越弱，难度越高）：**\n\n| 攻击类型 | 攻击者能力 | 难度等级 |\n|----------|------------|----------|\n| **唯密文攻击** | 仅能获取密文 | **最难** ⭐⭐⭐⭐⭐ |\n| 已知明文攻击 | 获得部分明文-密文对 | 较难 ⭐⭐⭐⭐ |\n| 选择明文攻击 | 可选择明文获取对应密文 | 中等 ⭐⭐⭐ |\n| 选择密文攻击 | 可选择密文获取对应明文 | 中等 ⭐⭐⭐ |\n\n> **记忆口诀：攻击者能力越强，获取信息越多，攻击难度越低。唯密文攻击只看到密文，难度最大。**\n\n### 3.5 Base64编码\n\n- **编码规则：** 每3个字节（24位）编码为4个Base64字符\n- **填充规则：** 原数据不足3字节时，用\"=\"填充\n\n> **计算示例：**\n> - 题目：\"abcdefg\"的Base64编码\n> - 答案：**YWJjZGVmZw==**\n\n### 3.6 Kerberos认证协议\n\n| 组件 | 全称 | 作用 |\n|------|------|------|\n| **AS** | Authentication Server | 认证服务器，验证用户身份 |\n| **TGS** | Ticket Granting Server | 票据授予服务器，发放服务票据 |\n| **TGT** | Ticket Granting Ticket | 票据授予票据，有效期通常8-10小时 |\n\n> **Kerberos核心缺陷：最严重的安全问题是严重依赖于时间同步。若客户端与服务端时间偏差过大（超过票据有效期），票据将失效，攻击者可利用此进行拒绝服务攻击。**\n\n---\n\n## 四、操作系统安全运维\n\n### 4.1 Linux用户认证\n\n**口令安全原则判断：**\n\n| 说法 | 正确性 | 说明 |\n|------|--------|------|\n| 口令不能设置为空 | ✅ 正确 | 空口令是最严重的安全隐患，等同于未设置认证 |\n| 口令长度越长，安全性越高 | ✅ 正确 | 暴力破解难度随长度指数增长 |\n| 复杂口令不需要定期修改 | ❌ 错误 | 复杂口令也可能泄露（钓鱼、键盘记录），定期更换仍是好习惯 |\n| 口令认证是最常见的认证机制 | ✅ 正确 | 简单易实现，但相对安全性较弱 |\n\n### 4.2 用户认证相关文件\n\n| 文件路径 | 作用 | 权限 |\n|----------|:-----|------|\n| /etc/passwd | 存储用户基本信息（用户名:口令:UID:GID:说明:主目录:shell） | 所有用户可读 |\n| **/etc/shadow** | 存储用户加密口令及口令策略 | **仅root可读** |\n| /etc/login.defs | 定义用户口令策略（最小长度、最长使用期等） | 配置文件 |\n\n> **考点提示：修改缺省密码长度限制的配置文件是/etc/login.defs**\n\n### 4.3 文件查看命令对比\n\n| 命令 | 特点 | 适用场景 |\n|------|------|----------|\n| **cat** | 一次性输出全部内容 | 小文件查看、文件合并重定向 |\n| **more** | 分页显示（回车下翻一行，空格翻一页） | 大文件查看，只能向下 |\n| **less** | 支持上下移动、搜索、/向前 ?向后查找 | 日志分析、代码查看（**推荐使用**） |\n\n> **记忆口诀：\"less is more\" —— less命令比more功能更强大**\n\n### 4.4 vim编辑器备份文件\n\n| 文件类型 | 格式 | 说明 |\n|----------|------|------|\n| **交换文件** | **.filename.swp** | 编辑时创建的临时文件，防止意外退出丢失数据 |\n| 备份文件 | .filename | 需执行:set backup才会创建 |\n| 手动备份 | filename.bak | 用户手动cp或工具创建 |\n\n### 4.5 crontab时间格式\n\n```\n# ┌───────────── 分钟 (0-59)\n# │ ┌─────────── 小时 (0-23)\n# │ │ ┌───────── 日   (1-31)\n# │ │ │ ┌─────── 月   (1-12)\n# │ │ │ │ ┌───── 星期 (0-7, 0和7代表周日)\n# │ │ │ │ │\n*  *  *  *  *  command\n```\n\n> **例题：每周一至周五下午1点和晚上8点执行mybackup**\n> - 正确答案：**0 13,20 * * 1,2,3,4,5 mybackup**\n> - 解析：0分、13时和20时、每周1-5执行\n\n### 4.6 Linux权限管理\n\n| 命令 | 功能 | 能否提权 |\n|------|------|----------|\n| **su** | 切换用户身份 | **✅ 可以**（普通→root） |\n| sudo | 以root权限执行单条命令 | 临时提权，有日志记录 |\n| chmod | 修改文件权限 | ❌ 不能提权 |\n| chgrp | 修改文件所属组 | ❌ 不能提权 |\n| passwd | 修改用户口令 | ❌ 不能提权 |\n\n### 4.7 Windows系统安全\n\n| 项目 | 内容 |\n|------|------|\n| 事件日志格式 | **.evtx**（XML-based Event Log Format） |\n| 停止服务命令 | **net stop** |\n| 自启动管理工具 | **Autoruns**（可查看注册表Run键、启动文件夹、计划任务、服务自启动） |\n\n### 4.8 安全基线检查\n\n**主要检查项：**\n\n| 检查类别 | 检查内容 |\n|----------|----------|\n| 账户策略 | 口令复杂度、账户锁定阈值、最长使用期 |\n| 审核策略 | 登录事件、对象访问、策略变更审核 |\n| 用户权限分配 | 本地登录、远程关机、取得文件所有权 |\n| 安全选项 | 交互式登录、网络访问、网络安全设置 |\n\n> **审核建议：不适合审核\"用户打开和关闭应用程序\"，会产生大量无用日志。**\n\n---\n\n## 五、日志分析与应急响应\n\n### 5.1 Linux日志系统\n\n| 日志文件 | 内容 |\n|----------|------|\n| **/var/log/secure** | **安全相关日志（认证、登录）** |\n| /var/log/wtmp | 登录历史（二进制文件，用last命令查看） |\n| /var/log/lastlog | 所有用户最后登录记录 |\n| /var/log/message | 系统常规消息 |\n| /var/log/maillog | 邮件服务日志 |\n| /var/log/cron | 计划任务执行日志 |\n| /var/log/dmesg | 系统启动时的内核环缓冲信息 |\n\n> **必考知识点：Linux系统中，存放与安全相关的日志信息的文件是/var/log/secure**\n\n### 5.2 日志分析命令\n\n| 命令 | 作用 | 数据来源 |\n|------|------|----------|\n| last | 查看用户登录历史 | /var/log/wtmp |\n| lastlog | 查看所有用户最后登录时间 | /var/log/lastlog |\n| who | 查看当前登录用户 | /var/run/utmp |\n| lastb | 查看登录失败记录 | /var/log/btmp |\n\n### 5.3 Apache日志分析\n\n**标准Apache Combined Log格式：**\n```\n192.168.1.1 - - [01/Jan/2024:00:00:00 +0000] \"GET /page HTTP/1.1\" 200 1234 \"Referer\" \"User-Agent\"\n```\n\n| 字段 | 说明 |\n|------|------|\n| 第1字段 | 客户端IP地址 |\n| 第4字段 | 请求时间戳 |\n| 第6-8字段 | 请求方法、路径、协议 |\n\n> **提取IP地址的常用命令：** `awk '{print $1}' access.log`\n\n### 5.4 PDCERF应急响应模型\n\n| 阶段 | 英文 | 主要任务 |\n|------|------|----------|\n| **准备** | Preparation | 建立应急响应团队、准备工具和资源、制定预案 |\n| **检测** | Detection | 确认事件类型、评估影响范围、初步分析 |\n| **遏制** | Containment | 隔离受影响系统、阻止事件扩散 |\n| **根除** | Eradication | 清除恶意代码、修复漏洞、消除后门 |\n| **恢复** | Recovery | 恢复系统运行、验证功能完整性 |\n| **总结** | Lessons Learned | 编写事件报告、总结经验教训、改进措施 |\n\n### 5.5 常见安全事件识别\n\n| 事件类型 | 特征 | 日志线索 |\n|----------|------|----------|\n| 暴力破解 | 短时间内大量登录失败 | /var/log/secure大量Failed password |\n| webshell上传 | 异常脚本文件出现 | Web访问日志异常请求（如cmd、eval） |\n| 权限提升 | 普通用户获取root权限 | sudo/su命令日志异常，成功提权记录 |\n| 数据泄露 | 敏感文件被访问或外传 | 网络连接日志、大量出站流量、文件访问日志 |\n| DDoS攻击 | 服务不可用、资源耗尽 | 短时间内大量连接请求、CPU/带宽占用高 |\n\n### 5.6 计算机取证基础\n\n**取证原则（CIA三元组）：**\n\n| 原则 | 含义 | 实现方式 |\n|------|------|----------|\n| **保密性** | Confidentiality | 证据不被未授权访问 |\n| **完整性** | Integrity | 保持证据原始性（哈希校验） |\n| **可用性** | Availability | 合法授权者可访问证据 |\n\n> **常见错误说法：\"计算机取证必须在开机的状态下进行\" —— 这是错误的。关机状态下可以通过硬盘镜像获取证据。**\n\n### 5.7 日志分割工具\n\n| 工具 | 用途 |\n|------|------|\n| **split** | 文件分割工具（日志分割） |\n| awk | 文本处理，可按条件分割日志 |\n| logrotate | 日志轮转工具，自动管理日志文件 |\n\n---\n\n## 六、安全设备基础\n\n### 6.1 防火墙\n\n**防火墙分类：**\n\n| 类型 | 工作层次 | 特点 |\n|------|----------|------|\n| 包过滤防火墙 | 网络层 | 基于IP/端口过滤，简单快速 |\n| 状态检测防火墙 | 传输层 | 跟踪连接状态，动态建立规则 |\n| 应用层防火墙 | 应用层 | 深度检测应用层协议内容 |\n| 下一代防火墙(NGFW) | 全层次 | 集成IPS、AV、应用识别、用户识别 |\n\n### 6.2 IDS vs IPS\n\n| 对比项 | IDS（入侵检测系统） | IPS（入侵防御系统） |\n|--------|---------------------|---------------------|\n| 部署方式 | 旁路监听 | 串接部署 |\n| 响应方式 | 仅告警 | 告警+阻断 |\n| 对性能影响 | 较小 | 较大（可能产生延迟） |\n| 误报影响 | 仅告警 | 可能阻断正常流量 |\n\n**检测技术：**\n- **特征检测：** 基于已知攻击特征库匹配，准确率高但无法检测未知攻击\n- **异常检测：** 基于正常行为建模，检测偏离正常模式的行为\n- **状态检测：** 跟踪协议状态转换，检测状态异常\n\n### 6.3 VPN\n\n**核心安全机制：**\n\n| 安全机制 | 说明 | VPN是否包含 |\n|----------|------|-------------|\n| **隧道技术** | 封装数据包在公网传输 | **✅ 是** |\n| **身份认证技术** | 验证远程用户身份 | **✅ 是** |\n| **密钥管理技术** | 加密密钥生成与分发 | **✅ 是** |\n| **信息隐藏技术** | 隐蔽通信存在性（如隐写术） | ❌ 否 |\n\n**常见VPN协议：**\n\n| 协议 | 特点 | 安全性 |\n|------|------|--------|\n| PPTP | 基于PPP，点对点隧道协议 | **低（已被破解，不推荐）** |\n| L2TP/IPsec | 二层隧道+IPsec加密 | 中等 |\n| SSL VPN | 基于HTTPS，应用层 | **高（推荐）** |\n| OpenVPN | 开源SSL/TLS VPN | 高 |\n\n### 6.4 其他安全设备\n\n| 设备 | 功能 |\n|------|------|\n| **堡垒机** | 集中管理运维访问，记录操作行为，实现运维审计 |\n| **数据库审计系统(DAS)** | 监控和记录数据库操作，审计SQL行为 |\n| **安全审计系统** | 对网络行为进行安全审计，记录用户和系统行为 |\n| **漏洞扫描器** | 自动发现系统和应用漏洞 |\n| **APT检测设备** | 检测高级持续性威胁 |\n| **威胁情报平台** | 收集、整合威胁情报数据 |\n\n### 6.5 TCSEC安全级别\n\n**TCSEC（可信计算机系统评估准则）也称为橙皮书：**\n\n| 级别 | 名称 | 特点 |\n|------|------|------|\n| D | 最小保护 | 无安全保护 |\n| C1 | 选择性安全保护 | 基本安全要求 |\n| **C2** | **受控访问保护** | **审计、隔离、身份鉴别** |\n| B1 | 标签安全 | 强制访问控制 |\n| B2 | 结构化保护 | 安全模型化 |\n| B3 | 安全域 | 访问监控器 |\n| A1 | 验证设计 | 形式化验证，最高安全级别 |\n\n> **必考知识点：处理安全信息需要的最低安全级别是C2**\n\n---\n\n## 七、网络安全法律法规\n\n### 7.1 主要法律法规\n\n| 法律名称 | 施行时间 | 主要内容 |\n|----------|----------|----------|\n| 《网络安全法》 | 2017年6月1日 | 网络安全基本法，确立等级保护制度 |\n| 《数据安全法》 | 2021年9月1日 | 数据安全制度建设、数据分类分级 |\n| 《个人信息保护法》 | 2021年11月1日 | 个人信息处理规范、跨境传输 |\n| 《密码法》 | 2020年1月1日 | 密码分类管理、推广应用 |\n| 《电子签名法》 | 2005年4月1日 | 电子签名法律效力 |\n\n### 7.2 网络运营者义务\n\n- 遵守法律、行政法规，履行网络安全保护义务\n- 制定内部安全管理制度和操作规程\n- 采取防范计算机病毒和网络攻击的技术措施\n- 采取监测、记录网络运行状态、网络安全事件的技术措施\n- **按照规定留存相关的网络日志不少于六个月**\n- 发生网络安全事件，应当立即启动网络安全事件应急预案\n- 按照规定向有关主管部门报告\n\n### 7.3 关键信息基础设施保护\n\n**范围：**\n- 公共通信和信息服务、能源、交通、金融等行业\n- 重要互联网基础设施\n- 国防科工、大型装备、化工、食品药品等单位\n\n**数据要求：**\n- 在境内存储\n- 因业务需要向境外提供的，应当进行安全评估\n\n### 7.4 密码分类管理\n\n| 密码类型 | 管理方式 | 使用范围 |\n|----------|----------|----------|\n| 核心密码 | 实行严格管理 | 国家秘密 |\n| 普通密码 | 实行严格管理 | 保护国家秘密以外秘密 |\n| **商用密码** | **依法管理、自由使用** | 商业领域 |\n\n---\n\n## 附录：核心记忆点速查表\n\n| 知识点 | 答案 |\n|--------|------|\n| SMTP端口 | 25/587 |\n| POP3端口 | 110 |\n| SSH端口 | 22 |\n| TELNET vs SSH主要区别 | SSH加密，TELNET明文 |\n| SM3杂凑值长度 | **256位（32字节）** |\n| 密码分析最难攻击类型 | **唯密文攻击** |\n| Kerberos依赖 | **时间同步** |\n| Linux安全日志文件 | **/var/log/secure** |\n| Windows日志格式 | **.evtx** |\n| crontab五段顺序 | 分、时、日、月、周 |\n| 文件查看less特点 | 支持上下移动 |\n| vim交换文件 | **.filename.swp** |\n| TCSEC最低安全级别 | **C2** |\n| VPN不包括的技术 | 信息隐藏技术 |\n| Base64编码规则 | 每3字节变4字符，不足补= |\n| 等保三级鉴别要求 | 两种以上组合鉴别技术 |\n| 日志保留时间 | 不少于6个月 |\n| PDCERF第一阶段 | Preparation（准备） |\n| Kerberos使用的加密算法 | DES（传统版本） |\n| 数字信封不能做到 | 隐藏发送者真实身份 |\n| 修改缺省密码长度限制的配置文件 | /etc/login.defs |\n| 处理安全信息需要的最低安全级别 | C2 |\n\n---\n\n> **整理说明：**\n> 本知识点总结基于CCF网络与信息安全专业知识与技能比赛（初赛）理论题目素材整理，涵盖网络协议、等保2.0、商用密码、操作系统安全、日志分析、安全设备、法律法规七大模块。建议配合题库练习使用。";
 
 
 
@@ -332,7 +295,7 @@ let db;
 try{db=JSON.parse(localStorage.getItem(KEY))||null}catch(e){db=null}
 if(!db||typeof db!=="object")db={stats:{},wrong:[],history:[],daily:{},review:{},ai:null,star:[],report:[]};
 db.stats=db.stats||{};db.wrong=db.wrong||[];db.history=db.history||[];
-db.daily=db.daily||{};db.review=db.review||{};db.star=db.star||[];db.report=db.report||[];db.ai=db.ai||{url:"https://open.bigmodel.cn/api/paas/v4/chat/completions",model:"",key:"",kb:true};
+db.daily=db.daily||{};db.review=db.review||{};db.star=db.star||[];db.report=db.report||[];
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function todayStr(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return todayStr(d)}
@@ -430,14 +393,12 @@ let browseFilter={cat:"all",kw:""};
 let statTab="heat"; // 数据中心当前 tab
 const LETTERS=["A","B","C","D"];
 const TF_OPTS=["正确","错误"];
-let chat={msgs:[],busy:false}; // AI 答疑会话（仅内存，不持久化）
 function isCorrect(q,ans){
   if(ans===undefined||ans===null)return false;
   return q.t==="m"?Array.isArray(ans)&&ans.length>0&&ans.slice().sort().join()===[].concat(q.a).sort().join():ans===q.a;
 }
 function correctText(q){return q.t==="m"?[].concat(q.a).sort().map(i=>LETTERS[i]).join(""):(ans=>LETTERS[ans])(q.a)}
 function escHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function mdLite(s){return escHtml(s).replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>").replace(/`([^`\n]+)`/g,"<code>$1</code>")}
 function stripTags(s){return String(s).replace(/<[^>]*>/g,"")}
 
 function fmtTime(sec){const m=Math.floor(sec/60),s=sec%60;return (m<10?"0":"")+m+":"+(s<10?"0":"")+s}
@@ -495,7 +456,6 @@ function render(){
   app.innerHTML=fn();
   window.scrollTo(0,0);
   if(view==="exam")startTimer();
-  updateFab();
   updateSidebar();
 }
 
@@ -631,12 +591,11 @@ function rQuestion(){
   const last=ses.idx===ses.qids.length-1;
   const timerHtml=exam?'<span class="timer" id="timer">--:--</span>':"";
   const flagBtn=exam?'<button class="btn ghost sm" onclick="flag()">'+(ses.flags[ses.idx]?"🚩 取消标记":"🚩 标记本题")+'</button>':"";
-  const aiBtn=exam?"":'<button class="btn ghost sm" onclick="askAI()">'+icon("bot",14)+' 问AI</button>';
   const starBtn='<button class="btn ghost sm" onclick="toggleStar(qOf(ses.idx).id);render()">'+(db.star.includes(q.id)?"⭐ 已存疑":"☆ 存疑")+'</button>';
   const repBtn='<button class="btn ghost sm" onclick="toggleReport(qOf(ses.idx).id);render()">'+(db.report.includes(q.id)?"⚠️ 已报错":"⚠️ 报错")+'</button>';
     return '<div class="topbar"><button class="btn ghost sm" onclick="confirmExit()">← 退出</button>'+
     '<b>'+(exam?"📝 模拟考试":"📖 练习模式")+' · '+catName+'</b>'+
-    '<span class="sp"></span>'+aiBtn+starBtn+repBtn+flagBtn+timerHtml+
+    '<span class="sp"></span>'+starBtn+repBtn+flagBtn+timerHtml+
     (exam?'<button class="btn primary sm" onclick="submitExam(true)">交卷</button>':"")+'</div>'+
     '<div class="pbar"><i style="width:'+progress+'%"></i></div>'+
     '<div style="font-size:13px;color:var(--muted);margin-bottom:10px">第 '+(ses.idx+1)+' / '+ses.qids.length+' 题　答题卡见下方</div>'+
@@ -975,7 +934,7 @@ async function submitExam(confirmIt){
 async function clearWrong(){if(await skConfirm("确定清空错题本和复习排期吗？")){db.wrong=[];db.review={};save();render()}}
 async function resetAll(){
   if(await skConfirm("确定重置全部刷题进度、错题本、存疑题、复习排期、打卡和考试记录吗？此操作不可恢复。")){
-    db={stats:{},wrong:[],history:[],daily:{},review:{},star:[],report:[],ai:db.ai};save();render();
+    db={stats:{},wrong:[],history:[],daily:{},review:{},star:[],report:[]};save();render();
   }
 }
 function toggleTheme(){
@@ -1008,280 +967,13 @@ async function importData(inp){
       const d=j&&j.data;
       if(!d||typeof d!=="object"||!d.stats)throw new Error("不是本刷题库的备份文件");
       if(!(await skConfirm("导入将覆盖当前全部进度，确定继续吗？")))return;
-      db={stats:d.stats||{},wrong:d.wrong||[],history:d.history||[],daily:d.daily||{},review:d.review||{},star:d.star||[],report:d.report||[],ai:d.ai||db.ai};
+      db={stats:d.stats||{},wrong:d.wrong||[],history:d.history||[],daily:d.daily||{},review:d.review||{},star:d.star||[],report:d.report||[]};
       save();render();
       skAlert("✅ 导入成功：累计作答 "+Object.keys(db.stats).length+" 题的记录 · 错题 "+db.wrong.length+" 题 · 打卡 "+Object.keys(db.daily).length+" 天");
     }catch(err){skAlert("❌ 导入失败："+err.message)}
   };
   rd.readAsText(f);
   inp.value="";
-}
-
-/* ==================== AI 答疑（悬浮面板 / OpenAI 兼容接口） ==================== */
-/* 面板是独立于 #app 的固定节点：做题页切换、重渲染都不会打断进行中的对话 */
-let aiOpen=false,aiSettingsOpen=false;
-function updateFab(){
-  const f=document.getElementById("aiFab");if(!f)return;
-  f.style.display=(view==="exam")?"none":"";
-  f.innerHTML=aiOpen?icon("x",20):icon("bot",20);
-  f.title=aiOpen?"关闭 AI 答疑":"AI 答疑（做题不跳页）";
-}
-function setBadge(id,n){const el=document.getElementById(id);if(el)el.textContent=n?(" "+n):""}
-function updateSidebar(){ // 侧边栏高亮 + 徽标（到期/弱项/错题/报错数）
-  document.querySelectorAll(".navi").forEach(n=>n.classList.remove("on"));
-  let key="home";
-  if(view==="wrong")key="wrong";
-  else if(view==="browse")key="browse";
-  else if(view==="patrol")key="patrol";
-  else if(view==="exam"||(view==="result"&&ses&&ses.mode==="exam")||(view==="config"&&cfg.mode==="exam"))key="exam";
-  else if(view==="config"&&cfg.order==="rand")key="prand";
-  else if(view==="config"||view==="practice"||(view==="result"&&ses&&ses.mode==="practice"))key="pseq";
-  else if(view==="note")key="note";
-  const el=document.querySelector('.navi[data-key="'+key+'"]');
-  if(el)el.classList.add("on");
-  setBadge("nbReview",dueCount());
-  setBadge("nbWeak",weakCats().length);
-  setBadge("nbWrong",db.wrong.length);
-  setBadge("nbReport",db.report.length);
-}
-async function sideGo(k){ // 侧边栏导航；考试中离开需确认，防误触丢卷
-  if(view==="exam"&&!(await skConfirm("考试尚未交卷，离开将不计成绩。确定离开吗？")))return;
-  const acts={
-    home:()=>{view="home";render()},
-    pseq:()=>goConfig("practice","seq"),
-    prand:()=>goConfig("practice","rand"),
-    exam:()=>goConfig("exam","seq"),
-    review:()=>startReview(),
-    weak:()=>startWeakSession(),
-    wrong:()=>{view="wrong";render()},
-    browse:()=>{view="browse";render()},
-    patrol:()=>{view="patrol";render()},
-    note:()=>{view="note";noteSel=-1;render()},
-  };
-  const fn=acts[k];if(fn)fn();
-}
-function toggleAIPanel(force){
-  aiOpen=force===undefined?!aiOpen:!!force;
-  aiSettingsOpen=false;
-  const p=document.getElementById("aiPanel");
-  if(p){p.classList.toggle("open",aiOpen);renderAIPanel()}
-  updateFab();
-  if(aiOpen&&!chat.busy){const t=document.getElementById("chatIn");if(t)t.focus()}
-}
-function toggleAISettings(){aiSettingsOpen=!aiSettingsOpen;const sb=document.getElementById("aiSetBox");if(sb)sb.classList.toggle("open",aiSettingsOpen)}
-function newAIChat(){chat={msgs:[],busy:false};renderAIPanel()}
-const AI_PRESETS=[
-  {n:"智谱",u:"https://open.bigmodel.cn/api/paas/v4/chat/completions",m:"glm-5.3-flash"},
-  {n:"OpenRouter",u:"https://openrouter.ai/api/v1/chat/completions",m:"minimax/minimax-m3:free"},
-  {n:"DeepSeek",u:"https://api.deepseek.com/chat/completions",m:"deepseek-chat"},
-  {n:"硅基流动",u:"https://api.siliconflow.cn/v1/chat/completions",m:"Qwen/Qwen2.5-7B-Instruct"},
-  {n:"本地 LM Studio",u:"http://localhost:1234/v1/chat/completions",m:""},
-];
-async function aiPreset(i){ // 快捷填入服务商预设：覆盖接口地址与模型名，密钥保留
-  const p=AI_PRESETS[i];
-  if(!p)return;
-  if(db.ai.url===p.u&&db.ai.model===p.m)return;
-  if(!(await skConfirm("将填入「"+p.n+"」的接口地址与模型名（密钥保留）。继续吗？")))return;
-  db.ai.url=p.u;db.ai.model=p.m;save();renderAIPanel();
-}
-function chatKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();aiSend()}}
-function buildSys(){
-  let s="你是《网络安全运维》备考助教，服务对象在准备安全类认证考试（CCF 运维赛道、NISP、CISP 等）并进行日常安全学习。用中文回答，风格：先给结论，再讲原理，最后给记忆口诀或易错点；简洁准确，重点内容用 **加粗**。";
-  if(db.ai.kb&&KB_TEXT){
-    let q="";
-    for(let i=chat.msgs.length-1;i>=0;i--){if(chat.msgs[i].role==="user"){q=chat.msgs[i].content;break}}
-    const kb=kbRetrieve(stripTags(q),3);
-    if(kb)s+="\n\n以下是知识库中与问题最相关的片段，回答时优先依据：\n"+kb;
-    else s+="\n\n以下是用户整理的《网络安全运维理论知识点总结》全文，回答涉及其中知识点时优先依据该资料：\n"+KB_TEXT;
-  }
-  return s;
-}
-/* ---------- 知识库检索（轻量 RAG）：运行时把 KB_TEXT 按章节切块，按二元组重合度取 top N ---------- */
-let kbChunksCache=null;
-function kbChunkList(){
-  if(kbChunksCache)return kbChunksCache;
-  const out=[];let cur={h:"概述",t:""},inFence=false;
-  String(KB_TEXT||"").split("\n").forEach(line=>{
-    if(/^\s*```/.test(line)){inFence=!inFence;cur.t+=line+"\n";return} // 围栏内的 # 是 shell 注释，不是标题
-    const m=inFence?null:line.match(/^#{1,3}\s+(.*)$/);
-    if(m){if(cur.t.trim())out.push(cur);cur={h:m[1].trim(),t:""}}
-    else cur.t+=line+"\n";
-  });
-  if(cur.t.trim())out.push(cur);
-  const chunks=[];
-  out.forEach(c=>{ // 超长章节按空行再切，控制在千字左右
-    if(c.t.length<=1300){chunks.push(c);return}
-    let buf={h:c.h+"（续）",t:""};
-    c.t.split(/\n{2,}/).forEach(p=>{
-      if(buf.t.length>900&&buf.t.trim()){chunks.push(buf);buf={h:c.h+"（续）",t:""}}
-      buf.t+=p+"\n\n";
-    });
-    if(buf.t.trim())chunks.push(buf);
-  });
-  kbChunksCache=chunks;return chunks;
-}
-const KB_STOP=new Set(["什么","怎么","如何","哪些","哪个","属于","下列","说法","正确","错误","关于","以及","其中","应该","不是","就是","一个","这个","那个","可以","进行","使用","还是","描述","特点","作用","主要","常见","包括","类型","分别","以下","哪种","的是","而是","成为","分为"]);
-function kbRetrieve(query,n){
-  const grams=new Set();
-  const cleaned=String(query||"").toLowerCase();
-  (cleaned.match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>=2)grams.add(w)});
-  const cn=cleaned.replace(/[^一-鿿]+/g,"");
-  for(let i=0;i<cn.length-1;i++)grams.add(cn.slice(i,i+2));
-  KB_STOP.forEach(g=>grams.delete(g));
-  if(!grams.size)return null;
-  const scored=kbChunkList().map(c=>{
-    const lt=(c.h+"\n"+c.t).toLowerCase();let s=0,hits=0;
-    grams.forEach(g=>{if(lt.includes(g)){hits++;s+=g.length}});
-    return{c,s,hits};
-  }).filter(x=>x.hits>=2).sort((a,b)=>b.s-a.s).slice(0,n);
-  if(!scored.length)return null;
-  return scored.map(x=>"【"+x.c.h+"】\n"+x.c.t.trim()).join("\n\n——\n\n");
-}
-function buildMsgs(){
-  const ms=[{role:"system",content:buildSys()}];
-  chat.msgs.forEach(m=>{if(m.role==="assistant"&&!m.content)return;ms.push({role:m.role,content:m.content})});
-  return ms;
-}
-function renderAIPanel(){
-  const p=document.getElementById("aiPanel");if(!p)return;
-  const msgs=chat.msgs.length?chat.msgs.map((m,i)=>{
-    if(m.role==="user")return '<div class="bub user">'+mdLite(m.content)+'</div>';
-    if(m.role==="assistant"&&!m.content&&chat.busy)return '<div class="bub ai" id="ai-'+i+'"><span class="dots"><span></span><span></span><span></span></span></div>';
-    return '<div class="bub ai'+(m.err?" err":"")+'" id="ai-'+i+'">'+mdLite(m.content)+'</div>';
-  }).join(""):'<div class="empty" style="padding:26px 8px">做题时点「'+icon("bot",13)+' 问AI」讲当前题，<br>也可以直接问任何安全知识。<br><span style="font-size:12.5px">首次使用：点右上 ⚙️，选一个服务商一键填入，粘贴密钥就能用。</span></div>';
-  p.innerHTML='<div class="aihead"><b>'+icon("bot",15)+' AI 答疑</b>'+
-    '<button class="btn ghost" onclick="toggleAISettings()" title="接口设置">⚙️</button>'+
-    '<button class="btn ghost" onclick="newAIChat()"'+(chat.busy?" disabled":"")+'>新对话</button>'+
-    '<button class="btn ghost" onclick="toggleAIPanel(false)">✕</button></div>'+
-    '<div class="chat aibody" id="chatBox">'+msgs+'</div>'+
-    '<div class="aiset aisetbox" id="aiSetBox">'+
-    '<label>接口地址（OpenAI 兼容；填 /anthropic 结尾自动走 Anthropic 协议）</label><input id="aiUrl" value="'+escHtml(db.ai.url)+'" onchange="db.ai.url=this.value.trim();save()">'+
-    '<label>快捷填入服务商预设（密钥保留）</label><div class="chips">'+
-      AI_PRESETS.map((p,i)=>'<button class="chip" onclick="aiPreset('+i+')">'+p.n+'</button>').join("")+
-      '</div>'+
-    '<div style="font-size:12px;color:var(--muted);margin-top:6px">点服务商名自动填好接口地址与模型名，再粘贴你的 API 密钥即可。</div>'+
-    '<label>模型名</label><div class="row"><input id="aiModel" value="'+escHtml(db.ai.model)+'" placeholder="如 glm-5.3-flash / minimax/minimax-m3:free" onchange="db.ai.model=this.value.trim();save()"><button class="btn ghost sm" onclick="aiTest()">🔌 测试</button></div>'+
-    '<div id="aiTestMsg" style="font-size:12px;margin-top:6px"></div>'+
-    '<label>API 密钥（云接口必填；本地 LM Studio 留空）</label><input id="aiKey" type="password" value="'+escHtml(db.ai.key||"")+'" placeholder="sk-…" onchange="db.ai.key=this.value.trim();save()">'+
-    '<label style="margin-top:10px"><input type="checkbox" '+(db.ai.kb?"checked":"")+' onchange="db.ai.kb=this.checked;save()"> 回答时检索《理论知识点总结》相关片段注入（未命中则注入全文）</label>'+
-    '</div>'+
-    '<div class="chatin"><textarea id="chatIn" placeholder="'+(chat.busy?"AI 回答中…":"输入问题，Enter 发送（Shift+Enter 换行）")+'" '+(chat.busy?"disabled":"")+' onkeydown="chatKey(event)"></textarea>'+
-    '<button class="btn primary" onclick="aiSend()"'+(chat.busy?" disabled":"")+'>发送</button></div>';
-  if(aiSettingsOpen){const sb=document.getElementById("aiSetBox");if(sb)sb.classList.add("open")}
-  const box=document.getElementById("chatBox");if(box)box.scrollTop=box.scrollHeight;
-}
-function askAI(){
-  const q=qOf(ses.idx),opts=optList(q);
-  let txt="请讲解这道"+(q.t==="f"?"判断题":(q.t==="m"?"多选题":"单选题"))+"：\n\n【题目】"+stripTags(q.q)+"\n"+opts.map((o,i)=>LETTERS[i]+". "+stripTags(o)).join("\n");
-  const a=ses.answers[ses.idx];
-  if(a!==undefined){
-    const mine=q.t==="m"?(Array.isArray(a)&&a.length?a.slice().sort().map(i=>LETTERS[i]).join(""):"未选定"):LETTERS[a];
-    txt+="\n【我的答案】"+mine+"（"+(isCorrect(q,a)?"答对":"答错")+"）";
-  }
-  txt+="\n【题目自带解析】"+stripTags(q.e)+"\n\n请结合这道题帮我彻底搞懂对应知识点，并提醒易错点。";
-  toggleAIPanel(true);
-  aiSend(txt);
-}
-/* ---------- 协议适配：OpenAI 兼容 + Anthropic 兼容（URL 含 /anthropic 自动识别） ---------- */
-function isAnthropicEP(){return /\/anthropic(\/|$)/i.test(db.ai.url)}
-function aiEndpoint(){const u=db.ai.url.trim();return isAnthropicEP()?u.replace(/\/+$/,"")+"/v1/messages":u}
-function aiHeaders(){
-  const h={"Content-Type":"application/json"};
-  if(isAnthropicEP()){h["x-api-key"]=db.ai.key;h["anthropic-version"]="2023-06-01"}
-  else if(db.ai.key)h["Authorization"]="Bearer "+db.ai.key;
-  return h;
-}
-function aiBody(msgs,stream,maxTokens){ // Anthropic：system 拆到顶层、max_tokens 必填；OpenAI：system 放 messages
-  const sys=buildSys();
-  const chatMsgs=msgs.filter(m=>m.role!=="system");
-  if(isAnthropicEP())return{model:db.ai.model||undefined,max_tokens:maxTokens||2048,system:sys,messages:chatMsgs,stream:!!stream};
-  return{model:db.ai.model||undefined,messages:[{role:"system",content:sys}].concat(chatMsgs),stream:!!stream,temperature:0.6};
-}
-function aiExtractSSE(line){ // 单行 SSE data → 增量文本；兼容 Anthropic text_delta 与 OpenAI content/reasoning_content
-  const s=String(line).trim();
-  if(!s.startsWith("data:"))return"";
-  const p=s.slice(5).trim();
-  if(!p||p==="[DONE]")return"";
-  try{
-    const j=JSON.parse(p);
-    if(j.type==="content_block_delta"){const d=j.delta||{};return d.type==="text_delta"?(d.text||""):""}
-    const c0=j.choices&&j.choices[0];
-    const d=c0&&(c0.delta||c0.message);
-    if(d){if(d.content)return d.content;if(d.reasoning_content)return d.reasoning_content}
-  }catch(e){}
-  return"";
-}
-function aiExtractJSON(j){ // 非流式响应 JSON → 文本；兼容两协议
-  if(!j)return"";
-  if(Array.isArray(j.content))return j.content.filter(b=>b.type==="text").map(b=>b.text||"").join("");
-  const c0=j.choices&&j.choices[0];
-  const m=c0&&(c0.message||c0.delta);
-  if(m){if(m.content)return m.content;if(m.reasoning_content)return m.reasoning_content}
-  return"";
-}
-async function aiSend(ov){
-  if(!chat||chat.busy)return;
-  const input=document.getElementById("chatIn");
-  const text=((ov===undefined||ov===null?"":String(ov))||(input?input.value:"")).trim();
-  if(!text)return;
-  if(input&&!ov)input.value="";
-  chat.busy=true;
-  chat.msgs.push({role:"user",content:text},{role:"assistant",content:""});
-  const ai=chat.msgs.length-1;
-  renderAIPanel();
-  const box=document.getElementById("chatBox"),el=document.getElementById("ai-"+ai);
-  const scroll=()=>{if(box)box.scrollTop=box.scrollHeight};
-  scroll();
-  try{
-    const res=await fetch(aiEndpoint(),{method:"POST",headers:aiHeaders(),body:JSON.stringify(aiBody(buildMsgs(),true))});
-    if(!res.ok)throw new Error("HTTP "+res.status+(res.status===429?"（模型被限流，稍后再试或换个模型）":res.status===401?"（API 密钥不对）":res.status===404?"（接口地址可能不对）":""));
-    const rd=res.body.getReader(),dec=new TextDecoder();let buf="",raw="";
-    for(;;){
-      const r2=await rd.read();if(r2.done)break;
-      const chunk=dec.decode(r2.value,{stream:true});
-      raw+=chunk;buf+=chunk;
-      const ls=buf.split("\n");buf=ls.pop();
-      for(const line of ls){
-        const add=aiExtractSSE(line);
-        if(add){
-          chat.msgs[ai].content+=add;
-          if(el)el.innerHTML=mdLite(chat.msgs[ai].content);
-          scroll();
-        }
-      }
-    }
-    if(!chat.msgs[ai].content.trim()){
-      // 兜底一：服务端无视 stream 参数返回了整体 JSON
-      try{const got=aiExtractJSON(JSON.parse(raw));if(got)chat.msgs[ai].content=got}catch(e){}
-    }
-    if(!chat.msgs[ai].content.trim()){
-      // 兜底二：仍为空 → 展示响应原文，便于定位问题
-      chat.msgs[ai].content="⚠️ 模型返回了空内容。响应原文前 200 字符：\n"+raw.slice(0,200);
-      chat.msgs[ai].err=true;
-    }
-  }catch(e){
-    chat.msgs[ai].content="⚠️ 请求失败："+e.message+"\n\n排查清单：\n1️⃣ 云端接口：接口地址 / 模型名 / API 密钥填写正确，账户有剩余额度；\n2️⃣ 免费模型可能临时限流，稍后重试或换个模型；\n3️⃣ 本地 LM Studio：Developer 页启动 Server 并加载模型、开启 Allow CORS，密钥留空；\n4️⃣ 若提示 CORS / Failed to fetch：该接口不允许浏览器直连，换支持 CORS 的服务商。";
-    chat.msgs[ai].err=true;
-  }
-  chat.busy=false;
-  renderAIPanel();
-}
-async function aiTest(){ // 真实发送一条流式对话，验证整条链路而不是只看模型列表
-  const el=document.getElementById("aiTestMsg");if(!el)return;
-  el.innerHTML='<span style="color:var(--muted)">测试中…（真实发送一条对话请求）</span>';
-  try{
-    const res=await fetch(aiEndpoint(),{method:"POST",headers:aiHeaders(),
-      body:JSON.stringify(aiBody([{role:"user",content:"只回复两个字：成功"}],true,100))});
-    const raw=await res.text();
-    if(!res.ok)throw new Error("HTTP "+res.status+" "+raw.slice(0,120));
-    let got="";
-    for(const line of raw.split("\n"))got+=aiExtractSSE(line);
-    if(!got.trim())got=aiExtractJSON((()=>{try{return JSON.parse(raw)}catch(e){return null}})());
-    if(got.trim())el.innerHTML='<span style="color:var(--green)">✅ 连接成功，模型回复：「'+escHtml(got.trim().slice(0,40))+'」</span>';
-    else el.innerHTML='<span style="color:var(--red)">❌ 连通了但没有读到内容。响应前 200 字符：</span><br><span style="color:var(--muted);font-size:12px;word-break:break-all">'+escHtml(raw.slice(0,200))+'</span>';
-  }catch(e){
-    el.innerHTML='<span style="color:var(--red)">❌ 连接失败：'+escHtml(e.message)+'（检查接口地址 / 模型名 / 密钥 / 网络）</span>';
-  }
 }
 
 /* ==================== 键盘快捷键 ==================== */
@@ -1324,28 +1016,18 @@ function skConfirm(msg){return skShow(msg,true)}
 let noteSel=-1; // -1=列表，>=0=对应公告详情
 function openNote(i){noteSel=i;render()}
 const NOTES=[
-  {date:"2026-08-31",tag:"🎉 上线公告",title:"关于本平台 · 使用指南",
-   excerpt:"这篇上线公告介绍平台的由来、当前的测试状态，以及完整的平台使用教程。",
+  {date:"2026-08-31",tag:"🎉 上线公告",title:"关于本平台",
+   excerpt:"项目由来、测试阶段、反馈意见与使用提示。",
    body:
     '<div class="note-sec"><h4>🎯 项目由来</h4>'+
     '<p>这段时间一边学习网络安全、准备竞赛，我发现了自己学习上的一个痛点：很多理论知识点当时看懂了，隔一段时间就容易记混、遗忘。平时打靶场练实操没问题，但只靠动手复现漏洞，很难把零散细碎的基础概念牢牢掌握住。</p>'+
     '<p>我并不认为理论就比实操更加重要，二者是缺一不可的。实操锻炼动手实战的能力，理论帮我们搞懂背后的底层逻辑。不管是比赛当中的理论选择题，还是以后求职面试时的基础问答，理论都是绕不开的考察内容。只埋头练实战不去复盘理论，笔试环节很容易丢分；反过来单纯死背知识点，不去动手实操练习也没有实际价值。</p>'+
-    '<p>发现这个问题之后，我整理好了整套平台的想法和全部需求，借助 AI 完成搭建。平台包含题库练习、AI 答疑、错题整理、打卡复习这些功能，初衷不是机械地死记硬背，只是用来查漏补缺、巩固理论知识，更好地备战比赛和应对之后的面试，让实操和理论两方面一起提升。</p></div>'+
+    '<p>发现这个问题之后，我整理好了整套平台的想法和全部需求，借助AI完成搭建。平台包含题库练习、错题整理、打卡复习这些功能，初衷不是机械地死记硬背，只是用来查漏补缺、巩固理论知识，更好地备战比赛和应对之后的面试，让实操和理论两方面一起提升。</p></div>'+
     '<div class="note-sec"><h4>🧪 测试阶段</h4><p>平台目前还在测试完善当中，后续题库内容和各项功能都会不断补充、调整优化。</p></div>'+
-    '<div class="note-sec"><h4>💬 广纳意见</h4><p>如果你发现题目、答案或者解析存在错误，或是对平台功能有新的建议，欢迎通过意见箱告诉我。</p><a class="btn primary" href="/feedback/?p=seclearn" target="_blank" rel="noopener" style="text-decoration:none">📮 前往意见箱</a></div>'+
+    '<div class="note-sec"><h4>🗣️ 反馈意见</h4><p>如果你发现题目、答案或者解析存在错误，或是对平台功能有新的建议，欢迎通过意见箱告诉我。</p><a class="btn primary" href="/feedback/?p=seclearn" target="_blank" rel="noopener" style="text-decoration:none">📮 前往意见箱</a></div>'+
     '<div class="note-sec"><h4>💾 使用提示</h4><p>做题记录只会保存在本地浏览器，清理缓存之前记得先<strong>导出备份</strong>，避免学习数据丢失。</p>'+
-    '<p>平台把「做题 → 错题 → 复习 → 巩固」串成一条线，建议按下面流程使用：</p>'+
-    '<ol>'+
-    '<li><b>刷题</b>：左侧「顺序练习」按题库顺序逐题刷，「随机练习」打乱顺序；答完自动判分并给出解析。</li>'+
-    '<li><b>错题复习</b>：答错的题自动进「错题本」，次日开始按 1/2/4/7/15/30 天间隔自动排期，每天在「今日复习」里过一遍，全部轮次通过即毕业移出错题本。</li>'+
-    '<li><b>弱项专练</b>：某分类累计作答 ≥5 次且正确率 &lt;60% 会被识别为弱项，「弱项专练」集中攻坚。</li>'+
-    '<li><b>模拟考试</b>：限时组卷自测，检验阶段掌握情况。</li>'+
-    '<li><b>AI 答疑</b>：右下角悬浮球随时提问，设置里可更换服务商接口。</li>'+
-    '<li><b>存疑 / 报错</b>：拿不准的题点「存疑」标记；发现题目、答案或解析有误，在「可疑题巡检」或意见箱反馈。</li>'+
-    '<li><b>备份</b>：做题进度只保存在本机浏览器，请在「学习总览 → 数据管理 → 导出备份」定期备份，清缓存前必做。</li>'+
-    '</ol>'+
-    '<p>祝刷题愉快，学有所成 🌱</p></div>'
-  }
+    '<p>祝刷题愉快，学有所成 🌱</p></div>'+
+   ''}
 ];
 function noteEsc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function rNote(){
