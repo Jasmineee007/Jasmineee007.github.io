@@ -451,6 +451,41 @@ function san(s){
 let __sanitized=false;
 function sanitizeQuestions(){if(__sanitized)return;__sanitized=true;QUESTIONS.forEach(q=>{q.q=san(q.q);q.o=(q.o||[]).map(san);q.e=san(q.e)})}
 
+function setBadge(id,n){const el=document.getElementById(id);if(el)el.textContent=n?(" "+n):""}
+function updateSidebar(){ // 渚ц竟鏍忛珮浜?+ 寰芥爣锛堝埌鏈?寮遍」/閿欓/鎶ラ敊鏁帮級
+  document.querySelectorAll(".navi").forEach(n=>n.classList.remove("on"));
+  let key="home";
+  if(view==="wrong")key="wrong";
+  else if(view==="browse")key="browse";
+  else if(view==="patrol")key="patrol";
+  else if(view==="exam"||(view==="result"&&ses&&ses.mode==="exam")||(view==="config"&&cfg.mode==="exam"))key="exam";
+  else if(view==="config"&&cfg.order==="rand")key="prand";
+  else if(view==="config"||view==="practice"||(view==="result"&&ses&&ses.mode==="practice"))key="pseq";
+  else if(view==="note")key="note";
+  const el=document.querySelector('.navi[data-key="'+key+'"]');
+  if(el)el.classList.add("on");
+  setBadge("nbReview",dueCount());
+  setBadge("nbWeak",weakCats().length);
+  setBadge("nbWrong",db.wrong.length);
+  setBadge("nbReport",db.report.length);
+}
+async function sideGo(k){ // 渚ц竟鏍忓鑸紱鑰冭瘯涓寮€闇€纭锛岄槻璇Е涓㈠嵎
+  if(view==="exam"&&!(await skConfirm("鑰冭瘯灏氭湭浜ゅ嵎锛岀寮€灏嗕笉璁℃垚缁┿€傜‘瀹氱寮€鍚楋紵")))return;
+  const acts={
+    home:()=>{view="home";render()},
+    pseq:()=>goConfig("practice","seq"),
+    prand:()=>goConfig("practice","rand"),
+    exam:()=>goConfig("exam","seq"),
+    review:()=>startReview(),
+    weak:()=>startWeakSession(),
+    wrong:()=>{view="wrong";render()},
+    browse:()=>{view="browse";render()},
+    patrol:()=>{view="patrol";render()},
+    note:()=>{view="note";noteSel=-1;render()},
+  };
+  const fn=acts[k];if(fn)fn();
+}
+
 function render(){
   sanitizeQuestions();
   if(timerHandle){clearInterval(timerHandle);timerHandle=null}
