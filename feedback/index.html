@@ -134,6 +134,8 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
 
 /* 保密提示 */
 .privacy{font-size:11px;color:var(--muted);opacity:.6;text-align:center;margin-top:16px;letter-spacing:.3px}
+/* 截图提示 */
+.attach-hint{font-size:12px;color:var(--muted);opacity:.75;text-align:center;margin-top:12px;letter-spacing:.3px}
 
 @media(max-width:600px){
   body{padding:18px 0}
@@ -218,6 +220,7 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
         <button class="submit-btn" id="submitBtn" onclick="submit()">
           🚀 提交反馈
         </button>
+        <p class="attach-hint">📎 如需附上截图，请在打开的邮件里手动添加附件</p>
       </div>
 
       <div class="success-overlay" id="successOverlay">
@@ -355,6 +358,8 @@ function submit() {
 【重要程度】${stars}（${hints[rating]}）
 【详细内容】
 ${detail}${contactLine}
+
+（📎 如有截图，请直接在邮件中添加附件）
 `
   );
 
