@@ -31,15 +31,16 @@ body{font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe
 .header h1{font-size:23px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:4px}
 .header p{font-size:13.5px;color:#aebcd4}
 
-/* 扁平左导航 + 右内容 */
-.main{width:100%;display:flex;gap:0;align-items:flex-start}
-.leftnav{width:192px;flex:none;display:flex;flex-direction:column;gap:4px;padding-top:4px}
+/* 两栏独立玻璃卡：左导航 + 右内容 */
+.main{width:100%;display:flex;gap:24px;align-items:flex-start}
+.glass-rail{width:200px;flex:none;background:rgba(30,40,62,.62);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px 14px;display:flex;flex-direction:column;gap:6px}
+.glass-ws{flex:1;min-width:0;background:rgba(30,40,62,.62);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:26px 30px;position:relative;overflow:hidden}
+.glass-ws::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#49b1f5,#00c4b6,#7c5fdb)}
 .rail-label{font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px;padding-left:4px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;color:var(--muted);cursor:pointer;transition:all .2s ease;font-size:14px;user-select:none;text-align:left;line-height:1.4;border-left:3px solid transparent}
 .nav-item .pico{font-size:16px}
-.nav-item:hover{color:var(--primary);background:rgba(73,177,245,.08)}
+.nav-item:hover{color:var(--primary);background:rgba(73,177,245,.1)}
 .nav-item.active{color:var(--primary);background:var(--bluebg);border-left-color:var(--primary);font-weight:600}
-.content{flex:1;min-width:0;padding:6px 0 0 38px;border-left:1px solid var(--border);position:relative}
 .workspace-switch{transition:opacity .18s ease}
 .workspace-switch.switching{opacity:.35}
 .ws-head{display:flex;align-items:center;gap:9px;margin-bottom:24px}
@@ -109,11 +110,11 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
   .topbar{margin-bottom:24px}
   .header{margin-bottom:24px}
   .main{flex-direction:column;gap:18px}
-  .leftnav{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
+  .glass-rail{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
   .rail-label{width:100%}
   .nav-item{flex:1;min-width:92px;justify-content:center;border-left:none;border-bottom:3px solid transparent}
   .nav-item.active{border-left:none;border-bottom-color:var(--primary)}
-  .content{padding:2px 0 0 0;border-left:none}
+  .glass-ws{padding:20px 16px}
 }
 </style>
 </head>
@@ -131,7 +132,7 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
   </div>
 
   <div class="main">
-    <nav class="leftnav">
+    <nav class="glass-rail">
       <div class="rail-label">反馈给谁</div>
       <div class="nav-item active" data-proj="seclearn" onclick="selectProject(this)">
         <span class="pico">🎓</span><span>SecLearn</span>
@@ -144,7 +145,7 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
       </div>
     </nav>
 
-    <div class="content">
+    <div class="glass-ws">
       <div class="workspace-switch" id="workspace">
         <div class="ws-head">
           <span class="ws-icon" id="wsIcon">🎓</span>
