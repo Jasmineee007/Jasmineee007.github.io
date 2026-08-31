@@ -8,12 +8,12 @@
   background-position: center !important;
 }
 
-/* 全站白纱罩（日间）：背景上蒙一层淡淡的白色 */
+/* 全站白纱罩（日间）：与刷题平台/反馈箱统一，日间透明（不蒙白纱） */
 #web_bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0);
   pointer-events: none;
 }
 

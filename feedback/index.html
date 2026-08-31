@@ -60,6 +60,9 @@ input,textarea,[contenteditable="true"]{cursor:text!important}
 .header .icon{font-size:38px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 14px rgba(73,177,245,.55))}
 .header h1{font-size:23px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:4px}
 .header p{font-size:13.5px;color:var(--sub)}
+/* 顶栏 + 标题区：深色背景图上统一白字 + 阴影（与博客导航一致） */
+.topbar .back,.topbar .tb-label,.header h1,.header p{color:#fff!important;text-shadow:1px 1px 3px rgba(0,0,0,.5)}
+.topbar .back:hover{color:var(--primary)!important}
 
 /* 两栏独立玻璃卡：左导航 + 右内容 */
 .main{width:100%;display:flex;gap:24px;align-items:flex-start}
