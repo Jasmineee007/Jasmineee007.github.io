@@ -50,6 +50,8 @@ code.block{display:block;margin:8px 0;padding:8px 10px;white-space:pre-wrap}
 .navbadge:empty{display:none}
 .sidefoot{margin-top:auto;display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px 4px 2px;border-top:1px solid var(--border)}
 .sidefoot .btn{width:100%;display:flex;align-items:center;justify-content:center;gap:4px}
+.sidefoot .btn.ghost{background:transparent;border:none;color:var(--text)}
+.sidefoot .btn.ghost:hover{background:var(--bluebg);color:var(--primary)}
 .mainarea{flex:1;min-width:0;padding:20px 24px 60px}
 #app{max-width:960px;margin:0 auto}
 @media(max-width:900px){
@@ -1026,6 +1028,15 @@ const NOTES=[
     '<div class="note-sec"><h4>🧪 测试阶段</h4><p>平台目前还在测试完善当中，后续题库内容和各项功能都会不断补充、调整优化。</p></div>'+
     '<div class="note-sec"><h4>🗣️ 反馈意见</h4><p>如果你发现题目、答案或者解析存在错误，或是对平台功能有新的建议，欢迎通过意见箱告诉我。</p><a class="btn primary" href="/feedback/?p=seclearn" target="_blank" rel="noopener" style="text-decoration:none">📮 前往意见箱</a></div>'+
     '<div class="note-sec"><h4>💾 使用提示</h4><p>做题记录只会保存在本地浏览器，清理缓存之前记得先<strong>导出备份</strong>，避免学习数据丢失。</p>'+
+    '<p>平台把「做题 → 错题 → 复习 → 巩固」串成一条线，建议按下面流程使用：</p>'+
+    '<ol>'+
+    '<li><b>刷题</b>：左侧「顺序练习」按题库顺序逐题刷，「随机练习」打乱顺序；答完自动判分并给出解析。</li>'+
+    '<li><b>错题复习</b>：答错的题自动进「错题本」，次日开始按 1/2/4/7/15/30 天间隔自动排期，每天在「今日复习」里过一遍，全部轮次通过即毕业移出错题本。</li>'+
+    '<li><b>弱项专练</b>：某分类累计作答 ≥5 次且正确率 &lt;60% 会被识别为弱项，「弱项专练」集中攻坚。</li>'+
+    '<li><b>模拟考试</b>：限时组卷自测，检验阶段掌握情况。</li>'+
+    '<li><b>存疑 / 报错</b>：拿不准的题点「存疑」标记；发现题目、答案或解析有误，在「可疑题巡检」或意见箱反馈。</li>'+
+    '<li><b>备份</b>：做题进度只保存在本机浏览器，请在「学习总览 → 数据管理 → 导出备份」定期备份，清缓存前必做。</li>'+
+    '</ol>'+
     '<p>祝刷题愉快，学有所成 🌱</p></div>'+
    ''}
 ];
