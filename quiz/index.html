@@ -267,6 +267,9 @@ input,textarea{cursor:text!important}
 ::-webkit-scrollbar-track{background:transparent}
 .nico,[data-icon]{display:inline-flex;flex:none;align-items:center;justify-content:center}
 </style>
+<script>/* 日夜间模式与博客主站/反馈箱统一：共用同一 localStorage key(与主站 saveToLocal 同格式)，首次访问跟随系统 */
+(function(){var t=null,r=localStorage.getItem("theme");if(r){try{var p=JSON.parse(r);t=(p&&typeof p==="object")?p.value:(typeof p==="string"?p:null)}catch(e){t=(r==="light"||r==="dark")?r:null}}if(t!=="light"&&t!=="dark")t=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.setAttribute("data-theme",t);})();
+</script>
 </head>
 <body>
 <div class="shell">
@@ -978,9 +981,14 @@ async function resetAll(){
 function toggleTheme(){
   const cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
   document.documentElement.setAttribute("data-theme",cur);
-  localStorage.setItem("secops_theme",cur);
+  localStorage.setItem("theme",JSON.stringify({value:cur,expiry:Date.now()+2*86400000}));
 }
-(function(){const t=localStorage.getItem("secops_theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")})();
+// 跨标签实时同步：博客主站/反馈箱切换主题时本页跟随
+window.addEventListener("storage",function(e){
+  if(e.key!=="theme"||!e.newValue)return;
+  var v=e.newValue;try{var p=JSON.parse(e.newValue);if(p&&typeof p==="object")v=p.value}catch(_){}
+  if(v==="light"||v==="dark")document.documentElement.setAttribute("data-theme",v);
+});
 
 /* ==================== 数据导出/导入 ==================== */
 function exportData(){
