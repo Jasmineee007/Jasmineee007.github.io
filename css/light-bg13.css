@@ -596,17 +596,17 @@ body,
   text-align: left;
 }
 
-/* === 自定义光标（leaf-arrow-forest 双形态，48px：默认箭头 + 可点击处手势）=== */
-/* 箭头热点 1 1 = 尖端；手势热点 10 2 = 食指指尖（sweezy 官方 offset 26,4 @128px 缩放） */
+/* === 自定义光标（leaf-arrow-forest 双形态，36px：默认箭头 + 可点击处手势）=== */
+/* 箭头热点 1 1 = 尖端；手势热点 7 1 = 食指指尖（sweezy 官方 offset 26,4 @128px 缩放到 36px） */
 html, body, body * {
-  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-48.png") 1 1, default !important;
+  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1, default !important;
 }
 
 /* 可点击元素切换成手指光标（选择器权重 ≥ 上面 `body *`，配合 !important 生效） */
 a, button, [onclick], [role="button"], select, summary, label, details,
 input[type="submit"], input[type="button"], input[type="checkbox"], input[type="radio"], input[type="range"],
 .btn, .navi, .brand, .bico, .note-item, .tag, .category, .page-number, .back-to-top {
-  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-48.png") 10 2, pointer !important;
+  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png") 7 1, pointer !important;
 }
 
 /* 文本输入框保留文本光标 */
