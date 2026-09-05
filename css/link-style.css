@@ -1,0 +1,37 @@
+/* ============================================================
+   link-style.css — 文章链接美化
+   配套：/js/link-polish.js（外链 .lp-ext 标记、裸网址短显示）
+   作用域：正文行内文本链接（p/li/td/th/blockquote/标题内），
+   图片链接、卡片、按钮、heading 锚点不受影响
+   ============================================================ */
+
+/* 下划线动画：平时隐形底线，hover 从左向右渐显（毛玻璃风精致版） */
+#article-container :is(p, li, td, th, blockquote, h1, h2, h3, h4, h5, h6) a:not(:has(img)):not(.headerlink) {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1.5px;
+  padding-bottom: 1px;
+  transition: background-size 0.3s ease;
+}
+#article-container :is(p, li, td, th, blockquote, h1, h2, h3, h4, h5, h6) a:not(:has(img)):not(.headerlink):hover {
+  background-size: 100% 1.5px;
+}
+
+/* 外链 ↗ 标识（JS 加 .lp-ext；currentColor 随日夜配色） */
+#article-container a.lp-ext::after {
+  content: '';
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 3px;
+  background-color: currentColor;
+  opacity: 0.65;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cline x1='10' y1='14' x2='21' y2='3'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cline x1='10' y1='14' x2='21' y2='3'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+/* 裸网址短显示后的链接 */
+#article-container a.lp-short {
+  word-break: keep-all;
+}
