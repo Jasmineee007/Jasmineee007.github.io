@@ -581,7 +581,7 @@ function rConfig(){
   }
   return '<div class="topbar"><button class="btn ghost sm" onclick="view=\'home\';render()">← 返回</button><b style="font-size:16px">'+(isExam?"📝 模拟考试设置":"📖 练习设置")+'</b></div>'+
     '<div class="card"><h2>1️⃣ 选择范围（已选 '+pool.length+' 题）</h2><div class="chips">'+
-    '<button class="chip '+(cfg.cats.size===Object.keys(CATS).length?"on":"")+'" onclick="allCats()">✅ 全选</button>'+chips+'</div>'+extra+'</div>'+
+    '<button class="chip '+(cfg.cats.size===Object.keys(CATS).length?"on":"")+'" onclick="allCats()">'+(cfg.cats.size===Object.keys(CATS).length?"❌ 全不选":"✅ 全选")+'</button>'+chips+'</div>'+extra+'</div>'+
     '<div style="text-align:center;margin-top:20px">'+
     (pool.length?'<button class="btn primary" style="padding:12px 46px;font-size:16px" onclick="startSession()">'+(isExam?"开始考试 →":"开始练习 →")+'</button>':'<div class="empty">请至少选择一个分类</div>')+
     '</div>';
@@ -804,7 +804,7 @@ function rPatrol(){
 /* ==================== 交互逻辑 ==================== */
 function goConfig(mode,order){cfg.mode=mode;cfg.order=order;view="config";render()}
 function toggleCat(k){cfg.cats.has(k)?cfg.cats.delete(k):cfg.cats.add(k);render()}
-function allCats(){cfg.cats=new Set(Object.keys(CATS));render()}
+function allCats(){const all=Object.keys(CATS);const allOn=cfg.cats.size>=all.length;cfg.cats=new Set(allOn?[]:all);render()}
 function quickStart(cat){ // 点击分类直接顺序练习该分类
   cfg.mode="practice";cfg.order="seq";cfg.cats=new Set([cat]);
   startSession();
