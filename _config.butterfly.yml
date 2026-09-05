@@ -23,6 +23,9 @@ menu:
   # 标签: /tags/ || fas fa-tags
   归档: /archives/ || fas fa-archive
   友链: /links/ || fas fa-link
+  项目||fas fa-toolbox:
+    SecLearn 刷题: /quiz/ || fas fa-graduation-cap
+  意见箱: /feedback/?p=blog || fas fa-comment-dots
   关于: /about/ || fas fa-user
 
 # --------------------------------------
@@ -49,32 +52,33 @@ code_blocks:
 #   icon: link || the description || color
 social:
   fab fa-github: https://github.com/Jasmineee007 || Github || '#24292e'
+  fab fa-gitee: https://gitee.com/jasminee0762 || Gitee || '#c71d23'
   # fas fa-envelope: mailto:xxxxxx@gmail.com || Email || '#4a7dbe'
 
 # --------------------------------------
 # Image Settings
 # --------------------------------------
 
-favicon: /img/photo.png
+favicon: https://img.jasmine-iris.top/img/photo.png
 
 avatar:
-  img: /img/photo.png
+  img: https://img.jasmine-iris.top/img/photo.png
   effect: false
 
 # Disable all banner images
 disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
-default_top_img: /img/post-1.png
+default_top_img: transparent
 
 # The banner image of index page
-index_img: /img/bg.jpg
+index_img: transparent
 
 # The banner image of archive page
-archive_img: /img/banner-night.png
+archive_img: transparent
 
 # Note: tag page, not tags page
-tag_img: /img/bg.jpg
+tag_img: transparent
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:
@@ -82,15 +86,12 @@ tag_img: /img/bg.jpg
 tag_per_img:
 
 # Note: category page, not categories page
-category_img: /img/bg.jpg
+category_img: transparent
 
 # The banner image of category page, you can set the banner image for each category
 # Format:
 #  - category name: xxxxx
 category_per_img:
-  CTF-WP: /img/ctfwp-1.jpeg
-  Web安全: /img/websec-1.jpeg
-  随笔: /img/banner-night.png
 
 # The background image of footer
 footer_img: false
@@ -98,7 +99,7 @@ footer_img: false
 # Website Background
 # Can set it to color, image URL or an array containing colors and/or image URLs
 # If an array is provided, a random background will be selected from the array on each load
-background: /img/bg.jpg
+background: https://img.jasmine-iris.top/img/bg.jpg
 
 cover:
   # Disable the cover or not
@@ -150,7 +151,7 @@ post_meta:
 # The position of site info, eg: 300px/300em/300rem/10%
 index_site_info_top:
 # The height of top_img, eg: 300px/300em/300rem
-index_top_img_height:
+index_top_img_height: 100vh
 
 # The subtitle on homepage
 subtitle:
@@ -170,7 +171,7 @@ subtitle:
   source: false
   # If you close the typewriter effect, the subtitle will only show the first line of sub
   sub:
-    - 欢迎来到我的博客~
+    - 满地都是六便士，我却抬头看见了月亮。
 
 # Article layout on the homepage
 # 1: Cover on the left, info on the right
@@ -200,13 +201,17 @@ toc:
   post: true
   page: false
   number: false
-  expand: false
+  expand: true
   # Only for post
   style_simple: false
   scroll_percent: true
 
 post_copyright:
-  enable: false
+  enable: true
+  decode: false
+  author_href: https://jasmine-iris.top
+  license: CC BY-NC-SA 4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 # Sponsor/reward
 reward:
@@ -265,8 +270,8 @@ footer:
   # Copyright of theme and framework
   copyright:
     enable: true
-    version: true
-  custom_text:
+    version: false
+  custom_text: '<a href="/atom.xml" target="_blank" rel="noopener">RSS 订阅</a>'
 
 # --------------------------------------
 # Aside Settings
@@ -347,14 +352,14 @@ aside:
     # Sort of order. 1, asc for ascending; -1, desc for descending
     order: -1
   card_webinfo:
-    enable: false
+    enable: true
     post_count: true
     last_push_date: true
     sort_order:
     # Time difference between publish date and now
     # Formal: Month/Day/Year Time or Year/Month/Day Time
     # Leave it empty if you don't enable this feature
-    runtime_date:
+    runtime_date: 2026/05/19 00:00:00
 
 # --------------------------------------
 # Bottom right button
@@ -405,7 +410,8 @@ rightside_item_order:
   # Default: readmode,translate,darkmode,hideAside
   hide:
   # Default: toc,chat,comment
-  show: darkmode,hideAside
+  # toc = 手机端文章目录按钮（桌面端被主题 CSS 隐藏，不影响桌面）
+  show: darkmode,hideAside,toc
 
 # Animation for the bottom right config button
 rightside_config_animation: true
@@ -519,7 +525,7 @@ share:
   # Share.js
   # https://github.com/overtrue/share.js
   sharejs:
-    sites: facebook,x,wechat,weibo,qq
+    sites: wechat,qzone,weibo,qq
 
   # AddToAny
   # https://www.addtoany.com/
@@ -593,6 +599,13 @@ valine:
 waline:
   serverURL: https://waline.jasmine-iris.top
   bg:
+  # Use Waline visitor count as the page view count
+  pageview: false
+  # 自定义表情包（自托管于图床，构建 info.json + 图片目录）
+  option:
+    emoji:
+      - 'https://img.jasmine-iris.top/emoji/lulu'
+      - 'https://img.jasmine-iris.top/emoji/miku'
 
 # Utterances
 # https://utteranc.es/
@@ -697,18 +710,18 @@ microsoft_clarity:
 
 # https://umami.is/
 umami_analytics:
-  enable: false
+  enable: true
   # For self-hosted setups, configure the hostname of the Umami instance
-  serverURL:
+  serverURL: https://umami.jasmine-iris.top
   script_name: script.js
-  website_id:
+  website_id: ec777610-c4cf-493c-a333-c1dc46377957
   option:
   UV_PV:
-    site_uv: false
-    site_pv: false
+    site_uv: true
+    site_pv: true
     page_pv: false
     # Umami Cloud (API key) / self-hosted Umami (token)
-    token:
+    token: share-via-worker
 
 # https://www.googletagmanager.com/
 google_tag_manager:
@@ -787,7 +800,7 @@ text_align_justify: false
 
 # Add a mask to the header and footer
 mask:
-  header: true
+  header: false
   footer: true
 
 # Loading Animation
@@ -821,7 +834,7 @@ beautify:
 font:
   global_font_size: 18px
   code_font_size:
-  font_family:
+  font_family: "'LXGW WenKai GB Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', 'Microsoft YaHei', sans-serif"
   code_font_family:
 
 # Font settings for the site title and site subtitle
@@ -908,7 +921,7 @@ clickShowText:
 # https://github.com/francoischalifour/medium-zoom
 # https://fancyapps.com/fancybox/
 # Leave it empty if you don't need lightbox
-lightbox:
+lightbox: fancybox
 
 # --------------------------------------
 # Tag Plugins settings
@@ -1010,9 +1023,9 @@ instantpage: false
 # Lazyload
 # https://github.com/verlok/vanilla-lazyload
 lazyload:
-  enable: false
+  enable: true
   # Use browser's native lazyload instead of vanilla-lazyload
-  native: false
+  native: true
   # Specify the field to use lazyload (site or post)
   field: site
   placeholder:
@@ -1057,14 +1070,38 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
-    - <link rel="stylesheet" href="/css/light-bg.css?v=85">
+    - <link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css">
+    - <link rel="preload" as="style" href="/font/lxgwwenkaigbscreen/result.min.css">
+    - <link rel="stylesheet" href="/css/light-bg13.css?v=17">
+    - <link rel="stylesheet" href="/css/top-img.css">
+    - <link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png">
+    - <link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png">
     - <link rel="stylesheet" href="/css/fix-flash.css?v=6">
+    - <link rel="stylesheet" href="/css/theme-bg.css?v=1">
+    - <link rel="stylesheet" href="/css/context-menu.css?v=1">
+    - <link rel="stylesheet" href="/css/post-extras.css?v=1">
+    - <link rel="stylesheet" href="/css/link-style.css?v=1">
     - <style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style>
   bottom:
-    - <script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home');(function(){if(GLOBAL_CONFIG.pageType!=='home')return;var t=sessionStorage.getItem('auto-scrolled');if(t)return;sessionStorage.setItem('auto-scrolled','1');setTimeout(function(){var el=document.getElementById('content-inner');if(el)btf.scrollToDest(el.offsetTop,600)},1500)})()</script>
+    - <script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home')</script>
     - <script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script>
-    - <script src="/js/copy-guard.js"></script>
-    - <script>(function(){var bg=document.getElementById('web_bg');if(!bg)return;bg.style.backgroundSize='70%';bg.style.backgroundPosition='left bottom';var p=location.pathname;var bw=document.getElementById('body-wrap');if(p==='/archives/'&&bw){bw.classList.add('page-custom-style')}})()</script>
+    - <script src="/js/copy-guard.js?v=2"></script>
+    - <script src="/js/copy-feedback.js?v=1"></script>
+    - <script src="/js/cursor.js"></script>
+    - <script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script>
+    - <script src="/js/pv-post.js?v=1"></script>
+    - <script src="/js/poem-card.js?v=2"></script>
+    - <script src="/js/runtime-live.js?v=2"></script>
+    - <script src="/js/scroll-reveal.js?v=1"></script>
+    - <script src="/js/theme-switch.js?v=1"></script>
+    - <script src="/js/context-menu.js?v=3"></script>
+    - <script src="/js/console-art.js?v=1"></script>
+    - <script src="/js/anti-devtools.js?v=1"></script>
+    - <script src="/js/tab-title.js?v=1"></script>
+    - <script src="/js/pangu.min.js?v=1"></script>
+    - <script src="/js/pangu-init.js?v=1"></script>
+    - <script src="/js/link-polish.js?v=1"></script>
+    - <script>(function(){window.addEventListener('storage',function(e){if(e.key!=='theme'||!e.newValue)return;var v=e.newValue;try{var p=JSON.parse(e.newValue);if(p&&typeof p==='object')v=p.value}catch(_){}if(v!=='dark'&&v!=='light')return;if(document.documentElement.getAttribute('data-theme')===v)return;if(v==='dark'){if(window.btf&&window.btf.activateDarkMode)window.btf.activateDarkMode();else document.documentElement.setAttribute('data-theme','dark')}else{if(window.btf&&window.btf.activateLightMode)window.btf.activateLightMode();else document.documentElement.setAttribute('data-theme','light')}})})();</script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work

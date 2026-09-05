@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>404 - Jasmine_Iris</title>
+<link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css">
+<style>
+/* ============================================================
+   404.html — 迷路页（GitHub Pages 自动以本文件响应所有未知路由）
+   独立静态页：与主站一图流/毛玻璃风格一致，主题跟随
+   主站 localStorage 记忆，无记忆时跟随系统深浅色
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: 'LXGW WenKai Screen', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: url('https://img.jasmine-iris.top/img/bg.jpg') center / cover no-repeat fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+/* 夜间黑纱（与主站 --veil-night 一致） */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  pointer-events: none;
+}
+body[data-theme='dark']::before { background: rgba(0, 0, 0, 0.45); }
+
+.lost-card {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+  width: 100%;
+  padding: 48px 40px 40px;
+  text-align: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 16px 36px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+body[data-theme='dark'] .lost-card {
+  background: rgba(30, 30, 42, 0.55);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.code {
+  font-size: 88px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 4px;
+  background: linear-gradient(120deg, #49b1f5 0%, #6ec6ff 45%, #8b7ec8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body[data-theme='dark'] .code {
+  background: linear-gradient(120deg, #6ec6ff 0%, #a5d8ff 50%, #c3b3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.msg {
+  margin: 18px 0 6px;
+  font-size: 17px;
+  color: #1f2937;
+  line-height: 2;
+}
+.sub {
+  margin-bottom: 26px;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.8;
+}
+body[data-theme='dark'] .msg { color: #e5e7eb; }
+body[data-theme='dark'] .sub { color: #9ca3af; }
+
+.btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btns a {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btns a.primary {
+  background: #49b1f5;
+  color: #fff;
+  font-weight: 600;
+}
+.btns a.primary:hover { background: #3a9ce0; transform: translateY(-3px); box-shadow: 0 8px 16px rgba(73, 177, 245, .35); }
+.btns a.ghost {
+  background: rgba(73, 177, 245, 0.14);
+  color: #1a6fb8;
+  font-weight: 500;
+}
+.btns a.ghost:hover { background: rgba(73, 177, 245, 0.24); transform: translateY(-3px); }
+body[data-theme='dark'] .btns a.primary { background: #2f9be0; }
+body[data-theme='dark'] .btns a.primary:hover { background: #3a9ce0; }
+body[data-theme='dark'] .btns a.ghost { background: rgba(110, 198, 255, 0.12); color: #6ec6ff; }
+body[data-theme='dark'] .btns a.ghost:hover { background: rgba(110, 198, 255, 0.22); }
+
+@media (max-width: 480px) {
+  .lost-card { padding: 36px 24px 32px; }
+  .code { font-size: 68px; }
+}
+
+/* 与主站一致的叶形光标 */
+html, body, body * {
+  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1, default !important;
+}
+.btns a {
+  cursor: url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png") 7 1, pointer !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btns a:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+  <div class="lost-card">
+    <div class="code">404</div>
+    <p class="msg">满地都是六便士<br>这一页却找不见月亮</p>
+    <p class="sub">你要访问的页面不存在，或者已经迁去了别处</p>
+    <div class="btns">
+      <a class="primary" href="/">返回首页</a>
+      <a class="ghost" href="/quiz/">SecLearn 刷题</a>
+      <a class="ghost" href="/feedback/">反馈箱</a>
+    </div>
+  </div>
+  <script>
+    // 主题跟随主站记忆（btf.saveToLocal 的 JSON 格式），无记忆跟随系统
+    (function () {
+      var mode = null
+      try {
+        var raw = JSON.parse(localStorage.getItem('theme') || 'null')
+        if (raw && raw.expiry > Date.now()) mode = raw.value
+      } catch (e) { /* ignore */ }
+      if (mode !== 'dark' && mode !== 'light') {
+        mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      document.body.setAttribute('data-theme', mode)
+    })()
+  </script>
+  <!-- 主站统一防护/体验（独立页不走主题 inject，手动维护；版本号须与 _config.butterfly.yml 同步） -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/context-menu.css?v=1">
+  <script src="/js/context-menu.js?v=3"></script>
+  <script src="/js/console-art.js?v=1"></script>
+  <script src="/js/anti-devtools.js?v=1"></script>
+</body>
+</html>

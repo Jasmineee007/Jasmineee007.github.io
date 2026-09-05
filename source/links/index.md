@@ -2,7 +2,7 @@
 title: 友链
 date: 2026-05-19 23:11:29
 type: link
-top_img: /img/about-1.png
+top_img: transparent
 comments: true
 ---
 

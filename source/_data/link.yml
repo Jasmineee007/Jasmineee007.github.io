@@ -1,15 +1,43 @@
 - class_name: 我的个人博客
-  class_desc:
   link_list:
     - name: Jasmine_Iris
       link: https://jasmineee007.github.io
-      avatar: https://jasmineee007.github.io/img/photo.png
+      avatar: https://img.jasmine-iris.top/img/photo.png
       descr: 菜菜，带带~
 
-- class_name: 小伙伴们
-  class_desc:
+- class_name: 圈内大佬
+  class_desc: 各路师傅聚集地
   link_list:
+    - name: ljnljn
+      link: https://www.cnblogs.com/ljnljn#/
+      link2: https://ljnljn2005.github.io/
+      link2_name: ljnljn's blog
+      avatar: https://pic.cnblogs.com/avatar/3539156/20260512195954.png
+      descr: 一个很厉害的师傅！！！
     - name: HACKED
       link: https://blog.ss0t-hacked.top
-      avatar: https://q1.qlogo.cn/g?b=qq&nk=3255154997&s=640
+      avatar: https://img.jasmine-iris.top/img/avatars/hacked.png
       descr: 大佬菜菜ddw，一个刚刚开始学习的pwner
+      note: 串子！其实是一个厉害的pwner！
+
+- class_name: 好站推荐
+  class_desc: 意外发现...
+  link_list:
+    - name: 渗透测试中心
+      link: https://www.cnblogs.com/backlion
+      avatar: https://img.jasmine-iris.top/img/avatars/backlion.jpg
+      descr: 意外发现的大佬
+    - name: HackTricks
+      link: https://hacktricks.wiki/en/generic-methodologies-and-resources/phishing-methodology/homograph-attacks.html
+      avatar: https://img.jasmine-iris.top/img/avatars/hacktricks.png
+      descr: 渗透测试技巧百科全书
+    - name: Sweezy Cursors
+      link: https://sweezy-cursors.com/
+      avatar: https://img.jasmine-iris.top/img/avatars/sweezy.png
+      descr: 可爱的自定义鼠标光标下载站
+      siteshot: https://img.jasmine-iris.top/img/avatars/sweezy-siteshot.jpg
+    - name: CTF-Web修炼手册
+      link: https://wilesangh.github.io/ctf-web/
+      avatar: https://img.jasmine-iris.top/img/avatars/wilesangh.png
+      descr: Web安全学习笔记，含SQL注入、XSS、CSRF等常见漏洞记录
+      siteshot: https://image.thum.io/get/width/600/crop/400/https://wilesangh.github.io/ctf-web/

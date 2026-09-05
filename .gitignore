@@ -6,3 +6,8 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+.env
+.gitee-cache.json
+blog_images_backup/
+waline-worker/
+local-backups/

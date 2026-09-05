@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){var t=null,r=localStorage.getItem("theme");if(r){try{var p=JSON.parse(r);t=(p&&typeof p==="object")?p.value:(typeof p==="string"?p:null)}catch(e){t=(r==="light"||r==="dark")?r:null}}if(t!=="light"&&t!=="dark")t=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.setAttribute("data-theme",t);})();</script>
+<title>反馈中心 - Jasmine_Iris</title>
+<link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#eef4fa;--veil:rgba(240,246,252,0);
+  --text:#243041;--muted:#66788f;
+  --primary:#49b1f5;--primary2:#2b8fd9;--border:rgba(255,255,255,.55);
+  --bluebg:rgba(73,177,245,.1);
+  --red:#dc2626;
+  --shadow:0 2px 4px rgba(0,0,0,.08),0 16px 36px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.45);
+  --glass:rgba(255,255,255,.6);
+  --glass-brd:rgba(255,255,255,.55);
+  --glass-inset:rgba(255,255,255,.7);
+  --input-bg:rgba(255,255,255,.6);
+  --btn-bg:rgba(255,255,255,.65);
+  --overlay-bg:rgba(240,246,252,.92);
+  --sub:#66788f;
+}
+[data-theme="dark"]{
+  --bg:#0e1420;--veil:rgba(8,12,22,.5);
+  --text:#e8edf6;--muted:#9fb0c8;
+  --primary:#49b1f5;--primary2:#2b8fd9;--border:rgba(255,255,255,.12);
+  --bluebg:rgba(73,177,245,.1);
+  --red:#dc2626;
+  --shadow:0 16px 40px rgba(0,0,0,.22);
+  --glass:rgba(30,40,62,.62);
+  --glass-brd:rgba(255,255,255,.14);
+  --glass-inset:rgba(255,255,255,.08);
+  --input-bg:rgba(255,255,255,.04);
+  --btn-bg:rgba(255,255,255,.06);
+  --overlay-bg:rgba(8,12,22,.88);
+  --sub:#aebcd4;
+}
+body{font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue','Microsoft YaHei',sans-serif;background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),url("https://img.jasmine-iris.top/img/bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);line-height:1.65;font-size:14.5px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:46px 0}
+/* === 自定义光标（leaf-arrow-forest 双形态，36px，与博客/SecLearn 一致）=== */
+*{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1,default!important}
+a,button,[onclick],[role="button"],select,summary,label,input[type="submit"],input[type="button"],input[type="checkbox"],input[type="radio"]{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png") 7 1,pointer!important}
+input,textarea,[contenteditable="true"]{cursor:text!important}
+.page{width:min(1080px,94vw);display:flex;flex-direction:column;align-items:center}
+
+/* 顶部返回导航 */
+.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;margin-bottom:24px}
+.topbar .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:14px;padding:4px 8px;border-radius:8px;transition:color .2s,background .2s}
+.topbar .back:hover{color:var(--primary);background:rgba(73,177,245,.08)}
+.topbar .tb-label{font-size:13px;color:var(--muted);letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:12px}
+.theme-btn{background:var(--btn-bg);border:1px solid var(--border);border-radius:8px;padding:4px 10px;color:var(--text);font-size:14px;cursor:pointer;line-height:1;transition:border-color .2s,color .2s,transform .2s}
+.theme-btn:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+
+/* 标题区 */
+.header{text-align:center;margin-bottom:24px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;padding:26px 30px;width:100%}
+.header .icon{font-size:38px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 14px rgba(73,177,245,.55))}
+.header h1{font-size:23px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:4px}
+.header p{font-size:13.5px;color:var(--sub)}
+
+/* 两栏独立玻璃卡：左导航 + 右内容 */
+.main{width:100%;display:flex;gap:24px;align-items:flex-start}
+.glass-rail{width:200px;flex:none;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;padding:18px 14px;display:flex;flex-direction:column;gap:6px}
+.glass-ws{flex:1;min-width:0;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;padding:26px 30px;position:relative;overflow:hidden}
+.glass-ws::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#49b1f5,#00c4b6,#7c5fdb)}
+.rail-label{font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px;padding-left:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;color:var(--muted);cursor:pointer;transition:all .2s ease;font-size:14px;user-select:none;text-align:left;line-height:1.4;border-left:3px solid transparent}
+.nav-item .pico{font-size:16px}
+.nav-item:hover{color:var(--primary);background:rgba(73,177,245,.1)}
+.nav-item.active{color:var(--primary);background:var(--bluebg);border-left-color:var(--primary);font-weight:600}
+.workspace-switch{transition:opacity .18s ease}
+.workspace-switch.switching{opacity:.35}
+.ws-head{display:flex;align-items:center;gap:9px;margin-bottom:24px}
+.ws-icon{font-size:20px}
+.ws-name{font-size:20px;font-weight:700;color:var(--text);letter-spacing:.5px}
+
+/* 表单字段 */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-bottom:9px;text-transform:uppercase}
+.field label .req{color:var(--red);font-weight:700;font-size:11px;margin-left:2px;text-transform:none}
+.field label .opt{color:var(--muted);font-weight:400;opacity:.6;font-size:11px;margin-left:2px;text-transform:none}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.type-btn{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;padding:10px 6px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s ease;user-select:none}
+.type-btn:hover{background:rgba(73,177,245,.1);border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+.type-btn.active{background:var(--bluebg);border-color:var(--primary);color:var(--primary);font-weight:600}
+.type-btn .emoji{font-size:16px;display:block;margin-bottom:2px}
+
+/* 重要程度 */
+.rating-row{display:flex;align-items:center;gap:12px}
+.stars{display:flex;gap:6px}
+.star{font-size:22px;cursor:pointer;color:var(--border);transition:color .15s,transform .15s;user-select:none;line-height:1}
+.star.lit{color:#f5a623;transform:scale(1.15)}
+.star:hover{transform:scale(1.2)}
+.rating-hint{font-size:12px;color:var(--muted);margin-left:auto}
+
+/* 输入区 */
+textarea{width:100%;min-height:110px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(73,177,245,.15)}
+textarea::placeholder{color:var(--muted);opacity:.65}
+textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
+.field-error{display:none;color:var(--red);font-size:12px;margin-top:6px;letter-spacing:.3px}
+.field-error.show{display:block;animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.contact-input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.contact-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(73,177,245,.15)}
+.contact-input::placeholder{color:var(--muted);opacity:.65}
+
+/* 提交按钮 */
+.submit-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#49b1f5 0%,#2b8fd9 100%);color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s ease;letter-spacing:.5px;box-shadow:0 4px 14px rgba(43,143,217,.4)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(43,143,217,.5)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn.sending{opacity:.7;pointer-events:none}
+.submit-btn.success{background:linear-gradient(135deg,#16a34a 0%,#15803d 100%)}
+
+/* 成功动画 */
+.success-overlay{position:absolute;inset:0;background:linear-gradient(var(--overlay-bg),var(--overlay-bg));display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;border-radius:8px;z-index:5}
+.success-overlay.show{opacity:1;pointer-events:auto}
+.success-overlay .check{font-size:56px;line-height:1;margin-bottom:12px;animation:bounceIn .5s ease}
+.success-overlay .msg{font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px}
+.success-overlay .sub{font-size:13px;color:var(--muted)}
+.overlay-actions{display:flex;gap:10px;margin-top:22px}
+.overlay-actions a,.overlay-actions button{background:var(--btn-bg);border:1px solid var(--border);border-radius:8px;padding:8px 18px;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;text-decoration:none;transition:all .2s ease}
+.overlay-actions a:hover,.overlay-actions button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+.overlay-actions .primary{background:linear-gradient(135deg,#49b1f5,#2b8fd9);border:none;color:#fff;font-weight:600}
+.overlay-actions .primary:hover{color:#fff;box-shadow:0 4px 14px rgba(43,143,217,.4)}
+.fly-rocket{position:fixed;z-index:999;font-size:30px;line-height:1;pointer-events:none;opacity:0}
+.fly-rocket.go{opacity:1;animation:flyUp .9s cubic-bezier(.2,.6,.2,1) forwards}
+@keyframes flyUp{0%{transform:translate(-50%,-50%);opacity:1}70%{transform:translate(-50%,-50%) translateY(-46vh) rotate(35deg);opacity:1}100%{transform:translate(-50%,-50%) translateY(-72vh) rotate(45deg);opacity:0}}
+
+@keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* 保密提示 */
+.privacy{font-size:11px;color:var(--muted);opacity:.6;text-align:center;margin-top:16px;letter-spacing:.3px}
+/* 截图提示 */
+.attach-hint{font-size:12px;color:var(--muted);opacity:.75;text-align:center;margin-top:12px;letter-spacing:.3px}
+
+@media(max-width:600px){
+  body{padding:18px 0}
+  .topbar{margin-bottom:24px}
+  .header{margin-bottom:24px}
+  .main{flex-direction:column;gap:18px}
+  .glass-rail{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
+  .rail-label{width:100%}
+  .nav-item{flex:1;min-width:92px;justify-content:center;border-left:none;border-bottom:3px solid transparent}
+  .nav-item.active{border-left:none;border-bottom-color:var(--primary)}
+  .glass-ws{padding:20px 16px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back" href="/">← 返回博客</a>
+    <div class="tb-right">
+      <span class="tb-label">意见箱</span>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="切换日间/夜间模式">🌙</button>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="icon">📮</div>
+    <h1>意见箱</h1>
+    <p>你的每一条反馈，都会飞向博主的邮箱</p>
+  </div>
+
+  <div class="main">
+    <nav class="glass-rail">
+      <div class="rail-label">反馈给谁</div>
+      <div class="nav-item active" data-proj="seclearn" onclick="selectProject(this)">
+        <span class="pico">🎓</span><span>SecLearn</span>
+      </div>
+      <div class="nav-item" data-proj="blog" onclick="selectProject(this)">
+        <span class="pico">✍️</span><span>博客</span>
+      </div>
+      <div class="nav-item" data-proj="other" onclick="selectProject(this)">
+        <span class="pico">🧩</span><span>其他</span>
+      </div>
+    </nav>
+
+    <div class="glass-ws">
+      <div class="workspace-switch" id="workspace">
+        <div class="ws-head">
+          <span class="ws-icon" id="wsIcon">🎓</span>
+          <span class="ws-name" id="wsName">SecLearn 刷题平台</span>
+        </div>
+
+        <div class="field">
+          <label>反馈类型</label>
+          <div class="type-grid" id="typeGrid"></div>
+        </div>
+
+        <div class="field">
+          <label>重要程度</label>
+          <div class="rating-row">
+            <div class="stars">
+              <span class="star" data-v="1" onclick="setRating(1)">★</span>
+              <span class="star" data-v="2" onclick="setRating(2)">★</span>
+              <span class="star" data-v="3" onclick="setRating(3)">★</span>
+              <span class="star" data-v="4" onclick="setRating(4)">★</span>
+              <span class="star" data-v="5" onclick="setRating(5)">★</span>
+            </div>
+            <span class="rating-hint" id="ratingHint">一般</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>详细描述 <span class="req">* 必填</span></label>
+          <textarea id="detail" placeholder="请具体描述你的想法或遇到的问题，越详细越有帮助"></textarea>
+          <div class="field-error" id="detailErr">请先填写反馈内容，博主才能看懂你的想法</div>
+        </div>
+
+        <div class="field">
+          <label>联系方式 <span class="opt">选填</span></label>
+          <input class="contact-input" type="text" id="contact" placeholder="邮箱 / QQ / 微信，方便博主回复你">
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submit()">
+          🚀 提交反馈
+        </button>
+        <p class="attach-hint">📎 如需附上截图，请在打开的邮件里手动添加附件</p>
+      </div>
+
+      <div class="success-overlay" id="successOverlay">
+        <div class="check">📨</div>
+        <div class="msg">反馈已发射！</div>
+        <div class="sub">你的想法正乘着纸飞机飞向博主邮箱</div>
+        <div class="overlay-actions">
+          <a class="primary" href="/">返回首页</a>
+          <button onclick="resetForm()">再写一条</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="privacy">🔒 内容仅发送至博主私人邮箱，不公开显示</p>
+</div>
+
+<script>
+let selectedType = null;
+let rating = 3;
+let project = 'seclearn';
+
+const projects = {
+  seclearn: { name: 'SecLearn 刷题平台', icon: '🎓' },
+  blog:     { name: 'Jasmine_Iris 博客', icon: '✍️' },
+  other:    { name: '其他项目', icon: '🧩' }
+};
+
+// 每个项目专属的反馈类型，切换项目时右侧按钮组随之变化
+const projectTypes = {
+  seclearn: [
+    { id: 'suggest', icon: '💡', label: '功能建议' },
+    { id: 'error',   icon: '🔍', label: '内容纠错' },
+    { id: 'new',     icon: '📝', label: '新题推荐' },
+    { id: 'bug',     icon: '🐛', label: '体验问题' },
+    { id: 'other',   icon: '💬', label: '其他' },
+    { id: 'praise',  icon: '🙌', label: '正向鼓励' }
+  ],
+  blog: [
+    { id: 'layout',  icon: '🎨', label: '排版视觉' },
+    { id: 'content', icon: '📝', label: '文章内容' },
+    { id: 'speed',   icon: '⚡', label: '加载速度' },
+    { id: 'bug',     icon: '🐛', label: '体验问题' },
+    { id: 'praise',  icon: '🙌', label: '夸奖' },
+    { id: 'other',   icon: '💬', label: '其他' }
+  ],
+  other: [
+    { id: 'suggest', icon: '💡', label: '功能建议' },
+    { id: 'bug',     icon: '🐛', label: '体验问题' },
+    { id: 'praise',  icon: '🙌', label: '夸奖' },
+    { id: 'other',   icon: '💬', label: '其他' }
+  ]
+};
+
+const hints = ['', '微乎其微', '较小', '一般', '重要', '关键'];
+
+function renderTypes() {
+  const list = projectTypes[project];
+  selectedType = list[0].id;
+  document.getElementById('wsIcon').textContent = projects[project].icon;
+  document.getElementById('wsName').textContent = projects[project].name;
+  document.getElementById('typeGrid').innerHTML = list.map(t =>
+    `<div class="type-btn${t.id === selectedType ? ' active' : ''}" data-type="${t.id}" onclick="selectType(this)"><span class="emoji">${t.icon}</span>${t.label}</div>`
+  ).join('');
+}
+
+function selectType(el) {
+  document.querySelectorAll('#typeGrid .type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedType = el.dataset.type;
+}
+
+function selectProject(el) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  project = el.dataset.proj;
+  const ws = document.getElementById('workspace');
+  ws.classList.add('switching');
+  renderTypes();
+  setTimeout(() => ws.classList.remove('switching'), 180);
+}
+
+// URL ?p= 参数预选项目来源（SecLearn 入口 /feedback/?p=seclearn，博客菜单 /feedback/?p=blog）
+(function() {
+  const p = new URLSearchParams(location.search).get('p');
+  if (p && projects[p]) {
+    project = p;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.proj === p));
+  }
+  renderTypes();
+})();
+
+function setRating(v) {
+  rating = v;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('lit', parseInt(s.dataset.v) <= v);
+  });
+  document.getElementById('ratingHint').textContent = hints[v];
+}
+
+// 初始化默认星级
+setRating(3);
+
+// 填写描述时清除错误提示
+document.getElementById('detail').addEventListener('input', () => {
+  document.getElementById('detail').classList.remove('err');
+  document.getElementById('detailErr').classList.remove('show');
+});
+
+function submit() {
+  const ta = document.getElementById('detail');
+  const detailErr = document.getElementById('detailErr');
+  const detail = ta.value.trim();
+
+  // 必填校验：未填写描述则红框 + 红字提醒 + 聚焦
+  if (!detail) {
+    ta.classList.add('err');
+    detailErr.classList.add('show');
+    ta.focus();
+    return;
+  }
+  ta.classList.remove('err');
+  detailErr.classList.remove('show');
+
+  const typeLabel = projectTypes[project].find(t => t.id === selectedType).label;
+  const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+
+  const subject = encodeURIComponent(`[反馈 · ${projects[project].name}] ${typeLabel} ${stars}`);
+  const contact = document.getElementById('contact').value.trim();
+  const contactLine = contact ? `\n联系方式：${contact}` : '';
+
+  const body = encodeURIComponent(
+`【项目】${projects[project].name}
+【反馈类型】${typeLabel}
+【重要程度】${stars}（${hints[rating]}）
+【详细内容】
+${detail}${contactLine}
+
+（📎 如有截图，请直接在邮件中添加附件）
+`
+  );
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('sending');
+  btn.textContent = '⏳ 点火发射...';
+  launchRocket(btn);
+
+  // 火箭飞出后跳转邮件，并显示成功面板
+  setTimeout(() => {
+    btn.classList.add('success');
+    btn.textContent = '✅ 已发射';
+    document.getElementById('successOverlay').classList.add('show');
+
+    window.location.href = `mailto:3381905188@qq.com?subject=${subject}&body=${body}`;
+  }, 650);
+
+  // 按钮恢复可再次提交
+  setTimeout(() => {
+    btn.classList.remove('sending');
+    btn.classList.remove('success');
+    btn.textContent = '🚀 提交反馈';
+  }, 3500);
+}
+
+// 火箭从按钮位置起飞
+function launchRocket(btn) {
+  const r = btn.getBoundingClientRect();
+  const rocket = document.createElement('div');
+  rocket.className = 'fly-rocket';
+  rocket.textContent = '🚀';
+  rocket.style.left = (r.left + r.width / 2) + 'px';
+  rocket.style.top = (r.top + r.height / 2) + 'px';
+  document.body.appendChild(rocket);
+  requestAnimationFrame(() => rocket.classList.add('go'));
+  setTimeout(() => rocket.remove(), 1000);
+}
+
+// 再写一条
+function resetForm() {
+  document.getElementById('detail').value = '';
+  document.getElementById('contact').value = '';
+  document.getElementById('detail').classList.remove('err');
+  document.getElementById('detailErr').classList.remove('show');
+  setRating(3);
+  document.getElementById('successOverlay').classList.remove('show');
+  const btn = document.getElementById('submitBtn');
+  btn.classList.remove('success', 'sending');
+  btn.textContent = '🚀 提交反馈';
+}
+</script>
+<script>
+/* 日夜间模式：与博客主站 / SecLearn 共用同一 localStorage key，三处主题保持一致 */
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",cur);
+  localStorage.setItem("theme",JSON.stringify({value:cur,expiry:Date.now()+2*86400000}));
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  const b=document.getElementById("themeBtn");
+  if(b)b.textContent=document.documentElement.getAttribute("data-theme")==="dark"?"☀️":"🌙";
+}
+syncThemeIcon();
+window.addEventListener("storage",function(e){
+  if(e.key!=="theme"||!e.newValue)return;
+  var v=e.newValue;try{var p=JSON.parse(e.newValue);if(p&&typeof p==="object")v=p.value}catch(_){}
+  if(v==="light"||v==="dark"){
+    document.documentElement.setAttribute("data-theme",v);
+    syncThemeIcon();
+  }
+});
+</script>
+<!-- 主站统一防护/体验（独立页不走主题 inject，手动维护；版本号须与 _config.butterfly.yml 同步） -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css">
+<link rel="stylesheet" href="/css/context-menu.css?v=1">
+<script src="/js/context-menu.js?v=3"></script>
+<script src="/js/console-art.js?v=1"></script>
+<script src="/js/anti-devtools.js?v=1"></script>
+</body>
+</html>

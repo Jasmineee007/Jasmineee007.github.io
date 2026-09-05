@@ -19,14 +19,15 @@ cd E:\my_blog && npx hexo generate && npx hexo deploy
 | 文件 | 用途 |
 |------|------|
 | `_config.butterfly.yml` | 主题配置（inject、菜单、插件等） |
-| `source/css/light-bg.css` | 所有自定义样式 |
+| `source/css/light-bg13.css` | 所有自定义样式（全站一图流 + 白纱/黑纱罩，改名需同步 inject） |
 | `source/css/fix-flash.css` | 暗色模式闪烁修复 + 默认底色白色 |
 | `source/js/copy-guard.js` | 复制版权处理 |
 | `themes/butterfly/source/js/main.js` | 主题 JS（修改了 `alertInfo` 和 `copy` 函数） |
 | `source/_data/link.yml` | 友链数据 |
 | `scripts/append-note.js` | 文章页自动追加学习笔记声明 |
 | `scripts/page-title.js` | 标签/分类页中文标题 |
-| `scripts/watermark.js` | 图片水印 CLI 工具 |
+| `scripts/upload-cover.js` | 封面图上传 图床（WebP 压缩，不加水印 → `posts/<slug>/cover.webp`，删本地） |
+| `scripts/upload-images.js` | 正文图片上传 图床（加水印+WebP，替换 md 图片 URL） |
 | `scripts/copy-workflow.js` | 复制 .github 目录到 public |
 | `scripts/list-categories.js` | 分类页计数（父分类显示子分类个数） |
 | `themes/butterfly/layout/category.pug` | 分类页模板（父分类显示子分类） |
@@ -35,8 +36,8 @@ cd E:\my_blog && npx hexo generate && npx hexo deploy
 ## inject 注入（当前状态）
 
 head:
-- `light-bg.css`
-- `dark-mode.css`（夜间模式覆盖）
+- `light-bg13.css`（全站一图流 + 白纱/黑纱罩，改名绕过 Cloudflare 缓存）
+- `top-img.css`（文章页封面卡片）
 - `fix-flash.css`
 - h5/h6 字号 style
 
@@ -83,15 +84,16 @@ bottom:
 
 ## 样式要点
 
-- 非主页纯色背景（日间白/夜间黑），隐藏 `#web_bg`
-- 深色模式：全黑系配色
+- 全站一图流：`/img/bg.jpg`（深色）`cover` 铺满 + 所有页面透明头部 + 白字
+- 白纱/黑纱罩：`#web_bg::after`——日间 `rgba(255,255,255,0)` 全透明（与刷题平台/反馈箱统一），夜间 `rgba(0,0,0,0.06)` 黑纱（更弱）
+- 夜间背景：`#web_bg` opacity=1，主题 `#web_bg:before` 黑遮罩 override 为 `rgba(0,0,0,0.45)`（原 0.7 太重）
+- 夜间卡片：`--card-bg: rgba(30,30,42,0.72)` 磨砂深色（别用 0.2 透明，太糊）
 - 首页文章卡片：7 色循环渐变 + hover 上浮
 - 标签 pill：8 色循环，不可点击
 - Footer 非主页颜色自适应
 - 侧栏子分类下拉：覆盖 `limit-one-line`，文字完整显示不截断
-- 顶部 banner：主题默认蓝色图片全部换成白色（`/img/white.png`），文章页用用户自己的 `/img/post-1.png`，首页用 `/img/bg.jpg`
-- `--default-bg-color: #fff` 消除首页蓝色闪烁
-- 评论系统：Giscus（`https://giscus.app/client.js`），需要代理才能访问
+- 顶部 banner：所有页面 `top_img: transparent`（透明头部+白字），文章页有 `cover` 时经 `scripts/modify.js` 注入 `.top-img` 封面卡片（样式在 `top-img.css`）
+- 评论系统：Waline（后端 waline.jasmine-iris.top）
 
 ## 文章规范
 
@@ -119,15 +121,6 @@ CTF-WP 子分类：Contest-WP（比赛）、Lab-WP（练习）
 - `card_categories.limit: 0` 显示全部分类
 - 修改位置：`themes/butterfly/scripts/helpers/aside_categories.js`（父分类计数）、`scripts/list-categories.js`（分类页计数）
 
-### 序号规则
-
-- H1 (`#`): 一、二、三、四…（中文数字+顿号）
-- H2 (`##`): (一)(二)(三)(四)…（括号+中文数字）
-- H3 (`###`): 1. 2. 3. 4.…（数字+点）
-- H2/H3 中属于"正文列表项"的不算序号，保持原样（如正文中的 `1. 启动 MSF 框架`）
-- `---` 分隔线仅用于 H1 之间，H2/H3 之间不用，末尾不用
-- 不要动 YAML frontmatter 的 `---`
-
 ### WP/题解 文章
 
 - `categories: WP`，`tags: CTF`
@@ -135,10 +128,14 @@ CTF-WP 子分类：Contest-WP（比赛）、Lab-WP（练习）
 
 ### 图片处理（重要）
 
-1. 下载图片到 `source/img/posts/<文章slug>/`
-2. 运行水印脚本：`cd E:\my_blog && node scripts/watermark.js --dir "source/img/posts/<文章slug>"`
-3. markdown 引用路径：`![](/img/posts/<文章slug>/xxx.png)`
-4. 不要放在 `source/_posts/` 下，Hexo 不会复制
+正文图片走 图床（`img.jasmine-iris.top`），见 `scripts/upload-images.js`（加水印 + WebP）。
+
+封面图（`cover:` frontmatter）走 `scripts/upload-cover.js`（**不加水印**，WebP）：
+```bash
+node scripts/upload-cover.js <slug> <本地图片路径>
+# → https://img.jasmine-iris.top/posts/<slug>/cover.webp
+```
+上传后删除本地封面图 + 空文件夹。
 
 ### 公告
 

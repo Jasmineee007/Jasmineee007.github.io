@@ -1,0 +1,75 @@
+/* ============================================================
+   post-extras.css — 文章页扩展组件样式
+   配套：scripts/post-extras.js（构建期注入过时提醒 + 同系列文章）
+   ============================================================ */
+
+/* 过时提醒：琥珀色左边框信息条 */
+.stale-notice {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  font-size: 0.9em;
+  line-height: 1.8;
+  color: #8a6d3b;
+  background: rgba(245, 166, 35, 0.12);
+  border-left: 4px solid #f5a623;
+  border-radius: 8px;
+}
+[data-theme='dark'] .stale-notice {
+  color: #e8c064;
+  background: rgba(245, 166, 35, 0.08);
+}
+
+/* 同系列文章：与站内 h2 一致的蓝左边框标题 + 列表 */
+.post-extras-series {
+  margin-top: 34px;
+}
+.post-extras-series .pes-title {
+  margin: 0 0 10px;
+  padding-left: 12px;
+  border-left: 4px solid #49b1f5;
+  font-size: 1.15em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+}
+[data-theme='dark'] .post-extras-series .pes-title {
+  color: #e5e7eb;
+}
+.post-extras-series ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.post-extras-series li {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  line-height: 1.6;
+  transition: background 0.2s ease;
+}
+.post-extras-series li:hover {
+  background: rgba(73, 177, 245, 0.08);
+}
+.post-extras-series li.current {
+  background: rgba(73, 177, 245, 0.12);
+  color: #49b1f5;
+  font-weight: 600;
+}
+.post-extras-series .pes-cur {
+  font-size: 0.85em;
+  opacity: 0.75;
+  font-weight: 400;
+}
+.post-extras-series li a {
+  color: var(--font-color);
+  text-decoration: none;
+}
+.post-extras-series li a:hover {
+  color: #49b1f5;
+}
+[data-theme='dark'] .post-extras-series li a {
+  color: #d1d5db;
+}
+[data-theme='dark'] .post-extras-series li a:hover {
+  color: #6ec6ff;
+}

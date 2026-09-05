@@ -1,0 +1,53 @@
+/* === 一图流：文章封面作为内容区顶部卡片（参考 Gehina 教程）=== */
+
+/* 头部透明，隐藏原全宽 banner */
+#body-wrap.post #page-header {
+  background: transparent !important;
+  height: 280px !important;
+}
+#body-wrap.post #page-header::before {
+  display: none !important;
+}
+
+/* 文章标题/日期居中靠下 */
+#body-wrap.post #page-header #post-info {
+  bottom: 40px !important;
+  text-align: center;
+}
+
+/* 导航栏、标题、日期白色（透明头部 + 深色夜空背景） */
+#body-wrap.post #nav a,
+#body-wrap.post #nav span.site-page,
+#body-wrap.post #nav .site-name,
+#body-wrap.post #nav #search-button,
+#body-wrap.post #page-header #site-title,
+#body-wrap.post #post-info,
+#body-wrap.post #post-info a,
+#body-wrap.post #post-info span {
+  color: #fff !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 顶部图卡片 */
+.top-img {
+  height: 56vw;
+  max-height: 375px;
+  min-height: 250px;
+  margin: -50px -40px 50px;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  background-position: center center;
+  background-size: cover;
+  transition: all 0.3s;
+}
+@media screen and (max-width: 768px) {
+  .top-img {
+    height: 230px;
+    margin: -36px -14px 36px;
+  }
+}
+
+/* 夜间模式：封面卡片略微压暗 */
+[data-theme='dark'] .top-img {
+  filter: brightness(0.8);
+}

@@ -5,8 +5,8 @@
 # Site
 title: Jasmine_Iris
 subtitle: ''
-description: ''
-keywords:
+description: 'Jasmine_Iris 的网络安全学习博客：渗透测试、CTF 题解与漏洞复现笔记。满地都是六便士，我却抬头看见了月亮。'
+keywords: '网络安全,渗透测试,CTF,题解,漏洞复现,学习笔记'
 author: Jasmine_Iris
 language: zh-CN
 timezone: 'Asia/Chongqing'
@@ -29,6 +29,10 @@ category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
 skip_render:
+  - font/**
+  - quiz/**
+  - feedback/**
+  - 404.html
 
 # Writing
 new_post_name: :title.md # File name of new posts
@@ -90,8 +94,8 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
-  - .github
   - _data
+  - .nojekyll
 exclude:
 ignore:
 
@@ -106,9 +110,49 @@ search:
   field: post
   content: true
 
+# Blog encryption (hexo-blog-encrypt)
+# 按分类加密：categories 里的分类会整类加密（由 scripts/encrypt-category.js 实现）
+encrypt:
+  abstract: 这是一篇加密文章，请输入密码后继续阅读。
+  message: A hint is actually no hint at all.
+  wrong_pass_message: 密码错误，请重试。
+  decryptButton:
+    text: Decrypt
+  categories:
+    - name: 随笔
+      password: 1313113
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
   repo: https://github.com/Jasmineee007/Jasmineee007.github.io.git
   branch: main
+  # hexo-deployer-git 默认跳过点开头文件，放开才能把 source/.nojekyll 部署上去
+  # （前提：source 下没有其他点开头文件，.github/workflows 残留已删）
+  ignore_hidden: false
+
+# Sitemap (hexo-generator-sitemap)
+sitemap:
+  path: sitemap.xml
+  rel: false
+  tags: false
+  categories: false
+
+# RSS 订阅 (hexo-generator-feed)
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  content: true
+  order_by: -date
+  autodiscovery: true
+
+# 外链 nofollow (hexo-filter-nofollow)：防权重流失，自有域名豁免
+nofollow:
+  enable: true
+  field: site
+  exclude:
+    - jasmine-iris.top
+    - www.jasmine-iris.top
+    - jasmineee007.github.io
