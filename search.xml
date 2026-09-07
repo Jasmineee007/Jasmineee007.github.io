@@ -12251,4 +12251,310 @@ ZeroClipboard.swf 检测不到width、heightflashvars，内部绘图逻辑直接
         <tag>XSS</tag>
       </tags>
   </entry>
+  <entry>
+    <title>梦之光芒的小游戏</title>
+    <url>/2026/09/07/%E6%A2%A6%E4%B9%8B%E5%85%89%E8%8A%92%E7%9A%84%E5%B0%8F%E6%B8%B8%E6%88%8F/</url>
+    <content><![CDATA[链接：https://monyer.com/game/game1/
+
+
+查看页面源代码：
+
+
+第 1 关https://monyer.com/game/game1/first.php
+
+
+查看页面源代码
+
+
+如果输入框里的内容恰好是两个空格，就跳转到 hello.php；否则弹出’密码错误’。
+密码
+
+第 2 关https://monyer.com/game/game1/hello.php
+
+
+F12
+
+
+document.oncontextmenu=function(){return false};禁用右键菜单（防止查看源码）
+
+
+密码是 a 的值
+
+F12 打开控制台
+
+
+
+
+控制台输入 a
+
+
+
+
+输入框填 424178
+
+
+Q1：Math.floor() 是什么？Math.floor()是 JavaScript 的向下取整函数。
+补充：
+
+
+
+原值
+Math.floor
+四舍五入 Math.round
+向上取整 Math.ceil
+
+
+
+3.14
+3
+3
+4
+
+
+3.7
+3
+4
+4
+
+
+3.5
+3
+4
+4
+
+
+
+第 3 关https://monyer.com/game/game1/424178.php
+
+
+查看页面源代码
+
+
+
+eval(String.fromCharCode(102,117,110,99,116,105,111,110,32,99,104,101,99,107,40,41,123,13,10,09,118,97,114,32,97,32,61,32,39,100,52,103,39,59,13,10,09,105,102,40,100,111,99,117,109,101,110,116,46,103,101,116,69,108,101,109,101,110,116,66,121,73,100,40,39,116,120,116,39,41,46,118,97,108,117,101,61,61,97,41,123,13,10,09,09,119,105,110,100,111,119,46,108,111,99,97,116,105,111,110,46,104,114,101,102,61,97,43,34,46,112,104,112,34,59,13,10,09,125,101,108,115,101,123,13,10,09,09,97,108,101,114,116,40,34,23494,30721,38169,35823,34,41,59,13,10,09,125,13,10,125));
+
+
+
+
+String.fromCharCode(...)
+把一串数字还原成字符串
+
+
+
+eval(...)
+把还原出的字符串当作代码执行
+
+
+在控制台输入：
+
+console.log(String.fromCharCode(102,117,110,99,116,105,111,110,32,99,104,101,99,107,40,41,123,13,10,09,118,97,114,32,97,32,61,32,39,100,52,103,39,59,13,10,09,105,102,40,100,111,99,117,109,101,110,116,46,103,101,116,69,108,101,109,101,110,116,66,121,73,100,40,39,116,120,116,39,41,46,118,97,108,117,101,61,61,97,41,123,13,10,09,09,119,105,110,100,111,119,46,108,111,99,97,116,105,111,110,46,104,114,101,102,61,97,43,34,46,112,104,112,34,59,13,10,09,125,101,108,115,101,123,13,10,09,09,97,108,101,114,116,40,34,23494,30721,38169,35823,34,41,59,13,10,09,125,13,10,125));
+
+
+
+或者用 python
+s=[102,117,110,99,116,105,111,110,32,99,104,101,99,107,40,41,123,13,10,9,118,97,114,32,97,32,61,32,39,100,52,103,39,59,13,10,9,105,102,40,100,111,99,117,19,101,110,116,46,103,101,116,69,108,101,19,101,110,116,66,121,73,100,40,39,116,120,116,39,41,46,118,97,108,117,101,61,61,97,41,123,13,10,9,9,119,105,110,100,111,119,46,108,111,99,97,116,105,111,110,46,104,114,101,102,61,97,43,34,46,112,104,112,34,59,13,10,9,125,101,108,115,101,123,13,10,9,9,97,108,101,114,116,40,34,23494,30721,38169,35823,34,41,59,13,10,9,125,13,10,125]for i in s:    print(chr(i),end=&#x27;&#x27;)
+
+密码是 a 的值：d4g
+
+第 4 关https://monyer.com/game/game1/d4g.php
+
+
+这一关我觉得有点考验手速，因为
+&lt;meta http-equiv=&quot;refresh&quot; content=&quot;0;url=424178.php&quot;&gt;
+需要在自动跳转之前，右键、点击停止
+
+
+
+查看源代码
+
+
+
+
+eval(function(p,a,c,k,e,d){e&#x3D;function(c){return c.toString(36)};if(!’’.replace(&#x2F;^&#x2F;,String)){while(c–)d[c.toString(a)]&#x3D;k[c]||c.toString(a);k&#x3D;[function(e){return d[e]}];e&#x3D;function(){return’\w+’};c&#x3D;1};while(c–)if(k[c])p&#x3D;p.replace(new RegExp(‘\b’+e(c)+’\b’,’g’),k[c]);return p}(‘a&#x3D;”e”;d c(){b(9.8(&#39;7&#39;).6&#x3D;&#x3D;a){5.4.3&#x3D;a+”.2”}1{0(“密码错误”)}}’,15,15,’alert|else|php|href|location|window|value|txt|getElementById|document||if|check|function|3bhe’.split(‘|’),0,{}))
+
+
+eval(“\141\75\141\56\164\157\125\160\160\145\162\103\141\163\145\50\51\53\61\73”);
+
+
+
+
+head 里：a = &quot;3bhe&quot;
+body 末尾：a = a.toUpperCase() + 1 → &quot;3bhe&quot; 变大写 &quot;3BHE&quot;，再拼上 1 → &quot;3BHE1&quot;
+密码：a 的最终值是3BHE1
+
+
+第 5 关https://monyer.com/game/game1/3BHE1.php
+
+
+提示说密码藏在页面了
+
+先查看页面源代码
+
+
+
+啥也没有
+
+看请求头、响应头
+
+
+
+
+密码是 asdf
+
+
+第 6 关https://monyer.com/game/game1/asdf.php
+
+
+搜索：Get the latest fashion, beauty, dating, and health tips. Plus, win freebies, take quizzes, andcheck your daily horoscope!
+
+
+密码是 seventeen
+
+第 7 关https://monyer.com/game/game1/seventeen7.php
+
+
+md5 解密网站：https://www.cmd5.com/default.aspx
+
+
+密码：eighteen8
+
+第 8 关https://monyer.com/game/game1/eighteen8.php
+
+
+查看页面源代码
+
+
+def is_prime(n):    if n &lt; 2:        return False    for i in range(2, int(n ** 0.5) + 1):        if n % i == 0:            return False    return Truetotal = sum(i for i in range(10000) if is_prime(i))print(f&quot;10000以内素数之和: &#123;total&#125;&quot;)
+
+
+
+URL 修改成：5736396.php
+
+第 9 关https://monyer.com/game/game1/5736396.php
+
+
+图片里藏了东西
+
+下载图片
+用 Hex Fiend 打开
+
+
+
+密码： MonyerLikeYou_the10level
+
+第 10 关https://monyer.com/game/game1/MonyerLikeYou_the10level.php
+
+
+F12
+修改 cookie 
+
+
+
+密码为：doyouknow
+
+第 11 关https://monyer.com/game/game1/doyouknow.php?action=show_login_false
+
+
+cookie 里没有看见 session
+
+
+但是发现 URL 里有?action=show_login_false
+把 false 改成 true
+
+
+
+第 12 关https://monyer.com/game/game1/smartboy.php
+
+
+看着像 base64
+
+JTRBJTU0JTYzJTdBJTRBJTU0JTVBJTQ3JTRBJTU0JTU5JTc5JTRBJTU0JTU5JTMxJTRBJTU0JTU5JTc4JTRBJTU0JTYzJTMxJTRBJTU0JTYzJTMwJTRBJTU0JTU5JTM1JTRBJTU0JTU5JTMyJTRBJTU0JTYzJTMxJTRBJTU0JTVBJTQ0JTRBJTU0JTRBJTQ2JTRBJTU0JTYzJTc3JTRBJTU0JTU5JTM0JTRBJTU0JTYzJTc3
+
+
+
+再 URL 解码
+
+%4A%54%63%7A%4A%54%5A%47%4A%54%59%79%4A%54%59%31%4A%54%59%78%4A%54%63%31%4A%54%63%30%4A%54%59%35%4A%54%59%32%4A%54%63%31%4A%54%5A%44%4A%54%4A%46%4A%54%63%77%4A%54%59%34%4A%54%63%77
+
+
+
+再 base64 解码
+
+
+再 URL 解码
+
+
+得到密码为：sobeautiful.php
+
+
+两次 base64 解码，两次 URL 解码
+
+
+我们发现输入密码的时候并没有跳转，如果直接 URL 修改，会出现：
+
+
+反射型 XSS（注入超链接指向下一关）
+&lt;a href=&#x27;sobeautiful.php&#x27;&gt;test
+
+
+
+
+第 13 关https://monyer.com/game/game1/sobeautiful.php
+
+
+SQL注入，万能密码：&#39; or 1=1--+
+
+
+
+第 14 关https://monyer.com/game/game1/whatyouneverknow.php
+
+
+下载 Crackme
+双击发现需要注册码
+
+
+
+识别壳
+
+file crackme.exe            
+
+
+
+
+脱壳
+
+upx -d crackme.exe -o unpacked.exe
+
+
+
+
+搜密码
+
+strings unpacked.exe &gt; all.txt
+
+数据很多不好找，搜一下 crackme 试试，因为程序名字是这个…
+
+
+
+
+
+
+
+
+由于check() 的 “.php” 跳转机制
+密码是 ipasscrackme
+
+第 15 关https://monyer.com/game/game1/ipasscrackme.php
+
+
+恭喜挑战成功！可以上榜了！
+📚 同系列文章 · Lab-WP（4 篇）PHP特性利用之MD5PHP特性利用之弱比较陇剑杯2021 流量分析题解梦之光芒的小游戏（本文）]]></content>
+      <categories>
+        <category>CTF-WP</category>
+        <category>Lab-WP</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
 </search>
