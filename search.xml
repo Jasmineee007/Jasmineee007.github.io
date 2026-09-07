@@ -12267,7 +12267,7 @@ ZeroClipboard.swf 检测不到width、heightflashvars，内部绘图逻辑直接
 
 
 如果输入框里的内容恰好是两个空格，就跳转到 hello.php；否则弹出’密码错误’。
-密码
+密码：两个空格
 
 第 2 关https://monyer.com/game/game1/hello.php
 
@@ -12377,8 +12377,8 @@ eval(“\141\75\141\56\164\157\125\160\160\145\162\103\141\163\145\50\51\53\61\7
 
 
 
+3head 里：a = &quot;3bhe&quot;
 
-head 里：a = &quot;3bhe&quot;
 body 末尾：a = a.toUpperCase() + 1 → &quot;3bhe&quot; 变大写 &quot;3BHE&quot;，再拼上 1 → &quot;3BHE1&quot;
 密码：a 的最终值是3BHE1
 
