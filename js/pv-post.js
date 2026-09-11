@@ -44,6 +44,9 @@
     if (!target) return;
 
     var path = window.location.pathname;
+    // pathname 浏览器返回的已是百分号编码，直接再 encodeURIComponent 会双重编码，
+    // Umami 的 url 过滤就永远匹配不上（中文链接全部显示 -）。先解码再编码一次。
+    try { path = decodeURIComponent(path); } catch (e) { /* 原样兜底 */ }
     var url = STATS_URL +
       '?startAt=0&endAt=' + Date.now() +
       '&url=' + encodeURIComponent(path) +
