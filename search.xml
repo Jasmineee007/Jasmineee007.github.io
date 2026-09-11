@@ -12918,7 +12918,7 @@ Debian Almquist Shell
 
 
 四、为什么放弃内核 exp 这条路？
-****注意！！！*由于我不是用 MSF 拿到的初始 shell*（通过 web 漏洞拿到普通 bash），所以现在 MSF 里没有 meterpreter 会话，直接跑 MSF 内核提权模块是跑不了的。  
+注意！！！由于我不是用 MSF 拿到的初始 shell（通过 web 漏洞拿到普通 bash），所以现在 MSF 里没有 meterpreter 会话，直接跑 MSF 内核提权模块是跑不了的。  
 
 4.1 使用 MSF1. 使用 searchsploit 查找对应漏洞Linux 3.13.0-55-generic  
 
@@ -13010,7 +13010,7 @@ chmod +x shell.elf./shell.elf
 
 # Kali编译gcc 37292.c -o exp
 
-****但是！！！****编译报错了
+**但是！！！**编译报错了
 
 
 我们用searchsploit 查找的相关漏洞其实绝大多数对这个靶机内核 3.13.0-55 无效， 列表里剩下的 45010 &#x2F; 44298 &#x2F; 43418 等，漏洞触发条件是 4.x 内核，3.13 根本不适用。
