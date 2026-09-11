@@ -40,7 +40,7 @@
 
   function fill() {
     build();
-    var target = document.getElementById('umamiPV');
+    var target = document.querySelector('#pv-post-card .pv-count');
     if (!target) return;
 
     var path = window.location.pathname;
