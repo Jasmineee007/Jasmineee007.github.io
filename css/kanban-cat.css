@@ -1,5 +1,5 @@
-/* 看板猫 v10（kanban-cat.js 配套）：自家小猫三姿势贴纸（hatch-pet 流程孵化）
-   左下角常驻 + 沿底部蹦跶 + 摸头换姿势；小屏(≤768px)或矮屏(≤560px)自动收起 */
+/* 看板猫 v16（kanban-cat.js v14 配套）：静态照片卡片版
+   左下角常驻 + 气泡台词 + 摸头冒爱心；小屏(≤768px)或矮屏(≤560px)自动收起 */
 #kg-cat {
   position: fixed;
   left: 16px;
@@ -83,9 +83,10 @@
   width: auto;
   cursor: pointer;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 8px 12px rgba(40, 30, 15, .28));
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(40, 30, 15, .3);
 }
-}
+
 
 /* 从开关唤出时的登场弹跳 */
 .kg-doll.kg-greet { animation: kg-greet .6s cubic-bezier(.34, 1.56, .64, 1); }

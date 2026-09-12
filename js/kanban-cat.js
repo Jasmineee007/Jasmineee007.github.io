@@ -1,14 +1,13 @@
-// 看板猫 v13：自家小猫视频 AI 抠图（96帧→48帧动画 WebP，会动会眨眼）
-// 行为：左下角常驻、待机原地小跳（CSS）、小碎步摇摆走路（rAF）
-// 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
+// 看板猫 v14：静态照片卡片版（干净原图裁剪，无假眼睛）
+// 行为：左下角常驻；说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
 // 调试后门：window.__kgCatApi.show('文本') / toggle()
 ;(function () {
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  // 抠图动画本体（视频→rembg 逐帧抠图→动画 WebP）。换图时 ?v= +1 防 CF 缓存
-  var PHOTO = '/img/kanban-cat-live.webp?v=3';
+  // 照片卡片本体。换图时 ?v= +1 防 CF 缓存
+  var PHOTO = '/img/kanban-cat-card.webp?v=1';
   var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
   var SHORT = window.matchMedia('(max-height: 560px)');
