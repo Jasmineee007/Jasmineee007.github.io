@@ -83,13 +83,43 @@
   }
 
   /* ---------- DOM ---------- */
+  // 动态眼珠层：盖在原图眼睛上（绿虹膜+竖瞳+高光可动，眼皮可眨，摸头变 ^^）
+  var EYES_SVG =
+    '<svg class="kg-eyes" viewBox="0 0 626 843" aria-hidden="true">' +
+    '<g transform="rotate(-6 150 345)">' +
+    '<ellipse cx="150" cy="345" rx="25" ry="25.5" fill="#fdeeee"/>' +
+    '<g class="kg-pupil">' +
+    '<circle cx="150" cy="345" r="20.5" fill="#6d9089"/>' +
+    '<ellipse cx="150" cy="352" rx="14" ry="10" fill="#a3c2b8" opacity=".85"/>' +
+    '<ellipse cx="150" cy="340" rx="3.6" ry="11.5" fill="#2f4f49"/>' +
+    '<circle cx="147" cy="334" r="4.8" fill="#fff"/>' +
+    '<circle cx="160" cy="354" r="2" fill="#fff" opacity=".9"/>' +
+    '</g>' +
+    '<ellipse class="kg-eyelid" cx="150" cy="345" rx="26.5" ry="25.5" fill="#fbeeea"/>' +
+    '<path class="kg-arc" d="M132 348 Q150 330 168 348" fill="none" stroke="#7a6a71" stroke-width="5" stroke-linecap="round"/>' +
+    '</g>' +
+    '<g transform="rotate(-12 259 321)">' +
+    '<ellipse cx="259" cy="321" rx="30" ry="28" fill="#fdeeee"/>' +
+    '<g class="kg-pupil">' +
+    '<circle cx="259" cy="322" r="25" fill="#6d9089"/>' +
+    '<ellipse cx="259" cy="330" rx="17" ry="12" fill="#a3c2b8" opacity=".85"/>' +
+    '<ellipse cx="259" cy="316" rx="4" ry="13" fill="#2f4f49"/>' +
+    '<circle cx="256" cy="305" r="5" fill="#fff"/>' +
+    '<circle cx="268" cy="331" r="2.2" fill="#fff" opacity=".9"/>' +
+    '</g>' +
+    '<ellipse class="kg-eyelid" cx="259" cy="321" rx="31" ry="29" fill="#fbeeea"/>' +
+    '<path class="kg-arc" d="M237 325 Q259 303 281 325" fill="none" stroke="#7a6a71" stroke-width="5" stroke-linecap="round"/>' +
+    '</g>' +
+    '</svg>';
+
   var box = document.createElement('div');
   box.id = 'kg-cat';
   box.innerHTML =
     '<div class="kg-wrap">' +
     '<div class="kg-bubble"><span class="kg-bubble-text"></span></div>' +
     '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' +
-    '<img class="kg-cat-img" src="' + IMG + '" alt="看板猫 · 插画：望舒清欢（小红书）" draggable="false">' +
+    '<img class="kg-cat-img" src="' + IMG + '" alt="看板娘 · 插画：望舒清欢（小红书）" draggable="false">' +
+    EYES_SVG +
     '</div></div>';
   document.body.appendChild(box);
 
@@ -115,6 +145,7 @@
   var doll = box.querySelector('.kg-doll');
   var bubble = box.querySelector('.kg-bubble');
   var bubbleText = box.querySelector('.kg-bubble-text');
+  var tracks = box.querySelectorAll('.kg-pupil');
 
   /* ---------- 右下角开关（和日夜模式并排） ---------- */
   function buildToggle() {
@@ -223,8 +254,8 @@
           var s = document.createElement('span');
           s.className = 'kg-heart';
           s.textContent = '♥';
-          s.style.left = (30 + Math.random() * 80) + 'px';
-          s.style.bottom = (95 + Math.random() * 20) + 'px';
+          s.style.left = (30 + Math.random() * 110) + 'px';
+          s.style.bottom = (140 + Math.random() * 30) + 'px';
           s.style.setProperty('--kg-hx', ((Math.random() - 0.5) * 36).toFixed(0) + 'px');
           s.addEventListener('animationend', function () { s.remove(); });
           wrap.appendChild(s);
@@ -232,6 +263,22 @@
       })(i);
     }
   }
+
+  // 眨眼（眼皮层闪一下）
+  function blink() {
+    if (!document.hidden && visible() && !doll.classList.contains('kg-happy')) {
+      box.classList.add('kg-blink');
+      setTimeout(function () {
+        box.classList.remove('kg-blink');
+        if (Math.random() < 0.25) {
+          box.classList.add('kg-blink');
+          setTimeout(function () { box.classList.remove('kg-blink'); }, 140);
+        }
+      }, 150);
+    }
+    setTimeout(blink, 2600 + Math.random() * 3600);
+  }
+  blink();
 
   // 昼夜切换联动（theme-switch.js 会改 data-theme）
   var lastTheme = document.documentElement.getAttribute('data-theme');
@@ -305,8 +352,9 @@
   }
   if (!REDUCED) chaseLoop();
 
-  // 悬停时猫往鼠标方向微微倾身（图片猫的「眼神跟随」平替）
+  // 悬停时猫往鼠标方向微微倾身；眼珠跟随鼠标/蝴蝶
   var lean = 0;
+  var ex = 0, ey = 0, lastPupil = '';
   function frame(now) {
     requestAnimationFrame(frame);
     if (document.hidden) return;
@@ -359,12 +407,30 @@
       }
     }
 
-    // 倾身朝向鼠标
-    if (finePointer && !cat.hop) {
-      var r = doll.getBoundingClientRect();
-      if (r.width) {
+    // 眼珠跟随 + 倾身
+    var r = doll.getBoundingClientRect();
+    if (r.width) {
+      var cxx = r.left + r.width / 2;
+      var cyy = r.top + r.height * 0.4;
+      var dx, dy;
+      if (Date.now() - mouse.t < 2500) {
+        dx = mouse.x - cxx; dy = mouse.y - cyy;
+      } else {
+        var br = bfHost.getBoundingClientRect();
+        dx = br.left + 14 - cxx; dy = br.top + 16 - cyy;
+        dx += Math.sin(t * 0.7) * 60; dy += Math.cos(t * 0.5) * 40; // 没事也左看看右看看
+      }
+      var tx = Math.max(-7, Math.min(7, dx / 60));
+      var ty = Math.max(-5.5, Math.min(5.5, dy / 80));
+      ex += (tx - ex) * 0.12; ey += (ty - ey) * 0.12;
+      var es = 'translate(' + ex.toFixed(2) + 'px,' + ey.toFixed(2) + 'px)';
+      if (es !== lastPupil) {
+        lastPupil = es;
+        for (var i = 0; i < tracks.length; i++) tracks[i].style.transform = es;
+      }
+      if (finePointer && !cat.hop) {
         var target = Date.now() - mouse.t < 2500
-          ? Math.max(-7, Math.min(7, (mouse.x - (r.left + r.width / 2)) / 30))
+          ? Math.max(-7, Math.min(7, dx / 30))
           : 0;
         lean += (target - lean) * 0.08;
         if (Math.abs(lean) < 0.05) lean = 0;
