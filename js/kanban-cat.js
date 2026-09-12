@@ -200,8 +200,8 @@
           var s = document.createElement('span');
           s.className = 'kg-heart';
           s.textContent = '♥';
-          s.style.left = (30 + Math.random() * 80) + 'px';
-          s.style.bottom = (95 + Math.random() * 20) + 'px';
+          s.style.left = (20 + Math.random() * 60) + 'px';
+          s.style.bottom = (72 + Math.random() * 15) + 'px';
           s.style.setProperty('--kg-hx', ((Math.random() - 0.5) * 36).toFixed(0) + 'px');
           s.addEventListener('animationend', function () { s.remove(); });
           wrap.appendChild(s);

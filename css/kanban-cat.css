@@ -68,7 +68,7 @@
 /* 猫猫本体（多姿势贴纸，按高度对齐站底线） */
 .kg-doll {
   position: relative;
-  height: 150px;
+  height: 110px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -149,7 +149,7 @@
 /* 小屏形态 */
 @media (max-width: 768px) {
   #kg-cat { left: 10px; bottom: 10px; }
-  .kg-doll { height: 112px; }
+  .kg-doll { height: 86px; }
   .kg-bubble { max-width: 150px; font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
