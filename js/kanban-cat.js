@@ -1,6 +1,5 @@
-// 看板猫 v10：博主自家小猫三姿势贴纸（照片 AI 抠底，hatch-pet 流程孵化）+ 动态化
-// 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶、身体微微倾向鼠标
-// 姿势：摸头换下一个姿势，蹦跶落地 25% 概率随机换；开场/姿势清单见 POSES
+// 看板猫 v13：自家小猫视频 AI 抠图（96帧→48帧动画 WebP，会动会眨眼）
+// 行为：左下角常驻、待机原地小跳（CSS）、小碎步摇摆走路（rAF）
 // 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
 // 调试后门：window.__kgCatApi.show('文本') / toggle()
@@ -8,19 +7,8 @@
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  // 三姿势：举手 / 趴趴 / 坐姿配奶茶；换图时版本号 +1 防 CF 缓存
-  var POSES = [
-    '/img/kanban-cat-1.webp?v=1',
-    '/img/kanban-cat-2.webp?v=1',
-    '/img/kanban-cat-3.webp?v=1'
-  ];
-  var poseIdx = 0;
-  for (var pi = 0; pi < POSES.length; pi++) { var pre = new Image(); pre.src = POSES[pi]; }
-  function setPose(i) {
-    poseIdx = (i + POSES.length) % POSES.length;
-    var el = box.querySelector('.kg-cat-img');
-    if (el) el.src = POSES[poseIdx];
-  }
+  // 抠图动画本体（视频→rembg 逐帧抠图→动画 WebP）。换图时 ?v= +1 防 CF 缓存
+  var PHOTO = '/img/kanban-cat-live.webp?v=1';
   var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
   var SHORT = window.matchMedia('(max-height: 560px)');
@@ -95,12 +83,14 @@
     '<div class="kg-wrap">' +
     '<div class="kg-bubble"><span class="kg-bubble-text"></span></div>' +
     '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' +
-    '<img class="kg-cat-img" src="' + POSES[0] + '" alt="看板猫：博主家的小猫" draggable="false">' +
-    '</div></div>';
+    '<div class="kg-waddler"><div class="kg-frame">' +
+    '<img class="kg-cat-img" src="' + PHOTO + '" alt="看板猫：博主家的小猫" draggable="false">' +
+    '</div></div></div></div>';
   document.body.appendChild(box);
 
   var wrap = box.querySelector('.kg-wrap');
   var doll = box.querySelector('.kg-doll');
+  var waddler = box.querySelector('.kg-waddler');
   var bubble = box.querySelector('.kg-bubble');
   var bubbleText = box.querySelector('.kg-bubble-text');
 
@@ -113,7 +103,7 @@
     b.type = 'button';
     b.title = '看板猫开关';
     b.setAttribute('aria-label', '显示或收起看板猫');
-    b.innerHTML = '<img src="' + POSES[0] + '" alt="">';
+    b.innerHTML = '<img src="' + PHOTO + '" alt="">';
     var goUp = holder.querySelector('#go-up');
     if (goUp) holder.insertBefore(b, goUp);
     else holder.appendChild(b);
@@ -194,7 +184,6 @@
   function pet() {
     doll.classList.add('kg-happy');
     spawnHearts();
-    setPose(poseIdx + 1); // 每摸一次换个姿势
     say(pick(TOUCH, bubbleText.textContent), 4200);
     setTimeout(function () { doll.classList.remove('kg-happy'); }, 1400);
   }
@@ -235,7 +224,7 @@
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   }
 
-  /* ---------- 萌宠引擎：悬浮(CSS) + 沿底部蹦跶 + 眼珠跟随 ---------- */
+  /* ---------- 萌宠引擎：沿底部蹦跶（眨眼/动耳朵由视频本体负责） ---------- */
   var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
   var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
   window.addEventListener('resize', function () {
@@ -243,75 +232,43 @@
     vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
   }, { passive: true });
 
-  var mouse = { x: 0, y: 0, t: -1e9 };
-  var finePointer = !window.matchMedia('(pointer: coarse)').matches;
-  if (finePointer) {
-    window.addEventListener('mousemove', function (e) {
-      mouse.x = e.clientX; mouse.y = e.clientY; mouse.t = Date.now();
-    }, { passive: true });
-  }
-
   // 猫：x 为猫左缘视口坐标；box 默认 left 16px，用 transform 偏移
-  var cat = { x: 16, hop: null, queue: [], nextMoveAt: Date.now() + 7000, hopDur: 320, pause: 130, fast: false, pauseUntil: 0 };
-  function startWalk(targetX, fast) {
-    targetX = Math.max(10, Math.min(vw * 0.72, targetX));
-    var steps = [];
-    var from = cat.x;
-    var n = Math.max(1, Math.ceil(Math.abs(targetX - from) / 80));
-    for (var i = 1; i <= n; i++) steps.push(from + (targetX - from) * (i / n));
-    cat.queue = steps;
-    cat.hopDur = fast ? 240 : 320;
-    cat.pause = fast ? 40 : 130;
-    cat.fast = !!fast;
+  var cat = { x: 16, to: null, speed: 52, phase: 0, nextMoveAt: Date.now() + 6000, lastT: 0 };
+  function startWalk(targetX) {
+    cat.to = Math.max(10, Math.min(vw * 0.72, targetX));
   }
   function scheduleIdleWalk() {
-    cat.nextMoveAt = Date.now() + 8000 + Math.random() * 12000;
+    cat.nextMoveAt = Date.now() + 5000 + Math.random() * 6000; // 走路勤快些，5~11s 一次
   }
-
-  var lean = 0;
 
   function frame(now) {
     requestAnimationFrame(frame);
     if (document.hidden) return;
-    var t = now / 1000;
     var show = visible();
 
-    // 猫蹦跶
+    // 小碎步走路：移动时左右摇摆 + 碎步颠簸
     if (!REDUCED && show) {
-      if (!cat.hop && cat.queue.length && now >= cat.pauseUntil) {
-        cat.hop = { from: cat.x, to: cat.queue.shift(), t0: now, dur: cat.hopDur };
-      }
-      if (cat.hop) {
-        var p = (now - cat.hop.t0) / cat.hop.dur;
-        if (p >= 1) {
-          cat.x = cat.hop.to;
+      if (cat.to !== null) {
+        var dt = Math.min(64, now - (cat.lastT || now));
+        cat.lastT = now;
+        var dir = cat.to > cat.x ? 1 : -1;
+        var step = dir * cat.speed * dt / 1000;
+        if ((dir > 0 && cat.x + step >= cat.to) || (dir < 0 && cat.x + step <= cat.to)) {
+          cat.x = cat.to;
+          cat.to = null;
           box.style.transform = 'translateX(' + (cat.x - 16) + 'px)';
-          doll.style.transform = '';
-          cat.hop = null;
-          cat.pauseUntil = now + cat.pause;
-          if (Math.random() < 0.25) setPose(Math.floor(Math.random() * POSES.length)); // 落地偶尔换个姿势
-          if (!cat.queue.length) scheduleIdleWalk();
+          waddler.style.transform = '';
+          scheduleIdleWalk();
         } else {
-          var q = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-          var cx2 = cat.hop.from + (cat.hop.to - cat.hop.from) * q;
-          var dir = cat.hop.to >= cat.hop.from ? 1 : -1;
-          var arc = -14 * Math.sin(Math.PI * p);
-          box.style.transform = 'translateX(' + (cx2 - 16).toFixed(1) + 'px)';
-          doll.style.transform = 'translateY(' + arc.toFixed(1) + 'px) rotate(' + (dir * 6 * Math.sin(Math.PI * p)).toFixed(1) + 'deg)';
+          cat.x += step;
+          cat.phase += Math.abs(step) * 0.16;
+          box.style.transform = 'translateX(' + (cat.x - 16).toFixed(1) + 'px)';
+          waddler.style.transform = 'translateY(' + (-Math.abs(Math.sin(cat.phase)) * 3).toFixed(1) + 'px) rotate(' + (Math.sin(cat.phase) * 4).toFixed(1) + 'deg)';
         }
-      } else if (now >= cat.nextMoveAt) {
-        startWalk(30 + Math.random() * vw * 0.6, false);
+      } else {
+        cat.lastT = now;
+        if (now >= cat.nextMoveAt) startWalk(30 + Math.random() * vw * 0.6);
       }
-    }
-
-    // 身体微微倾向鼠标（没人动鼠标就回正）
-    var r = doll.getBoundingClientRect();
-    if (r.width && finePointer && !cat.hop) {
-      var dx = Date.now() - mouse.t < 2500 ? mouse.x - (r.left + r.width / 2) : 0;
-      var target = Math.max(-6, Math.min(6, dx / 40));
-      lean += (target - lean) * 0.08;
-      if (Math.abs(lean) < 0.05) lean = 0;
-      doll.style.transform = lean ? 'rotate(' + lean.toFixed(2) + 'deg)' : '';
     }
   }
   requestAnimationFrame(frame);
