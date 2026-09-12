@@ -1,4 +1,4 @@
-// 看板猫 v18：博主自家小猫单姿势贴纸（用户自抠透明图）
+// 看板猫 v19：博主自家小猫贴纸（趴趴姿势单图）
 // 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶
 // 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
@@ -7,8 +7,8 @@
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  // 单姿势；换图时版本号 +1 防 CF 缓存
-  var POSES = ['/img/kanban-cat-cut.webp?v=1'];
+  // 单姿势（趴趴）；换图时版本号 +1 防 CF 缓存
+  var POSES = ['/img/kanban-cat-2.webp?v=2'];
   var poseIdx = 0;
   for (var pi = 0; pi < POSES.length; pi++) { var pre = new Image(); pre.src = POSES[pi]; }
   function setPose(i) {
