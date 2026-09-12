@@ -1,110 +1,17 @@
-// 看板猫「小茉莉」：纯 SVG/CSS 自绘，零依赖（jsdelivr/unpkg 国内不可达，不引外部库）
-// 行为：左下角常驻；≤768px 或屏高≤560px 自动收成猫头小圆钮（点开可再看）；桌面端可手动收起并记住偏好
-// 彩蛋：小蝴蝶绕头顶飞，猫猫眼神追着它；每隔一阵子扑一次蝴蝶
-// 调试后门：window.__kgCatApi.show('文本') / fold() / open() / chase()
+// 看板猫 v4：贴纸画来自小红书作者「望舒清欢」（已获允许使用），AI 抠底后动态化
+// 行为：悬浮飘动 + 沿屏幕底部蹦跶 + 满屏小蝴蝶可追 + 摸头摇摆冒爱心
+// 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 昼夜切换致辞
+// 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
+// 调试后门：window.__kgCatApi.show('文本') / toggle() / chase()
 ;(function () {
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  var FOLD_KEY = 'kg-cat-fold';
+  var IMG = '/img/kanban-cat.webp';
+  var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
-  var SHORT = window.matchMedia('(max-height: 560px)'); // 屏幕太矮也算「小屏」，同样收起
-
-  /* ---------- SVG 造型 ---------- */
-  // 头部（整只猫和小圆钮共用，保证收起前后是同一只猫）
-  function headSVG(wrap, viewBox) {
-    var s =
-      // 耳朵（画在头后面，耳根被头盖住）
-      '<g class="kg-ear kg-ear-l">' +
-      '<path d="M60 62 L47 16 Q46 10 52 13 L94 42 Z" fill="#fffdf8" stroke="#7a6a63" stroke-width="3" stroke-linejoin="round"/>' +
-      '<path d="M63 54 L55 26 Q54 22 58 24 L82 40 Z" fill="#f6bfc8"/>' +
-      '</g>' +
-      '<g class="kg-ear kg-ear-r">' +
-      '<path d="M140 62 L153 16 Q154 10 148 13 L106 42 Z" fill="#fffdf8" stroke="#7a6a63" stroke-width="3" stroke-linejoin="round"/>' +
-      '<path d="M137 54 L145 26 Q146 22 142 24 L118 40 Z" fill="#f6bfc8"/>' +
-      '</g>' +
-      // 脸
-      '<ellipse cx="100" cy="88" rx="56" ry="50" fill="#fffdf8" stroke="#7a6a63" stroke-width="3"/>' +
-      // 额头纹
-      '<g fill="none" stroke="#eeb88a" stroke-width="3.5" stroke-linecap="round">' +
-      '<path d="M86 42 Q88 48 86 54"/><path d="M100 40 Q102 47 100 54"/><path d="M114 42 Q112 48 114 54"/>' +
-      '</g>' +
-      // 眼睛（睁眼可随鼠标转动；闭合/开心两态切换）
-      '<g class="kg-eye">' +
-      '<g class="kg-eye-open">' +
-      '<path d="M65 88 Q76 78 87 88" fill="none" stroke="#5a4a44" stroke-width="3.5" stroke-linecap="round"/>' +
-      '<g class="kg-pupil-track">' +
-      '<ellipse cx="76" cy="93" rx="10.5" ry="12" fill="#4f9e6f" stroke="#3c7d58" stroke-width="1.5"/>' +
-      '<ellipse cx="76" cy="94" rx="4.2" ry="7.4" fill="#2e2a28"/>' +
-      '<circle cx="72.6" cy="88.5" r="3.1" fill="#fff"/>' +
-      '<circle cx="79.4" cy="97.5" r="1.6" fill="#fff" opacity=".85"/>' +
-      '</g></g>' +
-      '<path class="kg-eye-closed" d="M66 94 Q76 100 86 94" fill="none" stroke="#5a4a44" stroke-width="3" stroke-linecap="round"/>' +
-      '<path class="kg-eye-happy" d="M66 93 Q76 82 86 93" fill="none" stroke="#5a4a44" stroke-width="3.5" stroke-linecap="round"/>' +
-      '</g>' +
-      '<g class="kg-eye">' +
-      '<g class="kg-eye-open">' +
-      '<path d="M113 88 Q124 78 135 88" fill="none" stroke="#5a4a44" stroke-width="3.5" stroke-linecap="round"/>' +
-      '<g class="kg-pupil-track">' +
-      '<ellipse cx="124" cy="93" rx="10.5" ry="12" fill="#4f9e6f" stroke="#3c7d58" stroke-width="1.5"/>' +
-      '<ellipse cx="124" cy="94" rx="4.2" ry="7.4" fill="#2e2a28"/>' +
-      '<circle cx="120.6" cy="88.5" r="3.1" fill="#fff"/>' +
-      '<circle cx="127.4" cy="97.5" r="1.6" fill="#fff" opacity=".85"/>' +
-      '</g></g>' +
-      '<path class="kg-eye-closed" d="M114 94 Q124 100 134 94" fill="none" stroke="#5a4a44" stroke-width="3" stroke-linecap="round"/>' +
-      '<path class="kg-eye-happy" d="M114 93 Q124 82 134 93" fill="none" stroke="#5a4a44" stroke-width="3.5" stroke-linecap="round"/>' +
-      '</g>' +
-      // 腮红
-      '<ellipse cx="60" cy="109" rx="9" ry="4.8" fill="#f8c3cb" opacity=".8"/>' +
-      '<ellipse cx="140" cy="109" rx="9" ry="4.8" fill="#f8c3cb" opacity=".8"/>' +
-      // 鼻子和嘴
-      '<path d="M95.5 105.5 Q100 102.5 104.5 105.5 Q103 112 100 113 Q97 112 95.5 105.5 Z" fill="#f2a7b3"/>' +
-      '<path class="kg-mouth-normal" d="M100 113 Q95 118.5 89.5 115 M100 113 Q105 118.5 110.5 115" fill="none" stroke="#7a6a63" stroke-width="2.4" stroke-linecap="round"/>' +
-      '<path class="kg-mouth-happy" d="M89 113.5 Q100 126 111 113.5 Q100 117.5 89 113.5 Z" fill="#e58a96"/>' +
-      // 胡须
-      '<g fill="none" stroke="#b3a196" stroke-width="2" stroke-linecap="round">' +
-      '<path d="M50 101 L28 96"/><path d="M49 108 L25 108"/><path d="M50 115 L28 120"/>' +
-      '<path d="M150 101 L172 96"/><path d="M151 108 L175 108"/><path d="M150 115 L172 120"/>' +
-      '</g>';
-    if (!wrap) return s;
-    return '<svg class="kg-svg" viewBox="' + (viewBox || '0 0 200 212') + '" aria-hidden="true">' + s + '</svg>';
-  }
-
-  function fullSVG() {
-    var tail =
-      '<g class="kg-tail">' +
-      '<path d="M144 182 C186 172 190 130 178 106 C173 95 163 90 153 93" fill="none" stroke="#7a6a63" stroke-width="24" stroke-linecap="round"/>' +
-      '<path d="M144 182 C186 172 190 130 178 106 C173 95 163 90 153 93" fill="none" stroke="#fffdf8" stroke-width="18" stroke-linecap="round"/>' +
-      '<circle cx="153" cy="93" r="8.5" fill="#eeb88a" stroke="#7a6a63" stroke-width="3"/>' +
-      '</g>';
-    var body =
-      '<path d="M100 120 C64 120 52 148 54 176 C56 202 76 208 100 208 C124 208 144 202 146 176 C148 148 136 120 100 120 Z" fill="#fffdf8" stroke="#7a6a63" stroke-width="3"/>' +
-      '<ellipse cx="100" cy="188" rx="26" ry="15" fill="#fdf3e7"/>' +
-      '<ellipse cx="77" cy="201" rx="15" ry="8.5" fill="#fffdf8" stroke="#7a6a63" stroke-width="3"/>' +
-      '<ellipse cx="123" cy="201" rx="15" ry="8.5" fill="#fffdf8" stroke="#7a6a63" stroke-width="3"/>';
-    // 项圈 + 叶子吊牌（呼应全站树叶光标）
-    var collar =
-      '<path d="M74 132 Q100 146 126 132 L126 141 Q100 155 74 141 Z" fill="#7fae7f" stroke="#6a9a6a" stroke-width="2"/>' +
-      '<g transform="translate(100 150) rotate(16)">' +
-      '<path d="M0 -7 Q6 -2 0 7 Q-6 -2 0 -7 Z" fill="#5c9e63" stroke="#4a854f" stroke-width="1.5"/>' +
-      '<path d="M0 -5 L0 5" stroke="#dcead8" stroke-width="1.2" fill="none"/>' +
-      '</g>';
-    // 头顶的小伙伴小蝴蝶（从旧稿并进来的点子）
-    var bf =
-      '<g class="kg-bf" transform="translate(172 22)">' +
-      '<g class="kg-bf-float">' +
-      '<g class="kg-bf-wings">' +
-      '<path d="M2 0 C 10 -12 24 -11 25 -2 C 26 5 14 9 2 4 Z" fill="#f6bfc8" stroke="#e58a96" stroke-width="1.5"/>' +
-      '<path d="M2 5 C 10 7 19 11 16 18 C 13 23 4 19 1 9 Z" fill="#f9d3da" stroke="#e58a96" stroke-width="1.5"/>' +
-      '</g>' +
-      '<g class="kg-bf-wings kg-bf-wings-r">' +
-      '<path d="M-2 0 C -10 -12 -24 -11 -25 -2 C -26 5 -14 9 -2 4 Z" fill="#f6bfc8" stroke="#e58a96" stroke-width="1.5"/>' +
-      '<path d="M-2 5 C -10 7 -19 11 -16 18 C -13 23 -4 19 -1 9 Z" fill="#f9d3da" stroke="#e58a96" stroke-width="1.5"/>' +
-      '</g>' +
-      '<ellipse cx="0" cy="8" rx="2.6" ry="7" fill="#7a6a63"/>' +
-      '</g></g>';
-    return '<svg class="kg-svg" viewBox="0 0 200 212" aria-hidden="true"><g class="kg-all">' + tail + body + collar + headSVG(false) + bf + '</g></svg>';
-  }
+  var SHORT = window.matchMedia('(max-height: 560px)');
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 文案 ---------- */
   var IDLE = [
@@ -116,8 +23,6 @@
     '偷偷说：右键菜单里藏着「随便逛逛」哦',
     '深夜的 flag 虽香，可不要贪杯喵',
     '喵呜——(伸了个懒腰)',
-    '喜欢猫猫的话，去关于页给主人留言吧~',
-    '学习 Web 安全的时候，猫猫帮你盯着 XSS 喵',
     '据说摸猫头会变聪明，不信你点点看喵？',
     // 可爱的自言自语
     '咦……我的尾巴怎么自己在动喵？',
@@ -132,14 +37,15 @@
     '嘘——我在帮主人盯着评论区喵',
     '月亮出来的时候，猫猫的眼睛会更亮哦',
     '喵の心得：再复杂的漏洞，也要从原理啃起喵',
-    '（盯着光标上的小叶子）这个……能吃吗喵？',
     '键盘那么暖，怪不得主人总敲个不停喵',
     '有 bug 就修，有鱼干就吃，喵生圆满',
     '侧栏那首小诗，是本站唯一的一小块阳光喵',
-    '读到有趣的地方，猫猫的尾巴会摇得更快喵',
+    '读到有趣的地方，猫猫会蹦得更高喵',
     '猫猫数过了，今天也是元气满满的一天喵',
-    '（小声）其实……评论区就在文章最下面喵'
+    '（小声）其实……评论区就在文章最下面喵',
+    '本喵的贴纸画师是「望舒清欢」喵，掌声！'
   ];
+  var HOVER = ['喵？', '在的在的喵', '喵呜～', '叫我吗喵？', '（蹭蹭你的手）', '要摸摸头吗喵？', '嘿嘿，好痒喵'];
   var TOUCH = [
     '咕噜咕噜……好舒服喵',
     '喵？要摸摸头吗~',
@@ -182,36 +88,79 @@
   box.innerHTML =
     '<div class="kg-wrap">' +
     '<div class="kg-bubble"><span class="kg-bubble-text"></span></div>' +
-    '<button class="kg-fold" type="button" title="把猫猫收起来" aria-label="收起看板猫">✕</button>' +
-    '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' + fullSVG() + '</div>' +
-    '</div>' +
-    '<button class="kg-ball" type="button" title="戳我展开看板猫" aria-label="展开看板猫">' + headSVG(true, '44 10 112 128') + '</button>';
+    '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' +
+    '<img class="kg-cat-img" src="' + IMG + '" alt="看板猫 · 插画：望舒清欢（小红书）" draggable="false">' +
+    '</div></div>';
   document.body.appendChild(box);
+
+  // 满屏飞的小蝴蝶（独立元素）
+  var bfHost = document.createElement('div');
+  bfHost.id = 'kg-bf';
+  bfHost.setAttribute('aria-hidden', 'true');
+  bfHost.innerHTML =
+    '<svg viewBox="-14 -14 28 32">' +
+    '<g class="kg-bf-wings">' +
+    '<path d="M-1 0 C -9 -11 -20 -10 -21 -3 C -22 3 -12 6 -1 2 Z" fill="#f6bfc8" stroke="#e58a96" stroke-width="1.3"/>' +
+    '<path d="M-1 3 C -8 5 -15 8 -12.5 13.5 C -10 17.5 -3 14.5 -1 7 Z" fill="#f9d3da" stroke="#e58a96" stroke-width="1.3"/>' +
+    '</g>' +
+    '<g class="kg-bf-wings kg-bf-wings-r">' +
+    '<path d="M1 0 C 9 -11 20 -10 21 -3 C 22 3 12 6 1 2 Z" fill="#f6bfc8" stroke="#e58a96" stroke-width="1.3"/>' +
+    '<path d="M1 3 C 8 5 15 8 12.5 13.5 C 10 17.5 3 14.5 1 7 Z" fill="#f9d3da" stroke="#e58a96" stroke-width="1.3"/>' +
+    '</g>' +
+    '<ellipse cx="0" cy="7" rx="2" ry="5.5" fill="#7a6a63"/>' +
+    '</svg>';
+  document.body.appendChild(bfHost);
 
   var wrap = box.querySelector('.kg-wrap');
   var doll = box.querySelector('.kg-doll');
   var bubble = box.querySelector('.kg-bubble');
   var bubbleText = box.querySelector('.kg-bubble-text');
-  var tracks = box.querySelectorAll('.kg-pupil-track');
 
-  /* ---------- 展开 / 收起（核心：屏幕太小就收起来） ---------- */
-  var state = { userFolded: false, openedOnSmall: false };
-  try { state.userFolded = localStorage.getItem(FOLD_KEY) === '1'; } catch (e) {}
-
-  function isFolded() {
-    if (state.userFolded) return true;
-    if (SMALL.matches || SHORT.matches) return !state.openedOnSmall;
-    return false;
+  /* ---------- 右下角开关（和日夜模式并排） ---------- */
+  function buildToggle() {
+    var holder = document.getElementById('rightside-config-show') || document.getElementById('rightside');
+    if (!holder || document.getElementById('kg-toggle')) return;
+    var b = document.createElement('button');
+    b.id = 'kg-toggle';
+    b.type = 'button';
+    b.title = '看板猫开关';
+    b.setAttribute('aria-label', '显示或收起看板猫');
+    b.innerHTML = '<img src="' + IMG + '" alt="">';
+    var goUp = holder.querySelector('#go-up');
+    if (goUp) holder.insertBefore(b, goUp);
+    else holder.appendChild(b);
+    b.addEventListener('click', function () {
+      state.off = !state.off;
+      if (state.off) { try { localStorage.setItem(OFF_KEY, '1'); } catch (e) {} }
+      else {
+        state.smallOn = true; // 手动唤出后本页保持可见
+        try { localStorage.removeItem(OFF_KEY); } catch (e) {}
+      }
+      apply();
+      if (!state.off) {
+        say(greeting());
+        doll.classList.remove('kg-greet');
+        void doll.offsetWidth;
+        doll.classList.add('kg-greet');
+      }
+    });
   }
+
+  /* ---------- 显隐 ---------- */
+  var state = { off: false, smallOn: false };
+  try { state.off = localStorage.getItem(OFF_KEY) === '1'; } catch (e) {}
+
+  function isSmall() { return SMALL.matches || SHORT.matches; }
+  function visible() { return !state.off && (!isSmall() || state.smallOn); }
   function apply() {
-    box.classList.toggle('kg-folded', isFolded());
+    var v = visible();
+    box.classList.toggle('kg-hidden', !v);
+    bfHost.classList.toggle('kg-hidden', !v);
+    var t = document.getElementById('kg-toggle');
+    if (t) t.setAttribute('aria-pressed', v ? 'true' : 'false');
+    if (!v) bubble.classList.remove('kg-show');
   }
-  apply();
-
-  function onBreakpoint() {
-    state.openedOnSmall = false; // 跨过断点后重新按屏幕尺寸决定
-    apply();
-  }
+  function onBreakpoint() { state.smallOn = false; apply(); }
   if (SMALL.addEventListener) {
     SMALL.addEventListener('change', onBreakpoint);
     SHORT.addEventListener('change', onBreakpoint);
@@ -219,40 +168,46 @@
     SMALL.addListener(onBreakpoint);
     SHORT.addListener(onBreakpoint);
   }
-
-  box.querySelector('.kg-fold').addEventListener('click', function (e) {
-    e.stopPropagation();
-    state.userFolded = true;
-    state.openedOnSmall = false;
-    try { localStorage.setItem(FOLD_KEY, '1'); } catch (err) {}
-    apply();
-  });
-  box.querySelector('.kg-ball').addEventListener('click', function () {
-    state.userFolded = false;
-    state.openedOnSmall = SMALL.matches || SHORT.matches; // 小屏上手动展开过就保持，直到跨断点
-    try { localStorage.removeItem(FOLD_KEY); } catch (err) {}
-    apply();
-    doll.classList.remove('kg-greet');
-    void doll.offsetWidth; // 重新触发弹跳动画
-    doll.classList.add('kg-greet');
-    showBubble(greeting());
-  });
+  buildToggle();
+  apply();
 
   /* ---------- 气泡 ---------- */
   var bubbleTimer = null;
-  function showBubble(text, keep) {
-    if (box.classList.contains('kg-folded')) return;
+  function say(text, dur) {
+    if (!visible()) return;
     bubbleText.textContent = text;
     bubble.classList.add('kg-show');
     clearTimeout(bubbleTimer);
-    if (!keep) bubbleTimer = setTimeout(function () { bubble.classList.remove('kg-show'); }, 9000);
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('kg-show'); }, dur || 8000);
   }
 
-  /* ---------- 互动 ---------- */
+  /* ---------- 说话时机 ---------- */
+  var lastIdle = '';
+  var lastHoverAt = 0;
+  function idleLoop() {
+    setTimeout(function () {
+      if (!document.hidden && visible() && !doll.matches(':hover')) {
+        var m = pick(IDLE, lastIdle);
+        lastIdle = m;
+        say(m, 9000);
+      }
+      idleLoop();
+    }, 9000 + Math.random() * 7000);
+  }
+  setTimeout(function () { say(greeting()); }, 1200);
+  idleLoop();
+
+  doll.addEventListener('mouseenter', function () {
+    var now = Date.now();
+    if (now - lastHoverAt < 6000) return;
+    lastHoverAt = now;
+    say(Math.random() < 0.35 ? pick(TOUCH) : pick(HOVER, bubbleText.textContent), 4500);
+  });
+
   function pet() {
     doll.classList.add('kg-happy');
     spawnHearts();
-    showBubble(pick(TOUCH, bubbleText.textContent), 4200);
+    say(pick(TOUCH, bubbleText.textContent), 4200);
     setTimeout(function () { doll.classList.remove('kg-happy'); }, 1400);
   }
   doll.addEventListener('click', pet);
@@ -260,17 +215,16 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pet(); }
   });
 
-  // 摸头冒小爱心
   function spawnHearts() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (REDUCED) return;
     for (var i = 0; i < 3; i++) {
       (function (i) {
         setTimeout(function () {
           var s = document.createElement('span');
           s.className = 'kg-heart';
           s.textContent = '♥';
-          s.style.left = (30 + Math.random() * 76) + 'px';
-          s.style.bottom = (100 + Math.random() * 18) + 'px';
+          s.style.left = (30 + Math.random() * 80) + 'px';
+          s.style.bottom = (95 + Math.random() * 20) + 'px';
           s.style.setProperty('--kg-hx', ((Math.random() - 0.5) * 36).toFixed(0) + 'px');
           s.addEventListener('animationend', function () { s.remove(); });
           wrap.appendChild(s);
@@ -288,127 +242,133 @@
       if (t === lastTheme) return;
       lastTheme = t;
       setTimeout(function () {
-        showBubble(t === 'dark' ? '灯关掉啦……猫猫把亮度调柔和了，记得保护眼睛喵' : '天亮啦！新的一天也要元气满满喵');
+        say(t === 'dark' ? '灯关掉啦……猫猫把亮度调柔和了，记得保护眼睛喵' : '天亮啦！新的一天也要元气满满喵');
       }, 700);
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   }
 
-  // 闲聊轮播
-  var lastIdle = '';
-  setInterval(function () {
-    if (document.hidden || box.classList.contains('kg-folded')) return;
-    lastIdle = pick(IDLE, lastIdle);
-    showBubble(lastIdle);
-  }, 32000);
-  setTimeout(function () { showBubble(greeting(), false); }, 1200);
+  /* ---------- 萌宠引擎：悬浮飘动(CSS) + 沿底部蹦跶 + 蝴蝶满屏飞 + 追蝴蝶 ---------- */
+  var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+  var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  window.addEventListener('resize', function () {
+    vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  }, { passive: true });
 
-  // 眨眼
-  function blink() {
-    if (!document.hidden && !box.classList.contains('kg-folded') && !doll.classList.contains('kg-happy')) {
-      box.classList.add('kg-blink');
-      setTimeout(function () {
-        box.classList.remove('kg-blink');
-        if (Math.random() < 0.25) { // 四分之一概率连眨两下
-          box.classList.add('kg-blink');
-          setTimeout(function () { box.classList.remove('kg-blink'); }, 130);
-        }
-      }, 140);
-    }
-    setTimeout(blink, 2800 + Math.random() * 3800);
-  }
-  blink();
-
-  // 耳朵抖动
-  function twitch() {
-    if (!document.hidden && !box.classList.contains('kg-folded')) {
-      box.classList.add('kg-twitch');
-      setTimeout(function () { box.classList.remove('kg-twitch'); }, 480);
-    }
-    setTimeout(twitch, 6000 + Math.random() * 9000);
-  }
-  twitch();
-
-  /* ---------- 小蝴蝶乱飞 + 小猫追蝴蝶 ---------- */
-  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var bfG = box.querySelector('.kg-bf');
-  var bf = { x: 172, y: 22, mode: 'wander', until: 0, target: null, t0: Math.random() * 100 };
   var mouse = { x: 0, y: 0, t: -1e9 };
-  if (!window.matchMedia('(pointer: coarse)').matches) {
+  var finePointer = !window.matchMedia('(pointer: coarse)').matches;
+  if (finePointer) {
     window.addEventListener('mousemove', function (e) {
       mouse.x = e.clientX; mouse.y = e.clientY; mouse.t = Date.now();
     }, { passive: true });
   }
 
-  // 平时绕着猫猫头顶慢慢晃悠的目标点
-  function wanderPoint(t) {
-    return {
-      x: 168 + Math.sin(t * 0.9) * 16 + Math.sin(t * 0.23) * 6,
-      y: 24 + Math.sin(t * 1.3 + 1) * 9 + Math.cos(t * 0.31) * 4
-    };
+  // 猫：x 为猫左缘视口坐标；box 默认 left 16px，用 transform 偏移
+  var cat = { x: 16, hop: null, queue: [], nextMoveAt: Date.now() + 7000, hopDur: 320, pause: 130, fast: false, pauseUntil: 0 };
+  function startWalk(targetX, fast) {
+    targetX = Math.max(10, Math.min(vw * 0.72, targetX));
+    var steps = [];
+    var from = cat.x;
+    var n = Math.max(1, Math.ceil(Math.abs(targetX - from) / 80));
+    for (var i = 1; i <= n; i++) steps.push(from + (targetX - from) * (i / n));
+    cat.queue = steps;
+    cat.hopDur = fast ? 240 : 320;
+    cat.pause = fast ? 40 : 130;
+    cat.fast = !!fast;
   }
-  // 被追时逃跑的目的地（SVG 坐标，右上/左上方向）
-  var DARTS = [[196, 4], [150, -8], [196, 66], [116, -10], [130, 54]];
+  function scheduleIdleWalk() {
+    cat.nextMoveAt = Date.now() + 8000 + Math.random() * 12000;
+  }
+
+  // 蝴蝶：视口坐标
+  var bf = { x: vw * 0.5, y: 140, tx: vw * 0.5, ty: 140, nextAt: 0, mode: 'roam' };
 
   function triggerChase() {
-    var d = DARTS[Math.floor(Math.random() * DARTS.length)];
+    if (!visible() || document.hidden || REDUCED) return;
     bf.mode = 'dart';
-    bf.target = { x: d[0], y: d[1] };
-    bf.until = performance.now() + 900;
-    box.style.setProperty('--kg-dir', d[0] >= 160 ? 1 : -1); // 往哪边扑
-    box.classList.add('kg-chase');
-    showBubble(pick(CHASE), 3800);
-    setTimeout(function () {
-      bf.mode = 'return';
-      bf.until = performance.now() + 1400;
-      box.classList.remove('kg-chase');
-    }, 900);
+    var far = [
+      [vw * 0.55 + Math.random() * vw * 0.3, 60 + Math.random() * 90],
+      [40 + Math.random() * vw * 0.25, 60 + Math.random() * 90],
+      [vw * 0.5 + (Math.random() - 0.5) * vw * 0.5, 40 + Math.random() * 60]
+    ];
+    var d = far[Math.floor(Math.random() * far.length)];
+    bf.tx = d[0]; bf.ty = d[1];
+    startWalk(d[0] - 60 + (Math.random() - 0.5) * 40, true);
+    say(pick(CHASE), 3800);
+    setTimeout(function () { bf.mode = 'roam'; bf.nextAt = performance.now() + 500; }, 1500);
   }
-  function chaseOnce() {
+  function chaseLoop() {
     setTimeout(function () {
-      if (bfG && !document.hidden && !box.classList.contains('kg-folded') && !doll.classList.contains('kg-happy')) triggerChase();
-      chaseOnce();
+      if (visible() && !document.hidden && !doll.classList.contains('kg-happy')) triggerChase();
+      chaseLoop();
     }, 45000 + Math.random() * 45000);
   }
-  if (bfG && !REDUCED) chaseOnce();
+  if (!REDUCED) chaseLoop();
 
-  var lastPupil = '';
-  function setPupils(tx, ty) {
-    var s = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px)';
-    if (s === lastPupil) return;
-    lastPupil = s;
-    for (var i = 0; i < tracks.length; i++) tracks[i].style.transform = s;
-  }
-
+  // 悬停时猫往鼠标方向微微倾身（图片猫的「眼神跟随」平替）
+  var lean = 0;
   function frame(now) {
     requestAnimationFrame(frame);
-    if (document.hidden || box.classList.contains('kg-folded')) return;
-    var t = now / 1000 + bf.t0;
+    if (document.hidden) return;
+    var t = now / 1000;
+    var show = visible();
 
-    // 蝴蝶运动：平时缓晃，被追时窜出去，再绕回来
-    if (bfG && !REDUCED) {
-      var goal, ease;
-      if (bf.mode === 'dart' && now < bf.until) { goal = bf.target; ease = 0.16; }
-      else if (bf.mode === 'return' && now < bf.until) { goal = wanderPoint(t); ease = 0.07; }
-      else { bf.mode = 'wander'; goal = wanderPoint(t); ease = 0.05; }
-      bf.x += (goal.x - bf.x) * ease;
-      bf.y += (goal.y - bf.y) * ease;
-      bfG.setAttribute('transform', 'translate(' + bf.x.toFixed(1) + ' ' + bf.y.toFixed(1) + ')');
+    // 蝴蝶飞行
+    if (!REDUCED && show) {
+      if (now >= bf.nextAt && bf.mode !== 'dart') {
+        bf.nextAt = now + 2600 + Math.random() * 3000;
+        if (Math.random() < 0.35) {
+          bf.tx = Math.max(40, Math.min(vw - 80, cat.x + 20 + Math.random() * 120));
+          bf.ty = Math.max(60, vh - 250 - Math.random() * 60);
+        } else {
+          bf.tx = 40 + Math.random() * Math.max(60, vw - 130);
+          bf.ty = 50 + Math.random() * Math.max(40, vh * 0.38);
+        }
+      }
+      bf.x += (bf.tx - bf.x) * 0.035;
+      bf.y += (bf.ty - bf.y) * 0.035;
+      var fl = Math.sin(t * 9) * 3;
+      bfHost.style.transform = 'translate(' + bf.x.toFixed(1) + 'px,' + (bf.y + fl).toFixed(1) + 'px)' +
+        (bf.tx < bf.x - 2 ? ' scaleX(-1)' : '');
     }
 
-    // 眼神：追的时候死盯蝴蝶；平时最近动过鼠标就看鼠标，不然盯着蝴蝶看
-    var r = doll.getBoundingClientRect();
-    if (r.width) {
-      var cx = r.left + r.width / 2;
-      var cy = r.top + r.height * 0.42;
-      if (bf.mode === 'dart' || Date.now() - mouse.t >= 2500) {
-        var scale = r.width / 200; // 蝴蝶是 SVG 坐标，换算成视口坐标
-        var dx = (r.left + bf.x * scale) - cx;
-        var dy = (r.top + bf.y * scale) - cy;
-        setPupils(Math.max(-3.2, Math.min(3.2, dx / 30)), Math.max(-2.4, Math.min(2.4, dy / 40)));
-      } else {
-        var mdx = mouse.x - cx;
-        var mdy = mouse.y - cy;
-        setPupils(Math.max(-3.2, Math.min(3.2, mdx / 60)), Math.max(-2.4, Math.min(2.4, mdy / 60)));
+    // 猫蹦跶
+    if (!REDUCED && show) {
+      if (!cat.hop && cat.queue.length && now >= cat.pauseUntil) {
+        cat.hop = { from: cat.x, to: cat.queue.shift(), t0: now, dur: cat.hopDur };
+      }
+      if (cat.hop) {
+        var p = (now - cat.hop.t0) / cat.hop.dur;
+        if (p >= 1) {
+          cat.x = cat.hop.to;
+          box.style.transform = 'translateX(' + (cat.x - 16) + 'px)';
+          doll.style.transform = '';
+          cat.hop = null;
+          cat.pauseUntil = now + cat.pause;
+          if (!cat.queue.length) scheduleIdleWalk();
+        } else {
+          var q = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+          var cx2 = cat.hop.from + (cat.hop.to - cat.hop.from) * q;
+          var dir = cat.hop.to >= cat.hop.from ? 1 : -1;
+          var arc = -14 * Math.sin(Math.PI * p);
+          box.style.transform = 'translateX(' + (cx2 - 16).toFixed(1) + 'px)';
+          doll.style.transform = 'translateY(' + arc.toFixed(1) + 'px) rotate(' + (dir * 7 * Math.sin(Math.PI * p)).toFixed(1) + 'deg)';
+        }
+      } else if (now >= cat.nextMoveAt) {
+        startWalk(30 + Math.random() * vw * 0.6, false);
+      }
+    }
+
+    // 倾身朝向鼠标
+    if (finePointer && !cat.hop) {
+      var r = doll.getBoundingClientRect();
+      if (r.width) {
+        var target = Date.now() - mouse.t < 2500
+          ? Math.max(-7, Math.min(7, (mouse.x - (r.left + r.width / 2)) / 30))
+          : 0;
+        lean += (target - lean) * 0.08;
+        if (Math.abs(lean) < 0.05) lean = 0;
+        doll.style.transform = lean ? 'rotate(' + lean.toFixed(2) + 'deg)' : '';
       }
     }
   }
@@ -416,9 +376,11 @@
 
   // 调试后门
   window.__kgCatApi = {
-    show: showBubble,
-    fold: function () { state.userFolded = true; apply(); },
-    open: function () { state.userFolded = false; state.openedOnSmall = false; apply(); },
+    show: say,
+    toggle: function () {
+      var b = document.getElementById('kg-toggle');
+      if (b) b.click(); else { state.off = !state.off; apply(); }
+    },
     chase: triggerChase
   };
 })();
