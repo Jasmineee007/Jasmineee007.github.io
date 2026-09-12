@@ -1,11 +1,11 @@
-/* 看板猫 v4（kanban-cat.js 配套）：贴纸猫贴图动态化
+/* 看板猫 v8（kanban-cat.js 配套）：灰白小猫贴纸 + 动态眼珠
    左下角常驻 + 沿底部蹦跶；小屏(≤768px)或矮屏(≤560px)自动收起
    贴纸插画：望舒清欢（小红书），AI 抠底透明 webp */
 #kg-cat {
   position: fixed;
   left: 16px;
   bottom: 12px;
-  z-index: 998; /* 低于右键菜单(9999)，与右侧功能钮(100)同层更高 */
+  z-index: 998; /* 低于右键菜单(9999)，高于右侧功能钮(100) */
   font-size: 13px;
   user-select: none;
   -webkit-user-select: none;
@@ -25,7 +25,7 @@
 }
 #kg-cat.kg-hidden { pointer-events: none; }
 
-/* 对话气泡：毛玻璃同全站卡片体系；绝对定位在猫头顶，不占位 */
+/* 对话气泡：毛玻璃同全站卡片体系；绝对定位在头顶，不占位 */
 .kg-bubble {
   position: absolute;
   left: 0;
@@ -66,10 +66,10 @@
 }
 [data-theme='dark'] .kg-bubble::after { border-color: rgba(255, 255, 255, .08); }
 
-/* 猫猫本体（贴纸图） */
+/* 猫猫本体（贴纸图 + 动态眼珠覆盖层） */
 .kg-doll {
   position: relative;
-  width: 185px;
+  width: 150px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -97,33 +97,9 @@
 .kg-doll.kg-happy .kg-cat-img { animation: kg-wiggle .55s ease-in-out 2; }
 @keyframes kg-wiggle {
   0%, 100% { transform: rotate(0) scale(1); }
-  25% { transform: rotate(-6deg) scale(1.04); }
-  75% { transform: rotate(6deg) scale(1.04); }
+  25% { transform: rotate(-6deg) scale(1.03); }
+  75% { transform: rotate(6deg) scale(1.03); }
 }
-
-/* 动态眼珠层：与贴图同框对齐，盖在原图眼睛上 */
-.kg-eyes {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.kg-pupil { will-change: transform; }
-.kg-eyelid {
-  transform: scaleY(0);
-  transform-box: fill-box;
-  transform-origin: 50% 0%;
-}
-#kg-cat.kg-blink .kg-eyelid { animation: kg-lid .18s ease; }
-@keyframes kg-lid {
-  0%, 100% { transform: scaleY(0); }
-  45%, 60% { transform: scaleY(1.04); }
-}
-.kg-arc { display: none; }
-.kg-doll.kg-happy .kg-pupil { display: none; }
-.kg-doll.kg-happy .kg-arc { display: block; }
-.kg-doll.kg-happy .kg-eyelid { transform: none; animation: none; }
 
 /* 从开关唤出时的登场弹跳 */
 .kg-doll.kg-greet { animation: kg-greet .6s cubic-bezier(.34, 1.56, .64, 1); }
@@ -147,34 +123,7 @@
   100% { opacity: 0; transform: translateY(-58px) translateX(var(--kg-hx, 0)) scale(1.15); }
 }
 
-/* 满屏飞的小蝴蝶（独立元素） */
-#kg-bf {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 999;
-  width: 32px;
-  pointer-events: none;
-  will-change: transform;
-  transition: opacity .3s ease;
-}
-#kg-bf svg { display: block; width: 100%; overflow: visible; }
-#kg-bf.kg-hidden { opacity: 0; }
-.kg-bf-wings {
-  transform-box: fill-box;
-  transform-origin: 100% 45%;
-  animation: kg-flap .5s ease-in-out infinite alternate;
-}
-.kg-bf-wings-r {
-  transform-origin: 0% 45%;
-  animation-delay: .04s;
-}
-@keyframes kg-flap {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(.3); }
-}
-
-/* 右下角开关（沿用主题 rightside 按钮样式，仅补图片尺寸） */
+/* 右下角开关（沿用主题 rightside 按钮样式） */
 #kg-toggle img {
   display: block;
   width: 22px;
@@ -188,10 +137,9 @@
 /* 小屏形态 */
 @media (max-width: 768px) {
   #kg-cat { left: 10px; bottom: 10px; }
-  .kg-doll { width: 130px; }
+  .kg-doll { width: 112px; }
   .kg-bubble { max-width: 150px; font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #kg-cat *,
-  #kg-bf * { animation: none !important; transition: none !important; }
+  #kg-cat * { animation: none !important; transition: none !important; }
 }
