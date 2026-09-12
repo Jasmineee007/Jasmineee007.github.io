@@ -1,6 +1,5 @@
-// 看板猫 v10：博主自家小猫三姿势贴纸（照片 AI 抠底，hatch-pet 流程孵化）+ 动态化
-// 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶、身体微微倾向鼠标
-// 姿势：摸头换下一个姿势，蹦跶落地 25% 概率随机换；开场/姿势清单见 POSES
+// 看板猫 v18：博主自家小猫单姿势贴纸（用户自抠透明图）
+// 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶
 // 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
 // 调试后门：window.__kgCatApi.show('文本') / toggle()
@@ -8,12 +7,8 @@
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  // 三姿势：举手 / 趴趴 / 坐姿配奶茶；换图时版本号 +1 防 CF 缓存
-  var POSES = [
-    '/img/kanban-cat-1.webp?v=1',
-    '/img/kanban-cat-2.webp?v=1',
-    '/img/kanban-cat-3.webp?v=1'
-  ];
+  // 单姿势；换图时版本号 +1 防 CF 缓存
+  var POSES = ['/img/kanban-cat-cut.webp?v=1'];
   var poseIdx = 0;
   for (var pi = 0; pi < POSES.length; pi++) { var pre = new Image(); pre.src = POSES[pi]; }
   function setPose(i) {
