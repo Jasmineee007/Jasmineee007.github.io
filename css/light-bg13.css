@@ -713,3 +713,17 @@ input, textarea, [contenteditable="true"] {
 [data-theme='dark'] .card-poem .poem-text {
   color: #d9c49a;
 }
+
+/* === Waline 作者评论高亮 === */
+/* 你的回复带淡青底色 + 左侧色条，访客一眼识别博主回复 */
+#post-comment .wl-item:has(.wl-badge) {
+  background: rgba(79, 209, 197, .06);
+  border-left: 3px solid rgba(79, 209, 197, .5);
+  border-radius: 4px;
+  padding-left: 14px;
+  margin-left: -14px;
+  transition: background .3s;
+}
+#post-comment .wl-item:has(.wl-badge):hover {
+  background: rgba(79, 209, 197, .1);
+}
