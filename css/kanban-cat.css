@@ -1,5 +1,5 @@
-/* 看板猫 v16（kanban-cat.js v14 配套）：静态照片卡片版
-   左下角常驻 + 气泡台词 + 摸头冒爱心；小屏(≤768px)或矮屏(≤560px)自动收起 */
+/* 看板猫 v10（kanban-cat.js 配套）：自家小猫三姿势贴纸（hatch-pet 流程孵化）
+   左下角常驻 + 沿底部蹦跶 + 摸头换姿势；小屏(≤768px)或矮屏(≤560px)自动收起 */
 #kg-cat {
   position: fixed;
   left: 16px;
@@ -66,10 +66,9 @@
 [data-theme='dark'] .kg-bubble::after { border-color: rgba(255, 255, 255, .08); }
 
 /* 猫猫本体（多姿势贴纸，按高度对齐站底线） */
-.kg-waddler, .kg-frame { height: 100%; }
 .kg-doll {
   position: relative;
-  height: 110px;
+  height: 150px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -83,10 +82,23 @@
   width: auto;
   cursor: pointer;
   -webkit-user-drag: none;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(40, 30, 15, .3);
+  filter: drop-shadow(0 8px 12px rgba(40, 30, 15, .28));
+  transform-origin: 50% 82%;
+  animation: kg-fly 3.4s ease-in-out infinite;
+}
+/* 悬浮飘动：轻轻上下浮 + 小幅侧倾，像扑在玻璃上看你 */
+@keyframes kg-fly {
+  0%, 100% { transform: translateY(0) rotate(-1.6deg); }
+  50% { transform: translateY(-6px) rotate(1.8deg); }
 }
 
+/* 摸头：开心摇摆 */
+.kg-doll.kg-happy .kg-cat-img { animation: kg-wiggle .55s ease-in-out 2; }
+@keyframes kg-wiggle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-6deg) scale(1.03); }
+  75% { transform: rotate(6deg) scale(1.03); }
+}
 
 /* 从开关唤出时的登场弹跳 */
 .kg-doll.kg-greet { animation: kg-greet .6s cubic-bezier(.34, 1.56, .64, 1); }
@@ -124,7 +136,7 @@
 /* 小屏形态 */
 @media (max-width: 768px) {
   #kg-cat { left: 10px; bottom: 10px; }
-  .kg-doll { height: 86px; }
+  .kg-doll { height: 112px; }
   .kg-bubble { max-width: 150px; font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
