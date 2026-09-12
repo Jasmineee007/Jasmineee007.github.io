@@ -727,3 +727,17 @@ input, textarea, [contenteditable="true"] {
 #post-comment .wl-item:has(.wl-badge):hover {
   background: rgba(79, 209, 197, .1);
 }
+
+/* === Waline 博主回复高亮 === */
+/* 你的回复嵌套在访客评论的 .wl-quote 里，加淡青底色 + 左侧色条区分 */
+.wl-cards .wl-quote > .wl-card-item {
+  background: rgba(79, 209, 197, .05);
+  border-left: 3px solid rgba(79, 209, 197, .45);
+  border-radius: 4px;
+  padding-left: 14px;
+  margin-left: -14px;
+  transition: background .3s;
+}
+.wl-cards .wl-quote > .wl-card-item:hover {
+  background: rgba(79, 209, 197, .09);
+}
