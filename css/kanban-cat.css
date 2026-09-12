@@ -1,6 +1,5 @@
-/* 看板猫 v8（kanban-cat.js 配套）：灰白小猫贴纸 + 动态眼珠
-   左下角常驻 + 沿底部蹦跶；小屏(≤768px)或矮屏(≤560px)自动收起
-   贴纸插画：望舒清欢（小红书），AI 抠底透明 webp */
+/* 看板猫 v10（kanban-cat.js 配套）：自家小猫三姿势贴纸（hatch-pet 流程孵化）
+   左下角常驻 + 沿底部蹦跶 + 摸头换姿势；小屏(≤768px)或矮屏(≤560px)自动收起 */
 #kg-cat {
   position: fixed;
   left: 16px;
@@ -66,10 +65,10 @@
 }
 [data-theme='dark'] .kg-bubble::after { border-color: rgba(255, 255, 255, .08); }
 
-/* 猫猫本体（贴纸图 + 动态眼珠覆盖层） */
+/* 猫猫本体（多姿势贴纸，按高度对齐站底线） */
 .kg-doll {
   position: relative;
-  width: 150px;
+  height: 150px;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -79,8 +78,8 @@
 }
 .kg-cat-img {
   display: block;
-  width: 100%;
-  height: auto;
+  height: 100%;
+  width: auto;
   cursor: pointer;
   -webkit-user-drag: none;
   filter: drop-shadow(0 8px 12px rgba(40, 30, 15, .28));
@@ -137,7 +136,7 @@
 /* 小屏形态 */
 @media (max-width: 768px) {
   #kg-cat { left: 10px; bottom: 10px; }
-  .kg-doll { width: 112px; }
+  .kg-doll { height: 112px; }
   .kg-bubble { max-width: 150px; font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {

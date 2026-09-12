@@ -1,5 +1,6 @@
-// 看板猫 v9：「飞奔向你的小猫」灰白小猫贴纸（原画：小红书 @望舒清欢，AI 抠底）+ 动态化
+// 看板猫 v10：博主自家小猫三姿势贴纸（照片 AI 抠底，hatch-pet 流程孵化）+ 动态化
 // 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶、身体微微倾向鼠标
+// 姿势：摸头换下一个姿势，蹦跶落地 25% 概率随机换；开场/姿势清单见 POSES
 // 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
 // 调试后门：window.__kgCatApi.show('文本') / toggle()
@@ -7,7 +8,19 @@
   if (window.__kgCat) return;
   window.__kgCat = true;
 
-  var IMG = '/img/kanban-cat.webp?v=3'; // 图片内容更新时 +1，防 CF/浏览器缓存
+  // 三姿势：举手 / 趴趴 / 坐姿配奶茶；换图时版本号 +1 防 CF 缓存
+  var POSES = [
+    '/img/kanban-cat-1.webp?v=1',
+    '/img/kanban-cat-2.webp?v=1',
+    '/img/kanban-cat-3.webp?v=1'
+  ];
+  var poseIdx = 0;
+  for (var pi = 0; pi < POSES.length; pi++) { var pre = new Image(); pre.src = POSES[pi]; }
+  function setPose(i) {
+    poseIdx = (i + POSES.length) % POSES.length;
+    var el = box.querySelector('.kg-cat-img');
+    if (el) el.src = POSES[poseIdx];
+  }
   var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
   var SHORT = window.matchMedia('(max-height: 560px)');
@@ -43,7 +56,7 @@
     '读到有趣的地方，猫猫会蹦得更高喵',
     '猫猫数过了，今天也是元气满满的一天喵',
     '（小声）其实……评论区就在文章最下面喵',
-    '本喵的贴纸画师是「望舒清欢」喵，掌声！'
+    '本喵的原型就是博主家的小猫喵！'
   ];
   var HOVER = ['喵？', '在的在的喵', '喵呜～', '叫我吗喵？', '（蹭蹭你的手）', '要摸摸头吗喵？', '嘿嘿，好痒喵'];
   var TOUCH = [
@@ -82,7 +95,7 @@
     '<div class="kg-wrap">' +
     '<div class="kg-bubble"><span class="kg-bubble-text"></span></div>' +
     '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' +
-    '<img class="kg-cat-img" src="' + IMG + '" alt="看板猫 · 插画：望舒清欢（小红书）" draggable="false">' +
+    '<img class="kg-cat-img" src="' + POSES[0] + '" alt="看板猫：博主家的小猫" draggable="false">' +
     '</div></div>';
   document.body.appendChild(box);
 
@@ -100,7 +113,7 @@
     b.type = 'button';
     b.title = '看板猫开关';
     b.setAttribute('aria-label', '显示或收起看板猫');
-    b.innerHTML = '<img src="' + IMG + '" alt="">';
+    b.innerHTML = '<img src="' + POSES[0] + '" alt="">';
     var goUp = holder.querySelector('#go-up');
     if (goUp) holder.insertBefore(b, goUp);
     else holder.appendChild(b);
@@ -181,6 +194,7 @@
   function pet() {
     doll.classList.add('kg-happy');
     spawnHearts();
+    setPose(poseIdx + 1); // 每摸一次换个姿势
     say(pick(TOUCH, bubbleText.textContent), 4200);
     setTimeout(function () { doll.classList.remove('kg-happy'); }, 1400);
   }
@@ -275,6 +289,7 @@
           doll.style.transform = '';
           cat.hop = null;
           cat.pauseUntil = now + cat.pause;
+          if (Math.random() < 0.25) setPose(Math.floor(Math.random() * POSES.length)); // 落地偶尔换个姿势
           if (!cat.queue.length) scheduleIdleWalk();
         } else {
           var q = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
