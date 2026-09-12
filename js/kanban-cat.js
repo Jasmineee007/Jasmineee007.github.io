@@ -8,7 +8,7 @@
   window.__kgCat = true;
 
   // 抠图动画本体（视频→rembg 逐帧抠图→动画 WebP）。换图时 ?v= +1 防 CF 缓存
-  var PHOTO = '/img/kanban-cat-live.webp?v=2';
+  var PHOTO = '/img/kanban-cat-live.webp?v=3';
   var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
   var SHORT = window.matchMedia('(max-height: 560px)');
