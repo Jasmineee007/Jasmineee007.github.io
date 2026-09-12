@@ -66,6 +66,7 @@
 [data-theme='dark'] .kg-bubble::after { border-color: rgba(255, 255, 255, .08); }
 
 /* 猫猫本体（多姿势贴纸，按高度对齐站底线） */
+.kg-waddler, .kg-frame { height: 100%; }
 .kg-doll {
   position: relative;
   height: 110px;
