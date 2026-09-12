@@ -8,7 +8,7 @@
   window.__kgCat = true;
 
   // 抠图动画本体（视频→rembg 逐帧抠图→动画 WebP）。换图时 ?v= +1 防 CF 缓存
-  var PHOTO = '/img/kanban-cat-live.webp?v=1';
+  var PHOTO = '/img/kanban-cat-live.webp?v=2';
   var OFF_KEY = 'kg-cat-off';
   var SMALL = window.matchMedia('(max-width: 768px)');
   var SHORT = window.matchMedia('(max-height: 560px)');
@@ -224,54 +224,7 @@
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   }
 
-  /* ---------- 萌宠引擎：沿底部蹦跶（眨眼/动耳朵由视频本体负责） ---------- */
-  var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-  var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-  window.addEventListener('resize', function () {
-    vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-  }, { passive: true });
-
-  // 猫：x 为猫左缘视口坐标；box 默认 left 16px，用 transform 偏移
-  var cat = { x: 16, to: null, speed: 52, phase: 0, nextMoveAt: Date.now() + 6000, lastT: 0 };
-  function startWalk(targetX) {
-    cat.to = Math.max(10, Math.min(vw * 0.72, targetX));
-  }
-  function scheduleIdleWalk() {
-    cat.nextMoveAt = Date.now() + 5000 + Math.random() * 6000; // 走路勤快些，5~11s 一次
-  }
-
-  function frame(now) {
-    requestAnimationFrame(frame);
-    if (document.hidden) return;
-    var show = visible();
-
-    // 小碎步走路：移动时左右摇摆 + 碎步颠簸
-    if (!REDUCED && show) {
-      if (cat.to !== null) {
-        var dt = Math.min(64, now - (cat.lastT || now));
-        cat.lastT = now;
-        var dir = cat.to > cat.x ? 1 : -1;
-        var step = dir * cat.speed * dt / 1000;
-        if ((dir > 0 && cat.x + step >= cat.to) || (dir < 0 && cat.x + step <= cat.to)) {
-          cat.x = cat.to;
-          cat.to = null;
-          box.style.transform = 'translateX(' + (cat.x - 16) + 'px)';
-          waddler.style.transform = '';
-          scheduleIdleWalk();
-        } else {
-          cat.x += step;
-          cat.phase += Math.abs(step) * 0.16;
-          box.style.transform = 'translateX(' + (cat.x - 16).toFixed(1) + 'px)';
-          waddler.style.transform = 'translateY(' + (-Math.abs(Math.sin(cat.phase)) * 3).toFixed(1) + 'px) rotate(' + (Math.sin(cat.phase) * 4).toFixed(1) + 'deg)';
-        }
-      } else {
-        cat.lastT = now;
-        if (now >= cat.nextMoveAt) startWalk(30 + Math.random() * vw * 0.6);
-      }
-    }
-  }
-  requestAnimationFrame(frame);
+  /* 视频本体自带动作（眨眼/动耳），不再叠加位移动画 */
 
   // 调试后门
   window.__kgCatApi = {

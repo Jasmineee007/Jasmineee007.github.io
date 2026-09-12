@@ -84,34 +84,7 @@
   cursor: pointer;
   -webkit-user-drag: none;
   filter: drop-shadow(0 8px 12px rgba(40, 30, 15, .28));
-  transform-origin: 50% 82%;
-  animation: kg-fly 3.4s ease-in-out infinite;
 }
-/* 悬浮飘动：上下浮 + 小幅侧倾 + 呼吸感，持续可见 */
-@keyframes kg-fly {
-  0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
-  30% { transform: translateY(-5px) rotate(.6deg) scale(1.012); }
-  60% { transform: translateY(-2px) rotate(2deg) scale(.996); }
-  80% { transform: translateY(-7px) rotate(.2deg) scale(1.016); }
-}
-
-/* 待机原地小跳：周期性自己蹦一下（CSS 动画，不受 rAF 节流影响；跳/摸头/登场时被相应动画接管） */
-.kg-doll { animation: kg-idle-bounce 7s ease-in-out infinite; }
-.kg-doll.kg-happy { animation: none; }
-@keyframes kg-idle-bounce {
-  0%, 62%, 100% { transform: translateY(0); }
-  66% { transform: translateY(2px) scale(1.04, .92); } /* 蓄力下蹲 */
-  72% { transform: translateY(-14px) scale(.96, 1.06); } /* 起跳 */
-  78% { transform: translateY(0) scale(1.04, .94); } /* 落地压缩 */
-  84% { transform: translateY(0) scale(1, 1); }
-}
-
-/* 摸头：开心摇摆（压过待机小跳） */
-.kg-doll.kg-happy .kg-cat-img { animation: kg-wiggle .55s ease-in-out 2; }
-@keyframes kg-wiggle {
-  0%, 100% { transform: rotate(0) scale(1); }
-  25% { transform: rotate(-6deg) scale(1.03); }
-  75% { transform: rotate(6deg) scale(1.03); }
 }
 
 /* 从开关唤出时的登场弹跳 */
