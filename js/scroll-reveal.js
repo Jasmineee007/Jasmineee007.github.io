@@ -7,7 +7,7 @@
   docEl.classList.add('reveal-init');
 
   var els = Array.prototype.slice.call(
-    document.querySelectorAll('.recent-post-item, .card-widget, #article-container')
+    document.querySelectorAll('.recent-post-item, .card-widget, #article-container, .talk-item')
   );
   if (!els.length) return;
 

@@ -1,0 +1,260 @@
+/* 看板猫「小茉莉」（kanban-cat.js 配套，kg- 前缀）：左下角常驻
+   小屏(≤768px)或矮屏(≤560px)自动收起为猫头小圆钮，点圆钮再展开 */
+#kg-cat {
+  position: fixed;
+  left: 16px;
+  bottom: 12px;
+  z-index: 998; /* 低于右键菜单(9999)，高于右侧功能钮(100) */
+  font-size: 13px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.kg-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#kg-cat.kg-folded .kg-wrap { display: none; }
+
+/* 对话气泡：毛玻璃同全站卡片体系；绝对定位在猫头顶，不占位、不挡点击 */
+.kg-bubble {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  max-width: 205px;
+  padding: 7px 11px;
+  border-radius: 12px;
+  background: var(--card-bg, rgba(255, 255, 255, .72));
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid rgba(255, 255, 255, .6);
+  box-shadow: 0 4px 14px rgba(60, 45, 25, .12);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--font-color, #4c4c4c);
+  opacity: 0;
+  transform: translateY(8px) scale(.95);
+  transform-origin: 18px bottom;
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+.kg-bubble.kg-show { opacity: 1; transform: none; }
+.kg-bubble::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  bottom: -4.5px;
+  width: 10px;
+  height: 10px;
+  background: var(--card-bg, rgba(255, 255, 255, .72));
+  transform: rotate(45deg);
+  border-right: 1px solid rgba(255, 255, 255, .6);
+  border-bottom: 1px solid rgba(255, 255, 255, .6);
+}
+[data-theme='dark'] .kg-bubble {
+  border-color: rgba(255, 255, 255, .08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+}
+[data-theme='dark'] .kg-bubble::after { border-color: rgba(255, 255, 255, .08); }
+
+/* 收起按钮：hover 猫猫时出现在右上角 */
+.kg-fold {
+  position: absolute;
+  top: -14px;
+  right: -30px;
+  z-index: 3;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .6);
+  background: rgba(255, 255, 255, .8);
+  color: #8a7a68;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.kg-fold:hover { transform: scale(1.12); }
+.kg-wrap:hover .kg-fold,
+.kg-fold:focus-visible { opacity: 1; }
+[data-theme='dark'] .kg-fold {
+  background: rgba(40, 40, 56, .85);
+  border-color: rgba(255, 255, 255, .12);
+  color: #cfc9c0;
+}
+
+/* 猫猫本体 */
+.kg-doll {
+  width: 142px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.kg-doll:focus-visible .kg-svg {
+  filter: drop-shadow(0 0 6px rgba(126, 168, 126, .9));
+}
+.kg-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 6px 10px rgba(80, 50, 20, .16));
+  cursor: inherit !important; /* 继承doll的手势光标，压过全站 body * 箭头 */
+}
+
+/* 摸头时的小爱心 */
+.kg-heart {
+  position: absolute;
+  color: #f78fb3;
+  font-size: 15px;
+  pointer-events: none;
+  animation: kg-heart-float 1.1s ease-out forwards;
+}
+@keyframes kg-heart-float {
+  0% { opacity: 0; transform: translateY(0) scale(.5); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-58px) translateX(var(--kg-hx, 0)) scale(1.15); }
+}
+
+/* 收起后的猫头小圆钮 */
+.kg-ball {
+  display: none;
+  width: 46px;
+  height: 46px;
+  padding: 3px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .6);
+  background: var(--card-bg, rgba(255, 255, 255, .72));
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  box-shadow: 0 4px 14px rgba(60, 45, 25, .14);
+  cursor: pointer;
+  transition: transform .25s ease;
+}
+.kg-ball .kg-svg {
+  width: 100%;
+  height: 100%;
+  filter: none;
+}
+.kg-ball:hover { transform: translateY(-3px) rotate(-6deg); }
+#kg-cat.kg-folded .kg-ball { display: block; animation: kg-ball-in .35s ease; }
+@keyframes kg-ball-in {
+  from { transform: scale(.4); opacity: 0; }
+}
+[data-theme='dark'] .kg-ball {
+  border-color: rgba(255, 255, 255, .08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+}
+
+/* ---- 部件动画（transform-box: fill-box 让 origin 按 bbox 取） ---- */
+.kg-all {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: kg-bob 3.4s ease-in-out infinite alternate;
+}
+@keyframes kg-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2.5px); }
+}
+
+.kg-tail {
+  transform-box: fill-box;
+  transform-origin: 17% 89%;
+  animation: kg-wag 2.9s ease-in-out infinite;
+}
+@keyframes kg-wag {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(7deg); }
+}
+
+.kg-ear { transform-box: fill-box; }
+.kg-ear-l { transform-origin: 100% 100%; }
+.kg-ear-r { transform-origin: 0% 100%; }
+#kg-cat.kg-twitch .kg-ear-l { animation: kg-ear-shake .45s ease; }
+#kg-cat.kg-twitch .kg-ear-r { animation: kg-ear-shake .45s ease .1s; }
+@keyframes kg-ear-shake {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-10deg); }
+  65% { transform: rotate(5deg); }
+}
+
+/* 小蝴蝶：悬浮 + 扇翅膀 */
+.kg-bf-float {
+  animation: kg-bf-float 2.8s ease-in-out infinite alternate;
+}
+@keyframes kg-bf-float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+.kg-bf-wings {
+  transform-box: fill-box;
+  transform-origin: 100% 45%;
+  animation: kg-flap .5s ease-in-out infinite alternate;
+}
+.kg-bf-wings-r {
+  transform-origin: 0% 45%;
+  animation-delay: .04s;
+}
+@keyframes kg-flap {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(.3); }
+}
+
+/* 眼球跟鼠标：JS 直接写 transform，这里只做平滑 */
+.kg-pupil-track { transition: transform .12s linear; }
+
+/* 眨眼（JS 随机触发）与开心表情切换 */
+.kg-eye-closed, .kg-eye-happy, .kg-mouth-happy { display: none; }
+#kg-cat.kg-blink .kg-eye-open { display: none; }
+#kg-cat.kg-blink .kg-eye-closed { display: block; }
+.kg-doll.kg-happy .kg-eye-open,
+.kg-doll.kg-happy .kg-eye-closed { display: none; }
+.kg-doll.kg-happy .kg-eye-happy { display: block; }
+.kg-doll.kg-happy .kg-mouth-normal { display: none; }
+.kg-doll.kg-happy .kg-mouth-happy { display: block; }
+
+/* 开心跳 / 展开问候跳 */
+.kg-doll.kg-happy { animation: kg-hop .55s cubic-bezier(.34, 1.56, .64, 1); }
+.kg-doll.kg-greet { animation: kg-greet .6s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes kg-hop {
+  0% { transform: none; }
+  35% { transform: translateY(-13px); }
+  60% { transform: translateY(0); }
+  75% { transform: scaleY(.95); }
+  100% { transform: none; }
+}
+@keyframes kg-greet {
+  0% { transform: scale(.6) translateY(16px); opacity: 0; }
+  60% { transform: translateY(-10px); opacity: 1; }
+  100% { transform: none; }
+}
+
+/* 追蝴蝶：往蝴蝶逃跑的方向扑一下（--kg-dir 由 JS 设 1/-1），尾巴甩快、翅膀扇急 */
+#kg-cat.kg-chase .kg-doll { animation: kg-chase 1.7s ease; }
+#kg-cat.kg-chase .kg-tail { animation-duration: .45s; }
+#kg-cat.kg-chase .kg-bf-wings { animation-duration: .16s; }
+@keyframes kg-chase {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(calc(var(--kg-dir, 1) * 7px)) rotate(calc(var(--kg-dir, 1) * 5deg)); }
+  45% { transform: translateX(calc(var(--kg-dir, 1) * 11px)) rotate(calc(var(--kg-dir, 1) * 9deg)) translateY(-8px); }
+  70% { transform: translateX(calc(var(--kg-dir, 1) * 5px)) rotate(calc(var(--kg-dir, 1) * 3deg)); }
+}
+
+/* 小屏：整体缩小，展开时也不太挡内容 */
+@media (max-width: 768px) {
+  #kg-cat { left: 10px; bottom: 10px; }
+  .kg-doll { width: 104px; }
+  .kg-bubble { max-width: 150px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #kg-cat *,
+  .kg-ball { animation: none !important; transition: none !important; }
+}

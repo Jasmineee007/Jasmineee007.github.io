@@ -10,6 +10,10 @@
   --talk-bubble-border: rgba(255, 255, 255, 0.5);
   --talk-bubble-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
 }
+[data-theme='dark'] .talk-wrap {
+  --talk-line: rgba(255, 255, 255, 0.14);
+  --talk-muted: rgba(255, 255, 255, 0.55);
+}
 
 /* ---------- 页首 ---------- */
 .talk-hero {
