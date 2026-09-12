@@ -1,0 +1,216 @@
+/* ============================================================
+   说说页（/talk/ 碎碎念）— scripts/talk-page.js 构建期渲染配套
+   布局：头像 + 聊天气泡 + 时间轴（参考安知鱼/Heo 的说说板块），
+   配色沿用 light-bg13.css 的 7 色浅色循环（--tc 底色 / --tcd 强调色）
+   ============================================================ */
+
+.talk-wrap {
+  --talk-line: rgba(90, 100, 130, 0.16);
+  --talk-muted: rgba(60, 65, 85, 0.55);
+  --talk-bubble-border: rgba(255, 255, 255, 0.5);
+  --talk-bubble-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+}
+
+/* ---------- 页首 ---------- */
+.talk-hero {
+  text-align: center;
+  padding: 14px 10px 6px;
+  margin-bottom: 10px;
+}
+.talk-hero-icon {
+  font-size: 42px;
+  line-height: 1.2;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
+}
+.talk-hero-text {
+  margin-top: 8px;
+  font-size: 15.5px;
+  color: var(--talk-muted);
+}
+.talk-hero-stats {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  color: var(--talk-muted);
+  background: linear-gradient(120deg, rgba(252, 228, 236, 0.75), rgba(227, 242, 253, 0.75));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+[data-theme='dark'] .talk-hero-stats {
+  background: linear-gradient(120deg, rgba(252, 228, 236, 0.08), rgba(227, 242, 253, 0.08));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- 年份分隔 ---------- */
+.talk-year {
+  margin: 26px 0 20px;
+  padding-left: 2px;
+}
+.talk-year span {
+  display: inline-block;
+  padding: 3px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: rgba(75, 80, 105, 0.8);
+  background: linear-gradient(120deg, #fce4ec, #e3f2fd 55%, #e8f5e9);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+[data-theme='dark'] .talk-year span {
+  color: rgba(255, 255, 255, 0.75);
+  background: linear-gradient(120deg, rgba(252, 228, 236, 0.1), rgba(227, 242, 253, 0.1) 55%, rgba(232, 245, 233, 0.1));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- 时间轴条目 ---------- */
+.talk-item {
+  position: relative;
+  padding-left: 54px;
+  padding-bottom: 26px;
+}
+/* 时间轴竖线：从头像下缘连到条目底部，与下一条的头像相接 */
+.talk-item::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 42px;
+  bottom: -4px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--talk-line);
+}
+.talk-item:last-child::before { display: none; }
+
+.talk-avatar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+.talk-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+[data-theme='dark'] .talk-avatar {
+  background: #2a2a3a;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- 气泡 ---------- */
+.talk-bubble {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border-top-left-radius: 4px;
+  border: 1px solid var(--talk-bubble-border);
+  background: linear-gradient(115deg, var(--tc), rgba(255, 255, 255, 0.68) 60%);
+  box-shadow: var(--talk-bubble-shadow);
+}
+/* 气泡尖角：实心底色小方块旋转 45°，与渐变左缘同色 */
+.talk-bubble::before {
+  content: '';
+  position: absolute;
+  left: -6.5px;
+  top: 13px;
+  width: 12px;
+  height: 12px;
+  background: var(--tc);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  border-left: 1px solid var(--talk-bubble-border);
+  border-bottom: 1px solid var(--talk-bubble-border);
+}
+[data-theme='dark'] .talk-bubble {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+[data-theme='dark'] .talk-bubble::before {
+  background: #23232f;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.talk-content {
+  font-size: 15px;
+  line-height: 1.85;
+  word-break: break-word;
+}
+.talk-content p { margin: 0 0 6px; }
+.talk-content p:last-child { margin-bottom: 0; }
+.talk-content img { border-radius: 10px; }
+
+/* ---------- 配图网格 ---------- */
+.talk-imgs {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.talk-imgs.n1 { grid-template-columns: minmax(0, 360px); }
+.talk-imgs.n2 { grid-template-columns: repeat(2, 1fr); max-width: 480px; }
+.talk-imgs.n3 { grid-template-columns: repeat(3, 1fr); max-width: 540px; }
+.talk-img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  background: rgba(0, 0, 0, 0.04);
+}
+.talk-imgs.n1 .talk-img { aspect-ratio: auto; height: auto; max-height: 420px; }
+[data-theme='dark'] .talk-img { background: rgba(255, 255, 255, 0.06); }
+
+/* ---------- 元信息行 ---------- */
+.talk-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 9px;
+  font-size: 12.5px;
+  color: var(--talk-muted);
+}
+.talk-ago { margin-left: auto; }
+.talk-tag {
+  padding: 1px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.6;
+  background: var(--tc);
+  color: var(--tcd);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+[data-theme='dark'] .talk-tag {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- 空状态 ---------- */
+.talk-empty {
+  text-align: center;
+  padding: 46px 0 26px;
+  font-size: 14.5px;
+  color: var(--talk-muted);
+}
+
+/* ---------- 移动端 ---------- */
+@media screen and (max-width: 768px) {
+  .talk-item { padding-left: 46px; padding-bottom: 22px; }
+  .talk-item::before { left: 14px; top: 36px; }
+  .talk-avatar { width: 30px; height: 30px; }
+  .talk-bubble { padding: 10px 13px; }
+  .talk-content { font-size: 14.5px; }
+}
