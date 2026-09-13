@@ -59,6 +59,7 @@
     '键盘那么暖，怪不得主人总敲个不停喵',
     '有 bug 就修，有鱼干就吃，喵生圆满',
     '侧栏那首小诗，是本站唯一的一小块阳光喵',
+    '读到有趣的地方，猫猫会跟着晃脑袋喵',
     '猫猫数过了，今天也是元气满满的一天喵',
     '（小声）其实……评论区就在文章最下面喵',
     '本喵是电子猫，但陪着你的心是真的喵！',
@@ -159,7 +160,7 @@
   function init() {
     if (!window.L2Dwidget) return;
     L2Dwidget.init({
-      model: { jsonPath: '/live2d/tororo/tororo.model.json?v=2', scale: 1 },
+      model: { jsonPath: '/live2d/tororo/tororo.model.json?v=3', scale: 1 },
       display: { position: 'left', width: 150, height: 260, hOffset: 10, vOffset: -20 },
       mobile: { show: true, scale: 0.5 },
       react: { opacityDefault: 0.9, opacityOnHover: 1, motionOnHover: true },

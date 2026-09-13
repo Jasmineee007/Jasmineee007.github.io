@@ -1,4 +1,4 @@
-// 看板猫 v19：博主自家小猫贴纸（趴趴姿势单图）
+// 看板猫 v19：主人自家小猫贴纸（趴趴姿势单图）
 // 行为：左下角常驻、悬浮飘动、沿屏幕底部蹦跶
 // 说话：开场问候 / 悬停搭话 / 每 9~16s 自言自语 / 摸头开心冒爱心 / 昼夜切换致辞
 // 开关在右下角按钮区（和日夜模式并排），小屏（≤768px 或高 ≤560px）自动收起
@@ -24,7 +24,7 @@
   /* ---------- 文案 ---------- */
   var IDLE = [
     // 本命台词：留言梗
-    '听说给博主留言，她会很开心的喵',
+    '听说给主人留言，她会很开心的喵',
     // 通用陪伴
     '喵~ 猫猫会一直在角落陪着你的',
     '写代码久了要眨眨眼休息一下喵',
@@ -51,7 +51,7 @@
     '读到有趣的地方，猫猫会蹦得更高喵',
     '猫猫数过了，今天也是元气满满的一天喵',
     '（小声）其实……评论区就在文章最下面喵',
-    '本喵的原型就是博主家的小猫喵！'
+    '本喵的原型就是主人家的小猫喵！'
   ];
   var HOVER = ['喵？', '在的在的喵', '喵呜～', '叫我吗喵？', '（蹭蹭你的手）', '要摸摸头吗喵？', '嘿嘿，好痒喵'];
   var TOUCH = [
@@ -79,7 +79,7 @@
     else t = '夜深了喵……猫猫陪你熬夜，但要记得早点睡哦';
     var pt = window.GLOBAL_CONFIG && window.GLOBAL_CONFIG.pageType;
     if (pt === 'home') t += ' 欢迎来到主人的小站喵~';
-    else if (pt === 'post') t += ' 听说给博主留言，她会很开心的喵';
+    else if (pt === 'post') t += ' 听说给主人留言，她会很开心的喵';
     return t;
   }
 
@@ -90,7 +90,7 @@
     '<div class="kg-wrap">' +
     '<div class="kg-bubble"><span class="kg-bubble-text"></span></div>' +
     '<div class="kg-doll" role="button" tabindex="0" aria-label="戳戳猫猫" title="戳戳猫猫">' +
-    '<img class="kg-cat-img" src="' + POSES[0] + '" alt="看板猫：博主家的小猫" draggable="false">' +
+    '<img class="kg-cat-img" src="' + POSES[0] + '" alt="看板猫：主人家的小猫" draggable="false">' +
     '</div></div>';
   document.body.appendChild(box);
 
