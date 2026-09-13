@@ -5954,7 +5954,7 @@ URL 编码规则：+ 在查询参数里 自动解码变成空格
 
 8. 查找数据?id=-1&#x27; union select 1,group_concat(username,&#x27;:&#x27;,password,&#x27;&lt;br&gt;&#x27;),3 from users -- +
 
-这里我加上了’‘，方便对照查看账号和密码。
+这里我加上了&#39;&lt;br&gt;&#39;，方便对照查看账号和密码。
 
 
 
@@ -6076,6 +6076,13 @@ A‑Z：65‑90，a‑z：97‑122
 
 
 
+
+注意：由于我们的靶场搭建在物理机，使用sqlmap扫描时，不能直接使用127.0.0.1或者localhost，需要替换为物理机自身的局域网IP。 
+靶场网站使用 phpStudy 搭建，我在站点配置中将网站监听端口设置为 81，所以要额外写明端口 81；默认的端口是 80，就不用写端口，这个看自己配置的情况来修改。
+原理补充： 若在Kali环境运行sqlmap，127.0.0.1指向Kali自身，无法访问Windows物理机上的靶场服务。 
+怎么查看 Windows 物理机局域网 IP？
+在 Windows 的 cmd 输入：
+ipconfig
 1. 检测注入点sqlmap -u &quot;http://192.168.2.101:81/sql/sqli-labs-master/Less-1/?id=1&quot; --batch
 
 
