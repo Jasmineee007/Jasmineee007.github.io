@@ -127,7 +127,8 @@
   function say(text, dur) {
     if (SMALL.matches || SHORT.matches) return;
     bubble.classList.remove('kg-show', 'kg-pop', 'kg-f2', 'kg-f3', 'kg-f4', 'kg-f5');
-    bubble.classList.add(FORMS[Math.floor(Math.random() * FORMS.length)]);
+    var form = FORMS[Math.floor(Math.random() * FORMS.length)];
+    if (form) bubble.classList.add(form);
     if (Math.random() < 0.35) bubble.classList.add('kg-pop');
     bubble.textContent = text;
     void bubble.offsetWidth;
