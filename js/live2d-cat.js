@@ -115,10 +115,13 @@
     else if (h < 18) t = '下午好喵~ 要来杯下午茶吗';
     else if (h < 23) t = '晚上好喵~ 今天的主页更新了吗';
     else t = '夜深了喵……猫猫陪你熬夜，但要记得早点睡哦';
-    // GLOBAL_CONFIG 在 Butterfly 下不存在，改用 DOM 特征判断页面类型
-    if (document.getElementById('recent-posts')) t += ' 欢迎来到主人的小站喵~';
-    else if (document.getElementById('post-comment')) t += ' 听说给主人留言，她会很开心的喵';
     return t;
+  }
+  // 页面类型后缀单独成句（GLOBAL_CONFIG 在 Butterfly 下不存在，用 DOM 特征判断）
+  function followLine() {
+    if (document.getElementById('recent-posts')) return '欢迎来到主人的小站喵~';
+    if (document.getElementById('post-comment')) return '听说给主人留言，她会很开心的喵';
+    return null;
   }
 
   /* ---------- 气泡逻辑（形态随机：白/粉/奶油/薄荷/淡紫 + 两种出场动画） ---------- */
@@ -190,7 +193,11 @@
   if (document.readyState === 'complete') init();
   else window.addEventListener('load', init);
 
-  setTimeout(function () { say(greeting()); }, 1500);
+  setTimeout(function () {
+    say(greeting());
+    var follow = followLine();
+    if (follow) setTimeout(function () { say(follow, 6500); }, 9500);
+  }, 1500);
   idleLoop();
 
   // 昼夜切换致辞
