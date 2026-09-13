@@ -159,7 +159,7 @@
   function init() {
     if (!window.L2Dwidget) return;
     L2Dwidget.init({
-      model: { jsonPath: '/live2d/tororo/tororo.model.json', scale: 1 },
+      model: { jsonPath: '/live2d/tororo/tororo.model.json?v=2', scale: 1 },
       display: { position: 'left', width: 150, height: 260, hOffset: 10, vOffset: -20 },
       mobile: { show: true, scale: 0.5 },
       react: { opacityDefault: 0.9, opacityOnHover: 1, motionOnHover: true },
