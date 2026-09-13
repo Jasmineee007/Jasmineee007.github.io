@@ -11,15 +11,25 @@
   /* ---------- 气泡样式 + DOM ---------- */
   var style = document.createElement('style');
   style.textContent =
-    '#kg-l2d-bubble{position:fixed;left:18px;bottom:290px;max-width:205px;padding:7px 11px;border-radius:12px;' +
-    'background:var(--card-bg,rgba(255,255,255,.72));-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35);' +
+    '#kg-l2d-bubble{position:fixed;left:18px;bottom:250px;max-width:205px;padding:7px 11px;border-radius:12px;' +
+    'background:var(--kg-bg,rgba(255,255,255,.72));-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35);' +
     'border:1px solid rgba(255,255,255,.6);box-shadow:0 4px 14px rgba(60,45,25,.12);font-size:13px;line-height:1.55;' +
     'color:var(--font-color,#4c4c4c);opacity:0;transform:translateY(8px) scale(.95);transition:opacity .3s ease,transform .3s ease;pointer-events:none;z-index:998}' +
     '#kg-l2d-bubble.kg-show{opacity:1;transform:none}' +
+    '#kg-l2d-bubble.kg-pop.kg-show{animation:kg-pop-in .45s cubic-bezier(.34,1.56,.64,1)}' +
+    '@keyframes kg-pop-in{0%{opacity:0;transform:scale(.6) translateY(14px)}60%{opacity:1;transform:scale(1.06) translateY(-3px)}100%{opacity:1;transform:none}}' +
     '#kg-l2d-bubble::after{content:"";position:absolute;left:20px;bottom:-4.5px;width:10px;height:10px;' +
-    'background:var(--card-bg,rgba(255,255,255,.72));transform:rotate(45deg);border-right:1px solid rgba(255,255,255,.6);border-bottom:1px solid rgba(255,255,255,.6)}' +
+    'background:var(--kg-bg,rgba(255,255,255,.72));transform:rotate(45deg);border-right:1px solid rgba(255,255,255,.6);border-bottom:1px solid rgba(255,255,255,.6)}' +
+    '.kg-f2{--kg-bg:rgba(255,235,242,.82);border-color:rgba(255,190,215,.55)}' +
+    '.kg-f3{--kg-bg:rgba(255,245,220,.85);border-color:rgba(255,220,150,.55)}' +
+    '.kg-f4{--kg-bg:rgba(226,244,234,.82);border-color:rgba(160,215,185,.55)}' +
+    '.kg-f5{--kg-bg:rgba(236,238,255,.82);border-color:rgba(180,185,235,.55);border-radius:16px 16px 16px 4px}' +
     "[data-theme='dark'] #kg-l2d-bubble{border-color:rgba(255,255,255,.08);box-shadow:0 4px 14px rgba(0,0,0,.35)}" +
-    "[data-theme='dark'] #kg-l2d-bubble::after{border-color:rgba(255,255,255,.08)}";
+    "[data-theme='dark'] #kg-l2d-bubble::after{border-color:rgba(255,255,255,.08)}" +
+    "[data-theme='dark'] .kg-f2{--kg-bg:rgba(66,44,56,.78);border-color:rgba(255,150,190,.18)}" +
+    "[data-theme='dark'] .kg-f3{--kg-bg:rgba(64,58,38,.78);border-color:rgba(255,215,130,.18)}" +
+    "[data-theme='dark'] .kg-f4{--kg-bg:rgba(36,58,46,.78);border-color:rgba(140,220,180,.18)}" +
+    "[data-theme='dark'] .kg-f5{--kg-bg:rgba(44,46,70,.78);border-color:rgba(170,175,255,.18)}";
   document.head.appendChild(style);
 
   var bubble = document.createElement('div');
@@ -111,11 +121,16 @@
     return t;
   }
 
-  /* ---------- 气泡逻辑 ---------- */
+  /* ---------- 气泡逻辑（形态随机：白/粉/奶油/薄荷/淡紫 + 两种出场动画） ---------- */
+  var FORMS = ['', 'kg-f2', 'kg-f3', 'kg-f4', 'kg-f5'];
   var bubbleTimer = null, lastIdle = '', lastHoverAt = 0;
   function say(text, dur) {
     if (SMALL.matches || SHORT.matches) return;
+    bubble.classList.remove('kg-show', 'kg-pop', 'kg-f2', 'kg-f3', 'kg-f4', 'kg-f5');
+    bubble.classList.add(FORMS[Math.floor(Math.random() * FORMS.length)]);
+    if (Math.random() < 0.35) bubble.classList.add('kg-pop');
     bubble.textContent = text;
+    void bubble.offsetWidth;
     bubble.classList.add('kg-show');
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () { bubble.classList.remove('kg-show'); }, dur || 8000);
@@ -153,20 +168,23 @@
       dev: { border: false }
     });
     setTimeout(apply, 300);
-    // 点猫互动（Live2D 事件）
-    try {
-      L2Dwidget.on('tapped', function () { say(pick(TOUCH, bubble.textContent), 4200); });
-    } catch (e) {}
-    var canvas = document.getElementById('live2dcanvas');
-    if (canvas) {
-      canvas.style.cursor = 'pointer';
-      canvas.addEventListener('mouseenter', function () {
-        var now = Date.now();
-        if (now - lastHoverAt < 6000) return;
-        lastHoverAt = now;
-        say(Math.random() < 0.35 ? pick(TOUCH) : pick(HOVER, bubble.textContent), 4500);
-      });
+    // 画布 pointer-events:none，挂在 document 上做猫区域命中
+    function inCatArea(e) {
+      var c = document.getElementById('live2dcanvas');
+      if (!c) return false;
+      var r = c.getBoundingClientRect();
+      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
     }
+    document.addEventListener('click', function (e) {
+      if (inCatArea(e)) say(pick(TOUCH, bubble.textContent), 4200);
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!inCatArea(e)) return;
+      var now = Date.now();
+      if (now - lastHoverAt < 6000) return;
+      lastHoverAt = now;
+      say(Math.random() < 0.35 ? pick(TOUCH) : pick(HOVER, bubble.textContent), 4500);
+    });
   }
   if (document.readyState === 'complete') init();
   else window.addEventListener('load', init);
