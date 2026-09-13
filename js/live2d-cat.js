@@ -115,9 +115,9 @@
     else if (h < 18) t = '下午好喵~ 要来杯下午茶吗';
     else if (h < 23) t = '晚上好喵~ 今天的主页更新了吗';
     else t = '夜深了喵……猫猫陪你熬夜，但要记得早点睡哦';
-    var pt = window.GLOBAL_CONFIG && window.GLOBAL_CONFIG.pageType;
-    if (pt === 'home') t += ' 欢迎来到主人的小站喵~';
-    else if (pt === 'post') t += ' 听说给主人留言，她会很开心的喵';
+    // GLOBAL_CONFIG 在 Butterfly 下不存在，改用 DOM 特征判断页面类型
+    if (document.getElementById('recent-posts')) t += ' 欢迎来到主人的小站喵~';
+    else if (document.getElementById('post-comment')) t += ' 听说给主人留言，她会很开心的喵';
     return t;
   }
 
