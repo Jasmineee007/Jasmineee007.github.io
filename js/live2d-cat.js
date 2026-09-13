@@ -11,7 +11,7 @@
   /* ---------- 气泡样式 + DOM ---------- */
   var style = document.createElement('style');
   style.textContent =
-    '#kg-l2d-bubble{position:fixed;left:18px;bottom:250px;max-width:205px;padding:7px 11px;border-radius:12px;' +
+    '#kg-l2d-bubble{position:fixed;left:18px;bottom:210px;max-width:205px;padding:7px 11px;border-radius:12px;' +
     'background:var(--kg-bg,rgba(255,255,255,.72));-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35);' +
     'border:1px solid rgba(255,255,255,.6);box-shadow:0 4px 14px rgba(60,45,25,.12);font-size:13px;line-height:1.55;' +
     'color:var(--font-color,#4c4c4c);opacity:0;transform:translateY(8px) scale(.95);transition:opacity .3s ease,transform .3s ease;pointer-events:none;z-index:998}' +
@@ -53,7 +53,6 @@
     '唔，这一段有 SQL 注入的味道喵',
     '太阳好的日子，最适合窝在键盘上喵',
     '等等，让我想想昨天的小鱼干放哪了喵……',
-    '哼，我才不是看板娘，我是看板猫喵！',
     '嘘——我在帮主人盯着评论区喵',
     '月亮出来的时候，猫猫的眼睛会更亮哦',
     '喵の心得：再复杂的漏洞，也要从原理啃起喵',
