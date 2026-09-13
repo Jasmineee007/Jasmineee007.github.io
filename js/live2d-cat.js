@@ -193,12 +193,12 @@
   if (document.readyState === 'complete') init();
   else window.addEventListener('load', init);
 
+  setTimeout(function () { say(greeting()); }, 1500);
   setTimeout(function () {
-    say(greeting());
     var follow = followLine();
-    if (follow) setTimeout(function () { say(follow, 6500); }, 9500);
-  }, 1500);
-  idleLoop();
+    if (follow) say(follow, 6500);
+  }, 9500);
+  setTimeout(idleLoop, 8000);
 
   // 昼夜切换致辞
   var lastTheme = document.documentElement.getAttribute('data-theme');
