@@ -3,6 +3,17 @@
    配套：scripts/post-extras.js（构建期注入过时提醒 + 同系列文章）
    ============================================================ */
 
+/* 锚点跳转定位修正：固定导航栏高 60px，预留 75px 让标题落在其下方 */
+#article-container h1,
+#article-container h2,
+#article-container h3,
+#article-container h4,
+#article-container h5,
+#article-container h6,
+#post-comment {
+  scroll-margin-top: 75px;
+}
+
 /* 过时提醒：琥珀色左边框信息条 */
 .stale-notice {
   margin: 0 0 20px;
