@@ -22,6 +22,18 @@
   background: transparent !important;
 }
 
+/* 防御性：让 fixed 导航横跨整个视口宽度。
+   Butterfly 默认 #nav 已 width:100%+position:fixed+left:0+right:0，但若全局 CSS
+   不小心把 #page-header 限宽（如某页 .page 规则误命中 #body-wrap.page），
+   #nav 会贴着居中的 header 而不是 viewport，导致菜单被推出右屏外、看不见。
+   2026-09-20 反馈页 .page 规则泄漏导致此症状，加这条兜底。 */
+#nav {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 /* 去掉头部遮罩 */
 #page-header::before {
   display: none !important;

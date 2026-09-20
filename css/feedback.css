@@ -38,7 +38,10 @@ body{font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe
 *{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1,default!important}
 a,button,[onclick],[role="button"],select,summary,label,input[type="submit"],input[type="button"],input[type="checkbox"],input[type="radio"]{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png") 7 1,pointer!important}
 input,textarea,[contenteditable="true"]{cursor:text!important}
-.page{width:min(1080px,94vw);display:flex;flex-direction:column;align-items:center;padding:18px 0 36px}
+/* 关键：必须用 #feedback-root .page 限定，避免 .page 选择器全局命中
+   博客布局的 #body-wrap.page（行 41 旧版裸 .page 选择器曾在所有页面把它限宽 1080px，
+   导致 #nav 被推出右侧、菜单项溢出看不到 —— 见 2026-09-20 事故） */
+#feedback-root .page{width:min(1080px,94vw);display:flex;flex-direction:column;align-items:center;padding:18px 0 36px}
 
 /* 标题区 */
 .header{text-align:center;margin-bottom:24px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);box-shadow:0 4px 14px rgba(0,0,0,.18),inset 0 1px 0 var(--glass-inset);border:1px solid var(--glass-brd);border-radius:16px;padding:26px 30px;width:100%}
