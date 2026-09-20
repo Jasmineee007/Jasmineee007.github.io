@@ -33,7 +33,11 @@
   --overlay-bg:rgba(8,12,22,.88);
   --sub:#aebcd4;
 }
-body{font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue','Microsoft YaHei',sans-serif;background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),url("https://img.jasmine-iris.top/img/bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);line-height:1.65;font-size:14.5px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0}
+/* 关键：必须用 body:has(#feedback-root) 限定（旧版裸 body 选择器是全局规则，
+   会通过 inject.head 在所有页面应用，导致博客首页 body 变 flex 列容器并
+   align-items:center，把 #body-wrap.page 居中限宽到 1080px，进而把 position:fixed
+   的 #nav 推到右侧 — 菜单项「意见箱」「关于」溢出视口看不到，见 2026-09-20 事故） */
+body:has(#feedback-root){font-family:'LXGW WenKai GB Screen',-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue','Microsoft YaHei',sans-serif;background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),url("https://img.jasmine-iris.top/img/bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--text);line-height:1.65;font-size:14.5px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0}
 /* === 自定义光标（leaf-arrow-forest 双形态，36px，与博客/SecLearn 一致）=== */
 *{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-36.png") 1 1,default!important}
 a,button,[onclick],[role="button"],select,summary,label,input[type="submit"],input[type="button"],input[type="checkbox"],input[type="radio"]{cursor:url("https://img.jasmine-iris.top/img/leaf-arrow-forest-hand-36.png") 7 1,pointer!important}
@@ -126,8 +130,8 @@ textarea.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15)}
 .attach-hint{font-size:12px;color:var(--muted);opacity:.75;text-align:center;margin-top:12px;letter-spacing:.3px}
 
 @media(max-width:600px){
-  body{padding:0}
-  .page{padding:14px 0 24px}
+  body:has(#feedback-root){padding:0}
+  #feedback-root .page{padding:14px 0 24px}
   .header{margin-bottom:24px}
   .main{flex-direction:column;gap:18px}
   .glass-rail{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
