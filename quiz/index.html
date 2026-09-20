@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex">
 <title>SecLearn 网安学习平台</title>
 <link rel="stylesheet" href="/font/lxgwwenkaigbscreen/result.min.css">
+<link rel="stylesheet" href="/css/nav-strip.css?v=1">
 <style>
 /* ============ 设计令牌：博客同源一图流（bg.jpg 铺满 + 磨砂玻璃卡片，主蓝 #49b1f5 · 次青 #00c4b6） ============ */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -36,7 +37,7 @@ code.block{display:block;margin:8px 0;padding:8px 10px;white-space:pre-wrap}
 
 /* ============ 布局外壳：侧边栏 + 内容区 ============ */
 .shell{display:flex;min-height:100vh}
-.side{width:220px;flex:none;background:var(--card);border-right:1px solid var(--border);padding:14px 10px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.side{width:220px;flex:none;background:var(--card);border-right:1px solid var(--border);padding:14px 10px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:50px;height:calc(100vh - 50px);overflow-y:auto}
 .brand{display:flex;align-items:center;gap:9px;padding:4px 8px 14px}
 .bico{width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#a8cbff 0%,#6cbbf7 55%,#a3b8f0 100%);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 12px rgba(120,160,235,.35),inset 0 2px 0 rgba(255,255,255,.55),inset 0 -2px 4px rgba(110,130,200,.25);transition:transform .2s ease}
 .brand:hover .bico{transform:rotate(-6deg) scale(1.06)}
@@ -242,6 +243,26 @@ input,textarea{cursor:text!important}
 </script>
 </head>
 <body>
+<nav class="nav-strip">
+  <a class="ns-brand" href="/">
+    <span class="ns-logo">J</span>
+    <span>Jasmine_Iris</span>
+  </a>
+  <div class="ns-menu">
+    <a class="ns-item" href="/">首页</a>
+    <a class="ns-item" href="/categories/">分类</a>
+    <a class="ns-item" href="/archives/">归档</a>
+    <a class="ns-item" href="/talk/">说说</a>
+    <a class="ns-item" href="/journey/">成长轨迹</a>
+    <a class="ns-item" href="/links/">友链</a>
+    <a class="ns-item active" href="/quiz/">刷题</a>
+    <a class="ns-item" href="/feedback/?p=seclearn">意见箱</a>
+    <a class="ns-item" href="/about/">关于</a>
+  </div>
+  <div class="ns-right">
+    <button class="ns-theme" onclick="toggleTheme()" title="切换日间/夜间模式">🌙</button>
+  </div>
+</nav>
 <div class="shell">
   <aside class="side">
     <div class="brand"><span class="bico" data-icon="book" data-size="18"></span><div><b>SecLearn</b><span>𝗘𝘃𝗲𝗿𝘆 𝗲𝗳𝗳𝗼𝗿𝘁 𝗰𝗼𝘂𝗻𝘁𝘀.</span></div></div>
@@ -259,11 +280,6 @@ input,textarea{cursor:text!important}
     <div class="navgroup">工具</div>
     <a class="navi" data-key="browse" onclick="sideGo('browse')"><span class="nico" data-icon="search"></span>背题浏览</a>
     <a class="navi" data-key="patrol" onclick="sideGo('patrol')"><span class="nico" data-icon="shield"></span>可疑题巡检<span class="navbadge" id="nbReport"></span></a>
-    <div class="sidefoot">
-      <a class="btn ghost sm" href="/" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px"><span data-icon="home" data-size="14"></span> 返回博客</a>
-      <button class="btn ghost sm" onclick="toggleTheme()"><span data-icon="moon" data-size="14"></span> 主题</button>
-      <a class="btn ghost sm" href="/feedback/?p=seclearn" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px"><span data-icon="feedback" data-size="14"></span> 意见箱</a>
-    </div>
   </aside>
   <div class="mainarea"><div id="app"></div></div>
 </div>
