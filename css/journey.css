@@ -312,6 +312,104 @@
   color: var(--journey-muted);
 }
 
+/* ---------- 滚动描绘轨迹线（journey-line.js 激活后接管整条竖线） ---------- */
+/* 仅在 .journey-line-on 时启用：JS 启动时挂上；无 JS 时回退到每条目自带的 ::before 短线 */
+.journey-wrap.journey-line-on { position: relative; }
+.journey-wrap.journey-line-on .journey-item::before { display: none; }
+.journey-wrap.journey-line-on .journey-year span {
+  position: relative;
+  z-index: 1;        /* 把年份胶囊抬到轨迹线上方，避免被线穿过 */
+}
+
+.journey-line-track {
+  position: absolute;
+  width: 2px;
+  z-index: 0;
+  pointer-events: none;
+}
+/* 底图：始终可见的淡虚线（未走部分） */
+.journey-line-base {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--journey-line) 0 5px,
+    transparent 5px 11px
+  );
+}
+/* 进度线：高度 = 已走比例 */
+.journey-line-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    #5b9bd5 0%,
+    #6aab73 55%,
+    #b380b8 100%
+  );
+  box-shadow: 0 0 6px rgba(91, 155, 213, 0.45);
+  transition: height 0.18s ease-out;
+}
+[data-theme='dark'] .journey-line-progress {
+  box-shadow: 0 0 8px rgba(91, 155, 213, 0.55);
+}
+/* 进度线端点光点（走到哪儿亮到哪儿） */
+.journey-line-progress::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.35),
+    0 0 10px 2px rgba(91, 155, 213, 0.6);
+}
+[data-theme='dark'] .journey-line-progress::after {
+  background: #e8f4ff;
+  box-shadow:
+    0 0 0 3px rgba(232, 244, 255, 0.25),
+    0 0 12px 3px rgba(91, 155, 213, 0.7);
+}
+
+/* ---------- 节点状态：未走过灰缩，走过后满色 + 分类色光晕 ---------- */
+.journey-line-on .journey-avatar {
+  filter: grayscale(0.55);
+  opacity: 0.65;
+  transform: scale(0.88);
+  transition:
+    filter 0.5s ease,
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
+}
+.journey-line-on .journey-item.passed .journey-avatar {
+  filter: none;
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 10px var(--jcd);
+}
+/* 里程碑被扫过时：金边 + 金色光晕（金边仍需保留，不可被覆盖） */
+.journey-line-on .journey-item.passed.milestone .journey-avatar {
+  border-color: #ffd54f;
+  box-shadow:
+    0 0 0 3px rgba(255, 213, 79, 0.4),
+    0 0 12px rgba(232, 161, 75, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-line-progress { transition: none; }
+  .journey-line-on .journey-avatar { transition: none; }
+}
+
 /* ---------- 移动端 ---------- */
 @media screen and (max-width: 768px) {
   .journey-item { padding-left: 46px; padding-bottom: 22px; }
