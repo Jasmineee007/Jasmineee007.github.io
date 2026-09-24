@@ -161,6 +161,26 @@
     SHORT.addEventListener('change', apply);
   }
 
+  /* ---------- 近距离眼神跟随：鼠标靠近白猫才追着看，离远就回正 ---------- */
+  var NEAR_PX = 200; // 距猫外框多少像素内算“靠近”，远了白猫就不理你
+  var nearCat = false;
+  function distToCat(x, y) {
+    var el = document.getElementById('live2d-widget');
+    if (!el) return Infinity;
+    var r = el.getBoundingClientRect();
+    var dx = x - Math.max(r.left, Math.min(x, r.right));
+    var dy = y - Math.max(r.top, Math.min(y, r.bottom));
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  window.addEventListener('mousemove', function (e) {
+    if (distToCat(e.clientX, e.clientY) <= NEAR_PX) { nearCat = true; return; }
+    if (nearCat) {
+      nearCat = false;
+      document.dispatchEvent(new MouseEvent('mouseleave')); // 触发白猫眼神回正
+    }
+    e.stopImmediatePropagation(); // 拦截给 L2Dwidget 的 mousemove，让它不跟着鼠标
+  }, true);
+
   function init() {
     if (!window.L2Dwidget) return;
     L2Dwidget.init({
