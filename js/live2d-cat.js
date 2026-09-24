@@ -120,7 +120,7 @@
   // 页面类型后缀单独成句（GLOBAL_CONFIG 在 Butterfly 下不存在，用 DOM 特征判断）
   function followLine() {
     if (document.getElementById('recent-posts')) return '欢迎来到主人的小站喵~';
-    if (document.getElementById('post-comment')) return '听说给主人留言，她会很开心的喵';
+    if (document.getElementById('post-comment')) return '听说给博主留言，她会很开心的喵';
     return null;
   }
 
