@@ -242,7 +242,7 @@
       g.appendChild(fill);
       g.appendChild(tip);
       svg.appendChild(g);
-      branches.push({ base: base, fill: fill, tip: tip, ratio: 0, grad: grad });
+      branches.push({ base: base, fill: fill, tip: tip, ratio: 0, grad: grad.g });
     });
 
     wrap.appendChild(svg);
