@@ -10,6 +10,8 @@
   --journey-bubble-border: rgba(255, 255, 255, 0.5);
   --journey-bubble-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   --journey-title: #2c3e50;
+  --journey-trunk-x: 7.5px;   /* 树干中心线距 wrap 左缘（桌面） */
+  --journey-trunk-wave: 3px;  /* 树干自然弯曲幅度 */
 }
 [data-theme='dark'] .journey-wrap {
   --journey-line: rgba(255, 255, 255, 0.26);
@@ -312,7 +314,7 @@
   color: var(--journey-muted);
 }
 
-/* ---------- 滚动描绘「树干 + 横枝」轨迹（journey-line.js 激活后接管整条竖线） ---------- */
+/* ---------- 滚动描绘「树枝」轨迹（journey-line.js 激活后接管整条竖线） ---------- */
 /* 仅在 .journey-line-on 时启用：JS 启动时挂上；无 JS 时回退到每条目自带的 ::before 短线 */
 .journey-wrap.journey-line-on { position: relative; }
 .journey-wrap.journey-line-on .journey-item::before { display: none; }
@@ -321,100 +323,64 @@
   z-index: 1;        /* 把年份胶囊抬到轨迹线上方，避免被线穿过 */
 }
 
-/* 树干：贴条目左缘的 3px 竖线（淡虚线底座 + 渐变进度 + 端点光点） */
-.journey-line-track {
-  position: absolute;
-  left: 6px;
-  width: 3px;
-  z-index: 0;
-  pointer-events: none;
-}
-/* 底图：始终可见的淡虚线（未走部分） */
-.journey-line-base {
+/* SVG 画布：垫在内容之下（z-index:-1），不挡点击 */
+.journey-tree {
   position: absolute;
   inset: 0;
-  border-radius: 3px;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--journey-line) 0 6px,
-    transparent 6px 13px
-  );
-}
-/* 进度线：高度 = 已走比例 */
-.journey-line-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  border-radius: 3px;
-  background: linear-gradient(
-    to bottom,
-    #5b9bd5 0%,
-    #6aab73 55%,
-    #b380b8 100%
-  );
-  box-shadow: 0 0 6px rgba(91, 155, 213, 0.45);
-  transition: height 0.18s ease-out;
-}
-[data-theme='dark'] .journey-line-progress {
-  box-shadow: 0 0 8px rgba(91, 155, 213, 0.55);
-}
-/* 进度线端点光点（走到哪儿亮到哪儿） */
-.journey-line-progress::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.35),
-    0 0 10px 2px rgba(91, 155, 213, 0.6);
-}
-[data-theme='dark'] .journey-line-progress::after {
-  background: #e8f4ff;
-  box-shadow:
-    0 0 0 3px rgba(232, 244, 255, 0.25),
-    0 0 12px 3px rgba(91, 155, 213, 0.7);
+  z-index: -1;
+  overflow: visible;
+  pointer-events: none;
 }
 
-/* 横枝：从树干右缘伸向节点头像圆心的短横线（底座淡色 + 渐变填充） */
-.journey-line-branch {
-  position: absolute;
-  left: 9px;          /* 树干右缘（track left 6 + 宽 3） */
-  height: 3px;
-  width: 0;
-  z-index: 0;
-  pointer-events: none;
+/* 树干：微微弯曲的竖线（淡色底座 + 渐变进度 + 笔尖光点） */
+.journey-tree-trunk {
+  fill: none;
+  stroke-linecap: round;
 }
-.journey-line-branch-base {
-  position: absolute;
-  inset: 0;
-  border-radius: 2px;
-  background: var(--journey-line);
+.journey-tree-trunk-base {
+  stroke: var(--journey-line);
+  stroke-width: 4;
+  opacity: 0.8;
 }
-.journey-line-branch-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0;
-  border-radius: 2px;
-  background: linear-gradient(
-    to right,
-    #5b9bd5 0%,
-    #6aab73 55%,
-    #b380b8 100%
-  );
-  box-shadow: 0 0 5px rgba(91, 155, 213, 0.4);
-  transition: width 0.18s ease-out;
+.journey-tree-trunk-progress {
+  stroke-width: 4;
+  stroke-dasharray: 100;
+  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.45));
 }
-[data-theme='dark'] .journey-line-branch-fill {
-  box-shadow: 0 0 7px rgba(91, 155, 213, 0.5);
+[data-theme='dark'] .journey-tree-trunk-progress {
+  filter: drop-shadow(0 0 5px rgba(91, 155, 213, 0.55));
+}
+/* 笔尖光点（走到哪儿亮到哪儿） */
+.journey-tree-pen {
+  fill: #fff;
+  filter: drop-shadow(0 0 3px rgba(91, 155, 213, 0.8));
+}
+[data-theme='dark'] .journey-tree-pen {
+  fill: #e8f4ff;
+  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.9));
+}
+
+/* 枝条：从树干斜斜上扬到节点头像（淡色底座 + 渐变填充 + 末梢芽点） */
+.journey-tree-branch {
+  fill: none;
+  stroke-linecap: round;
+}
+.journey-tree-branch-base {
+  stroke: var(--journey-line);
+  stroke-width: 3;
+  opacity: 0.7;
+}
+.journey-tree-branch-fill {
+  stroke-width: 3;
+  stroke-dasharray: 100;
+  filter: drop-shadow(0 0 3px rgba(91, 155, 213, 0.4));
+}
+[data-theme='dark'] .journey-tree-branch-fill {
+  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.5));
+}
+/* 末梢芽点：长满枝后才亮 */
+.journey-tree-branch-tip {
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
 }
 
 /* ---------- 节点状态：未走过灰缩（未熟果实），枝长出后满色 + 分类色光晕 ---------- */
@@ -443,8 +409,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .journey-line-progress { transition: none; }
-  .journey-line-branch-fill { transition: none; }
   .journey-line-on .journey-avatar { transition: none; }
 }
 
@@ -453,8 +417,10 @@
   .journey-item { padding-left: 76px; padding-bottom: 22px; }
   .journey-item::before { left: 47px; top: 36px; }
   .journey-avatar { left: 32px; width: 30px; height: 30px; }
-  .journey-line-track { left: 4px; }
-  .journey-line-branch { left: 7px; }
+  .journey-wrap {
+    --journey-trunk-x: 5.5px;
+    --journey-trunk-wave: 2px;
+  }
   .journey-bubble { padding: 10px 13px; }
   .journey-title { font-size: 15.5px; }
   .journey-item.milestone .journey-title { font-size: 16.5px; }
