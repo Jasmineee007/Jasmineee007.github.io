@@ -99,7 +99,6 @@
     trunkLen = trunkProgress.getTotalLength() || 0;
 
     nodes = [];
-    branches = [];
     Array.prototype.forEach.call(items, function (it, i) {
       var av = it.querySelector('.journey-avatar');
       if (!av) return;
