@@ -1,0 +1,81 @@
+/* ============================================================
+   theme-bg.css — 日/夜背景变量层 + 昼夜切换动画
+   配套脚本：/js/theme-switch.js（负责触发，本文件负责演出）
+   注意：在 inject 中必须排在 light-bg13.css / fix-flash.css 之后，
+   同权重 !important 规则后者生效，本文件才能完成变量化覆盖。
+   ============================================================ */
+
+/* ---------- 一、背景变量（换图只改这里） ---------- */
+:root {
+  /* PC 日间背景 */
+  --bg-day: url('https://img.jasmine-iris.top/img/bg.jpg');
+  /* PC 夜间背景：目前与日间同图（夜间靠黑纱压暗），想用专用夜景图时替换 URL 即可 */
+  --bg-night: url('https://img.jasmine-iris.top/img/bg.jpg');
+  /* 手机端背景，未单独设置时回退到 PC 同图 */
+  --bg-day-mobile: var(--bg-day);
+  --bg-night-mobile: var(--bg-night);
+  /* 夜间黑纱浓度（沿用 light-bg13 原值 0.45，可微调） */
+  --veil-night: rgba(0, 0, 0, 0.45);
+}
+
+/* 覆盖 light-bg13.css 的静态 URL：改为变量驱动 */
+#web_bg {
+  background-image: var(--bg-day) !important;
+}
+[data-theme='dark'] #web_bg {
+  background-image: var(--bg-night) !important;
+}
+[data-theme='dark'] #web_bg::before {
+  background-color: var(--veil-night) !important;
+}
+
+@media screen and (max-width: 768px) {
+  #web_bg {
+    background-image: var(--bg-day-mobile) !important;
+  }
+  [data-theme='dark'] #web_bg {
+    background-image: var(--bg-night-mobile) !important;
+  }
+}
+
+/* ---------- 二、昼夜切换动画（View Transitions API） ----------
+   与 Fomalhaut 的日月方案完全不同：
+   - 浏览器原生双快照（不支持则自动回退为直接切换，无任何副作用）
+   - 展开圆心 = 用户实际点击「暗色按钮」的坐标
+   - 日→夜：新主题从点击处圆形展开，旧景后退并微微变暗（入夜收拢）
+   - 夜→日：新主题圆形展开，旧景后退并微微提亮（破晓点亮）
+   - 系统开启「减少动态效果」时不播动画，直接切换 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+  animation: theme-reveal 0.7s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+}
+[data-theme='dark']::view-transition-old(root) {
+  animation: theme-recede-dark 0.7s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+}
+[data-theme='light']::view-transition-old(root) {
+  animation: theme-recede-light 0.7s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+}
+@keyframes theme-reveal {
+  from { clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%)); }
+  to   { clip-path: circle(var(--vt-r, 71vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); }
+}
+@keyframes theme-recede-dark {
+  to { transform: scale(1.05); filter: brightness(0.86) saturate(0.92); }
+}
+@keyframes theme-recede-light {
+  to { transform: scale(1.05); filter: brightness(1.06) saturate(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

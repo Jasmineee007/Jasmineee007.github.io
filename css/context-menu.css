@@ -1,0 +1,75 @@
+/* ============================================================
+   context-menu.css — 自定义右键菜单
+   配套脚本：/js/context-menu.js
+   风格：与 light-bg13.css 的毛玻璃卡片体系一致
+   ============================================================ */
+#ctx-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 172px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 16px 36px rgba(0, 0, 0, .18);
+  opacity: 0;
+  transform: scale(0.92);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  user-select: none;
+}
+#ctx-menu.show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+#ctx-menu .ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #374151;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#ctx-menu .ctx-item i {
+  width: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #49b1f5;
+}
+#ctx-menu .ctx-item:hover {
+  background: rgba(73, 177, 245, 0.12);
+  color: #49b1f5;
+}
+#ctx-menu .ctx-sep {
+  height: 1px;
+  margin: 5px 9px;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* 夜间：磨砂深色（与卡片 --card-bg 一致） */
+[data-theme='dark'] #ctx-menu {
+  background: rgba(30, 30, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .45);
+}
+[data-theme='dark'] #ctx-menu .ctx-item {
+  color: #d1d5db;
+}
+[data-theme='dark'] #ctx-menu .ctx-item i {
+  color: #6ec6ff;
+}
+[data-theme='dark'] #ctx-menu .ctx-item:hover {
+  background: rgba(110, 198, 255, 0.14);
+  color: #6ec6ff;
+}
+[data-theme='dark'] #ctx-menu .ctx-sep {
+  background: rgba(255, 255, 255, 0.08);
+}
