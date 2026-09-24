@@ -10,13 +10,17 @@
   --journey-bubble-border: rgba(255, 255, 255, 0.5);
   --journey-bubble-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   --journey-title: #2c3e50;
-  --journey-trunk-x: 7.5px;   /* 树干中心线距 wrap 左缘（桌面） */
-  --journey-trunk-wave: 3px;  /* 树干自然弯曲幅度 */
+  --journey-trail-x: 42px;    /* 地图路线摆动基线（桌面） */
+  --journey-trail-amp: 28px;  /* 地图路线摆动幅度 */
+  --journey-contour: rgba(110, 120, 140, 0.5);    /* 等高线/罗盘（浅色） */
+  --journey-route-base: rgba(139, 108, 66, 0.5);  /* 虚线路线底色（墨褐） */
 }
 [data-theme='dark'] .journey-wrap {
   --journey-line: rgba(255, 255, 255, 0.26);
   --journey-muted: rgba(255, 255, 255, 0.55);
   --journey-title: rgba(255, 255, 255, 0.9);
+  --journey-contour: rgba(255, 255, 255, 0.35);
+  --journey-route-base: rgba(255, 255, 255, 0.22);
 }
 
 /* ---------- 页首 ---------- */
@@ -314,7 +318,7 @@
   color: var(--journey-muted);
 }
 
-/* ---------- 滚动描绘「树枝」轨迹（journey-line.js 激活后接管整条竖线） ---------- */
+/* ---------- 滚动描绘「探索地图」轨迹（journey-line.js 激活后接管整条竖线） ---------- */
 /* 仅在 .journey-line-on 时启用：JS 启动时挂上；无 JS 时回退到每条目自带的 ::before 短线 */
 .journey-wrap.journey-line-on { position: relative; }
 .journey-wrap.journey-line-on .journey-item::before { display: none; }
@@ -324,7 +328,7 @@
 }
 
 /* SVG 画布：垫在内容之下（z-index:-1），不挡点击 */
-.journey-tree {
+.journey-map {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -332,58 +336,92 @@
   pointer-events: none;
 }
 
-/* 树干：微微弯曲的竖线（淡色底座 + 渐变进度 + 笔尖光点） */
-.journey-tree-trunk {
+/* 地图背景：淡等高线 + 右上角小罗盘 */
+.journey-map-contour {
+  fill: none;
+  stroke: var(--journey-contour);
+  stroke-width: 1.2;
+  opacity: 0.4;
+}
+.journey-map-compass { opacity: 0.32; }
+.journey-map-compass .compass-ring {
+  fill: none;
+  stroke: var(--journey-contour);
+  stroke-width: 1.2;
+}
+.journey-map-compass line {
+  stroke: var(--journey-contour);
+  stroke-width: 1.2;
+}
+.journey-map-compass .compass-n {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--journey-contour);
+  text-anchor: middle;
+}
+
+/* 路线：虚线底座（整条未来路线淡显）+ 渐变进度（mask 逐段点亮） */
+.journey-trail {
   fill: none;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
-.journey-tree-trunk-base {
-  stroke: var(--journey-line);
-  stroke-width: 4;
-  opacity: 0.8;
+.journey-trail-base {
+  stroke: var(--journey-route-base);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 6;
+  opacity: 0.65;
 }
-.journey-tree-trunk-progress {
-  stroke-width: 4;
-  stroke-dasharray: 100;
-  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.45));
+.journey-trail-progress {
+  stroke-width: 3;
+  stroke-dasharray: 8 6;
+  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.4));
 }
-[data-theme='dark'] .journey-tree-trunk-progress {
+[data-theme='dark'] .journey-trail-progress {
   filter: drop-shadow(0 0 5px rgba(91, 155, 213, 0.55));
 }
-/* 笔尖光点（走到哪儿亮到哪儿） */
-.journey-tree-pen {
+/* 行进光点（路线画到哪儿，光点走到哪儿） */
+.journey-hiker {
   fill: #fff;
   filter: drop-shadow(0 0 3px rgba(91, 155, 213, 0.8));
 }
-[data-theme='dark'] .journey-tree-pen {
+[data-theme='dark'] .journey-hiker {
   fill: #e8f4ff;
   filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.9));
 }
 
-/* 枝条：从树干斜斜上扬到节点头像（淡色底座 + 渐变填充 + 末梢芽点） */
-.journey-tree-branch {
-  fill: none;
-  stroke-linecap: round;
+/* 地标图钉：头像做钉头，下方分类色钉尾；里程碑加金旗 */
+.journey-map-pin {
+  opacity: 0.35;
+  transition: opacity 0.45s ease, filter 0.45s ease;
 }
-.journey-tree-branch-base {
-  stroke: var(--journey-line);
-  stroke-width: 3;
-  opacity: 0.7;
+.journey-map-pin.on {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px var(--jcd));
 }
-.journey-tree-branch-fill {
-  stroke-width: 3;
-  stroke-dasharray: 100;
-  filter: drop-shadow(0 0 3px rgba(91, 155, 213, 0.4));
+.journey-map-pin .pin-head {
+  fill: currentColor;
+  stroke: #fff;
+  stroke-width: 1.5;
 }
-[data-theme='dark'] .journey-tree-branch-fill {
-  filter: drop-shadow(0 0 4px rgba(91, 155, 213, 0.5));
+[data-theme='dark'] .journey-map-pin .pin-head { stroke: rgba(255, 255, 255, 0.35); }
+.journey-map-pin .pin-tail {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
-/* 末梢芽点：长满枝后才亮 */
-.journey-tree-branch-tip {
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+.journey-map-flag .flag-pole {
+  stroke: #d99a2b;
+  stroke-width: 1.5;
+}
+.journey-map-flag .flag-cloth {
+  fill: #e8a14b;
+  stroke: #d99a2b;
+  stroke-width: 1;
 }
 
-/* ---------- 节点状态：未走过灰缩（未熟果实），枝长出后满色 + 分类色光晕 ---------- */
+/* ---------- 节点状态：未到达灰缩（地标未点亮），路线经过后满色 + 分类色光晕 ---------- */
 .journey-line-on .journey-avatar {
   filter: grayscale(0.55);
   opacity: 0.65;
@@ -418,9 +456,10 @@
   .journey-item::before { left: 47px; top: 36px; }
   .journey-avatar { left: 32px; width: 30px; height: 30px; }
   .journey-wrap {
-    --journey-trunk-x: 5.5px;
-    --journey-trunk-wave: 2px;
+    --journey-trail-x: 33px;
+    --journey-trail-amp: 20px;
   }
+  .journey-map-compass { display: none; }
   .journey-bubble { padding: 10px 13px; }
   .journey-title { font-size: 15.5px; }
   .journey-item.milestone .journey-title { font-size: 16.5px; }
